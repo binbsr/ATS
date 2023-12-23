@@ -1,9 +1,11 @@
 using AppTechnoSoft.Interns.Components;
 using AppTechnoSoft.Interns.Components.Account;
 using AppTechnoSoft.Interns.Data;
+using AppTechnoSoft.Interns.Data.Models;
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using MudBlazor.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -34,6 +36,7 @@ builder.Services.AddIdentityCore<ApplicationUser>(options => options.SignIn.Requ
     .AddDefaultTokenProviders();
 
 builder.Services.AddSingleton<IEmailSender<ApplicationUser>, IdentityNoOpEmailSender>();
+builder.Services.AddMudServices();
 
 var app = builder.Build();
 

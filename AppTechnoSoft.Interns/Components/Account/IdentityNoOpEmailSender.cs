@@ -1,4 +1,4 @@
-using AppTechnoSoft.Interns.Data;
+using AppTechnoSoft.Interns.Data.Models;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.UI.Services;
 

@@ -1,6 +1,7 @@
 using AppTechnoSoft.Interns.Components.Account.Pages;
 using AppTechnoSoft.Interns.Components.Account.Pages.Manage;
 using AppTechnoSoft.Interns.Data;
+using AppTechnoSoft.Interns.Data.Models;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Http.Extensions;

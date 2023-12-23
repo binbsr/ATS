@@ -1,4 +1,5 @@
 using AppTechnoSoft.Interns.Data;
+using AppTechnoSoft.Interns.Data.Models;
 using Microsoft.AspNetCore.Identity;
 
 namespace AppTechnoSoft.Interns.Components.Account

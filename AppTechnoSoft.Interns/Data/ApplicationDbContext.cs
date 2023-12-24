@@ -6,6 +6,12 @@ namespace AppTechnoSoft.Interns.Data;
 public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) 
     : IdentityDbContext<ApplicationUser>(options)
 {
+    public DbSet<College> Colleges { get; set; }
+    public DbSet<TechProgram> TechPrograms { get; set; }
+    public DbSet<Student> Students { get; set; }
+    public DbSet<FinAccount> FinAccounts { get; set; }
+
+
     protected override void OnModelCreating(ModelBuilder builder)
     {
         base.OnModelCreating(builder);

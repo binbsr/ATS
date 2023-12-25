@@ -1,0 +1,87 @@
+﻿@page "/widgets"
+@page "/widgets/{Id:int}"
+
+@using Blazored.TextEditor
+
+@if (Id is null)
+{
+    <PageTitle>Add Widget</PageTitle>
+    <EditForm Model="@model" OnValidSubmit="OnValidSubmit">
+        <DataAnnotationsValidator />
+        <MudTextField Label="Title" @bind-Value="model.Title" For="@(() => model.Title)" />
+        <MudTextField Label="Description" Class="mt-3" @bind-Value="model.Description" For="@(() => model.Description)" />
+        <MudTextField Label="Icon" Class="mt-3" @bind-Value="model.Icon" For="@(() => model.Icon)" />
+        <MudSelect Label="Widget Type" Class="mt-3" @bind-Value="model.Type" AnchorOrigin="Origin.BottomCenter">
+            @foreach(var item in Enum.GetValues<WidgetType>())
+            {
+                <MudSelectItem Value="@item">@item</MudSelectItem>
+
+            }
+        </MudSelect>
+
+        <MudField Class="mt-3">
+            <BlazoredTextEditor @ref="@QuillHtml" EditorCssStyle="height:300px">
+                <ToolbarContent>
+                    <select class="ql-header">
+                        <option selected=""></option>
+                        <option value="1"></option>
+                        <option value="2"></option>
+                        <option value="3"></option>
+                        <option value="4"></option>
+                        <option value="5"></option>
+                    </select>
+                    <span class="ql-formats">
+                        <button class="ql-bold"></button>
+                        <button class="ql-italic"></button>
+                        <button class="ql-underline"></button>
+                        <button class="ql-strike"></button>
+                    </span>
+                    <span class="ql-formats">
+                        <select class="ql-color"></select>
+                        <select class="ql-background"></select>
+                    </span>
+                    <span class="ql-formats">
+                        <button class="ql-list" value="ordered"></button>
+                        <button class="ql-list" value="bullet"></button>
+                    </span>
+                    <span class="ql-formats">
+                        <button class="ql-script" value="sub"></button>
+                        <button class="ql-script" value="super"></button>
+                    </span>
+
+                    <span class="ql-formats">
+                        <button class="ql-link"></button>
+                    </span>
+                </ToolbarContent>
+                <EditorContent></EditorContent>
+            </BlazoredTextEditor>
+
+        </MudField>
+        <MudButton ButtonType="ButtonType.Submit" Variant="Variant.Filled" Color="Color.Primary" Class="ml-auto">Save</MudButton>
+    </EditForm>
+}
+else
+{
+    <PageTitle>Add Widget</PageTitle>
+
+}
+
+
+@code {
+
+    [Parameter]
+    public int? Id { get; set; }
+
+    BlazoredTextEditor QuillHtml;
+    string QuillHTMLContent;
+
+    Widget model = new Widget();
+    bool success;
+        
+    private async Task OnValidSubmit(EditContext context)
+    {
+        success = true;
+        model.HtmlContent = await QuillHtml.GetHTML();
+        StateHasChanged();
+    }
+}

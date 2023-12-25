@@ -1,7 +1,39 @@
 ﻿@page "/"
 
+@inject ApplicationDbContext db
+
 <PageTitle>Home</PageTitle>
 
-<h1>Hello, world!</h1>
+<MudGrid>    
+    <MudItem md="6">
+        <MudCard>
+            <MudCardHeader>
+                <CardHeaderContent>
+                    <MudText Typo="Typo.h6">The Story Book</MudText>
+                </CardHeaderContent>
+                <CardHeaderActions>
+                    <MudIconButton Icon="@Icons.Material.Filled.Settings" Color="Color.Default" />
+                </CardHeaderActions>
+            </MudCardHeader>
+            <MudCardContent>
+                <MudText>This day everything happened.</MudText>
+                <MudText Typo="Typo.body2">The quick, brown fox jumps over a lazy dog.</MudText>
+            </MudCardContent>
+            <MudCardActions>
+                <MudButton Variant="Variant.Text" Color="Color.Primary">Read More</MudButton>
+            </MudCardActions>
+        </MudCard>
+    </MudItem>    
+</MudGrid>
 
-Welcome to your new app.
+@code {
+    private List<Widget> widgets = new();
+    private bool loadingData = false;
+
+    protected override async Task OnInitializedAsync()
+    {
+        loadingData = true;
+        widgets = await db.Widgets.Where(x => x.Type == WidgetType.CourseModule).ToListAsync();
+        loadingData = false;
+    }
+}

@@ -10,7 +10,7 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
     public DbSet<TechProgram> TechPrograms { get; set; }
     public DbSet<Student> Students { get; set; }
     public DbSet<FinAccount> FinAccounts { get; set; }
-
+    public DbSet<Widget> Widgets { get; set; }
 
     protected override void OnModelCreating(ModelBuilder builder)
     {

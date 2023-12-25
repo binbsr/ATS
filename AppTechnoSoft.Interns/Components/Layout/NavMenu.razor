@@ -4,9 +4,11 @@
 
 <MudPaper Width="250px" Class="d-inline-flex py-3" Elevation="0">
     <MudNavMenu Class="mud-width-full">
-        <MudNavLink Href="/dashboard" Icon="@Icons.Material.Filled.Dashboard" IconColor="Color.Success">Dashboard</MudNavLink>
-        <MudNavLink Href="/programs" Icon="@Icons.Material.Filled.Book">Programs</MudNavLink>
+        <MudNavLink Href="/dashboard" Icon="@Icons.Material.Filled.Dashboard" IconColor="Color.Success">Your Dashboard</MudNavLink>
+        <MudNavLink Href="/apply" Icon="@Icons.Material.Filled.Dashboard" IconColor="Color.Success">Apply</MudNavLink>
+        <MudNavLink Href="/programs" Icon="@Icons.Material.Filled.Book" IconColor="Color.Info">Programs</MudNavLink>
         <MudNavLink Href="/colleges" Icon="@Icons.Material.Filled.School" IconColor="Color.Info">Colleges</MudNavLink>
+        <MudNavLink Href="/students" Icon="@Icons.Material.Filled.Groups3" IconColor="Color.Info">Students</MudNavLink>
         <AuthorizeView>
             <Authorized>
                 <MudNavLink Href="Account/Manage" Icon="@Icons.Material.Filled.VerifiedUser">
@@ -19,8 +21,8 @@
                 </form>
             </Authorized>
             <NotAuthorized>
-                <MudNavLink Href="Account/Register" Icon="@Icons.Material.Filled.PersonAdd">Register</MudNavLink>
-                <MudNavLink Href="Account/Login" Icon="@Icons.Material.Filled.Login">Login</MudNavLink>
+                <MudNavLink Href="Account/Register" Icon="@Icons.Material.Filled.PersonAdd" IconColor="Color.Secondary">Register</MudNavLink>
+                <MudNavLink Href="Account/Login" Icon="@Icons.Material.Filled.Login" IconColor="Color.Secondary">Login</MudNavLink>
             </NotAuthorized>
         </AuthorizeView>
     </MudNavMenu>
@@ -46,4 +48,3 @@
         NavigationManager.LocationChanged -= OnLocationChanged;
     }
 }
-

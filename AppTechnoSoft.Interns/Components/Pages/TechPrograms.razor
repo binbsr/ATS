@@ -1,11 +1,12 @@
-﻿@page "/colleges"
+﻿@page "/programs"
+
 @attribute [StreamRendering]
 
 @inject ApplicationDbContext db
 
-<MudDataGrid T="College"
+<MudDataGrid T="TechProgram"
     MultiSelection="true" 
-    Items="@CollegeList" 
+    Items="@programs" 
     SortMode="SortMode.Multiple" 
     Filterable="true" 
     Hover="true"
@@ -14,27 +15,27 @@
     Hideable="true">
     
     <ToolBarContent>
-        <MudText Typo="Typo.h6">All Tech Colleges & Institues</MudText>
+        <MudText Typo="Typo.h6">All Tech Degrees & Programs</MudText>
         <MudSpacer />
         <MudTextField @bind-Value="_searchString" Placeholder="Search" Adornment="Adornment.Start" Immediate="true"
             AdornmentIcon="@Icons.Material.Filled.Search" IconSize="Size.Medium" Class="mt-0"></MudTextField>
     </ToolBarContent>
     <Columns>
-        <PropertyColumn Property="x => CollegeList.IndexOf(x) + 1" Title="#" Filterable="false"/>
+        <PropertyColumn Property="x => programs.IndexOf(x) + 1" Title="#" Filterable="false"/>
         <PropertyColumn Property="x => x.Name" SortBy="@_sortBy" />
-        <PropertyColumn Property="x => x.Location" />
+        <PropertyColumn Property="x => x.Affliation" />
     </Columns>
     <PagerContent>
-        <MudDataGridPager T="College" PageSizeOptions="[15, 30, 50, 100, 200]"/>
+        <MudDataGridPager T="TechProgram" PageSizeOptions="[15, 30, 50, 100, 200]"/>
     </PagerContent>
 </MudDataGrid>
 
 @code {
-    private List<College> CollegeList = new List<College>();
+    private List<TechProgram> programs = new();
     private string _searchString;
     private bool _sortNameByLength;
     private bool loadingData = false;
-    private Func<College, object> _sortBy => x =>
+    private Func<TechProgram, object> _sortBy => x =>
     {
         if (_sortNameByLength)
             return x.Name.Length;
@@ -42,7 +43,7 @@
             return x.Name;
     };
 
-    private Func<College, bool> _quickFilter => x =>
+    private Func<TechProgram, bool> _quickFilter => x =>
     {
         if (string.IsNullOrWhiteSpace(_searchString))
             return true;
@@ -50,7 +51,7 @@
         if (x.Name.Contains(_searchString, StringComparison.OrdinalIgnoreCase))
             return true;
 
-        if (x.Location.Contains(_searchString, StringComparison.OrdinalIgnoreCase))
+        if (x.Affliation.Contains(_searchString, StringComparison.OrdinalIgnoreCase))
             return true;
 
         return false;
@@ -59,7 +60,7 @@
     protected override async Task OnInitializedAsync()
     {
         loadingData = true;
-        CollegeList = await db.Colleges.ToListAsync();
+        programs = await db.TechPrograms.ToListAsync();
         loadingData = false;
     }
 }

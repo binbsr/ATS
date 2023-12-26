@@ -11,73 +11,74 @@
         <MudTextField Label="Title" @bind-Value="model.Title" For="@(() => model.Title)" />
         <MudTextField Label="Description" Class="mt-3" @bind-Value="model.Description" For="@(() => model.Description)" />
         <MudTextField Label="Icon" Class="mt-3" @bind-Value="model.Icon" For="@(() => model.Icon)" />
-        <MudSelect Label="Widget Type" Class="mt-3" @bind-Value="model.Type" AnchorOrigin="Origin.BottomCenter">
-            @foreach (var item in Enum.GetValues<WidgetType>())
-        {
-            <MudSelectItem Value="@item">@item</MudSelectItem>
 
-        }
-    </MudSelect>
+        <MudAutocomplete T="Tag"
+                         Label="Tag"
+                         @bind-Value="tagSelected"
+                         SearchFunc="@SearchTags"
+                         ToStringFunc="@(e=> e == null ? null : $"{e.Name}")"
+                         ShowProgressIndicator="true"
+                         Class="mb-3" />
+                         
+        <BlazoredTextEditor @ref="@QuillHtml" EditorCssStyle="height:300px" Placeholder="Content for this widget...">
+            <ToolbarContent>
+                <span class="ql-formats">
+                    <select class="ql-font">
+                        <option selected=""></option>
+                        <option value="serif"></option>
+                        <option value="monospace"></option>
+                    </select>
+                    <select class="ql-header">
+                        <option value="1"></option>
+                        <option selected value="2"></option>
+                        <option value="3"></option>
+                        <option value="4"></option>
+                        <option value="5"></option>
+                    </select>
+                    <select class="ql-size">
+                        <option value="small"></option>
+                        <option selected></option>
+                        <option value="large"></option>
+                        <option value="huge"></option>
+                    </select>
+                </span>
+                <span class="ql-formats">
+                    <button class="ql-bold"></button>
+                    <button class="ql-italic"></button>
+                    <button class="ql-underline"></button>
+                    <button class="ql-strike"></button>
+                </span>
+                <span class="ql-formats">
+                    <select class="ql-color"></select>
+                    <select class="ql-background"></select>
+                </span>
+                <span class="ql-formats">
+                    <button class="ql-list" value="ordered"></button>
+                    <button class="ql-list" value="bullet"></button>
+                </span>
+                <span class="ql-formats">
+                    <button class="ql-blockquote"></button>
+                    <button class="ql-code-block"></button>
+                    <button class="ql-script" value="sub"></button>
+                    <button class="ql-script" value="super"></button>
+                    <button class="ql-link"></button>
+                </span>
+            </ToolbarContent>
+            <EditorContent>@((MarkupString)model.HtmlContent)</EditorContent>
+        </BlazoredTextEditor>
 
-    <MudContainer Class="mt-3">
-    </MudContainer>
-    <BlazoredTextEditor @ref="@QuillHtml" EditorCssStyle="height:300px" Placeholder="Content for this widget...">
-        <ToolbarContent>
-            <span class="ql-formats">
-                <select class="ql-font">
-                    <option selected=""></option>
-                    <option value="serif"></option>
-                    <option value="monospace"></option>
-                </select>
-                <select class="ql-header">
-                    <option value="1"></option>
-                    <option selected value="2"></option>
-                    <option value="3"></option>
-                    <option value="4"></option>
-                    <option value="5"></option>
-                </select>               
-                <select class="ql-size">
-                    <option value="small"></option>
-                    <option selected></option>
-                    <option value="large"></option>
-                    <option value="huge"></option>
-                </select>
-            </span>
-            <span class="ql-formats">
-                <button class="ql-bold"></button>
-                <button class="ql-italic"></button>
-                <button class="ql-underline"></button>
-                <button class="ql-strike"></button>
-            </span>
-            <span class="ql-formats">
-                <select class="ql-color"></select>
-                <select class="ql-background"></select>
-            </span>
-            <span class="ql-formats">
-                <button class="ql-list" value="ordered"></button>
-                <button class="ql-list" value="bullet"></button>
-            </span>
-            <span class="ql-formats">
-                <button class="ql-blockquote"></button>
-                <button class="ql-code-block"></button>
-                <button class="ql-script" value="sub"></button>
-                <button class="ql-script" value="super"></button>
-                <button class="ql-link"></button>
-            </span>                     
-        </ToolbarContent>
-        <EditorContent>@((MarkupString)model.HtmlContent)</EditorContent>
-    </BlazoredTextEditor>
+        <MudButton ButtonType="ButtonType.Submit" Variant="Variant.Filled" Color="Color.Primary" Class="mt-3" StartIcon="@Icons.Material.Filled.Save">Save Widget</MudButton>
+    </EditForm>
 
-    <MudButton ButtonType="ButtonType.Submit" Variant="Variant.Filled" Color="Color.Primary" Class="mt-3" StartIcon="@Icons.Material.Filled.Save">Save Widget</MudButton>
-</EditForm>
-
-@code {
+    @code {
 
     [Parameter]
     public int? Id { get; set; }
 
     BlazoredTextEditor QuillHtml;
     Widget model = new Widget();
+    List<Tag> tags = new();
+    Tag tagSelected = new();
     bool success;
     string pageTitle;
     bool IsAdd => Id is null or 0;
@@ -92,12 +93,12 @@
         {
             pageTitle = "Edit Widget";
             model = await Db.Widgets.FindAsync(Id);
-        }        
+        }
     }
 
     private async Task OnValidSubmit(EditContext context)
     {
-        model.HtmlContent = await QuillHtml.GetHTML();
+        model.HtmlContent = QuillHtml.GetHTML().Result;
 
         if (model.HtmlContent is null or "")
         {
@@ -124,5 +125,18 @@
         {
             SnackBar.Add("Widget save failed", Severity.Error);
         }
+    }
+
+    private async Task<IEnumerable<Tag>> SearchTags(string searchText)
+    {
+        if (!tags.Any())
+        {
+            tags = await Db.Tags.ToListAsync();
+        }
+
+        if (string.IsNullOrEmpty(searchText))
+            return tags;
+
+        return tags.Where(x => x.Name.Contains(searchText, StringComparison.InvariantCultureIgnoreCase));
     }
 }

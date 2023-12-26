@@ -3,6 +3,7 @@
 
 @inject ApplicationDbContext Db
 @inject ISnackbar SnackBar
+@inject NavigationManager Navigation
 
 <PageTitle>@pageTitle</PageTitle>
 
@@ -72,5 +73,7 @@
         {
             SnackBar.Add("Widget save failed", Severity.Error);
         }
+
+        Navigation.NavigateTo("/tags");
     }
 }

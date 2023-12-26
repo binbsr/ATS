@@ -1,0 +1,28 @@
+﻿
+<MudCard Elevation="5" Class="border-double border-4 mud-border-info">
+    <MudCardHeader>
+        <CardHeaderContent>
+            <MudText Typo="Typo.h6">@Widget.Title</MudText>
+            <MudText Typo="Typo.subtitle2">@Widget.Description</MudText>
+        </CardHeaderContent>
+            <CardHeaderActions>
+                <MudIconButton Icon="@Icons.Material.Filled.Edit" Color="Color.Warning" Href="@EditUrl" />
+            </CardHeaderActions>
+        </MudCardHeader>
+        <MudCardContent>
+            <MudContainer Class="px-4">
+                <MudText Typo="Typo.body1">@((MarkupString)Widget.HtmlContent)</MudText>
+            </MudContainer>
+        </MudCardContent>
+        <MudCardActions>
+            <MudButton Variant="Variant.Text" Color="Color.Primary">Read More</MudButton>
+        </MudCardActions>
+    </MudCard>
+
+    @code {
+
+    [Parameter]
+    public Widget Widget { get; set; } = new();
+
+    public string EditUrl => $"/edit-widget/{Widget.Id}";
+}

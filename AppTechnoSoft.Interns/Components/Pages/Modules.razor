@@ -1,0 +1,33 @@
+﻿@page "/modules"
+
+@inject ApplicationDbContext db
+
+
+<MudText Typo="Typo.h5" Align="Align.Center">Training + Internship Combo</MudText>
+<MudText Typo="Typo.subtitle2" Class="mb-4">
+    Depending on our use case, we may want to add some styling to the Toolbar or Editor.
+    We can also place the Toolbar below the Editor by setting the BottomToolbar property to ‘true’ in the
+    BlazoredTextEditor component
+</MudText>
+
+<MudGrid>
+    @foreach (var widget in widgets)
+    {
+        <MudItem md="6" xs="12">
+            <Module Widget="@widget" />
+        </MudItem>
+    }
+</MudGrid>
+
+
+@code {
+    Widget[] widgets = [];
+    bool loadingData;
+
+    protected override async Task OnInitializedAsync()
+    {
+        loadingData = true;
+        widgets = await db.Widgets.Where(x => x.Type == WidgetType.CourseModule).ToArrayAsync();
+        loadingData = false;
+    }
+}

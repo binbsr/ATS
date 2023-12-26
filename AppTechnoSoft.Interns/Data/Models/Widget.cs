@@ -9,4 +9,6 @@ public class Widget
     public string Icon { get; set; } = string.Empty;
     public string HtmlContent { get; set; } = string.Empty;
     public WidgetType Type { get; set; } = WidgetType.CourseModule;
+
+    public List<Tag>? Tags { get; } = new();
 }

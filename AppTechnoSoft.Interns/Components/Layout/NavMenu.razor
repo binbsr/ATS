@@ -4,13 +4,18 @@
 
 <MudPaper Width="250px" Class="d-inline-flex py-3" Elevation="0">
     <MudNavMenu Class="mud-width-full">
+        <MudNavLink Href="/" Match="NavLinkMatch.All" Icon="@Icons.Material.Filled.Home" IconColor="Color.Success">Home</MudNavLink>
         <MudNavLink Href="/dashboard" Icon="@Icons.Material.Filled.Dashboard" IconColor="Color.Success">Your Dashboard</MudNavLink>
         <MudNavLink Href="/modules" Icon="@Icons.Material.Filled.ViewModule" IconColor="Color.Success">Training Modules</MudNavLink>
         <MudNavLink Href="/apply" Icon="@Icons.Material.Filled.Person3" IconColor="Color.Success">Apply</MudNavLink>
+        <MudDivider Class="my-2" />
+
         <MudNavLink Href="/programs" Icon="@Icons.Material.Filled.Book" IconColor="Color.Info">Programs</MudNavLink>
         <MudNavLink Href="/colleges" Icon="@Icons.Material.Filled.School" IconColor="Color.Info">Colleges</MudNavLink>
         <MudNavLink Href="/students" Icon="@Icons.Material.Filled.Groups3" IconColor="Color.Info">Students</MudNavLink>
         <MudNavLink Href="/add-widget" Icon="@Icons.Material.Filled.Widgets" IconColor="Color.Info">Add Widget</MudNavLink>
+        <MudNavLink Href="/tags" Icon="@Icons.Material.Filled.Tag" IconColor="Color.Info">Tags</MudNavLink>
+
         <MudDivider Class="my-2" />
         <AuthorizeView>
             <Authorized>

@@ -1,0 +1,76 @@
+﻿@page "/add-tag"
+@page "/edit-tag/{Id:int}"
+
+@inject ApplicationDbContext Db
+@inject ISnackbar SnackBar
+
+<PageTitle>@pageTitle</PageTitle>
+
+    <EditForm Model="@model"
+              OnValidSubmit="OnValidSubmit">
+        <DataAnnotationsValidator />
+        <MudTextField Label="Title" @bind-Value="model.Name" For="@(() => model.Name)" />
+        <MudTextField Label="Description" Class="mt-3" @bind-Value="model.Description" For="@(() => model.Description)" />
+        <MudColorPicker ColorPickerView="ColorPickerView.Grid"
+                        AnchorOrigin="Origin.BottomCenter"
+                        Label="Color Code"
+                        @bind-Text="@model.ColorCode"
+                        Style="@($"color: {model.ColorCode};")"
+                        Placeholder="Select Color" />
+
+        <MudButton ButtonType="ButtonType.Submit"
+                   Variant="Variant.Filled"
+                   Color="Color.Primary"
+                   Class="mt-3"
+                   StartIcon="@Icons.Material.Filled.Save">
+            Save Tag
+        </MudButton>
+    </EditForm>
+
+    @code {
+
+    [Parameter]
+    public int? Id { get; set; }
+
+    Tag model = new();
+    bool success;
+    string pageTitle;
+    bool IsAdd => Id is null or 0;
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (IsAdd)
+        {
+            pageTitle = "Add Tag";
+        }
+        else
+        {
+            pageTitle = "Edit Tag";
+            model = await Db.Tags.FindAsync(Id);
+        }
+    }
+
+    private async Task OnValidSubmit(EditContext context)
+    {
+        if (IsAdd)
+        {
+            Db.Tags.Add(model);
+        }
+        else
+        {
+            model.Id = Id.Value;
+            Db.Tags.Update(model);
+        }
+
+        var rowsAffected = await Db.SaveChangesAsync();
+
+        if (rowsAffected > 0)
+        {
+            SnackBar.Add("Widget saved successfully", Severity.Success);
+        }
+        else
+        {
+            SnackBar.Add("Widget save failed", Severity.Error);
+        }
+    }
+}

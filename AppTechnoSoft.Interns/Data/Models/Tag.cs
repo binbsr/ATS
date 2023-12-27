@@ -6,5 +6,5 @@ public class Tag
     public string? Description { get; set; }
     public string ColorCode { get; set; } = string.Empty;
 
-    public List<Widget>? Widgets { get; } = new();
+    public List<Widget>? Widgets { get; set; } = [];
 }

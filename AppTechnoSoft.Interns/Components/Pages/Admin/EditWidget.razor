@@ -10,17 +10,23 @@
         <DataAnnotationsValidator />
         <MudTextField Label="Title" @bind-Value="model.Title" For="@(() => model.Title)" />
         <MudTextField Label="Description" Class="mt-3" @bind-Value="model.Description" For="@(() => model.Description)" />
-        <MudTextField Label="Icon" Class="mt-3" @bind-Value="model.Icon" For="@(() => model.Icon)" />
+        <MudTextField Label="Icon" Class="mt-3" @bind-Value="model.Icon" For="@(() => model.Icon)" />       
 
-        <MudAutocomplete T="Tag"
-                         Label="Tag"
-                         @bind-Value="tagSelected"
-                         SearchFunc="@SearchTags"
-                         ToStringFunc="@(e=> e == null ? null : $"{e.Name}")"
-                         ShowProgressIndicator="true"
-                         Class="mb-3" />
-                         
-        <BlazoredTextEditor @ref="@QuillHtml" EditorCssStyle="height:300px" Placeholder="Content for this widget...">
+        <MudSelect T="Tag" 
+            Label="Tags" 
+            HelperText="Check all tags that apply for this widget"
+            MultiSelection="true" 
+            @bind-SelectedValues="@tagsSelected" 
+            Class="mb-3" 
+            MultiSelectionTextFunc="@(new Func<List<string>, string>(GetMultiSelectionText))"
+            AnchorOrigin="Origin.BottomCenter">
+            @foreach (var tag in tags)
+            {
+                <MudSelectItem Value="@tag">@tag.Name</MudSelectItem>
+            }
+        </MudSelect>
+
+    <BlazoredTextEditor @ref="@QuillHtml" EditorCssStyle="height:300px" Placeholder="Content for this widget...">
             <ToolbarContent>
                 <span class="ql-formats">
                     <select class="ql-font">
@@ -70,7 +76,7 @@
         <MudButton ButtonType="ButtonType.Submit" Variant="Variant.Filled" Color="Color.Primary" Class="mt-3" StartIcon="@Icons.Material.Filled.Save">Save Widget</MudButton>
     </EditForm>
 
-    @code {
+@code {
 
     [Parameter]
     public int? Id { get; set; }
@@ -78,13 +84,15 @@
     BlazoredTextEditor QuillHtml;
     Widget model = new Widget();
     List<Tag> tags = new();
-    Tag tagSelected = new();
+    IEnumerable<Tag> tagsSelected;
     bool success;
     string pageTitle;
     bool IsAdd => Id is null or 0;
 
     protected override async Task OnInitializedAsync()
     {
+        tags = await Db.Tags.ToListAsync();
+
         if (IsAdd)
         {
             pageTitle = "Add Widget";
@@ -92,18 +100,21 @@
         else
         {
             pageTitle = "Edit Widget";
-            model = await Db.Widgets.FindAsync(Id);
+            model = await Db.Widgets.Include(x => x.Tags).FirstAsync(x => x.Id == Id);
+            tagsSelected = model.Tags;
         }
     }
 
     private async Task OnValidSubmit(EditContext context)
     {
-        model.HtmlContent = QuillHtml.GetHTML().Result;
+        model.HtmlContent = await QuillHtml.GetHTML();
 
         if (model.HtmlContent is null or "")
         {
             return;
         }
+
+        model.Tags = tagsSelected.ToList();
 
         if (IsAdd)
         {
@@ -127,16 +138,8 @@
         }
     }
 
-    private async Task<IEnumerable<Tag>> SearchTags(string searchText)
+    private string GetMultiSelectionText(List<string> selectedValues)
     {
-        if (!tags.Any())
-        {
-            tags = await Db.Tags.ToListAsync();
-        }
-
-        if (string.IsNullOrEmpty(searchText))
-            return tags;
-
-        return tags.Where(x => x.Name.Contains(searchText, StringComparison.InvariantCultureIgnoreCase));
+        return $"{selectedValues.Count} tag{(selectedValues.Count > 1 ? "s have" : " has")} been selected";
     }
 }

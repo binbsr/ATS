@@ -10,5 +10,5 @@ public class Widget
     public string HtmlContent { get; set; } = string.Empty;
     public WidgetType Type { get; set; } = WidgetType.CourseModule;
 
-    public List<Tag>? Tags { get; } = new();
+    public List<Tag>? Tags { get; set; } = [];
 }

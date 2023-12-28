@@ -21,9 +21,11 @@
     </ToolBarContent>
     <Columns>
         <PropertyColumn Property="x => studentList.IndexOf(x) + 1" Title="#" Filterable="false" />
-        <PropertyColumn Property="x => x.Name" SortBy="@_sortBy" />
-        <PropertyColumn Property="x => x.Phone" />
-        <PropertyColumn Property="x => x.Email" />
+        <PropertyColumn Property="x => x.Name" Filterable="false"/>
+        <PropertyColumn Property="x => x.Phone" Filterable="false" />
+        <PropertyColumn Property="x => x.Email" Filterable="false" />
+        <PropertyColumn Property="x => x.WebExperience" Title="Web Exposure"/>
+        <PropertyColumn Property="x => x.DbExperience" Title="Db Exposure" />
         <PropertyColumn Property="x => x.Status" />
         <PropertyColumn Property="x => x.College.Name" Title="College" />
         <PropertyColumn Property="x => x.TechProgram.Name" Title="Program"/>
@@ -38,14 +40,7 @@
     private List<Student> studentList = new();
     private string _searchString;
     private bool _sortNameByLength;
-    private bool loadingData = false;
-    private Func<Student, object> _sortBy => x =>
-    {
-        if (_sortNameByLength)
-            return x.Name.Length;
-        else
-            return x.Name;
-    };
+    private bool loadingData = false;    
 
     private Func<Student, bool> _quickFilter => x =>
     {

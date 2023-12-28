@@ -3,6 +3,7 @@
 <PageTitle>Apply For Internship</PageTitle>
 
 @inject ApplicationDbContext Db
+@inject ISnackbar SnackBar
 
 <EditForm Model="@model" OnValidSubmit="OnValidSubmit">
     <DataAnnotationsValidator />
@@ -33,6 +34,54 @@
             <MudAutocomplete T="TechProgram" Label="Select Program" @bind-Value="model.TechProgram"
                              SearchFunc="@SearchPrograms" ToStringFunc="@(e=> e==null ? null : $"{e.Name} ({e.Affliation})")" ShowProgressIndicator="true" />
         </MudItem>
+
+        <MudItem md="6" xs="12">
+            <MudFileUpload T="IBrowserFile" Accept=".png, .jpg" @bind-Files="@model.ProfileImage">
+                <ButtonTemplate Context="btnContext">
+                    <MudButton HtmlTag="label"
+                               Variant="Variant.Filled"
+                               Color="Color.Primary"
+                               StartIcon="@Icons.Material.Filled.Image"
+                               for="@btnContext.Id">
+                        Upload Profile
+                    </MudButton>
+                </ButtonTemplate>
+            </MudFileUpload>
+        </MudItem>
+
+        <MudItem md="12">
+            <MudPaper Class="pa-5" Elevation="5">
+                <MudGrid>
+                    <MudItem md="12">
+                        <MudText Typo="Typo.h6">Your experience and knowledge</MudText>
+                        <MudText Typo="Typo.subtitle1">Please be as sincere as you can, it's important to enroll you to appropriate batch</MudText>
+                    </MudItem>
+                    <MudItem md="6" xs="12">
+                        <MudText Typo="Typo.button">Web Development</MudText>
+                        <MudRadioGroup @bind-Value="@model.WebExperience">
+                            <MudStack Spacing="0">
+                                <MudRadio Value="WebExperience.None" Color="Color.Secondary">No knowledge at all</MudRadio>
+                                <MudRadio Value="WebExperience.LittleHtmlCssAndJs" Color="Color.Secondary">Know little Html, CSS and JS</MudRadio>
+                                <MudRadio Value="WebExperience.DevelopedHobbyWebApp" Color="Color.Secondary">Developed small hobby app</MudRadio>
+                                <MudRadio Value="WebExperience.DevelopedCommercialApp" Color="Color.Secondary">Developed Commercial app for users</MudRadio>
+                            </MudStack>
+                        </MudRadioGroup>
+                    </MudItem>
+                    <MudItem md="6" xs="12">
+                        <MudText Typo="Typo.button">Database Development</MudText>
+                        <MudRadioGroup @bind-Value="@model.DbExperience">
+                            <MudStack Spacing="0">
+                                <MudRadio Value="DbExperience.None" Color="Color.Secondary">No knowledge at all</MudRadio>
+                                <MudRadio Value="DbExperience.KnowLittleSql" Color="Color.Secondary">Know little SQL and relational databases</MudRadio>
+                                <MudRadio Value="DbExperience.ComfortableWithSql" Color="Color.Secondary">Comfortable with SQL and relational databases</MudRadio>
+                                <MudRadio Value="DbExperience.DesignedDbForApp" Color="Color.Secondary">Desinged database (schemas, constraints etc.) for app</MudRadio>
+                            </MudStack>
+                        </MudRadioGroup>
+                    </MudItem>
+                </MudGrid>
+            </MudPaper>
+        </MudItem>
+
         <MudItem md="12">
             <MudButton ButtonType="ButtonType.Submit" Style="float:right"
                        Variant="Variant.Filled"
@@ -53,9 +102,44 @@
     List<TechProgram> techPrograms = [];
 
     private async Task OnValidSubmit(EditContext editContext)
-    {
+    {        
+        // Save profile image first if it's uploaded
+        // if(model.ProfileImage is not null)
+        // {
+        //     try
+        //     {
+        //         var fileName = Path.GetRandomFileName();
+        //         var path = Path.Combine(Environment.ContentRootPath,
+        //             Environment.EnvironmentName, "unsafe_uploads",
+        //             trustedFileName);
+
+        //         await using FileStream fs = new(path, FileMode.Create);
+        //         await file.OpenReadStream(maxFileSize).CopyToAsync(fs);
+
+        //         loadedFiles.Add(file);
+
+        //         Logger.LogInformation(
+        //             "Unsafe Filename: {UnsafeFilename} File saved: {Filename}",
+        //             file.Name, trustedFileName);
+        //     }
+        //     catch (Exception ex)
+        //     {
+        //         Logger.LogError("File: {Filename} Error: {Error}",
+        //             file.Name, ex.Message);
+        //     }
+        // }
+
         Db.Students.Add(model);
-        await Db.SaveChangesAsync();
+        var rowsAffected = await Db.SaveChangesAsync();
+
+        if (rowsAffected > 0)
+        {
+            SnackBar.Add("Applicaion received successfully", Severity.Success);
+        }
+        else
+        {
+            SnackBar.Add("Applicaion process failed", Severity.Error);
+        }
     }
 
     private async Task<IEnumerable<College>> SearchColleges(string value)
@@ -87,5 +171,4 @@
 
         return techPrograms.Where(x => x.Name.Contains(value, StringComparison.OrdinalIgnoreCase));
     }
-
 }

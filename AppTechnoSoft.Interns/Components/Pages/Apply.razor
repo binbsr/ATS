@@ -1,7 +1,91 @@
 ﻿@page "/apply"
 
-<h3>Apply</h3>
+<PageTitle>Apply For Internship</PageTitle>
+
+@inject ApplicationDbContext Db
+
+<EditForm Model="@model" OnValidSubmit="OnValidSubmit">
+    <DataAnnotationsValidator />
+    <MudGrid Class="pa-4">
+        <MudItem md="6" xs="12">
+            <MudTextField @bind-Value="model.Name"
+                          For="@(() => model.Name)"
+                          Immediate="true"
+                          Label="Full Name" />
+        </MudItem>
+        <MudItem md="6" xs="12">
+            <MudTextField @bind-Value="model.Email"
+                          For="@(() => model.Email)"
+                          Immediate="true"
+                          Label="Email" />
+        </MudItem>
+        <MudItem md="6" xs="12">
+            <MudTextField @bind-Value="model.Phone"
+                          For="@(() => model.Phone)"
+                          Immediate="true"
+                          Label="Phone" />
+        </MudItem>
+        <MudItem md="6" xs="12">
+            <MudAutocomplete T="College" Label="Select College" @bind-Value="model.College"
+                             SearchFunc="@SearchColleges" ToStringFunc="@(e=> e==null ? null : $"{e.Name} ({e.Location})")" ShowProgressIndicator="true" />
+        </MudItem>
+        <MudItem md="6" xs="12">
+            <MudAutocomplete T="TechProgram" Label="Select Program" @bind-Value="model.TechProgram"
+                             SearchFunc="@SearchPrograms" ToStringFunc="@(e=> e==null ? null : $"{e.Name} ({e.Affliation})")" ShowProgressIndicator="true" />
+        </MudItem>
+        <MudItem md="12">
+            <MudButton ButtonType="ButtonType.Submit" Style="float:right"
+                       Variant="Variant.Filled"
+                       Color="Color.Primary"
+                       Class="ml-auto"
+                       StartIcon="@Icons.Material.Sharp.AddReaction">
+                Apply for Traineeship
+            </MudButton>
+        </MudItem>
+    </MudGrid>
+</EditForm>
 
 @code {
+
+    private Student model = new();
+    MudForm form;
+    List<College> colleges = [];
+    List<TechProgram> techPrograms = [];
+
+    private async Task OnValidSubmit(EditContext editContext)
+    {
+        Db.Students.Add(model);
+        await Db.SaveChangesAsync();
+    }
+
+    private async Task<IEnumerable<College>> SearchColleges(string value)
+    {
+        if (!colleges.Any())
+        {
+            colleges = Db.Colleges.ToList();
+        }
+
+        if (value is null or "")
+        {
+            return colleges;
+        }
+
+        return colleges.Where(x => x.Name.Contains(value, StringComparison.OrdinalIgnoreCase));
+    }
+
+    private async Task<IEnumerable<TechProgram>> SearchPrograms(string value)
+    {
+        if (!techPrograms.Any())
+        {
+            techPrograms = Db.TechPrograms.ToList();
+        }
+
+        if (value is null or "")
+        {
+            return techPrograms;
+        }
+
+        return techPrograms.Where(x => x.Name.Contains(value, StringComparison.OrdinalIgnoreCase));
+    }
 
 }

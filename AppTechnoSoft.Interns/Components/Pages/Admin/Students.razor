@@ -20,7 +20,13 @@
                       AdornmentIcon="@Icons.Material.Filled.Search" IconSize="Size.Medium" Class="mt-0"></MudTextField>
     </ToolBarContent>
     <Columns>
-        <PropertyColumn Property="x => studentList.IndexOf(x) + 1" Title="#" Filterable="false" />
+        <TemplateColumn CellClass="d-flex justify-start" Filterable="false">
+            <CellTemplate>
+                <MudAvatar>
+                    <MudImage Src="@context.Item.ProfileImagePath"></MudImage>
+                </MudAvatar>
+            </CellTemplate>
+        </TemplateColumn>
         <PropertyColumn Property="x => x.Name" Filterable="false"/>
         <PropertyColumn Property="x => x.Phone" Filterable="false" />
         <PropertyColumn Property="x => x.Email" Filterable="false" />

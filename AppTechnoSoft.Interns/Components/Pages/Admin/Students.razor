@@ -20,22 +20,31 @@
                       AdornmentIcon="@Icons.Material.Filled.Search" IconSize="Size.Medium" Class="mt-0"></MudTextField>
     </ToolBarContent>
     <Columns>
-        <TemplateColumn CellClass="d-flex justify-start" Filterable="false">
-            <CellTemplate>
-                <MudAvatar>
-                    <MudImage Src="@context.Item.ProfileImagePath"></MudImage>
-                </MudAvatar>
+        <TemplateColumn Filterable="false">
+            <CellTemplate>                
+                <MudLink Href="@("/students/" + context.Item.Id)">
+                    <MudAvatar>
+                        @if (context.Item.ProfileImagePath is null or "")
+                        {
+                            <MudIcon Icon="@Icons.Material.Outlined.Person2" />
+                        }
+                        else
+                        {
+                            <MudImage Src="@context.Item.ProfileImagePath"></MudImage>
+                        }
+                    </MudAvatar>
+                </MudLink>
             </CellTemplate>
         </TemplateColumn>
-        <PropertyColumn Property="x => x.Name" Filterable="false"/>
+        <PropertyColumn Property="x => x.Name" Filterable="false" />
         <PropertyColumn Property="x => x.Phone" Filterable="false" />
         <PropertyColumn Property="x => x.Email" Filterable="false" />
-        <PropertyColumn Property="x => x.WebExperience" Title="Web Exposure"/>
+        <PropertyColumn Property="x => x.WebExperience" Title="Web Exposure" />
         <PropertyColumn Property="x => x.DbExperience" Title="Db Exposure" />
         <PropertyColumn Property="x => x.Status" />
         <PropertyColumn Property="x => x.College.Name" Title="College" />
-        <PropertyColumn Property="x => x.TechProgram.Name" Title="Program"/>
-        <PropertyColumn Property="x => x.FormSubmitted"  />
+        <PropertyColumn Property="x => x.TechProgram.Name" Title="Program" />
+        <PropertyColumn Property="x => x.FormSubmitted" />
     </Columns>
     <PagerContent>
         <MudDataGridPager T="Student" PageSizeOptions="[15, 30, 50, 100, 200]" />
@@ -46,7 +55,7 @@
     private List<Student> studentList = new();
     private string _searchString;
     private bool _sortNameByLength;
-    private bool loadingData = false;    
+    private bool loadingData = false;
 
     private Func<Student, bool> _quickFilter => x =>
     {
@@ -61,7 +70,7 @@
 
         if (x.Status.ToString().Contains(_searchString, StringComparison.OrdinalIgnoreCase))
             return true;
-        
+
         if (x.Phone.Contains(_searchString, StringComparison.OrdinalIgnoreCase))
             return true;
 

@@ -36,98 +36,98 @@
         </MudItem>
 
         <MudItem md="6" xs="12">
-            <MudFileUpload T="IBrowserFile" Accept=".png, .jpg" @bind-Files="@model.ProfileImage">
-                <ButtonTemplate Context="btnContext">
-                    <MudButton HtmlTag="label"
-                               Variant="Variant.Filled"
-                               Color="Color.Primary"
-                               StartIcon="@Icons.Material.Filled.Image"
-                               for="@btnContext.Id">
-                        Upload Profile
-                    </MudButton>
-                </ButtonTemplate>
-            </MudFileUpload>
-        </MudItem>
+            <MudContainer Class="d-flex align-center gap-4 px-0">
+                <MudFileUpload Class="d-flex" T="IBrowserFile" Accept=".png, .jpg" @bind-Files="@model.ProfileImage">
+                    <ButtonTemplate Context="btnContext">
+                        <MudButton HtmlTag="label"
+                                   Variant="Variant.Filled"
+                                   Color="Color.Primary"
+                                   StartIcon="@Icons.Material.Filled.Image"
+                                   for="@btnContext.Id">
+                            Upload Profile Image
+                        </MudButton>
+                    </ButtonTemplate>
+                </MudFileUpload>
+                <MudText Class="d-flex" Typo="Typo.subtitle1">@UploadImageLabel</MudText>
+                </MudContainer>
+            </MudItem>
 
-        <MudItem md="12">
-            <MudPaper Class="pa-5" Elevation="5">
-                <MudGrid>
-                    <MudItem md="12">
-                        <MudText Typo="Typo.h6">Your experience and knowledge</MudText>
-                        <MudText Typo="Typo.subtitle1">Please be as sincere as you can, it's important to enroll you to appropriate batch</MudText>
-                    </MudItem>
-                    <MudItem md="6" xs="12">
-                        <MudText Typo="Typo.button">Web Development</MudText>
-                        <MudRadioGroup @bind-Value="@model.WebExperience">
-                            <MudStack Spacing="0">
-                                <MudRadio Value="WebExperience.None" Color="Color.Secondary">No knowledge at all</MudRadio>
-                                <MudRadio Value="WebExperience.LittleHtmlCssAndJs" Color="Color.Secondary">Know little Html, CSS and JS</MudRadio>
-                                <MudRadio Value="WebExperience.DevelopedHobbyWebApp" Color="Color.Secondary">Developed small hobby app</MudRadio>
-                                <MudRadio Value="WebExperience.DevelopedCommercialApp" Color="Color.Secondary">Developed Commercial app for users</MudRadio>
-                            </MudStack>
-                        </MudRadioGroup>
-                    </MudItem>
-                    <MudItem md="6" xs="12">
-                        <MudText Typo="Typo.button">Database Development</MudText>
-                        <MudRadioGroup @bind-Value="@model.DbExperience">
-                            <MudStack Spacing="0">
-                                <MudRadio Value="DbExperience.None" Color="Color.Secondary">No knowledge at all</MudRadio>
-                                <MudRadio Value="DbExperience.KnowLittleSql" Color="Color.Secondary">Know little SQL and relational databases</MudRadio>
-                                <MudRadio Value="DbExperience.ComfortableWithSql" Color="Color.Secondary">Comfortable with SQL and relational databases</MudRadio>
-                                <MudRadio Value="DbExperience.DesignedDbForApp" Color="Color.Secondary">Desinged database (schemas, constraints etc.) for app</MudRadio>
-                            </MudStack>
-                        </MudRadioGroup>
-                    </MudItem>
-                </MudGrid>
-            </MudPaper>
-        </MudItem>
+            <MudItem md="12">
+                <MudPaper Class="pa-5" Elevation="5">
+                    <MudGrid>
+                        <MudItem md="12">
+                            <MudText Typo="Typo.h6">Your experience and knowledge</MudText>
+                            <MudText Typo="Typo.subtitle1">Please be as sincere as you can, it's important to enroll you to appropriate batch</MudText>
+                        </MudItem>
+                        <MudItem md="6" xs="12">
+                            <MudText Typo="Typo.button">Web Development</MudText>
+                            <MudRadioGroup @bind-Value="@model.WebExperience">
+                                <MudStack Spacing="0">
+                                    <MudRadio Value="WebExperience.None" Color="Color.Secondary">No knowledge at all</MudRadio>
+                                    <MudRadio Value="WebExperience.LittleHtmlCssAndJs" Color="Color.Secondary">Know little Html, CSS and JS</MudRadio>
+                                    <MudRadio Value="WebExperience.DevelopedHobbyWebApp" Color="Color.Secondary">Developed small hobby app</MudRadio>
+                                    <MudRadio Value="WebExperience.DevelopedCommercialApp" Color="Color.Secondary">Developed Commercial app for users</MudRadio>
+                                </MudStack>
+                            </MudRadioGroup>
+                        </MudItem>
+                        <MudItem md="6" xs="12">
+                            <MudText Typo="Typo.button">Database Development</MudText>
+                            <MudRadioGroup @bind-Value="@model.DbExperience">
+                                <MudStack Spacing="0">
+                                    <MudRadio Value="DbExperience.None" Color="Color.Secondary">No knowledge at all</MudRadio>
+                                    <MudRadio Value="DbExperience.KnowLittleSql" Color="Color.Secondary">Know little SQL and relational databases</MudRadio>
+                                    <MudRadio Value="DbExperience.ComfortableWithSql" Color="Color.Secondary">Comfortable with SQL and relational databases</MudRadio>
+                                    <MudRadio Value="DbExperience.DesignedDbForApp" Color="Color.Secondary">Desinged database (schemas, constraints etc.) for app</MudRadio>
+                                </MudStack>
+                            </MudRadioGroup>
+                        </MudItem>
+                    </MudGrid>
+                </MudPaper>
+            </MudItem>
 
-        <MudItem md="12">
-            <MudButton ButtonType="ButtonType.Submit" Style="float:right"
-                       Variant="Variant.Filled"
-                       Color="Color.Primary"
-                       Class="ml-auto"
-                       StartIcon="@Icons.Material.Sharp.AddReaction">
-                Apply for Traineeship
-            </MudButton>
-        </MudItem>
-    </MudGrid>
-</EditForm>
+            <MudItem md="12">
+                <MudButton ButtonType="ButtonType.Submit" Style="float:right"
+                           Variant="Variant.Filled"
+                           Color="Color.Primary"
+                           Class="ml-auto"
+                           StartIcon="@Icons.Material.Sharp.AddReaction">
+                    Apply for Traineeship
+                </MudButton>
+            </MudItem>
+        </MudGrid>
+    </EditForm>
 
-@code {
+    @code {
 
     private Student model = new();
     MudForm form;
     List<College> colleges = [];
     List<TechProgram> techPrograms = [];
+    private string UploadImageLabel => model?.ProfileImage is null ? "" : $"{model.ProfileImage?.Name} ({((float)model.ProfileImage?.Size / 1024):F2} kb)";
 
     private async Task OnValidSubmit(EditContext editContext)
-    {        
+    {
         // Save profile image first if it's uploaded
-        // if(model.ProfileImage is not null)
-        // {
-        //     try
-        //     {
-        //         var fileName = Path.GetRandomFileName();
-        //         var path = Path.Combine(Environment.ContentRootPath,
-        //             Environment.EnvironmentName, "unsafe_uploads",
-        //             trustedFileName);
+        if (model.ProfileImage is not null)
+        {
+            var file = model.ProfileImage;
+            try
+            {
+                var fileName = Path.GetRandomFileName();
+                var relativeAssetPath = $"profile_uploads/{fileName}_{file.Name}";
+                var currentAppPath = Environment.CurrentDirectory;
+                var path = Path.Combine(currentAppPath, "wwwroot", relativeAssetPath);
 
-        //         await using FileStream fs = new(path, FileMode.Create);
-        //         await file.OpenReadStream(maxFileSize).CopyToAsync(fs);
-
-        //         loadedFiles.Add(file);
-
-        //         Logger.LogInformation(
-        //             "Unsafe Filename: {UnsafeFilename} File saved: {Filename}",
-        //             file.Name, trustedFileName);
-        //     }
-        //     catch (Exception ex)
-        //     {
-        //         Logger.LogError("File: {Filename} Error: {Error}",
-        //             file.Name, ex.Message);
-        //     }
-        // }
+                await using FileStream fs = new(path, FileMode.Create);
+                await file.OpenReadStream().CopyToAsync(fs);
+                model.ProfileImagePath = relativeAssetPath;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("File: {Filename} Error: {Error}",
+                    file.Name, ex.Message);
+            }
+        }
 
         Db.Students.Add(model);
         var rowsAffected = await Db.SaveChangesAsync();

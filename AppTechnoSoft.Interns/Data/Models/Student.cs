@@ -16,6 +16,7 @@ public class Student
 
     [NotMapped]
     public IBrowserFile? ProfileImage { get; set; }
+    public string? ProfileImagePath { get; set; }
 
     public int CollegeId { get; set; }
     public College? College { get; set; }

@@ -18,6 +18,7 @@
 
   <ItemGroup>
     <Folder Include="Data\ViewModels\" />
+    <Folder Include="wwwroot\profile_uploads\" />
   </ItemGroup>
 
 </Project>

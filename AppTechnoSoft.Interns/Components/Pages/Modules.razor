@@ -27,7 +27,7 @@
     protected override async Task OnInitializedAsync()
     {
         loadingData = true;
-        widgets = await db.Widgets.Include(x => x.Tags).Where(z => z.Tags.Any(y => y.Name.Contains("Module"))).ToArrayAsync();
+        widgets = await db.Widgets.Include(x => x.Tags).Where(z => z.Tags.Any(y => y.Name == "Module")).ToArrayAsync();
         loadingData = false;
     }
 }

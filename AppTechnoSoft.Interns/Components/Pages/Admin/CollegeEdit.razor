@@ -1,5 +1,5 @@
-﻿@page "/add-tag"
-@page "/edit-tag/{Id:int}"
+﻿@page "/add-college"
+@page "/edit-college/{Id:int}"
 
 @inject ApplicationDbContext Db
 @inject ISnackbar SnackBar
@@ -11,20 +11,14 @@
               OnValidSubmit="OnValidSubmit">
         <DataAnnotationsValidator />
         <MudTextField Label="Title" @bind-Value="model.Name" For="@(() => model.Name)" />
-        <MudTextField Label="Description" Class="mt-3" @bind-Value="model.Description" For="@(() => model.Description)" />
-        <MudColorPicker ColorPickerView="ColorPickerView.Grid"
-                        AnchorOrigin="Origin.BottomCenter"
-                        Label="Color Code"
-                        @bind-Text="@model.ColorCode"
-                        Style="@($"color: {model.ColorCode};")"
-                        Placeholder="Select Color" />
+        <MudTextField Label="Location" Class="mt-3" @bind-Value="model.Location" For="@(() => model.Location)" />
 
         <MudButton ButtonType="ButtonType.Submit"
                    Variant="Variant.Filled"
                    Color="Color.Primary"
                    Class="mt-3"
                    StartIcon="@Icons.Material.Filled.Save">
-            Save Tag
+            Save College
         </MudButton>
     </EditForm>
 
@@ -33,7 +27,7 @@
     [Parameter]
     public int? Id { get; set; }
 
-    Tag model = new();
+    College model = new();
     bool success;
     string pageTitle;
     bool IsAdd => Id is null or 0;
@@ -42,12 +36,12 @@
     {
         if (IsAdd)
         {
-            pageTitle = "Add Tag";
+            pageTitle = "Add College";
         }
         else
         {
-            pageTitle = "Edit Tag";
-            model = await Db.Tags.FindAsync(Id);
+            pageTitle = "Edit College";
+            model = await Db.Colleges.FindAsync(Id);
         }
     }
 
@@ -55,25 +49,25 @@
     {
         if (IsAdd)
         {
-            Db.Tags.Add(model);
+            Db.Colleges.Add(model);
         }
         else
         {
             model.Id = Id.Value;
-            Db.Tags.Update(model);
+            Db.Colleges.Update(model);
         }
 
         var rowsAffected = await Db.SaveChangesAsync();
 
         if (rowsAffected > 0)
         {
-            SnackBar.Add("Tag saved successfully", Severity.Success);
+            SnackBar.Add("College saved successfully", Severity.Success);
         }
         else
         {
-            SnackBar.Add("Tag save failed", Severity.Error);
+            SnackBar.Add("College save failed", Severity.Error);
         }
 
-        Navigation.NavigateTo("/tags");
+        Navigation.NavigateTo("/colleges");
     }
 }

@@ -3,8 +3,8 @@
     <MudCardHeader>
         <CardHeaderContent>
             <MudText Typo="Typo.h6">@Widget.Title</MudText>
-            <MudText Typo="Typo.subtitle2">@Widget.Description</MudText>
-        </CardHeaderContent>
+                <MudText Typo="Typo.subtitle2">@Widget.Description</MudText>
+            </CardHeaderContent>
             <CardHeaderActions>
                 <MudIconButton Icon="@Icons.Material.Filled.Edit" Color="Color.Warning" Href="@EditUrl" />
             </CardHeaderActions>
@@ -15,11 +15,16 @@
             </MudContainer>
         </MudCardContent>
         <MudCardActions>
-            <MudButton Variant="Variant.Text" Color="Color.Primary">Read More</MudButton>
-        </MudCardActions>
-    </MudCard>
+            <MudChipSet>
+                @foreach (var tag in Widget.Tags)
+                {
+                    <MudChip Style=@("color:" + tag.ColorCode)>@tag.Name</MudChip>
+                }
+        </MudChipSet>
+    </MudCardActions>
+</MudCard>
 
-    @code {
+@code {
 
     [Parameter]
     public Widget Widget { get; set; } = new();

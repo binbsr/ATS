@@ -4,6 +4,7 @@
 
 @inject ApplicationDbContext Db
 @inject ISnackbar SnackBar
+@inject NavigationManager Navigation
 
 <EditForm Model="@model" OnValidSubmit="OnValidSubmit">
     <DataAnnotationsValidator />
@@ -132,6 +133,7 @@
         if (rowsAffected > 0)
         {
             SnackBar.Add("Applicaion received successfully", Severity.Success);
+            Navigation.NavigateTo("/dashboard");
         }
         else
         {

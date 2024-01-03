@@ -19,24 +19,24 @@
         <MudDivider Class="my-2" />
         <AuthorizeView>
             <Authorized>
-                <MudNavLink Href="Account/Manage" Icon="@Icons.Material.Filled.VerifiedUser">
-                    @context.User.Identity?.Name
+                <MudNavLink Href="Account/Manage">
+                    <b>@context.User.Identity?.Name</b>
                 </MudNavLink>
                 <form action="Account/Logout" method="post">
                     <AntiforgeryToken />
                     <input type="hidden" name="ReturnUrl" value="@currentUrl" />
-                    <MudButton ButtonType="ButtonType.Submit" StartIcon="@Icons.Material.Filled.Logout">Logout</MudButton>
-                </form>
-            </Authorized>
-            <NotAuthorized>
-                <MudNavLink Href="Account/Register" Icon="@Icons.Material.Filled.PersonAdd" IconColor="Color.Secondary">Register</MudNavLink>
-                <MudNavLink Href="Account/Login" Icon="@Icons.Material.Filled.Login" IconColor="Color.Secondary">Login</MudNavLink>
-            </NotAuthorized>
-        </AuthorizeView>
-    </MudNavMenu>
-</MudPaper>
+                    <MudButton FullWidth ButtonType="ButtonType.Submit" StartIcon="@Icons.Material.Sharp.Logout">Logout</MudButton>
+                 </form>
+             </Authorized>
+             <NotAuthorized>
+                 <MudNavLink Href="Account/Register" Icon="@Icons.Material.Filled.PersonAdd" IconColor="Color.Secondary">Register</MudNavLink>
+                 <MudNavLink Href="Account/Login" Icon="@Icons.Material.Filled.Login" IconColor="Color.Secondary">Login</MudNavLink>
+             </NotAuthorized>
+         </AuthorizeView>
+     </MudNavMenu>
+ </MudPaper>
 
-@code {
+ @code {
     private string? currentUrl;
 
     protected override void OnInitialized()

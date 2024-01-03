@@ -4,36 +4,36 @@
 
 <PageTitle>Home</PageTitle>
 
-<MudGrid>    
-    <MudItem md="6">
-        <MudCard>
-            <MudCardHeader>
-                <CardHeaderContent>
-                    <MudText Typo="Typo.h6">The Story Book</MudText>
-                </CardHeaderContent>
-                <CardHeaderActions>
-                    <MudIconButton Icon="@Icons.Material.Filled.Settings" Color="Color.Default" />
-                </CardHeaderActions>
-            </MudCardHeader>
-            <MudCardContent>
-                <MudText>This day everything happened.</MudText>
-                <MudText Typo="Typo.body2">The quick, brown fox jumps over a lazy dog.</MudText>
-            </MudCardContent>
-            <MudCardActions>
-                <MudButton Variant="Variant.Text" Color="Color.Primary">Read More</MudButton>
-            </MudCardActions>
-        </MudCard>
-    </MudItem>    
+<MudGrid>
+    <MudItem md="12" xs="12">
+        <MudCarousel Class="mud-width-full"
+                     Style="height:400px;"
+                     ShowArrows="@true"
+                     ShowBullets="@true"
+                     EnableSwipeGesture="@true"
+                     AutoCycle="@true" TData="object">
+            @foreach (var content in contents)
+            {
+                <MudCarouselItem Transition="Transition.Slide" Color="@content.Value" Class="pt-5">
+                    <MudText Typo="Typo.h3" Align="Align.Center">@((MarkupString)content.Key)</MudText>
+                </MudCarouselItem>
+            }
+        </MudCarousel>
+    </MudItem>
 </MudGrid>
 
 @code {
-    private List<Widget> widgets = new();
-    private bool loadingData = false;
-
+    private Dictionary<string, Color> contents = new();
+    
     protected override async Task OnInitializedAsync()
     {
-        loadingData = true;
-        widgets = await db.Widgets.Where(x => x.Type == WidgetType.CourseModule).ToListAsync();
-        loadingData = false;
+        var carouselItems = await db.Widgets.Where(x => x.Title == "CarouselItem").ToListAsync();
+        Color[] colors = [Color.Secondary, Color.Success, Color.Tertiary, Color.Warning, Color.Primary, Color.Error];
+        Random rnd = new();
+
+        foreach(var item in carouselItems)
+        {
+            contents.Add(item.HtmlContent, colors[rnd.Next(0, colors.Length)]);
+        }
     }
 }

@@ -20,7 +20,7 @@
         <AuthorizeView>
             <Authorized>
                 <MudNavLink Href="Account/Manage">
-                    <b>@context.User.Identity?.Name</b>
+                    <b style="text-align:center">@context.User.Identity?.Name</b>
                 </MudNavLink>
                 <form action="Account/Logout" method="post">
                     <AntiforgeryToken />

@@ -1,5 +1,5 @@
 ﻿namespace AppTechnoSoft.Interns.Data.Models;
-public class FinAccount
+public class FinAccount : BaseEntity
 {
     public int Id { get; set; }
     public float FeeAmount { get; set; }

@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Components.Forms;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace AppTechnoSoft.Interns.Data.Models;
-public class Student
+public class Student : BaseEntity
 {
     public Student()
     {
@@ -31,4 +31,7 @@ public class Student
 
     public int? FinAccountId { get; set; }
     public FinAccount? FinAccount { get; set; }
+
+    public int? TeamId { get; set; }
+    public Team? Team { get; set; }
 }

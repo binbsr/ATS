@@ -13,6 +13,7 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
     public DbSet<FinAccount> FinAccounts { get; set; }
     public DbSet<Widget> Widgets { get; set; }
     public DbSet<Tag> Tags { get; set; }
+    public DbSet<Team> Teams { get; set; }
 
     protected override void OnModelCreating(ModelBuilder builder)
     {

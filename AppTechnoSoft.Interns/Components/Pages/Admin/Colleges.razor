@@ -27,8 +27,8 @@
         <PropertyColumn Property="x => x.Location" />
         <TemplateColumn Filterable="false" CellClass="d-flex justify-end">
             <CellTemplate>
-                <MudIconButton Icon="@Icons.Material.Filled.Edit" Color="Color.Warning" Href="@("/edit-college/" + context.Item.Id)" />
-                <MudIconButton Icon="@Icons.Material.Sharp.Delete" Color="Color.Error" OnClick="() => ConfirmDelete(context.Item)"/>
+                <MudIconButton Icon="@Icons.Material.Filled.Edit" Size="Size.Small" Color="Color.Warning" Href="@("/edit-college/" + context.Item.Id)" />
+                <MudIconButton Icon="@Icons.Material.Sharp.Delete" Size="Size.Small" Color="Color.Error" OnClick="() => ConfirmDelete(context.Item)" />
                     <MudMessageBox @ref="mbox" Title="Warning" CancelText="Cancel">
                         <MessageContent>
                             Are you sure to delete this college? It can't be undone!

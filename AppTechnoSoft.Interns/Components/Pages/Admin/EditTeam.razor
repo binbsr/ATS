@@ -1,0 +1,73 @@
+﻿@page "/add-team"
+@page "/edit-team/{Id:int}"
+
+@inject ApplicationDbContext Db
+@inject ISnackbar SnackBar
+@inject NavigationManager Navigation
+
+<PageTitle>@pageTitle</PageTitle>
+
+    <EditForm Model="@model"
+              OnValidSubmit="OnValidSubmit">
+        <DataAnnotationsValidator />
+        <MudTextField Label="Title" @bind-Value="model.Name" For="@(() => model.Name)" />
+        <MudTextField Label="Description" Class="mt-3" @bind-Value="model.Description" For="@(() => model.Description)" />        
+
+        <MudButton ButtonType="ButtonType.Submit"
+                   Variant="Variant.Filled"
+                   Color="Color.Primary"
+                   Class="mt-3"
+                   StartIcon="@Icons.Material.Filled.Save">
+            Save Team
+        </MudButton>
+    </EditForm>
+
+    @code {
+
+    [Parameter]
+    public int? Id { get; set; }
+
+    Team model = new();
+    bool success;
+    string pageTitle;
+    bool IsAdd => Id is null or 0;
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (IsAdd)
+        {
+            pageTitle = "Add Team";
+        }
+        else
+        {
+            pageTitle = "Edit Team";
+            model = await Db.Teams.FindAsync(Id);
+        }
+    }
+
+    private async Task OnValidSubmit(EditContext context)
+    {
+        if (IsAdd)
+        {
+            Db.Teams.Add(model);
+        }
+        else
+        {
+            model.Id = Id.Value;
+            Db.Teams.Update(model);
+        }
+
+        var rowsAffected = await Db.SaveChangesAsync();
+
+        if (rowsAffected > 0)
+        {
+            SnackBar.Add("Team saved successfully", Severity.Success);
+        }
+        else
+        {
+            SnackBar.Add("Team save failed", Severity.Error);
+        }
+
+        Navigation.NavigateTo("/teams");
+    }
+}

@@ -1,0 +1,95 @@
+﻿@page "/teams"
+
+@inject ApplicationDbContext Db
+@inject ISnackbar SnackBar
+
+<MudTable Items="@teams" Hover="true" Filter="new Func<Team,bool>(FilterFunc1)" @bind-SelectedItem="selectedTeam" Loading="@loadingData">
+    <ToolBarContent>
+        <MudFab Href="/add-team" StartIcon="@Icons.Material.Filled.Add" Title="Add New Team" Size="Size.Small" Color="Color.Tertiary"></MudFab>
+        <MudSpacer />
+        <MudTextField @bind-Value="searchString" Placeholder="Search"
+                      Adornment="Adornment.Start"
+                      AdornmentIcon="@Icons.Material.Filled.Search"
+                      IconSize="Size.Medium"
+                      Class="mt-0">
+        </MudTextField>
+    </ToolBarContent>
+    <HeaderContent>
+        <MudTh>#</MudTh>
+        <MudTh>Name</MudTh>
+        <MudTh>Description</MudTh>
+        <MudTh>Created</MudTh>
+    </HeaderContent>
+    <RowTemplate>
+        <MudTd DataLabel="#">@(teams.IndexOf(context) + 1)</MudTd>
+        <MudTd DataLabel="Name">@context.Name</MudTd>
+            <MudTd DataLabel="Description">@context.Description</MudTd>
+            <MudTd DataLabel="Created">@context.Created</MudTd>
+            <MudTd>
+                <MudIconButton Icon="@Icons.Material.Filled.Edit" Size="Size.Small" Color="Color.Warning" Href="@("/edit-team/" + context.Id)" />
+                <MudIconButton Icon="@Icons.Material.Sharp.Delete" Size="Size.Small" Color="Color.Error" OnClick="() => ConfirmDelete(context)" />
+                <MudMessageBox @ref="mbox" Title="Warning" CancelText="Cancel">
+                    <MessageContent>
+                        Are you sure to delete this team? It can't be undone!
+                    </MessageContent>
+                    <YesButton>
+                        <MudButton Variant="Variant.Filled" Color="Color.Error" StartIcon="@Icons.Material.Filled.DeleteForever">Delete!</MudButton>
+                    </YesButton>
+                </MudMessageBox>
+            </MudTd>
+        </RowTemplate>
+        <PagerContent>
+            <MudTablePager />
+        </PagerContent>
+    </MudTable>
+
+
+    @code {
+
+    private List<Team> teams = new();
+    private Team selectedTeam = new();
+    private bool loadingData;
+    private string searchString = "";
+    MudMessageBox mbox { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        loadingData = true;
+        teams = await Db.Teams.ToListAsync();
+        loadingData = false;
+    }
+
+    private bool FilterFunc1(Team team) => FilterFunc(team, searchString);
+
+    private bool FilterFunc(Team team, string searchString)
+    {
+        if (string.IsNullOrWhiteSpace(searchString))
+            return true;
+        if (team.Name.Contains(searchString, StringComparison.OrdinalIgnoreCase))
+            return true;
+        if (team.Description.Contains(searchString, StringComparison.OrdinalIgnoreCase))
+            return true;
+        return false;
+    }
+
+    private async Task ConfirmDelete(Team team)
+    {
+        bool? result = await mbox.Show();
+        if (result == null)
+            return;
+
+        Db.Teams.Remove(team);
+
+        var rowsAffected = await Db.SaveChangesAsync();
+
+        if (rowsAffected > 0)
+        {
+            SnackBar.Add("Team Deleted successfully", Severity.Success);
+            teams.Remove(team);
+        }
+        else
+        {
+            SnackBar.Add("Team Delete failed", Severity.Error);
+        }
+    }
+}

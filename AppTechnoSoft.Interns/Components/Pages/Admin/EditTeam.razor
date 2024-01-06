@@ -11,18 +11,35 @@
               OnValidSubmit="OnValidSubmit">
         <DataAnnotationsValidator />
         <MudTextField Label="Title" @bind-Value="model.Name" For="@(() => model.Name)" />
-        <MudTextField Label="Description" Class="mt-3" @bind-Value="model.Description" For="@(() => model.Description)" />        
+        <MudTextField Label="Description" Class="mt-3" @bind-Value="model.Description" For="@(() => model.Description)" />
 
-        <MudButton ButtonType="ButtonType.Submit"
-                   Variant="Variant.Filled"
-                   Color="Color.Primary"
-                   Class="mt-3"
-                   StartIcon="@Icons.Material.Filled.Save">
-            Save Team
-        </MudButton>
-    </EditForm>
+        @if (!IsAdd)
+        {
+            <MudSelect T="string"
+                       Dense="true"
+                       Label="Members of this team"
+                       MultiSelection="true"
+                       @bind-SelectedValues="@studentsSelected"
+                       Class="my-3"
+                       MultiSelectionTextFunc="@(new Func<List<string>, string>(GetMultiSelectionText))"
+                       AnchorOrigin="Origin.BottomCenter">
+                @foreach (var student in students)
+                {
+                    <MudSelectItem Value="@student.Id">@student.Name</MudSelectItem>
+                }
+            </MudSelect>
+        }
 
-    @code {
+    <MudButton ButtonType="ButtonType.Submit"
+               Variant="Variant.Filled"
+               Color="Color.Primary"
+               Class="mt-3"
+               StartIcon="@Icons.Material.Filled.Save">
+        Save Team
+    </MudButton>
+</EditForm>
+
+@code {
 
     [Parameter]
     public int? Id { get; set; }
@@ -31,9 +48,15 @@
     bool success;
     string pageTitle;
     bool IsAdd => Id is null or 0;
+    IEnumerable<string> studentsSelected;
+    List<ListItem> students = new();
+    record ListItem(string Id, string Name, int? TeamId);
 
     protected override async Task OnInitializedAsync()
     {
+        students = await Db.Students.Select(x => new ListItem(x.Id, $"{x.Name} ({x.Email})", x.TeamId)).ToListAsync();
+        studentsSelected = students.Where(x => x.TeamId == Id).Select(x => x.Id);
+
         if (IsAdd)
         {
             pageTitle = "Add Team";
@@ -54,6 +77,9 @@
         else
         {
             model.Id = Id.Value;
+
+            // Update student table
+            Db.Students.Where(s => studentsSelected.Contains(s.Id)).ExecuteUpdate(x => x.SetProperty(y => y.TeamId, model.Id));
             Db.Teams.Update(model);
         }
 
@@ -69,5 +95,10 @@
         }
 
         Navigation.NavigateTo("/teams");
+    }
+
+    private string GetMultiSelectionText(List<string> selectedValues)
+    {
+        return $"{selectedValues.Count} student{(selectedValues.Count > 1 ? "s have" : " has")} been selected";
     }
 }

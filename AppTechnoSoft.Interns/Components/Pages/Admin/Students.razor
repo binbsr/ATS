@@ -11,7 +11,8 @@
              Hover="true"
              QuickFilter="@_quickFilter"
              Loading="loadingData"
-             Hideable="true">
+             Hideable="true"
+             Dense="true">
 
     <ToolBarContent>
         <MudText Typo="Typo.h6">All Tech Students</MudText>
@@ -42,6 +43,11 @@
         <PropertyColumn Property="x => x.WebExperience" Title="Web Exposure" />
         <PropertyColumn Property="x => x.DbExperience" Title="Db Exposure" />
         <PropertyColumn Property="x => x.Status" />
+        <TemplateColumn>
+            <CellTemplate>
+                @(context.Item.Team?.Name ?? "Not Assigned")
+            </CellTemplate>
+        </TemplateColumn>
         <PropertyColumn Property="x => x.College.Name" Title="College" />
         <PropertyColumn Property="x => x.TechProgram.Name" Title="Program" />
         <PropertyColumn Property="x => x.FormSubmitted" />
@@ -80,7 +86,7 @@
     protected override async Task OnInitializedAsync()
     {
         loadingData = true;
-        studentList = await db.Students.Include(s => s.College).Include(t => t.TechProgram).ToListAsync();
+        studentList = await db.Students.Include(s => s.College).Include(t => t.TechProgram).Include(t => t.Team).ToListAsync();
         loadingData = false;
     }
 }

@@ -10,15 +10,16 @@
     BlazoredTextEditor component
 </MudText>
 
-<MudGrid>
-    @foreach (var widget in widgets)
-    {
-        <MudItem md="6" xs="12">
-            <Module Widget="@widget" />
-        </MudItem>
-    }
-</MudGrid>
-
+<MudExpansionPanels Elevation="5" MultiExpansion="true">
+    <MudGrid>
+        @foreach (var widget in widgets)
+        {
+            <MudItem md="6" xs="12">
+                <Module Widget="@widget" />
+            </MudItem>
+        }
+    </MudGrid>
+</MudExpansionPanels>
 
 @code {
     Widget[] widgets = [];

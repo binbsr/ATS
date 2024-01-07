@@ -14,6 +14,24 @@ namespace AppTechnoSoft.Interns.Data.Migrations
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.CreateTable(
+                name: "Batches",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    Start = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    End = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    Created = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    CreatedBy = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    LastUpdated = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    LastUpdatedBy = table.Column<string>(type: "nvarchar(max)", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Batches", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "Colleges",
                 columns: table => new
                 {
@@ -84,24 +102,6 @@ namespace AppTechnoSoft.Interns.Data.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "Teams",
-                columns: table => new
-                {
-                    Id = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    Name = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Description = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    Created = table.Column<DateTime>(type: "datetime2", nullable: true),
-                    CreatedBy = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    LastUpdated = table.Column<DateTime>(type: "datetime2", nullable: true),
-                    LastUpdatedBy = table.Column<string>(type: "nvarchar(max)", nullable: true)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Teams", x => x.Id);
-                });
-
-            migrationBuilder.CreateTable(
                 name: "TechPrograms",
                 columns: table => new
                 {
@@ -164,6 +164,32 @@ namespace AppTechnoSoft.Interns.Data.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "Teams",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    Name = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    ProjectTitle = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    ProjectDetails = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    Description = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    BatchId = table.Column<int>(type: "int", nullable: true),
+                    Created = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    CreatedBy = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    LastUpdated = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    LastUpdatedBy = table.Column<string>(type: "nvarchar(max)", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Teams", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Teams_Batches_BatchId",
+                        column: x => x.BatchId,
+                        principalTable: "Batches",
+                        principalColumn: "Id");
+                });
+
+            migrationBuilder.CreateTable(
                 name: "RoleClaims",
                 columns: table => new
                 {
@@ -182,61 +208,6 @@ namespace AppTechnoSoft.Interns.Data.Migrations
                         principalTable: "Roles",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "Students",
-                columns: table => new
-                {
-                    Id = table.Column<string>(type: "nvarchar(450)", nullable: false),
-                    Name = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Phone = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Email = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    WebExperience = table.Column<int>(type: "int", nullable: false),
-                    DbExperience = table.Column<int>(type: "int", nullable: false),
-                    FormSubmitted = table.Column<DateTime>(type: "datetime2", nullable: true),
-                    Status = table.Column<int>(type: "int", nullable: false),
-                    ProfileImagePath = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    CollegeId = table.Column<int>(type: "int", nullable: false),
-                    TechProgramId = table.Column<int>(type: "int", nullable: false),
-                    FinAccountId = table.Column<int>(type: "int", nullable: true),
-                    TeamId = table.Column<int>(type: "int", nullable: true),
-                    ApplicationUserId = table.Column<string>(type: "nvarchar(450)", nullable: true),
-                    Created = table.Column<DateTime>(type: "datetime2", nullable: true),
-                    CreatedBy = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    LastUpdated = table.Column<DateTime>(type: "datetime2", nullable: true),
-                    LastUpdatedBy = table.Column<string>(type: "nvarchar(max)", nullable: true)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Students", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_Students_Colleges_CollegeId",
-                        column: x => x.CollegeId,
-                        principalTable: "Colleges",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "FK_Students_FinAccounts_FinAccountId",
-                        column: x => x.FinAccountId,
-                        principalTable: "FinAccounts",
-                        principalColumn: "Id");
-                    table.ForeignKey(
-                        name: "FK_Students_Teams_TeamId",
-                        column: x => x.TeamId,
-                        principalTable: "Teams",
-                        principalColumn: "Id");
-                    table.ForeignKey(
-                        name: "FK_Students_TechPrograms_TechProgramId",
-                        column: x => x.TechProgramId,
-                        principalTable: "TechPrograms",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "FK_Students_Users_ApplicationUserId",
-                        column: x => x.ApplicationUserId,
-                        principalTable: "Users",
-                        principalColumn: "Id");
                 });
 
             migrationBuilder.CreateTable(
@@ -348,35 +319,99 @@ namespace AppTechnoSoft.Interns.Data.Migrations
                         onDelete: ReferentialAction.Cascade);
                 });
 
+            migrationBuilder.CreateTable(
+                name: "Students",
+                columns: table => new
+                {
+                    Id = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    Name = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Phone = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Email = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    WebExperience = table.Column<int>(type: "int", nullable: false),
+                    DbExperience = table.Column<int>(type: "int", nullable: false),
+                    FormSubmitted = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    Status = table.Column<int>(type: "int", nullable: false),
+                    ProfileImagePath = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    CollegeId = table.Column<int>(type: "int", nullable: false),
+                    TechProgramId = table.Column<int>(type: "int", nullable: false),
+                    FinAccountId = table.Column<int>(type: "int", nullable: true),
+                    TeamId = table.Column<int>(type: "int", nullable: true),
+                    ApplicationUserId = table.Column<string>(type: "nvarchar(450)", nullable: true),
+                    Created = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    CreatedBy = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    LastUpdated = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    LastUpdatedBy = table.Column<string>(type: "nvarchar(max)", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Students", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Students_Colleges_CollegeId",
+                        column: x => x.CollegeId,
+                        principalTable: "Colleges",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_Students_FinAccounts_FinAccountId",
+                        column: x => x.FinAccountId,
+                        principalTable: "FinAccounts",
+                        principalColumn: "Id");
+                    table.ForeignKey(
+                        name: "FK_Students_Teams_TeamId",
+                        column: x => x.TeamId,
+                        principalTable: "Teams",
+                        principalColumn: "Id");
+                    table.ForeignKey(
+                        name: "FK_Students_TechPrograms_TechProgramId",
+                        column: x => x.TechProgramId,
+                        principalTable: "TechPrograms",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_Students_Users_ApplicationUserId",
+                        column: x => x.ApplicationUserId,
+                        principalTable: "Users",
+                        principalColumn: "Id");
+                });
+
             migrationBuilder.InsertData(
                 table: "Colleges",
                 columns: new[] { "Id", "Created", "CreatedBy", "LastUpdated", "LastUpdatedBy", "Location", "Name" },
                 values: new object[,]
                 {
-                    { 1, new DateTime(2024, 1, 7, 9, 30, 34, 530, DateTimeKind.Local).AddTicks(7806), null, null, null, "Bhadrapur, Jhapa", "Mechi Multiple Campus" },
-                    { 2, new DateTime(2024, 1, 7, 9, 30, 34, 530, DateTimeKind.Local).AddTicks(7826), null, null, null, "Dhankuta", "Dhankuta Multiple Campus" },
-                    { 3, new DateTime(2024, 1, 7, 9, 30, 34, 530, DateTimeKind.Local).AddTicks(7827), null, null, null, "Dharan", "Central Campus of Technology" },
-                    { 4, new DateTime(2024, 1, 7, 9, 30, 34, 530, DateTimeKind.Local).AddTicks(7828), null, null, null, "Biratnagar", "Mahendra Morang Adarsha Multiple Campus" },
-                    { 5, new DateTime(2024, 1, 7, 9, 30, 34, 530, DateTimeKind.Local).AddTicks(7829), null, null, null, "Rajbiraj", "Mahendra Bindeshwori Multiple Campus" },
-                    { 6, new DateTime(2024, 1, 7, 9, 30, 34, 530, DateTimeKind.Local).AddTicks(7830), null, null, null, "Siraha", "Surya Narayan Satya Na. Mo. Yadav Campus" },
-                    { 7, new DateTime(2024, 1, 7, 9, 30, 34, 530, DateTimeKind.Local).AddTicks(7831), null, null, null, "Janakpur", "Ramsorup Ramsagar Multiple Campus" },
-                    { 8, new DateTime(2024, 1, 7, 9, 30, 34, 530, DateTimeKind.Local).AddTicks(7832), null, null, null, "Birgunj", "Thakur Ram Multiple Campus" },
-                    { 9, new DateTime(2024, 1, 7, 9, 30, 34, 530, DateTimeKind.Local).AddTicks(7833), null, null, null, "Bharatpur", "Birendra Multiple Campus" },
-                    { 10, new DateTime(2024, 1, 7, 9, 30, 34, 530, DateTimeKind.Local).AddTicks(7834), null, null, null, "Pokhara", "Prithivi Narayan Multiple Campus" },
-                    { 11, new DateTime(2024, 1, 7, 9, 30, 34, 530, DateTimeKind.Local).AddTicks(7835), null, null, null, "Mahendranagar", "SidhaNath Science Campus" },
-                    { 12, new DateTime(2024, 1, 7, 9, 30, 34, 530, DateTimeKind.Local).AddTicks(7836), null, null, null, "Nepalgunj", "Mahendra Multiple Campus" },
-                    { 13, new DateTime(2024, 1, 7, 9, 30, 34, 530, DateTimeKind.Local).AddTicks(7837), null, null, null, "Butwal", "Butwal Multiple Campus" },
-                    { 14, new DateTime(2024, 1, 7, 9, 30, 34, 530, DateTimeKind.Local).AddTicks(7838), null, null, null, "Palpa", "Tribhuvan Multiple Campus" },
-                    { 15, new DateTime(2024, 1, 7, 9, 30, 34, 530, DateTimeKind.Local).AddTicks(7839), null, null, null, "Ghantaghar", "Tri-Chandra Multiple Campus" },
-                    { 16, new DateTime(2024, 1, 7, 9, 30, 34, 530, DateTimeKind.Local).AddTicks(7840), null, null, null, "Lainchour", "Amrit Science Campus" },
-                    { 17, new DateTime(2024, 1, 7, 9, 30, 34, 530, DateTimeKind.Local).AddTicks(7841), null, null, null, "Patan", "Patan Multiple Campus" },
-                    { 18, new DateTime(2024, 1, 7, 9, 30, 34, 530, DateTimeKind.Local).AddTicks(7841), null, null, null, "Bhaktapur", "Bhaktapur Multiple Campus" },
-                    { 19, new DateTime(2024, 1, 7, 9, 30, 34, 530, DateTimeKind.Local).AddTicks(7842), null, null, null, "Bagbazar", "Padma Kanya Multiple Campus" },
-                    { 20, new DateTime(2024, 1, 7, 9, 30, 34, 530, DateTimeKind.Local).AddTicks(7843), null, null, null, "Ghorahi, Dang", "Mahendra Multiple Campus" },
-                    { 21, new DateTime(2024, 1, 7, 9, 30, 34, 530, DateTimeKind.Local).AddTicks(7844), null, null, null, "Baglung", "Dhaulagiri Campus" },
-                    { 22, new DateTime(2024, 1, 7, 9, 30, 34, 530, DateTimeKind.Local).AddTicks(7845), null, null, null, "Gorkha", "Gorkha Campus" },
-                    { 23, new DateTime(2024, 1, 7, 9, 30, 34, 530, DateTimeKind.Local).AddTicks(7846), null, null, null, "Bhairahawa", "Bhairahawa Multiple Campus" },
-                    { 24, new DateTime(2024, 1, 7, 9, 30, 34, 530, DateTimeKind.Local).AddTicks(7848), null, null, null, "Biratnagar", "Degree Campus" }
+                    { 1, new DateTime(2024, 1, 7, 16, 1, 35, 279, DateTimeKind.Local).AddTicks(5412), null, null, null, "Bhadrapur, Jhapa", "Mechi Multiple Campus" },
+                    { 2, new DateTime(2024, 1, 7, 16, 1, 35, 279, DateTimeKind.Local).AddTicks(5443), null, null, null, "Dhankuta", "Dhankuta Multiple Campus" },
+                    { 3, new DateTime(2024, 1, 7, 16, 1, 35, 279, DateTimeKind.Local).AddTicks(5445), null, null, null, "Dharan", "Central Campus of Technology" },
+                    { 4, new DateTime(2024, 1, 7, 16, 1, 35, 279, DateTimeKind.Local).AddTicks(5447), null, null, null, "Biratnagar", "Mahendra Morang Adarsha Multiple Campus" },
+                    { 5, new DateTime(2024, 1, 7, 16, 1, 35, 279, DateTimeKind.Local).AddTicks(5449), null, null, null, "Rajbiraj", "Mahendra Bindeshwori Multiple Campus" },
+                    { 6, new DateTime(2024, 1, 7, 16, 1, 35, 279, DateTimeKind.Local).AddTicks(5451), null, null, null, "Siraha", "Surya Narayan Satya Na. Mo. Yadav Campus" },
+                    { 7, new DateTime(2024, 1, 7, 16, 1, 35, 279, DateTimeKind.Local).AddTicks(5452), null, null, null, "Janakpur", "Ramsorup Ramsagar Multiple Campus" },
+                    { 8, new DateTime(2024, 1, 7, 16, 1, 35, 279, DateTimeKind.Local).AddTicks(5454), null, null, null, "Birgunj", "Thakur Ram Multiple Campus" },
+                    { 9, new DateTime(2024, 1, 7, 16, 1, 35, 279, DateTimeKind.Local).AddTicks(5456), null, null, null, "Bharatpur", "Birendra Multiple Campus" },
+                    { 10, new DateTime(2024, 1, 7, 16, 1, 35, 279, DateTimeKind.Local).AddTicks(5457), null, null, null, "Pokhara", "Prithivi Narayan Multiple Campus" },
+                    { 11, new DateTime(2024, 1, 7, 16, 1, 35, 279, DateTimeKind.Local).AddTicks(5459), null, null, null, "Mahendranagar", "SidhaNath Science Campus" },
+                    { 12, new DateTime(2024, 1, 7, 16, 1, 35, 279, DateTimeKind.Local).AddTicks(5460), null, null, null, "Nepalgunj", "Mahendra Multiple Campus" },
+                    { 13, new DateTime(2024, 1, 7, 16, 1, 35, 279, DateTimeKind.Local).AddTicks(5462), null, null, null, "Butwal", "Butwal Multiple Campus" },
+                    { 14, new DateTime(2024, 1, 7, 16, 1, 35, 279, DateTimeKind.Local).AddTicks(5463), null, null, null, "Palpa", "Tribhuvan Multiple Campus" },
+                    { 15, new DateTime(2024, 1, 7, 16, 1, 35, 279, DateTimeKind.Local).AddTicks(5465), null, null, null, "Ghantaghar", "Tri-Chandra Multiple Campus" },
+                    { 16, new DateTime(2024, 1, 7, 16, 1, 35, 279, DateTimeKind.Local).AddTicks(5466), null, null, null, "Lainchour", "Amrit Science Campus" },
+                    { 17, new DateTime(2024, 1, 7, 16, 1, 35, 279, DateTimeKind.Local).AddTicks(5468), null, null, null, "Patan", "Patan Multiple Campus" },
+                    { 18, new DateTime(2024, 1, 7, 16, 1, 35, 279, DateTimeKind.Local).AddTicks(5469), null, null, null, "Bhaktapur", "Bhaktapur Multiple Campus" },
+                    { 19, new DateTime(2024, 1, 7, 16, 1, 35, 279, DateTimeKind.Local).AddTicks(5471), null, null, null, "Bagbazar", "Padma Kanya Multiple Campus" },
+                    { 20, new DateTime(2024, 1, 7, 16, 1, 35, 279, DateTimeKind.Local).AddTicks(5472), null, null, null, "Ghorahi, Dang", "Mahendra Multiple Campus" },
+                    { 21, new DateTime(2024, 1, 7, 16, 1, 35, 279, DateTimeKind.Local).AddTicks(5474), null, null, null, "Baglung", "Dhaulagiri Campus" },
+                    { 22, new DateTime(2024, 1, 7, 16, 1, 35, 279, DateTimeKind.Local).AddTicks(5475), null, null, null, "Gorkha", "Gorkha Campus" },
+                    { 23, new DateTime(2024, 1, 7, 16, 1, 35, 279, DateTimeKind.Local).AddTicks(5476), null, null, null, "Bhairahawa", "Bhairahawa Multiple Campus" },
+                    { 24, new DateTime(2024, 1, 7, 16, 1, 35, 279, DateTimeKind.Local).AddTicks(5478), null, null, null, "Biratnagar", "Degree Campus" }
+                });
+
+            migrationBuilder.InsertData(
+                table: "Tags",
+                columns: new[] { "Id", "ColorCode", "Created", "CreatedBy", "Description", "LastUpdated", "LastUpdatedBy", "Name" },
+                values: new object[,]
+                {
+                    { 1, "", new DateTime(2024, 1, 7, 16, 1, 35, 279, DateTimeKind.Local).AddTicks(6030), null, "Specific module/sub-module for a training course", null, null, "Module" },
+                    { 2, "", new DateTime(2024, 1, 7, 16, 1, 35, 279, DateTimeKind.Local).AddTicks(6035), null, "Single display item for home page", null, null, "CarouselItem" }
                 });
 
             migrationBuilder.InsertData(
@@ -384,13 +419,13 @@ namespace AppTechnoSoft.Interns.Data.Migrations
                 columns: new[] { "Id", "Affliation", "Created", "CreatedBy", "LastUpdated", "LastUpdatedBy", "Name" },
                 values: new object[,]
                 {
-                    { 1, "TU", new DateTime(2024, 1, 7, 9, 30, 34, 530, DateTimeKind.Local).AddTicks(8024), null, null, null, "BCA" },
-                    { 2, "PU", new DateTime(2024, 1, 7, 9, 30, 34, 530, DateTimeKind.Local).AddTicks(8027), null, null, null, "BCA" },
-                    { 3, "TU", new DateTime(2024, 1, 7, 9, 30, 34, 530, DateTimeKind.Local).AddTicks(8028), null, null, null, "BIT" },
-                    { 4, "PU", new DateTime(2024, 1, 7, 9, 30, 34, 530, DateTimeKind.Local).AddTicks(8029), null, null, null, "BIT" },
-                    { 5, "TU", new DateTime(2024, 1, 7, 9, 30, 34, 530, DateTimeKind.Local).AddTicks(8030), null, null, null, "BIM" },
-                    { 6, "TU", new DateTime(2024, 1, 7, 9, 30, 34, 530, DateTimeKind.Local).AddTicks(8031), null, null, null, "BScIT" },
-                    { 7, "PU", new DateTime(2024, 1, 7, 9, 30, 34, 530, DateTimeKind.Local).AddTicks(8032), null, null, null, "BScIT" }
+                    { 1, "TU", new DateTime(2024, 1, 7, 16, 1, 35, 279, DateTimeKind.Local).AddTicks(5956), null, null, null, "BCA" },
+                    { 2, "PU", new DateTime(2024, 1, 7, 16, 1, 35, 279, DateTimeKind.Local).AddTicks(5962), null, null, null, "BCA" },
+                    { 3, "TU", new DateTime(2024, 1, 7, 16, 1, 35, 279, DateTimeKind.Local).AddTicks(5964), null, null, null, "BIT" },
+                    { 4, "PU", new DateTime(2024, 1, 7, 16, 1, 35, 279, DateTimeKind.Local).AddTicks(5965), null, null, null, "BIT" },
+                    { 5, "TU", new DateTime(2024, 1, 7, 16, 1, 35, 279, DateTimeKind.Local).AddTicks(5967), null, null, null, "BIM" },
+                    { 6, "TU", new DateTime(2024, 1, 7, 16, 1, 35, 279, DateTimeKind.Local).AddTicks(5969), null, null, null, "BScIT" },
+                    { 7, "PU", new DateTime(2024, 1, 7, 16, 1, 35, 279, DateTimeKind.Local).AddTicks(5971), null, null, null, "BScIT" }
                 });
 
             migrationBuilder.CreateIndex(
@@ -434,6 +469,11 @@ namespace AppTechnoSoft.Interns.Data.Migrations
                 name: "IX_TagWidget_WidgetsId",
                 table: "TagWidget",
                 column: "WidgetsId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Teams_BatchId",
+                table: "Teams",
+                column: "BatchId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_UserClaims_UserId",
@@ -510,6 +550,9 @@ namespace AppTechnoSoft.Interns.Data.Migrations
 
             migrationBuilder.DropTable(
                 name: "Users");
+
+            migrationBuilder.DropTable(
+                name: "Batches");
         }
     }
 }

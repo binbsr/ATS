@@ -14,6 +14,7 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
     public DbSet<Widget> Widgets { get; set; }
     public DbSet<Tag> Tags { get; set; }
     public DbSet<Team> Teams { get; set; }
+    public DbSet<Batch> Batches { get; set; }
 
     protected override void OnModelCreating(ModelBuilder builder)
     {
@@ -64,6 +65,12 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
                     new TechProgram { Id = 5,  Name="BIM", Affliation="TU" },
                     new TechProgram { Id = 6,  Name="BScIT", Affliation="TU" },
                     new TechProgram { Id = 7,  Name="BScIT", Affliation="PU" },
+            ]);
+
+        builder.Entity<Tag>()
+            .HasData([
+                    new Tag { Id = 1, Name = "Module", Description="Specific module/sub-module for a training course" },
+                    new Tag { Id = 2, Name = "CarouselItem", Description="Single display item for home page" }
             ]);
     }
 }

@@ -22,10 +22,10 @@ else
     }
     else
     {
-        <MudText Typo="Typo.h6" Class="my-2">@((MarkupString)$"Your Study Batch: <strong>{teamMembers[0].TeamName}</strong> ({teamMembers.Count} Members)")</MudText>
+        <MudText Typo="Typo.h6" Class="my-2">@((MarkupString)$"Your Study Batch: <strong>{loggedInUserBatchName}</strong> ({batchMembers.Count} Members)")</MudText>
         <MudPaper Class="p-4" Elevation="3">
             <MudAvatarGroup Max="8" Spacing="10" MaxColor="Color.Primary">
-                @foreach (var member in teamMembers)
+                @foreach (var member in batchMembers)
                 {
                     <MudTooltip Text="@(loggedInUserId == member.UserId ? $"{member.Name} (You)" : member.Name)">
                         <MudAvatar Style="height:70px; width:70px; font-size:2rem;">
@@ -37,7 +37,7 @@ else
             </MudAvatarGroup>
         </MudPaper>
 
-        <MudText Typo="Typo.h6" Class="my-2 mt-5">@((MarkupString)$"Your Project Team: <strong>{teamMembers[0].TeamName}</strong> ({teamMembers.Count} Members)")</MudText>
+        <MudText Typo="Typo.h6" Class="my-2 mt-5">@((MarkupString)$"Your Project Team: <strong>{loggedInUserTeamName}</strong> ({teamMembers.Count} Members)")</MudText>
         <MudPaper Class="p-4" Elevation="3">
             <MudAvatarGroup Max="8" Spacing="10" MaxColor="Color.Primary">
                 @foreach (var member in teamMembers)
@@ -57,7 +57,8 @@ else
     bool loadingData;
     string loggedInUserId;
     Student? student;
-    string teamMessage = string.Empty;
+    string loggedInUserTeamName = string.Empty;
+    string loggedInUserBatchName = string.Empty;
     List<StudentViewModel> teamMembers = new();
     List<StudentViewModel> batchMembers = new();
     record StudentViewModel(string Name, string UserId, string ProfilePath, string TeamName, string BatchName);
@@ -80,8 +81,16 @@ else
         if (student is null || student.TeamId is null)
             return;
 
-        teamMembers = await Db.Students.Where(x => x.TeamId == student.TeamId).Include(x => x.Team).ThenInclude(b => b.Batch).Select(x => new StudentViewModel(x.Name, x.ApplicationUserId, x.ProfileImagePath, x.Team.Name, x.Team.Batch.Name)).ToListAsync();
-        
+        var batchId = student?.Team?.Batch?.Id;       
+
+        if (batchId is null)
+            return;
+
+        loggedInUserTeamName = student.Team.Name;
+        loggedInUserBatchName = student.Team.Batch.Name;
+
+        batchMembers = await Db.Students.Where(x => x.Team.Batch.Id == batchId).Include(x => x.Team).ThenInclude(b => b.Batch).Select(x => new StudentViewModel(x.Name, x.ApplicationUserId, x.ProfileImagePath, x.Team.Name, x.Team.Batch.Name)).ToListAsync();
+        teamMembers = batchMembers.Where(x => x.TeamName == loggedInUserTeamName).ToList();
         loadingData = false;
     }
 }

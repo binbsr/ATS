@@ -12,6 +12,17 @@
         <DataAnnotationsValidator />
         <MudTextField Label="Title" @bind-Value="model.Name" For="@(() => model.Name)" />
         <MudTextField Label="Description" Class="mt-3" @bind-Value="model.Description" For="@(() => model.Description)" />
+        <MudSelect Dense="true"
+                   Label="Batch"
+                   @bind-Value="@model.Batch"
+                   ToStringFunc="@convertFunc"
+                   Class="my-3"
+                   AnchorOrigin="Origin.BottomCenter">
+            @foreach (var batch in batches)
+            {
+                <MudSelectItem Value="@batch" />
+            }
+        </MudSelect>
 
         @if (!IsAdd)
         {
@@ -50,12 +61,12 @@
     bool IsAdd => Id is null or 0;
     IEnumerable<string> studentsSelected;
     List<ListItem> students = new();
+    List<Batch> batches = new();
     record ListItem(string Id, string Name, int? TeamId);
 
     protected override async Task OnInitializedAsync()
     {
-        students = await Db.Students.Select(x => new ListItem(x.Id, $"{x.Name} ({x.Email})", x.TeamId)).ToListAsync();
-        studentsSelected = students.Where(x => x.TeamId == Id).Select(x => x.Id);
+        batches = await Db.Batches.ToListAsync();
 
         if (IsAdd)
         {
@@ -64,7 +75,9 @@
         else
         {
             pageTitle = "Edit Team";
-            model = await Db.Teams.FindAsync(Id);
+            model = await Db.Teams.Include(x => x.Batch).FirstOrDefaultAsync(x => x.Id == Id);
+            students = await Db.Students.Select(x => new ListItem(x.Id, $"{x.Name} ({x.Email})", x.TeamId)).ToListAsync();
+            studentsSelected = students.Where(x => x.TeamId == Id).Select(x => x.Id);
         }
     }
 
@@ -101,4 +114,6 @@
     {
         return $"{selectedValues.Count} student{(selectedValues.Count > 1 ? "s have" : " has")} been selected";
     }
+
+    private Func<Batch, string> convertFunc = b => b?.Name;
 }

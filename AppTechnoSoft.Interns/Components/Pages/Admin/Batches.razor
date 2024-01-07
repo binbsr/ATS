@@ -1,0 +1,93 @@
+﻿@page "/batches"
+
+@inject ApplicationDbContext Db
+@inject ISnackbar SnackBar
+
+<MudTable Items="@batches" Hover="true" Filter="new Func<Batch, bool>(FilterFunc1)" @bind-SelectedItem="selectedBatch" Loading="@loadingData">
+    <ToolBarContent>
+        <MudFab Href="/add-batch" StartIcon="@Icons.Material.Filled.Add" Title="Add New Batch" Size="Size.Small" Color="Color.Tertiary"></MudFab>
+        <MudSpacer />
+        <MudTextField @bind-Value="searchString" Placeholder="Search"
+                      Adornment="Adornment.Start"
+                      AdornmentIcon="@Icons.Material.Filled.Search"
+                      IconSize="Size.Medium"
+                      Class="mt-0">
+        </MudTextField>
+    </ToolBarContent>
+    <HeaderContent>
+        <MudTh>#</MudTh>
+        <MudTh>Name</MudTh>
+        <MudTh>Start Date</MudTh>
+        <MudTh>End Date</MudTh>
+    </HeaderContent>
+    <RowTemplate>
+        <MudTd DataLabel="#">@(batches.IndexOf(context) + 1)</MudTd>
+        <MudTd DataLabel="Name">@context.Name</MudTd>
+            <MudTd DataLabel="Description">@context.Start.ToLongDateString()</MudTd>
+            <MudTd DataLabel="ColorCode">@context.End.ToLongDateString()</MudTd>
+            <MudTd>
+                <MudIconButton Icon="@Icons.Material.Filled.Edit" Size="Size.Small" Color="Color.Warning" Href="@("/edit-batch/" + context.Id)" />
+                <MudIconButton Icon="@Icons.Material.Sharp.Delete" Size="Size.Small" Color="Color.Error" OnClick="() => ConfirmDelete(context)" />
+                <MudMessageBox @ref="mbox" Title="Warning" CancelText="Cancel">
+                    <MessageContent>
+                        Are you sure to delete this batch? It can't be undone!
+                    </MessageContent>
+                    <YesButton>
+                        <MudButton Variant="Variant.Filled" Color="Color.Error" Class="ml-2 mb-2 mr-3" StartIcon="@Icons.Material.Filled.DeleteForever">Delete</MudButton>
+                    </YesButton>
+                </MudMessageBox>
+            </MudTd>
+        </RowTemplate>
+        <PagerContent>
+            <MudTablePager />
+        </PagerContent>
+    </MudTable>
+
+
+    @code {
+
+    private List<Batch> batches = new();
+    private Batch selectedBatch = new();
+    private bool loadingData;
+    private string searchString = "";
+    MudMessageBox mbox { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        loadingData = true;
+        batches = await Db.Batches.ToListAsync();
+        loadingData = false;
+    }
+
+    private bool FilterFunc1(Batch batch) => FilterFunc(batch, searchString);
+
+    private bool FilterFunc(Batch batch, string searchString)
+    {
+        if (string.IsNullOrWhiteSpace(searchString))
+            return true;
+        if (batch.Name.Contains(searchString, StringComparison.OrdinalIgnoreCase))
+            return true;       
+        return false;
+    }
+
+    private async Task ConfirmDelete(Batch batch)
+    {
+        bool? result = await mbox.Show();
+        if (result == null)
+            return;
+
+        Db.Batches.Remove(batch);
+
+        var rowsAffected = await Db.SaveChangesAsync();
+
+        if (rowsAffected > 0)
+        {
+            SnackBar.Add("Batch Deleted successfully", Severity.Success);
+            batches.Remove(batch);
+        }
+        else
+        {
+            SnackBar.Add("Batch Delete failed", Severity.Error);
+        }
+    }
+}

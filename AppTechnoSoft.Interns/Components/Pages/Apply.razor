@@ -1,7 +1,7 @@
 ﻿@page "/apply"
 
 <PageTitle>Apply For Internship</PageTitle>
-
+@attribute [Authorize]
 @inject ApplicationDbContext Db
 @inject ISnackbar SnackBar
 @inject NavigationManager Navigation
@@ -20,7 +20,7 @@
                 <MudTextField @bind-Value="model.Email"
                               For="@(() => model.Email)"
                               Immediate="true"
-                              Label="Email" />
+                              Label="Email" Disabled="true"/>
             </MudItem>
             <MudItem md="6" xs="12">
                 <MudTextField @bind-Value="model.Phone"
@@ -102,6 +102,19 @@
     List<College> colleges = [];
     List<TechProgram> techPrograms = [];
     private string UploadImageLabel => model?.ProfileImage is null ? "" : $"{model.ProfileImage?.Name} ({((float)model.ProfileImage?.Size / 1024):F2} kb)";
+    bool disabled = false;
+
+    [CascadingParameter]
+    private Task<AuthenticationState> authenticationStateTask { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        var userState = await authenticationStateTask;
+        var userId = userState.User.FindFirst(u => u.Type.Contains("nameidentifier"))?.Value;
+        var user = await Db.Users.FindAsync(userId);
+        model.Email = user.Email;
+        model.ApplicationUserId = user.Id;
+    }
 
     private async Task OnValidSubmit(EditContext editContext)
     {
@@ -126,7 +139,7 @@
                     file.Name, ex.Message);
             }
         }
-
+        
         Db.Students.Add(model);
         var rowsAffected = await Db.SaveChangesAsync();
 

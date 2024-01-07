@@ -1,25 +1,61 @@
 ﻿@page "/dashboard"
+@using AppTechnoSoft.Interns.Components.Account
+@using Microsoft.AspNetCore.Identity
 
 @attribute [Authorize]
+@inject ApplicationDbContext Db
 
 <PageTitle>Your dashboard</PageTitle>
 
-<MudGrid>    
-    <MudItem xs="12" sm="6">
-        <MudPaper Class="d-flex align-center justify-center mud-width-full py-8">xs=12 sm=6</MudPaper>
-    </MudItem>
-    <MudItem xs="12" sm="6">
-        <MudPaper Class="d-flex align-center justify-center mud-width-full py-8">xs=12 sm=6</MudPaper>
-    </MudItem>
-    <MudItem xs="12" sm="6">
-        <MudPaper Class="d-flex align-center justify-center mud-width-full py-8">xs=12 sm=6</MudPaper>
-    </MudItem>
-    <MudItem xs="12" sm="6">
-        <MudPaper Class="d-flex align-center justify-center mud-width-full py-8">xs=12 sm=6</MudPaper>
-    </MudItem>
+<MudText Typo="Typo.h6" GutterBottom="true">Team <strong>@teamName</strong></MudText>
+<MudGrid>
+    @foreach (var member in teamMembers)
+    {
+        <MudItem xs="3" md="2">
+            <MudPaper Class="p-4">
+                <MudStack AlignItems="AlignItems.Center">
+                    <MudAvatar Size="Size.Large">
+                        <MudImage Src="@member.ProfilePath"></MudImage>
+                    </MudAvatar>
+                    <MudText Typo="Typo.subtitle2">@(loggedInUserId == member.UserId ? $"{member.Name} (You)" : member.Name)</MudText>
+                </MudStack>
+                
+                </MudPaper>
+
+            </MudItem>
+    }
 </MudGrid>
 
 
 @code {
 
+    bool loadingData;
+    string loggedInUserId;
+    Student? student;
+    string teamName = string.Empty;
+    List<StudentViewModel> teamMembers = new();
+    record StudentViewModel(string Name, string UserId, string ProfilePath, string TeamName);
+
+    [CascadingParameter]
+    private Task<AuthenticationState> AuthTask { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        loadingData = true;
+        var userTask = await AuthTask;
+        var loggedInUser = userTask.User;
+        loggedInUserId = loggedInUser.FindFirst(u => u.Type.Contains("nameidentifier"))?.Value;
+
+        if (loggedInUserId is null)
+            return;
+
+        student = await Db.Students.Where(x => x.ApplicationUserId == loggedInUserId).Include(s => s.College).Include(t => t.TechProgram).Include(t => t.Team).FirstOrDefaultAsync();
+
+        if (student is null)
+            return;
+
+        teamMembers = await Db.Students.Where(x => x.TeamId == student.TeamId).Include(x => x.Team).Select(x => new StudentViewModel(x.Name, x.ApplicationUserId, x.ProfileImagePath, x.Team.Name)).ToListAsync();
+        teamName = teamMembers[0].TeamName;
+        loadingData = false;
+    }
 }

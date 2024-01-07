@@ -34,4 +34,7 @@ public class Student : BaseEntity
 
     public int? TeamId { get; set; }
     public Team? Team { get; set; }
+
+    public string? ApplicationUserId { get; set; }
+    public ApplicationUser? User { get; set; }
 }

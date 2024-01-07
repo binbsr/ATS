@@ -10,7 +10,7 @@
 @if (student is null)
 {
     <MudText Typo="Typo.h5">
-        Please complete your internship registration proces first. 
+        Please complete your internship registration proces first.
         <MudLink Typo="Typo.h5" Href="/apply">Click Here</MudLink>
     </MudText>
 }
@@ -28,7 +28,9 @@ else
                 @foreach (var member in teamMembers)
                 {
                     <MudTooltip Text="@(loggedInUserId == member.UserId ? $"{member.Name} (You)" : member.Name)">
-                        <MudAvatar Style="height:70px; width:70px; font-size:2rem;" Image="@member.ProfilePath" />
+                        <MudAvatar Style="height:70px; width:70px; font-size:2rem;">
+                            <MudImage Src="@member.ProfilePath" />
+                        </MudAvatar>
 
                     </MudTooltip>
                 }
@@ -57,7 +59,8 @@ else
     Student? student;
     string teamMessage = string.Empty;
     List<StudentViewModel> teamMembers = new();
-    record StudentViewModel(string Name, string UserId, string ProfilePath, string TeamName);
+    List<StudentViewModel> batchMembers = new();
+    record StudentViewModel(string Name, string UserId, string ProfilePath, string TeamName, string BatchName);
 
     [CascadingParameter]
     private Task<AuthenticationState> AuthTask { get; set; }
@@ -72,12 +75,13 @@ else
         if (loggedInUserId is null)
             return;
 
-        student = await Db.Students.Where(x => x.ApplicationUserId == loggedInUserId).Include(s => s.College).Include(t => t.TechProgram).Include(t => t.Team).FirstOrDefaultAsync();
+        student = await Db.Students.Where(x => x.ApplicationUserId == loggedInUserId).Include(t => t.Team).ThenInclude(b => b.Batch).FirstOrDefaultAsync();
 
-        if (student is null)
+        if (student is null || student.TeamId is null)
             return;
 
-        teamMembers = await Db.Students.Where(x => x.TeamId == student.TeamId).Include(x => x.Team).Select(x => new StudentViewModel(x.Name, x.ApplicationUserId, x.ProfileImagePath, x.Team.Name)).ToListAsync();
+        teamMembers = await Db.Students.Where(x => x.TeamId == student.TeamId).Include(x => x.Team).ThenInclude(b => b.Batch).Select(x => new StudentViewModel(x.Name, x.ApplicationUserId, x.ProfileImagePath, x.Team.Name, x.Team.Batch.Name)).ToListAsync();
+        
         loadingData = false;
     }
 }

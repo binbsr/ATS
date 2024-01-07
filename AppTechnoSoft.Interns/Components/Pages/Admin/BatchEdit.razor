@@ -1,5 +1,6 @@
 ﻿@page "/add-batch"
 @page "/edit-batch/{Id:int}"
+@using AppTechnoSoft.Interns.Extensions
 
 @inject ApplicationDbContext Db
 @inject ISnackbar SnackBar
@@ -10,8 +11,8 @@
     <EditForm Model="@model"
               OnValidSubmit="OnValidSubmit">
         <DataAnnotationsValidator />
-        <MudTextField Label="Name" Value="@model.Name" Disabled/>
-        <MudDateRangePicker Label="Batch Duration" @bind-DateRange="dateRange" />
+        <MudTextField Label="Name" Value="@model.Name" Disabled />
+        <MudDateRangePicker Label="Batch Duration" DateRange="@(new DateRange(model.Start, model.End))" DateRangeChanged="DatesChanged"/>
 
         <MudButton ButtonType="ButtonType.Submit"
                    Variant="Variant.Filled"
@@ -22,7 +23,7 @@
         </MudButton>
     </EditForm>
 
-    @code {
+ @code {
 
     [Parameter]
     public int? Id { get; set; }
@@ -31,7 +32,6 @@
     bool success;
     string pageTitle;
     bool IsAdd => Id is null or 0;
-    DateRange dateRange;
 
     protected override async Task OnInitializedAsync()
     {
@@ -47,9 +47,7 @@
     }
 
     private async Task OnValidSubmit(EditContext context)
-    {
-        model.Start = dateRange.Start.Value;
-        model.End = dateRange.End.Value;
+    {        
         if (IsAdd)
         {
             Db.Batches.Add(model);
@@ -72,5 +70,12 @@
         }
 
         Navigation.NavigateTo("/batches");
+    }
+
+    private void DatesChanged(DateRange range)
+    {
+        model.Start = range.Start.Value;
+        model.End = range.End.Value;
+        model.Name = $"{"Batch".MakeUnique()} - {range.Start:MMM dd (yyyy)} to {range.End:MMM dd (yyyy)}";
     }
 }

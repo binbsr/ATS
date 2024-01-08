@@ -22,33 +22,45 @@ else
     }
     else
     {
-        <MudText Typo="Typo.h6" Class="my-2">@((MarkupString)$"Your Study Batch: <strong>{loggedInUserBatchName}</strong> ({batchMembers.Count} Members)")</MudText>
-        <MudPaper Class="p-4" Elevation="3">
-            <MudAvatarGroup Max="8" Spacing="10" MaxColor="Color.Primary">
-                @foreach (var member in batchMembers)
-                {
-                    <MudTooltip Text="@(loggedInUserId == member.UserId ? $"{member.Name} (You)" : member.Name)">
-                        <MudAvatar Style="height:70px; width:70px; font-size:2rem;">
-                            <MudImage Src="@member.ProfilePath" />
-                        </MudAvatar>
+        <MudGrid>
+            <MudItem xs="12">
+                <MudPaper Class="pa-4" Elevation="5">
+                    <MudText Typo="Typo.h6" Class="my-2">@((MarkupString)$"Your Study Batch: <strong>{loggedInUserBatchName}</strong> ({batchMembers.Count} Members)")</MudText>
+                    <MudAvatarGroup Max="8" Spacing="10" MaxColor="Color.Primary">
+                        @foreach (var member in batchMembers)
+                        {
+                            <MudTooltip Text="@(loggedInUserId == member.UserId ? $"{member.Name} (You)" : member.Name)">
+                                <MudAvatar Style="height:70px; width:70px; font-size:2rem;">
+                                    <MudImage Src="@member.ProfilePath" />
+                                </MudAvatar>
 
-                    </MudTooltip>
-                }
-            </MudAvatarGroup>
-        </MudPaper>
+                            </MudTooltip>
+                        }
+                    </MudAvatarGroup>
+                </MudPaper>
+            </MudItem>
 
-        <MudText Typo="Typo.h6" Class="my-2 mt-5">@((MarkupString)$"Your Project Team: <strong>{loggedInUserTeamName}</strong> ({teamMembers.Count} Members)")</MudText>
-        <MudPaper Class="p-4" Elevation="3">
-            <MudAvatarGroup Max="8" Spacing="10" MaxColor="Color.Primary">
-                @foreach (var member in teamMembers)
-                {
-                    <MudTooltip Text="@(loggedInUserId == member.UserId ? $"{member.Name} (You)" : member.Name)">
-                        <MudAvatar Style="height:70px; width:70px; font-size:2rem;" Image="@member.ProfilePath" />
+            <MudItem xs="12" md="6">
+                <MudPaper Class="pa-4" Elevation="5">
+                    <MudText Typo="Typo.h6" Class="mb-2">@((MarkupString)$"Your Project Team: <strong>{loggedInUserTeamName}</strong> ({teamMembers.Count} Members)")</MudText>
+                    <MudAvatarGroup Max="8" Spacing="10" MaxColor="Color.Primary">
+                        @foreach (var member in teamMembers)
+                        {
+                            <MudTooltip Text="@(loggedInUserId == member.UserId ? $"{member.Name} (You)" : member.Name)">
+                                <MudAvatar Style="height:70px; width:70px; font-size:2rem;" Image="@member.ProfilePath" />
 
-                    </MudTooltip>
-                }
-            </MudAvatarGroup>
-        </MudPaper>
+                            </MudTooltip>
+                        }
+                    </MudAvatarGroup>
+                </MudPaper>
+            </MudItem>
+            <MudItem xs="12" md="6">
+                <MudPaper Class="pa-4" Elevation="5">
+                    <MudText Typo="Typo.h6" Class="mb-2">Project Title: <strong>@projectTitle</strong></MudText>
+                    <MudText Typo="Typo.subtitle2" Class="mb-2">@projectDetails</MudText>
+                </MudPaper>
+            </MudItem>
+        </MudGrid>
     }
 }
 
@@ -59,6 +71,8 @@ else
     Student? student;
     string loggedInUserTeamName = string.Empty;
     string loggedInUserBatchName = string.Empty;
+    string projectTitle = string.Empty;
+    string projectDetails = string.Empty;
     List<StudentViewModel> teamMembers = new();
     List<StudentViewModel> batchMembers = new();
     record StudentViewModel(string Name, string UserId, string ProfilePath, string TeamName, string BatchName);
@@ -81,13 +95,15 @@ else
         if (student is null || student.TeamId is null)
             return;
 
-        var batchId = student?.Team?.Batch?.Id;       
+        var batchId = student?.Team?.Batch?.Id;
 
         if (batchId is null)
             return;
 
         loggedInUserTeamName = student.Team.Name;
         loggedInUserBatchName = student.Team.Batch.Name;
+        projectTitle = student.Team.ProjectTitle ?? "Project not assigned yet, probably you are still in training!";
+        projectDetails = student.Team.ProjectDetails ?? "";
 
         batchMembers = await Db.Students.Where(x => x.Team.Batch.Id == batchId).Include(x => x.Team).ThenInclude(b => b.Batch).Select(x => new StudentViewModel(x.Name, x.ApplicationUserId, x.ProfileImagePath, x.Team.Name, x.Team.Batch.Name)).ToListAsync();
         teamMembers = batchMembers.Where(x => x.TeamName == loggedInUserTeamName).ToList();

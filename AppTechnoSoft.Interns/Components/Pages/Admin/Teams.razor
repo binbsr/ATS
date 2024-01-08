@@ -19,6 +19,7 @@
         <MudTh>Name</MudTh>
         <MudTh>Description</MudTh>
         <MudTh>Batch</MudTh>
+        <MudTh>Project Title</MudTh>
         <MudTh>Created</MudTh>
     </HeaderContent>
     <RowTemplate>
@@ -26,6 +27,7 @@
         <MudTd DataLabel="Name">@context.Name</MudTd>
             <MudTd DataLabel="Description">@context.Description</MudTd>
             <MudTd DataLabel="Description">@context.Batch.Name</MudTd>
+            <MudTd DataLabel="Project Title">@(context.ProjectTitle ?? "N/A")</MudTd>
             <MudTd DataLabel="Created">@context.Created</MudTd>
             <MudTd>
                 <MudIconButton Icon="@Icons.Material.Filled.Edit" Size="Size.Small" Color="Color.Warning" Href="@("/edit-team/" + context.Id)" />

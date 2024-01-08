@@ -1,10 +1,11 @@
+using AppTechnoSoft.Interns.Components.Account.Pages.Manage;
 using AppTechnoSoft.Interns.Data.Models;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 
 namespace AppTechnoSoft.Interns.Data;
-public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) 
+public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
     : IdentityDbContext<ApplicationUser>(options)
 {
     public DbSet<College> Colleges { get; set; }
@@ -58,19 +59,121 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
 
         builder.Entity<TechProgram>()
             .HasData([
-                    new TechProgram { Id = 1,  Name="BCA", Affliation="TU" },
-                    new TechProgram { Id = 2,  Name="BCA", Affliation="PU" },
-                    new TechProgram { Id = 3,  Name="BIT", Affliation="TU" },
-                    new TechProgram { Id = 4,  Name="BIT", Affliation="PU" },
-                    new TechProgram { Id = 5,  Name="BIM", Affliation="TU" },
-                    new TechProgram { Id = 6,  Name="BScIT", Affliation="TU" },
-                    new TechProgram { Id = 7,  Name="BScIT", Affliation="PU" },
+                    new TechProgram { Id = 1, Name = "BCA", Affliation = "TU" },
+                new TechProgram { Id = 2, Name = "BCA", Affliation = "PU" },
+                new TechProgram { Id = 3, Name = "BIT", Affliation = "TU" },
+                new TechProgram { Id = 4, Name = "BIT", Affliation = "PU" },
+                new TechProgram { Id = 5, Name = "BIM", Affliation = "TU" },
+                new TechProgram { Id = 6, Name = "BScIT", Affliation = "TU" },
+                new TechProgram { Id = 7, Name = "BScIT", Affliation = "PU" },
             ]);
 
         builder.Entity<Tag>()
             .HasData([
-                    new Tag { Id = 1, Name = "Module", Description="Specific module/sub-module for a training course" },
-                    new Tag { Id = 2, Name = "CarouselItem", Description="Single display item for home page" }
+                    new Tag { Id = 1, Name = "Module", Description = "Specific module/sub-module for a training course" },
+                new Tag { Id = 2, Name = "CarouselItem", Description = "Single display item for home page" }
             ]);
+
+        builder.Entity<Widget>()
+            .HasData([
+                new Widget
+                {
+                    Id = 1,
+                    Title = "CarouselItem",
+                    Description = "An display item in home page",
+                    HtmlContent = "Welcome to AppTechnoSoft! An initiative for students and freshers.",
+                    Created = DateTime.Now,
+                    CreatedBy = "Seed"
+                },
+                new Widget
+                {
+                    Id = 2,
+                    Title = "CarouselItem",
+                    Description = "An display item in home page",
+                    HtmlContent = "Bridging the gap between academia and industry!",
+                    Created = DateTime.Now,
+                    CreatedBy = "Seed"
+                },
+                new Widget
+                {
+                    Id = 3,
+                    Title = "CarouselItem",
+                    Description = "An display item in home page",
+                    HtmlContent = "We guide you on software R&D and SDLC to kickstart your career!",
+                    Created = DateTime.Now,
+                    CreatedBy = "Seed"
+                },
+                new Widget
+                {
+                    Id = 4,
+                    Title = "CarouselItem",
+                    Description = "An display item in home page",
+                    HtmlContent = "Replacement Opportunities!",
+                    Created = DateTime.Now,
+                    CreatedBy = "Seed"
+                },
+                new Widget
+                {
+                    Id = 5,
+                    Title = "CarouselItem",
+                    Description = "An display item in home page",
+                    HtmlContent = "From basics to professional touches!",
+                    Created = DateTime.Now,
+                    CreatedBy = "Seed"
+                }
+            ]);
+
+        // Seed roles and admin user
+        string superAdminId = Guid.NewGuid().ToString();
+        string superAdminRoleId = Guid.NewGuid().ToString();
+        string adminRoleId = Guid.NewGuid().ToString();
+        string traineeRoleId = Guid.NewGuid().ToString();
+
+        builder.Entity<IdentityRole>()
+            .HasData([
+                new IdentityRole
+                {
+                    Name = "SuperAdmin",
+                    NormalizedName = "SUPERADMIN",
+                    Id = superAdminRoleId,
+                    ConcurrencyStamp = superAdminRoleId
+                },
+                new IdentityRole
+                {
+                    Name = "Admin",
+                    NormalizedName = "ADMIN",
+                    Id = adminRoleId,
+                    ConcurrencyStamp = adminRoleId
+                },
+                new IdentityRole
+                {
+                    Name = "Trainee",
+                    NormalizedName = "TRAINEE",
+                    Id = traineeRoleId,
+                    ConcurrencyStamp = traineeRoleId
+                }
+            ]);
+
+        var appUser = new ApplicationUser
+        {
+            Id = superAdminId,
+            Email = "rawal.bishnu@live.com",
+            EmailConfirmed = true,
+            UserName = "rawal.bishnu@live.com",
+            NormalizedUserName = "RAWAL.BISHNU@LIVE.COM"
+        };
+
+        //set user password
+        PasswordHasher<ApplicationUser> ph = new();
+        appUser.PasswordHash = ph.HashPassword(appUser, "~Someone1");
+
+        builder.Entity<ApplicationUser>().HasData(appUser);
+
+        builder.Entity<IdentityUserRole<string>>()
+            .HasData(new IdentityUserRole<string>
+            {
+                RoleId = superAdminRoleId,
+                UserId = superAdminId
+            });
     }
 }

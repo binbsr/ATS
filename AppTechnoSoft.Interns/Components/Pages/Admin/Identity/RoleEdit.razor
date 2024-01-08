@@ -1,0 +1,81 @@
+﻿@page "/add-role"
+@page "/edit-role/{Id:string}"
+
+@inject RoleManager<IdentityRole> RoleManager
+@inject ISnackbar SnackBar
+@inject NavigationManager Navigation
+
+<PageTitle>@pageTitle</PageTitle>
+
+    <EditForm Model="@model"
+              OnValidSubmit="OnValidSubmit">
+        <DataAnnotationsValidator />
+        <MudTextField Label="Title" @bind-Value="model.Name" For="@(() => model.Name)" />       
+
+        <MudButton ButtonType="ButtonType.Submit"
+                   Variant="Variant.Filled"
+                   Color="Color.Primary"
+                   Class="mt-3"
+                   StartIcon="@Icons.Material.Filled.Save">
+            Save Role
+        </MudButton>
+        <MudText Color="Color.Error">@errorMessage</MudText>
+    </EditForm>
+
+    @code {
+
+    [Parameter]
+    public string? Id { get; set; }
+
+    IdentityRole model = new();
+    bool success;
+    string pageTitle;
+    string errorMessage = string.Empty;
+    bool IsAdd => Id is null or "";
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (IsAdd)
+        {
+            pageTitle = "Add Role";
+        }
+        else
+        {
+            pageTitle = "Edit Role";
+            model = await RoleManager.FindByIdAsync(Id);
+        }
+    }
+
+    private async Task OnValidSubmit(EditContext context)
+    {
+        errorMessage = string.Empty;
+        if (IsAdd)
+        {
+            var roleExists = await RoleManager.RoleExistsAsync(model.Name);
+            if (roleExists)
+            {
+                errorMessage = "Role already exist in the system.";
+                return;
+            }
+
+            await RoleManager.CreateAsync(model);
+        }
+        else
+        {
+            await RoleManager.UpdateAsync(model);
+        }
+
+        // var rowsAffected = await Db.SaveChangesAsync();
+
+        // if (rowsAffected > 0)
+        // {
+        //     SnackBar.Add("Tag saved successfully", Severity.Success);
+        // }
+        // else
+        // {
+        //     SnackBar.Add("Tag save failed", Severity.Error);
+        // }
+
+        Navigation.NavigateTo("/roles");
+    }
+}

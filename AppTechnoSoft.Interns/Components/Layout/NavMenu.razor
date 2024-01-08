@@ -18,6 +18,12 @@
         <MudNavLink Href="/batches" Icon="@Icons.Material.Sharp.BatchPrediction" IconColor="Color.Info">Batches</MudNavLink>
         <MudNavLink Href="/teams" Icon="@Icons.Material.Sharp.GroupWork" IconColor="Color.Info">Teams</MudNavLink>
 
+        <MudNavGroup Title="User Accounts" Expanded="true">
+            <MudNavLink Href="/identity/roles">Roles</MudNavLink>
+            <MudNavLink Href="/identity/users">Users</MudNavLink>
+            <MudNavLink Href="/identity/roleassignment">Role Assignment</MudNavLink>
+        </MudNavGroup>
+
         <MudDivider Class="my-2" />
         <AuthorizeView>
             <Authorized>

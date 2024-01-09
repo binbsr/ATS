@@ -1,0 +1,96 @@
+﻿@page "/identity/users"
+
+@inject UserManager<ApplicationUser> UserManager
+@inject ISnackbar SnackBar
+
+<MudTable Items="@users" Hover="true" Loading="@loadingData" Dense="true" Filter="new Func<ApplicationUser,bool>(FilterFunc1)">
+    <ToolBarContent>
+        <MudSpacer />
+        <MudTextField @bind-Value="searchString" Placeholder="Search"
+                      Adornment="Adornment.Start"
+                      AdornmentIcon="@Icons.Material.Filled.Search"
+                      IconSize="Size.Medium"
+                      Class="mt-0">
+        </MudTextField>
+    </ToolBarContent>
+    <HeaderContent>
+        <MudTh>#</MudTh>
+        <MudTh>User Name</MudTh>
+        <MudTh>Email</MudTh>
+        <MudTh>EmailConfirmed</MudTh>
+        <MudTh>TwoFactorEnabled</MudTh>
+        <MudTh>AccessFailedCount</MudTh>
+        <MudTh></MudTh>
+    </HeaderContent>
+    <RowTemplate>
+        <MudTd DataLabel="#">@(users.IndexOf(context) + 1)</MudTd>
+        <MudTd DataLabel="UserName">@context.UserName</MudTd>
+            <MudTd DataLabel="Email">@context.Email</MudTd>
+            <MudTd DataLabel="EmailConfirmed">@context.EmailConfirmed</MudTd>
+            <MudTd DataLabel="TwoFactorEnabled">@context.TwoFactorEnabled</MudTd>
+            <MudTd DataLabel="AccessFailedCount">@context.AccessFailedCount</MudTd>
+            <MudTd>
+                <MudIconButton Icon="@Icons.Material.Filled.Edit" Size="Size.Small" Color="Color.Warning" Href="@("/edit-user/" + context.Id)" />
+                <MudIconButton Icon="@Icons.Material.Sharp.Delete" Size="Size.Small" Color="Color.Error" OnClick="() => ConfirmDelete(context)" />
+                <MudMessageBox @ref="mbox" Title="Warning" CancelText="Cancel">
+                    <MessageContent>
+                        Are you sure to delete this user? It can't be undone!
+                    </MessageContent>
+                    <YesButton>
+                        <MudButton Variant="Variant.Filled" Color="Color.Error" Class="ml-2 mb-2 mr-3" StartIcon="@Icons.Material.Filled.DeleteForever">Delete</MudButton>
+                    </YesButton>
+                </MudMessageBox>
+            </MudTd>
+        </RowTemplate>
+        <PagerContent>
+            <MudTablePager />
+        </PagerContent>
+    </MudTable>
+
+
+    @code {
+
+    List<ApplicationUser> users = new();
+    bool loadingData = false;
+    string searchString;
+    MudMessageBox mbox { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        loadingData = true;
+        users = await UserManager.Users.ToListAsync();
+        loadingData = false;
+    }
+
+    private async Task ConfirmDelete(ApplicationUser user)
+    {
+        bool? result = await mbox.Show();
+        if (result == null)
+            return;
+
+        var identityResult = await UserManager.DeleteAsync(user);
+
+        if (identityResult.Succeeded)
+        {
+            SnackBar.Add("Role Deleted successfully", Severity.Success);
+            users.Remove(user);
+        }
+        else
+        {
+            SnackBar.Add("Role Delete failed", Severity.Error);
+        }
+    }
+
+    private bool FilterFunc1(ApplicationUser user) => FilterFunc(user, searchString);
+
+    private bool FilterFunc(ApplicationUser user, string searchString)
+    {
+        if (string.IsNullOrWhiteSpace(searchString))
+            return true;
+        if (user.UserName.Contains(searchString, StringComparison.OrdinalIgnoreCase))
+            return true;
+        if (user.Email.Contains(searchString, StringComparison.OrdinalIgnoreCase))
+            return true;
+        return false;
+    }
+}

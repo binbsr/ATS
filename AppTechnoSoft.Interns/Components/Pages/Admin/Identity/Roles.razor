@@ -1,22 +1,35 @@
 ﻿@page "/identity/roles"
 
 @inject RoleManager<IdentityRole> RoleManager
+@inject ISnackbar SnackBar
 
-<MudTable Items="@roles" Hover="true" Loading="@loadingData">
+<MudTable Items="@roles" Hover="true" Loading="@loadingData" Dense="true">
     <ToolBarContent>
-        <MudFab Href="/add-role" StartIcon="@Icons.Material.Filled.Add" Title="Add New Role" Size="Size.Small" Color="Color.Tertiary"></MudFab>        
+        <MudFab Href="/add-role" StartIcon="@Icons.Material.Filled.Add" Title="Add New Role" Size="Size.Small" Color="Color.Tertiary"></MudFab>
     </ToolBarContent>
     <HeaderContent>
         <MudTh>#</MudTh>
+        <MudTh>Id</MudTh>
         <MudTh>Role</MudTh>
         <MudTh>NormalizedName</MudTh>
-        <MudTh>Concurrency Stamp</MudTh>
     </HeaderContent>
     <RowTemplate>
         <MudTd DataLabel="#">@(roles.IndexOf(context) + 1)</MudTd>
-        <MudTd DataLabel="Name">@context.Name</MudTd>
+        <MudTd DataLabel="Name">@context.Id</MudTd>
+            <MudTd DataLabel="Name">@context.Name</MudTd>
             <MudTd DataLabel="NormalizedName">@context.NormalizedName</MudTd>
-            <MudTd DataLabel="ConcurrencyStamp">@context.ConcurrencyStamp</MudTd>
+            <MudTd>
+                <MudIconButton Icon="@Icons.Material.Filled.Edit" Size="Size.Small" Color="Color.Warning" Href="@("/edit-role/" + context.Id)" />
+                <MudIconButton Icon="@Icons.Material.Sharp.Delete" Size="Size.Small" Color="Color.Error" OnClick="() => ConfirmDelete(context)" />
+                <MudMessageBox @ref="mbox" Title="Warning" CancelText="Cancel">
+                    <MessageContent>
+                        Are you sure to delete this role? It can't be undone!
+                    </MessageContent>
+                    <YesButton>
+                        <MudButton Variant="Variant.Filled" Color="Color.Error" Class="ml-2 mb-2 mr-3" StartIcon="@Icons.Material.Filled.DeleteForever">Delete</MudButton>
+                    </YesButton>
+                </MudMessageBox>
+            </MudTd>
         </RowTemplate>
         <PagerContent>
             <MudTablePager />
@@ -28,11 +41,31 @@
 
     List<IdentityRole> roles = new();
     bool loadingData = false;
+    MudMessageBox mbox { get; set; }
 
     protected override async Task OnInitializedAsync()
     {
         loadingData = true;
         roles = await RoleManager.Roles.ToListAsync();
         loadingData = false;
+    }
+
+    private async Task ConfirmDelete(IdentityRole role)
+    {
+        bool? result = await mbox.Show();
+        if (result == null)
+            return;
+
+        var identityResult = await RoleManager.DeleteAsync(role);
+                
+        if (identityResult.Succeeded)
+        {
+            SnackBar.Add("Role Deleted successfully", Severity.Success);
+            roles.Remove(role);
+        }
+        else
+        {
+            SnackBar.Add("Role Delete failed", Severity.Error);
+        }
     }
 }

@@ -1,5 +1,5 @@
 ﻿@page "/add-role"
-@page "/edit-role/{Id:string}"
+@page "/edit-role/{Id}"
 
 @inject RoleManager<IdentityRole> RoleManager
 @inject ISnackbar SnackBar
@@ -49,6 +49,7 @@
     private async Task OnValidSubmit(EditContext context)
     {
         errorMessage = string.Empty;
+        IdentityResult result;
         if (IsAdd)
         {
             var roleExists = await RoleManager.RoleExistsAsync(model.Name);
@@ -58,24 +59,22 @@
                 return;
             }
 
-            await RoleManager.CreateAsync(model);
+            result = await RoleManager.CreateAsync(model);
         }
         else
         {
-            await RoleManager.UpdateAsync(model);
+            result = await RoleManager.UpdateAsync(model);
         }
 
-        // var rowsAffected = await Db.SaveChangesAsync();
+        if (result.Succeeded)
+        {
+            SnackBar.Add("Role saved successfully", Severity.Success);
+        }
+        else
+        {
+            SnackBar.Add("Role save failed", Severity.Error);
+        }
 
-        // if (rowsAffected > 0)
-        // {
-        //     SnackBar.Add("Tag saved successfully", Severity.Success);
-        // }
-        // else
-        // {
-        //     SnackBar.Add("Tag save failed", Severity.Error);
-        // }
-
-        Navigation.NavigateTo("/roles");
+        Navigation.NavigateTo("/identity/roles");
     }
 }

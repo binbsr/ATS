@@ -67,12 +67,7 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
                 new TechProgram { Id = 6, Name = "BScIT", Affliation = "TU" },
                 new TechProgram { Id = 7, Name = "BScIT", Affliation = "PU" },
             ]);
-
-        builder.Entity<Tag>()
-            .HasData([
-                    new Tag { Id = 1, Name = "Module", Description = "Specific module/sub-module for a training course" },
-                new Tag { Id = 2, Name = "CarouselItem", Description = "Single display item for home page" }
-            ]);
+              
 
         builder.Entity<Widget>()
             .HasData([
@@ -118,6 +113,15 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
                     Title = "CarouselItem",
                     Description = "An display item in home page",
                     HtmlContent = "From basics to professional touches!",
+                    Created = DateTime.Now,
+                    CreatedBy = "Seed"
+                },
+                new Widget
+                {
+                    Id = 6,
+                    Title = "Module",
+                    Description = "GIT and GitHub Essentials",
+                    HtmlContent = "todo",
                     Created = DateTime.Now,
                     CreatedBy = "Seed"
                 }

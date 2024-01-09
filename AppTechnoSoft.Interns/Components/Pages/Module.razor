@@ -7,7 +7,9 @@
         </div>
     </TitleContent>
     <ChildContent>
-        @((MarkupString)Widget.HtmlContent)
+        <MudContainer Style="font-size: 1.3em">
+                @((MarkupString)Widget.HtmlContent)
+        </MudContainer>
         <MudChipSet>
             @foreach (var tag in Widget.Tags)
             {

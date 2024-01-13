@@ -1,65 +1,27 @@
-﻿@implements IDisposable
-
-@inject NavigationManager NavigationManager
-
+﻿
 <MudPaper Width="250px" Class="d-inline-flex py-3" Elevation="0">
     <MudNavMenu Class="mud-width-full">
         <MudNavLink Href="/" Match="NavLinkMatch.All" Icon="@Icons.Material.Filled.Home" IconColor="Color.Success">Home</MudNavLink>
         <MudNavLink Href="/dashboard" Icon="@Icons.Material.Filled.Dashboard" IconColor="Color.Success">Your Dashboard</MudNavLink>
         <MudNavLink Href="/modules" Icon="@Icons.Material.Filled.ViewModule" IconColor="Color.Success">Training Modules</MudNavLink>
         <MudNavLink Href="/apply" Icon="@Icons.Material.Filled.Person3" IconColor="Color.Success">Apply</MudNavLink>
-        <MudDivider Class="my-2" />
 
-        <MudNavLink Href="/programs" Icon="@Icons.Material.Filled.Book" IconColor="Color.Info">Programs</MudNavLink>
-        <MudNavLink Href="/colleges" Icon="@Icons.Material.Filled.School" IconColor="Color.Info">Colleges</MudNavLink>
-        <MudNavLink Href="/students" Icon="@Icons.Material.Filled.Groups3" IconColor="Color.Info">Students</MudNavLink>
-        <MudNavLink Href="/add-widget" Icon="@Icons.Material.Filled.Widgets" IconColor="Color.Info">Add Widget</MudNavLink>
-        <MudNavLink Href="/tags" Icon="@Icons.Material.Filled.Tag" IconColor="Color.Info">Tags</MudNavLink>
-        <MudNavLink Href="/batches" Icon="@Icons.Material.Sharp.BatchPrediction" IconColor="Color.Info">Batches</MudNavLink>
-        <MudNavLink Href="/teams" Icon="@Icons.Material.Sharp.GroupWork" IconColor="Color.Info">Teams</MudNavLink>
+        <AuthorizeView Roles="Admin">
+            <MudDivider Class="my-2" />
+            <MudNavLink Href="/programs" Icon="@Icons.Material.Filled.Book" IconColor="Color.Info">Programs</MudNavLink>
+            <MudNavLink Href="/colleges" Icon="@Icons.Material.Filled.School" IconColor="Color.Info">Colleges</MudNavLink>
+            <MudNavLink Href="/students" Icon="@Icons.Material.Filled.Groups3" IconColor="Color.Info">Students</MudNavLink>
+            <MudNavLink Href="/add-widget" Icon="@Icons.Material.Filled.Widgets" IconColor="Color.Info">Add Widget</MudNavLink>
+            <MudNavLink Href="/tags" Icon="@Icons.Material.Filled.Tag" IconColor="Color.Info">Tags</MudNavLink>
+            <MudNavLink Href="/batches" Icon="@Icons.Material.Sharp.BatchPrediction" IconColor="Color.Info">Batches</MudNavLink>
+            <MudNavLink Href="/teams" Icon="@Icons.Material.Sharp.GroupWork" IconColor="Color.Info">Teams</MudNavLink>            
+        </AuthorizeView>
 
-        <MudNavGroup Title="User Accounts" Icon="@Icons.Material.Filled.AdminPanelSettings" IconColor="Color.Warning" Expanded="true">
-            <MudNavLink Href="/identity/roles" Icon="@Icons.Material.Filled.Security" IconColor="Color.Warning">Roles</MudNavLink>
-            <MudNavLink Href="/identity/users" Icon="@Icons.Material.Filled.PersonSearch" IconColor="Color.Warning">Users</MudNavLink>
-        </MudNavGroup>
-
-        <MudDivider Class="my-2" />
-        <AuthorizeView>
-            <Authorized>
-                <MudNavLink Href="Account/Manage">
-                    <b style="text-align:center">@context.User.Identity?.Name</b>
-                </MudNavLink>
-                <form action="Account/Logout" method="post">
-                    <AntiforgeryToken />
-                    <input type="hidden" name="ReturnUrl" value="@currentUrl" />
-                    <MudButton FullWidth ButtonType="ButtonType.Submit" StartIcon="@Icons.Material.Sharp.Logout">Logout</MudButton>
-                 </form>
-             </Authorized>
-             <NotAuthorized>
-                 <MudNavLink Href="Account/Register" Icon="@Icons.Material.Filled.PersonAdd" IconColor="Color.Secondary">Register</MudNavLink>
-                 <MudNavLink Href="Account/Login" Icon="@Icons.Material.Filled.Login" IconColor="Color.Secondary">Login</MudNavLink>
-             </NotAuthorized>
-         </AuthorizeView>
+        <AuthorizeView Roles="SuperAdmin">
+            <MudNavGroup Title="User Accounts" Icon="@Icons.Material.Filled.AdminPanelSettings" IconColor="Color.Warning" Expanded="true">
+                <MudNavLink Href="/identity/roles" Icon="@Icons.Material.Filled.Security" IconColor="Color.Warning">Roles</MudNavLink>
+                <MudNavLink Href="/identity/users" Icon="@Icons.Material.Filled.PersonSearch" IconColor="Color.Warning">Users</MudNavLink>
+            </MudNavGroup>
+        </AuthorizeView>        
      </MudNavMenu>
  </MudPaper>
-
- @code {
-    private string? currentUrl;
-
-    protected override void OnInitialized()
-    {
-        currentUrl = NavigationManager.ToBaseRelativePath(NavigationManager.Uri);
-        NavigationManager.LocationChanged += OnLocationChanged;
-    }
-
-    private void OnLocationChanged(object? sender, LocationChangedEventArgs e)
-    {
-        currentUrl = NavigationManager.ToBaseRelativePath(e.Location);
-        StateHasChanged();
-    }
-
-    public void Dispose()
-    {
-        NavigationManager.LocationChanged -= OnLocationChanged;
-    }
-}

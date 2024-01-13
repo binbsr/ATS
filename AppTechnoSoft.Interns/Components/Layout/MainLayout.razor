@@ -6,7 +6,9 @@
 
 <MudLayout>
     <MudAppBar Elevation="1" Color="Color.Tertiary">
-        <MudIconButton Icon="@Icons.Material.Filled.Menu" Color="Color.Inherit" Edge="Edge.Start" OnClick="@((e) => DrawerToggle())" />        
+        <MudIconButton Icon="@Icons.Material.Filled.Menu" Color="Color.Inherit" Edge="Edge.Start" OnClick="@((e) => DrawerToggle())" />
+        <MudSpacer />
+        <Login />
     </MudAppBar>
     <MudDrawer @bind-Open="_drawerOpen" Elevation="2">
         <MudDrawerHeader>
@@ -26,7 +28,7 @@
 </div>
 
 @code {
-    bool _drawerOpen = true;
+    bool _drawerOpen = true;    
 
     void DrawerToggle()
     {

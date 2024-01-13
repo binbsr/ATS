@@ -1,6 +1,5 @@
 ﻿@page "/colleges"
-@attribute [StreamRendering]
-
+@attribute [Authorize(Roles = "Admin")]
 @inject ApplicationDbContext db
 @inject ISnackbar SnackBar
 

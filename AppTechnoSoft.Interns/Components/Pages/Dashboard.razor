@@ -25,7 +25,7 @@ else
         <MudGrid>
             <MudItem xs="12">
                 <MudPaper Class="pa-4" Elevation="5">
-                    <MudText Typo="Typo.h6" Class="my-2">@((MarkupString)$"Your Study Batch: <strong>{loggedInUserBatchName}</strong> ({batchMembers.Count} Members)")</MudText>
+                    <MudText Typo="Typo.h6" Class="my-2">@((MarkupString)$"Your Study Batch: <strong>{loggedInUserBatchName}</strong>")</MudText>
                     <MudAvatarGroup Max="8" Spacing="10" MaxColor="Color.Primary">
                         @foreach (var member in batchMembers)
                         {

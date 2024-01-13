@@ -1,5 +1,5 @@
 ﻿@page "/identity/roles"
-
+@attribute [Authorize(Roles = "SuperAdmin")]
 @inject RoleManager<IdentityRole> RoleManager
 @inject ISnackbar SnackBar
 

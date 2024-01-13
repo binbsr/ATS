@@ -1,6 +1,5 @@
 ﻿@page "/students"
-@attribute [StreamRendering]
-
+@attribute [Authorize(Roles = "Admin")]
 @inject ApplicationDbContext db
 
 <MudDataGrid T="Student"

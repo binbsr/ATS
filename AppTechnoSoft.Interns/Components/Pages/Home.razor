@@ -12,37 +12,47 @@
                      ShowBullets="@true"
                      EnableSwipeGesture="@true"
                      AutoCycle="@true" TData="object">
-            @foreach (var content in contents)
+            @foreach (var content in carouselItems)
             {
-                <MudCarouselItem Transition="Transition.Slide" Color="@content.Value" Class="pt-5">
+                <MudCarouselItem Transition="Transition.Slide" Style="@("background-color:" + content.Value)" Class="pt-5">
                     <MudText Typo="Typo.h3" Align="Align.Center">@((MarkupString)content.Key)</MudText>
                 </MudCarouselItem>
             }
         </MudCarousel>
     </MudItem>
 </MudGrid>
-<MudPaper Class="pa-3 mb-3" Elevation="5">
-    <MudText Typo="Typo.h5" Align="Align.Center">Training + Internship Combo</MudText>
-    <MudText Typo="Typo.subtitle2" Class="mb-4">
-        Depending on our use case, we may want to add some styling to the Toolbar or Editor.
-        We can also place the Toolbar below the Editor by setting the BottomToolbar property to ‘true’ in the
-        BlazoredTextEditor component
-    </MudText>
+<MudPaper Class="pa-5 mt-4" Elevation="5">
+    @foreach (var item in items.Where(x => x.Title == "HomeIntro"))
+    {
+        <MudText Typo="Typo.h5" Align="Align.Center">@item.Description</MudText>
+        <MudText Typo="Typo.subtitle2" Class="mb-5">
+            @((MarkupString)item.HtmlContent)
+        </MudText>
+    }   
 </MudPaper>
 
 
 @code {
-    private Dictionary<string, Color> contents = new();
-    
+    private Dictionary<string, string> carouselItems = new();
+    private List<Widget> items = new();
+
     protected override async Task OnInitializedAsync()
     {
-        var carouselItems = await db.Widgets.Where(x => x.Title == "CarouselItem").ToListAsync();
-        Color[] colors = [Color.Secondary, Color.Success, Color.Tertiary, Color.Warning, Color.Primary, Color.Error];
+        items = await db.Widgets.Where(x => x.Title == "CarouselItem" || x.Title == "HomeIntro").ToListAsync();
+        string[] colors = [ 
+            Colors.Red.Accent2, 
+            Colors.Purple.Accent2, 
+            Colors.LightBlue.Accent2, 
+            Colors.LightGreen.Accent2, 
+            Colors.Teal.Accent2, 
+            Colors.Lime.Accent2,
+            Colors.Amber.Accent2,
+            Colors.Orange.Accent3];
         Random rnd = new();
 
-        foreach(var item in carouselItems)
+        foreach (var item in items.Where(x => x.Title == "CarouselItem"))
         {
-            contents.Add(item.HtmlContent, colors[rnd.Next(0, colors.Length)]);
+            carouselItems.Add(item.HtmlContent, colors[rnd.Next(0, colors.Length)]);
         }
     }
 }

@@ -124,6 +124,15 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
                     HtmlContent = "todo",
                     Created = DateTime.Now,
                     CreatedBy = "Seed"
+                },
+                new Widget
+                {
+                    Id = 7,
+                    Title = "HomeIntro",
+                    Description = "Training + Internship Combo",
+                    HtmlContent = "todo",
+                    Created = DateTime.Now,
+                    CreatedBy = "Seed"
                 }
             ]);
 

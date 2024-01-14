@@ -2,24 +2,33 @@
 
 @inject ApplicationDbContext db
 
+<MudStack Class="mud-width-full">
+    <MudToggleGroup T="string" SelectedClass="black white-text" ValueChanged="TriggerFilter" Value="@InitialFilterCategory">
+        @foreach(var filter in Filters)
+        {
+            <MudToggleItem Value="@filter.Category">
+                <div class="mud-width-full mud-height-full">
+                    <div class="d-flex align-center justify-space-between">
+                        <MudText Typo="Typo.h6">@filter.Title</MudText>
+                        <MudChip Color="@(context ? Color.Success : Color.Primary)" Icon="@(context ? Icons.Material.Filled.Check : "")">@filter.Tag</MudChip>
+                    </div>
+                    <MudText Typo="Typo.subtitle2">@filter.Details</MudText>
+                </div>
+            </MudToggleItem>
+        }                
+    </MudToggleGroup>
+</MudStack>
 
-<MudText Typo="Typo.h5" Align="Align.Center">Training + Internship Combo</MudText>
-<MudText Typo="Typo.subtitle2" Class="mb-4">
-    Depending on our use case, we may want to add some styling to the Toolbar or Editor.
-    We can also place the Toolbar below the Editor by setting the BottomToolbar property to ‘true’ in the
-    BlazoredTextEditor component
-</MudText>
-
-@if(loadingData)
+@if (loadingData)
 {
-    <MudSkeleton SkeletonType="SkeletonType.Rectangle" Height="50px" Class="mb-3"/>
-    <MudSkeleton SkeletonType="SkeletonType.Rectangle" Height="50px" Class="mb-3" />
+    <MudSkeleton SkeletonType="SkeletonType.Rectangle" Height="100px" Class="mb-3" />
+    <MudSkeleton SkeletonType="SkeletonType.Rectangle" Height="100px" Class="mb-3" />
 }
 else
 {
-    <MudExpansionPanels Elevation="5" MultiExpansion="true">
+    <MudExpansionPanels Elevation="5" MultiExpansion="true" Class="mt-3">
         <MudGrid>
-            @foreach (var widget in widgets)
+            @foreach (var widget in widgetFiltered)
             {
                 <MudItem md="6" xs="12">
                     <Module Widget="@widget" />
@@ -31,12 +40,30 @@ else
 
 @code {
     Widget[] widgets = [];
+    IEnumerable<Widget> widgetFiltered = [];
+
     bool loadingData;
+    record Filter(string Category, string Title, string Tag, string Details);
+    List<Filter> Filters => [
+        new("Interns", "For Interns", "Internship", "Perfect for students aiming to know basics of software development and get their academic internship credits done."),
+        new("Training", "Tech Training", "Training", "Perfect for fresh graduates and students aiming to pursue software development career in Nepal and abroad."),
+        new("Pro", "Advanced Training", "Training Pro", "Perfect for software professionals aiming to enhance their knowledge horizon and for better career growth.")
+    ];
+
+    string InitialFilterCategory => Filters[0].Category;
 
     protected override async Task OnInitializedAsync()
     {
         loadingData = true;
+        
         widgets = await db.Widgets.Where(x => x.Title == "Module").Include(x => x.Tags).ToArrayAsync();
+        widgetFiltered = widgets.Where(x => x.Tags.Any(t => t.Name.Contains(InitialFilterCategory)));
+
         loadingData = false;
+    }
+
+    private void TriggerFilter(string value)
+    {
+        widgetFiltered = widgets.Where(x => x.Tags.Any(t => t.Name.Contains(value)));
     }
 }

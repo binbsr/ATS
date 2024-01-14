@@ -11,14 +11,20 @@
         <Login />
     </MudAppBar>
     <MudDrawer @bind-Open="_drawerOpen" Elevation="2">
-        <MudDrawerHeader>
-            <MudText Typo="Typo.h5" Class="mt-1">App TechnoSoft</MudText>
+        <MudDrawerHeader Class="px-1">
+            <MudImage Src="/apptechnosoft.png" Alt="App Technosoft" Height="70" />
+            <MudText Typo="Typo.h6" Align="Align.Center">APP TECHNOSOFT</MudText>
         </MudDrawerHeader>
         <NavMenu />
     </MudDrawer>
     <MudMainContent Class="px-3 mt-3">
         @Body
     </MudMainContent>
+    <MudAppBar Bottom="true" Color="Color.Tertiary" Elevation="1">
+        <MudText Typo="Typo.h6" Align="Align.Center">
+            @DateTime.Now.Year &copy; APP TECHNOSOFT
+        </MudText>
+    </MudAppBar>
 </MudLayout>
 
 <div id="blazor-error-ui">

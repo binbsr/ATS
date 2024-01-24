@@ -15,6 +15,7 @@ CREATE TABLE [Batches] (
     [Id] int NOT NULL IDENTITY,
     [Start] datetime2 NOT NULL,
     [End] datetime2 NOT NULL,
+    [Name] nvarchar(max) NOT NULL,
     [Created] datetime2 NULL,
     [CreatedBy] nvarchar(max) NULL,
     [LastUpdated] datetime2 NULL,
@@ -220,55 +221,86 @@ GO
 IF EXISTS (SELECT * FROM [sys].[identity_columns] WHERE [name] IN (N'Id', N'Created', N'CreatedBy', N'LastUpdated', N'LastUpdatedBy', N'Location', N'Name') AND [object_id] = OBJECT_ID(N'[Colleges]'))
     SET IDENTITY_INSERT [Colleges] ON;
 INSERT INTO [Colleges] ([Id], [Created], [CreatedBy], [LastUpdated], [LastUpdatedBy], [Location], [Name])
-VALUES (1, '2024-01-07T16:01:35.2795412+05:45', NULL, NULL, NULL, N'Bhadrapur, Jhapa', N'Mechi Multiple Campus'),
-(2, '2024-01-07T16:01:35.2795443+05:45', NULL, NULL, NULL, N'Dhankuta', N'Dhankuta Multiple Campus'),
-(3, '2024-01-07T16:01:35.2795445+05:45', NULL, NULL, NULL, N'Dharan', N'Central Campus of Technology'),
-(4, '2024-01-07T16:01:35.2795447+05:45', NULL, NULL, NULL, N'Biratnagar', N'Mahendra Morang Adarsha Multiple Campus'),
-(5, '2024-01-07T16:01:35.2795449+05:45', NULL, NULL, NULL, N'Rajbiraj', N'Mahendra Bindeshwori Multiple Campus'),
-(6, '2024-01-07T16:01:35.2795451+05:45', NULL, NULL, NULL, N'Siraha', N'Surya Narayan Satya Na. Mo. Yadav Campus'),
-(7, '2024-01-07T16:01:35.2795452+05:45', NULL, NULL, NULL, N'Janakpur', N'Ramsorup Ramsagar Multiple Campus'),
-(8, '2024-01-07T16:01:35.2795454+05:45', NULL, NULL, NULL, N'Birgunj', N'Thakur Ram Multiple Campus'),
-(9, '2024-01-07T16:01:35.2795456+05:45', NULL, NULL, NULL, N'Bharatpur', N'Birendra Multiple Campus'),
-(10, '2024-01-07T16:01:35.2795457+05:45', NULL, NULL, NULL, N'Pokhara', N'Prithivi Narayan Multiple Campus'),
-(11, '2024-01-07T16:01:35.2795459+05:45', NULL, NULL, NULL, N'Mahendranagar', N'SidhaNath Science Campus'),
-(12, '2024-01-07T16:01:35.2795460+05:45', NULL, NULL, NULL, N'Nepalgunj', N'Mahendra Multiple Campus'),
-(13, '2024-01-07T16:01:35.2795462+05:45', NULL, NULL, NULL, N'Butwal', N'Butwal Multiple Campus'),
-(14, '2024-01-07T16:01:35.2795463+05:45', NULL, NULL, NULL, N'Palpa', N'Tribhuvan Multiple Campus'),
-(15, '2024-01-07T16:01:35.2795465+05:45', NULL, NULL, NULL, N'Ghantaghar', N'Tri-Chandra Multiple Campus'),
-(16, '2024-01-07T16:01:35.2795466+05:45', NULL, NULL, NULL, N'Lainchour', N'Amrit Science Campus'),
-(17, '2024-01-07T16:01:35.2795468+05:45', NULL, NULL, NULL, N'Patan', N'Patan Multiple Campus'),
-(18, '2024-01-07T16:01:35.2795469+05:45', NULL, NULL, NULL, N'Bhaktapur', N'Bhaktapur Multiple Campus'),
-(19, '2024-01-07T16:01:35.2795471+05:45', NULL, NULL, NULL, N'Bagbazar', N'Padma Kanya Multiple Campus'),
-(20, '2024-01-07T16:01:35.2795472+05:45', NULL, NULL, NULL, N'Ghorahi, Dang', N'Mahendra Multiple Campus'),
-(21, '2024-01-07T16:01:35.2795474+05:45', NULL, NULL, NULL, N'Baglung', N'Dhaulagiri Campus'),
-(22, '2024-01-07T16:01:35.2795475+05:45', NULL, NULL, NULL, N'Gorkha', N'Gorkha Campus'),
-(23, '2024-01-07T16:01:35.2795476+05:45', NULL, NULL, NULL, N'Bhairahawa', N'Bhairahawa Multiple Campus'),
-(24, '2024-01-07T16:01:35.2795478+05:45', NULL, NULL, NULL, N'Biratnagar', N'Degree Campus');
+VALUES (1, '2024-01-23T21:26:33.4545562+05:45', NULL, NULL, NULL, N'Bhadrapur, Jhapa', N'Mechi Multiple Campus'),
+(2, '2024-01-23T21:26:33.4545580+05:45', NULL, NULL, NULL, N'Dhankuta', N'Dhankuta Multiple Campus'),
+(3, '2024-01-23T21:26:33.4545581+05:45', NULL, NULL, NULL, N'Dharan', N'Central Campus of Technology'),
+(4, '2024-01-23T21:26:33.4545582+05:45', NULL, NULL, NULL, N'Biratnagar', N'Mahendra Morang Adarsha Multiple Campus'),
+(5, '2024-01-23T21:26:33.4545583+05:45', NULL, NULL, NULL, N'Rajbiraj', N'Mahendra Bindeshwori Multiple Campus'),
+(6, '2024-01-23T21:26:33.4545584+05:45', NULL, NULL, NULL, N'Siraha', N'Surya Narayan Satya Na. Mo. Yadav Campus'),
+(7, '2024-01-23T21:26:33.4545585+05:45', NULL, NULL, NULL, N'Janakpur', N'Ramsorup Ramsagar Multiple Campus'),
+(8, '2024-01-23T21:26:33.4545586+05:45', NULL, NULL, NULL, N'Birgunj', N'Thakur Ram Multiple Campus'),
+(9, '2024-01-23T21:26:33.4545587+05:45', NULL, NULL, NULL, N'Bharatpur', N'Birendra Multiple Campus'),
+(10, '2024-01-23T21:26:33.4545587+05:45', NULL, NULL, NULL, N'Pokhara', N'Prithivi Narayan Multiple Campus'),
+(11, '2024-01-23T21:26:33.4545588+05:45', NULL, NULL, NULL, N'Mahendranagar', N'SidhaNath Science Campus'),
+(12, '2024-01-23T21:26:33.4545589+05:45', NULL, NULL, NULL, N'Nepalgunj', N'Mahendra Multiple Campus'),
+(13, '2024-01-23T21:26:33.4545590+05:45', NULL, NULL, NULL, N'Butwal', N'Butwal Multiple Campus'),
+(14, '2024-01-23T21:26:33.4545590+05:45', NULL, NULL, NULL, N'Palpa', N'Tribhuvan Multiple Campus'),
+(15, '2024-01-23T21:26:33.4545591+05:45', NULL, NULL, NULL, N'Ghantaghar', N'Tri-Chandra Multiple Campus'),
+(16, '2024-01-23T21:26:33.4545592+05:45', NULL, NULL, NULL, N'Lainchour', N'Amrit Science Campus'),
+(17, '2024-01-23T21:26:33.4545593+05:45', NULL, NULL, NULL, N'Patan', N'Patan Multiple Campus'),
+(18, '2024-01-23T21:26:33.4545593+05:45', NULL, NULL, NULL, N'Bhaktapur', N'Bhaktapur Multiple Campus'),
+(19, '2024-01-23T21:26:33.4545594+05:45', NULL, NULL, NULL, N'Bagbazar', N'Padma Kanya Multiple Campus'),
+(20, '2024-01-23T21:26:33.4545595+05:45', NULL, NULL, NULL, N'Ghorahi, Dang', N'Mahendra Multiple Campus'),
+(21, '2024-01-23T21:26:33.4545596+05:45', NULL, NULL, NULL, N'Baglung', N'Dhaulagiri Campus'),
+(22, '2024-01-23T21:26:33.4545597+05:45', NULL, NULL, NULL, N'Gorkha', N'Gorkha Campus'),
+(23, '2024-01-23T21:26:33.4545598+05:45', NULL, NULL, NULL, N'Bhairahawa', N'Bhairahawa Multiple Campus'),
+(24, '2024-01-23T21:26:33.4545599+05:45', NULL, NULL, NULL, N'Biratnagar', N'Degree Campus');
 IF EXISTS (SELECT * FROM [sys].[identity_columns] WHERE [name] IN (N'Id', N'Created', N'CreatedBy', N'LastUpdated', N'LastUpdatedBy', N'Location', N'Name') AND [object_id] = OBJECT_ID(N'[Colleges]'))
     SET IDENTITY_INSERT [Colleges] OFF;
 GO
 
-IF EXISTS (SELECT * FROM [sys].[identity_columns] WHERE [name] IN (N'Id', N'ColorCode', N'Created', N'CreatedBy', N'Description', N'LastUpdated', N'LastUpdatedBy', N'Name') AND [object_id] = OBJECT_ID(N'[Tags]'))
-    SET IDENTITY_INSERT [Tags] ON;
-INSERT INTO [Tags] ([Id], [ColorCode], [Created], [CreatedBy], [Description], [LastUpdated], [LastUpdatedBy], [Name])
-VALUES (1, N'', '2024-01-07T16:01:35.2796030+05:45', NULL, N'Specific module/sub-module for a training course', NULL, NULL, N'Module'),
-(2, N'', '2024-01-07T16:01:35.2796035+05:45', NULL, N'Single display item for home page', NULL, NULL, N'CarouselItem');
-IF EXISTS (SELECT * FROM [sys].[identity_columns] WHERE [name] IN (N'Id', N'ColorCode', N'Created', N'CreatedBy', N'Description', N'LastUpdated', N'LastUpdatedBy', N'Name') AND [object_id] = OBJECT_ID(N'[Tags]'))
-    SET IDENTITY_INSERT [Tags] OFF;
+IF EXISTS (SELECT * FROM [sys].[identity_columns] WHERE [name] IN (N'Id', N'ConcurrencyStamp', N'Name', N'NormalizedName') AND [object_id] = OBJECT_ID(N'[Roles]'))
+    SET IDENTITY_INSERT [Roles] ON;
+INSERT INTO [Roles] ([Id], [ConcurrencyStamp], [Name], [NormalizedName])
+VALUES (N'ce0d64ac-354d-4ade-8ed8-991be51234eb', N'ce0d64ac-354d-4ade-8ed8-991be51234eb', N'Admin', N'ADMIN'),
+(N'ce2e0bd6-7aac-42ff-8cee-5d6e95d556dc', N'ce2e0bd6-7aac-42ff-8cee-5d6e95d556dc', N'SuperAdmin', N'SUPERADMIN'),
+(N'f5230dfc-941b-4e51-9ae2-c99e09c3a8c9', N'f5230dfc-941b-4e51-9ae2-c99e09c3a8c9', N'Trainee', N'TRAINEE');
+IF EXISTS (SELECT * FROM [sys].[identity_columns] WHERE [name] IN (N'Id', N'ConcurrencyStamp', N'Name', N'NormalizedName') AND [object_id] = OBJECT_ID(N'[Roles]'))
+    SET IDENTITY_INSERT [Roles] OFF;
 GO
 
 IF EXISTS (SELECT * FROM [sys].[identity_columns] WHERE [name] IN (N'Id', N'Affliation', N'Created', N'CreatedBy', N'LastUpdated', N'LastUpdatedBy', N'Name') AND [object_id] = OBJECT_ID(N'[TechPrograms]'))
     SET IDENTITY_INSERT [TechPrograms] ON;
 INSERT INTO [TechPrograms] ([Id], [Affliation], [Created], [CreatedBy], [LastUpdated], [LastUpdatedBy], [Name])
-VALUES (1, N'TU', '2024-01-07T16:01:35.2795956+05:45', NULL, NULL, NULL, N'BCA'),
-(2, N'PU', '2024-01-07T16:01:35.2795962+05:45', NULL, NULL, NULL, N'BCA'),
-(3, N'TU', '2024-01-07T16:01:35.2795964+05:45', NULL, NULL, NULL, N'BIT'),
-(4, N'PU', '2024-01-07T16:01:35.2795965+05:45', NULL, NULL, NULL, N'BIT'),
-(5, N'TU', '2024-01-07T16:01:35.2795967+05:45', NULL, NULL, NULL, N'BIM'),
-(6, N'TU', '2024-01-07T16:01:35.2795969+05:45', NULL, NULL, NULL, N'BScIT'),
-(7, N'PU', '2024-01-07T16:01:35.2795971+05:45', NULL, NULL, NULL, N'BScIT');
+VALUES (1, N'TU', '2024-01-23T21:26:33.4545789+05:45', NULL, NULL, NULL, N'BCA'),
+(2, N'PU', '2024-01-23T21:26:33.4545792+05:45', NULL, NULL, NULL, N'BCA'),
+(3, N'TU', '2024-01-23T21:26:33.4545793+05:45', NULL, NULL, NULL, N'BIT'),
+(4, N'PU', '2024-01-23T21:26:33.4545794+05:45', NULL, NULL, NULL, N'BIT'),
+(5, N'TU', '2024-01-23T21:26:33.4545795+05:45', NULL, NULL, NULL, N'BIM'),
+(6, N'TU', '2024-01-23T21:26:33.4545796+05:45', NULL, NULL, NULL, N'BScIT'),
+(7, N'PU', '2024-01-23T21:26:33.4545796+05:45', NULL, NULL, NULL, N'BScIT');
 IF EXISTS (SELECT * FROM [sys].[identity_columns] WHERE [name] IN (N'Id', N'Affliation', N'Created', N'CreatedBy', N'LastUpdated', N'LastUpdatedBy', N'Name') AND [object_id] = OBJECT_ID(N'[TechPrograms]'))
     SET IDENTITY_INSERT [TechPrograms] OFF;
+GO
+
+IF EXISTS (SELECT * FROM [sys].[identity_columns] WHERE [name] IN (N'Id', N'AccessFailedCount', N'ConcurrencyStamp', N'Email', N'EmailConfirmed', N'LockoutEnabled', N'LockoutEnd', N'NormalizedEmail', N'NormalizedUserName', N'PasswordHash', N'PhoneNumber', N'PhoneNumberConfirmed', N'SecurityStamp', N'TwoFactorEnabled', N'UserName') AND [object_id] = OBJECT_ID(N'[Users]'))
+    SET IDENTITY_INSERT [Users] ON;
+INSERT INTO [Users] ([Id], [AccessFailedCount], [ConcurrencyStamp], [Email], [EmailConfirmed], [LockoutEnabled], [LockoutEnd], [NormalizedEmail], [NormalizedUserName], [PasswordHash], [PhoneNumber], [PhoneNumberConfirmed], [SecurityStamp], [TwoFactorEnabled], [UserName])
+VALUES (N'02610d47-09c5-44db-9272-ee96e85c41e7', 0, N'896e5218-dcc0-4031-9603-9405e2ba7afa', N'rawal.bishnu@live.com', CAST(1 AS bit), CAST(0 AS bit), NULL, NULL, N'RAWAL.BISHNU@LIVE.COM', N'AQAAAAIAAYagAAAAEEDgGdAmsEJtlmkEvBs5o39iCuab4wnzBhCwotfffet9hwfU9P5rGvn4Cs+B9IB+FQ==', NULL, CAST(0 AS bit), N'6a0f399c-1e85-49f9-9afc-728f142dbc1d', CAST(0 AS bit), N'rawal.bishnu@live.com');
+IF EXISTS (SELECT * FROM [sys].[identity_columns] WHERE [name] IN (N'Id', N'AccessFailedCount', N'ConcurrencyStamp', N'Email', N'EmailConfirmed', N'LockoutEnabled', N'LockoutEnd', N'NormalizedEmail', N'NormalizedUserName', N'PasswordHash', N'PhoneNumber', N'PhoneNumberConfirmed', N'SecurityStamp', N'TwoFactorEnabled', N'UserName') AND [object_id] = OBJECT_ID(N'[Users]'))
+    SET IDENTITY_INSERT [Users] OFF;
+GO
+
+IF EXISTS (SELECT * FROM [sys].[identity_columns] WHERE [name] IN (N'Id', N'Created', N'CreatedBy', N'Description', N'HtmlContent', N'LastUpdated', N'LastUpdatedBy', N'Title') AND [object_id] = OBJECT_ID(N'[Widgets]'))
+    SET IDENTITY_INSERT [Widgets] ON;
+INSERT INTO [Widgets] ([Id], [Created], [CreatedBy], [Description], [HtmlContent], [LastUpdated], [LastUpdatedBy], [Title])
+VALUES (1, '2024-01-23T21:26:33.4545827+05:45', N'Seed', N'An display item in home page', N'Welcome to AppTechnoSoft! An initiative for students and freshers.', NULL, NULL, N'CarouselItem'),
+(2, '2024-01-23T21:26:33.4545829+05:45', N'Seed', N'An display item in home page', N'Bridging the gap between academia and industry!', NULL, NULL, N'CarouselItem'),
+(3, '2024-01-23T21:26:33.4545830+05:45', N'Seed', N'An display item in home page', N'We guide you on software R&D and SDLC to kickstart your career!', NULL, NULL, N'CarouselItem'),
+(4, '2024-01-23T21:26:33.4545832+05:45', N'Seed', N'An display item in home page', N'Replacement Opportunities!', NULL, NULL, N'CarouselItem'),
+(5, '2024-01-23T21:26:33.4545834+05:45', N'Seed', N'An display item in home page', N'From basics to professional touches!', NULL, NULL, N'CarouselItem'),
+(6, '2024-01-23T21:26:33.4545835+05:45', N'Seed', N'GIT and GitHub Essentials', N'todo', NULL, NULL, N'Module'),
+(7, '2024-01-23T21:26:33.4545837+05:45', N'Seed', N'Training + Internship Combo', N'todo', NULL, NULL, N'HomeIntro');
+IF EXISTS (SELECT * FROM [sys].[identity_columns] WHERE [name] IN (N'Id', N'Created', N'CreatedBy', N'Description', N'HtmlContent', N'LastUpdated', N'LastUpdatedBy', N'Title') AND [object_id] = OBJECT_ID(N'[Widgets]'))
+    SET IDENTITY_INSERT [Widgets] OFF;
+GO
+
+IF EXISTS (SELECT * FROM [sys].[identity_columns] WHERE [name] IN (N'RoleId', N'UserId') AND [object_id] = OBJECT_ID(N'[UserRole]'))
+    SET IDENTITY_INSERT [UserRole] ON;
+INSERT INTO [UserRole] ([RoleId], [UserId])
+VALUES (N'ce2e0bd6-7aac-42ff-8cee-5d6e95d556dc', N'02610d47-09c5-44db-9272-ee96e85c41e7');
+IF EXISTS (SELECT * FROM [sys].[identity_columns] WHERE [name] IN (N'RoleId', N'UserId') AND [object_id] = OBJECT_ID(N'[UserRole]'))
+    SET IDENTITY_INSERT [UserRole] OFF;
 GO
 
 CREATE INDEX [IX_RoleClaims_RoleId] ON [RoleClaims] ([RoleId]);
@@ -314,218 +346,7 @@ CREATE UNIQUE INDEX [UserNameIndex] ON [Users] ([NormalizedUserName]) WHERE [Nor
 GO
 
 INSERT INTO [__EFMigrationsHistory] ([MigrationId], [ProductVersion])
-VALUES (N'20240107101635_Initial', N'8.0.0');
-GO
-
-COMMIT;
-GO
-
-BEGIN TRANSACTION;
-GO
-
-ALTER TABLE [Batches] ADD [Name] nvarchar(max) NOT NULL DEFAULT N'';
-GO
-
-UPDATE [Colleges] SET [Created] = '2024-01-07T22:12:29.7929021+05:45'
-WHERE [Id] = 1;
-SELECT @@ROWCOUNT;
-
-GO
-
-UPDATE [Colleges] SET [Created] = '2024-01-07T22:12:29.7929050+05:45'
-WHERE [Id] = 2;
-SELECT @@ROWCOUNT;
-
-GO
-
-UPDATE [Colleges] SET [Created] = '2024-01-07T22:12:29.7929051+05:45'
-WHERE [Id] = 3;
-SELECT @@ROWCOUNT;
-
-GO
-
-UPDATE [Colleges] SET [Created] = '2024-01-07T22:12:29.7929053+05:45'
-WHERE [Id] = 4;
-SELECT @@ROWCOUNT;
-
-GO
-
-UPDATE [Colleges] SET [Created] = '2024-01-07T22:12:29.7929054+05:45'
-WHERE [Id] = 5;
-SELECT @@ROWCOUNT;
-
-GO
-
-UPDATE [Colleges] SET [Created] = '2024-01-07T22:12:29.7929055+05:45'
-WHERE [Id] = 6;
-SELECT @@ROWCOUNT;
-
-GO
-
-UPDATE [Colleges] SET [Created] = '2024-01-07T22:12:29.7929056+05:45'
-WHERE [Id] = 7;
-SELECT @@ROWCOUNT;
-
-GO
-
-UPDATE [Colleges] SET [Created] = '2024-01-07T22:12:29.7929057+05:45'
-WHERE [Id] = 8;
-SELECT @@ROWCOUNT;
-
-GO
-
-UPDATE [Colleges] SET [Created] = '2024-01-07T22:12:29.7929058+05:45'
-WHERE [Id] = 9;
-SELECT @@ROWCOUNT;
-
-GO
-
-UPDATE [Colleges] SET [Created] = '2024-01-07T22:12:29.7929059+05:45'
-WHERE [Id] = 10;
-SELECT @@ROWCOUNT;
-
-GO
-
-UPDATE [Colleges] SET [Created] = '2024-01-07T22:12:29.7929060+05:45'
-WHERE [Id] = 11;
-SELECT @@ROWCOUNT;
-
-GO
-
-UPDATE [Colleges] SET [Created] = '2024-01-07T22:12:29.7929061+05:45'
-WHERE [Id] = 12;
-SELECT @@ROWCOUNT;
-
-GO
-
-UPDATE [Colleges] SET [Created] = '2024-01-07T22:12:29.7929062+05:45'
-WHERE [Id] = 13;
-SELECT @@ROWCOUNT;
-
-GO
-
-UPDATE [Colleges] SET [Created] = '2024-01-07T22:12:29.7929063+05:45'
-WHERE [Id] = 14;
-SELECT @@ROWCOUNT;
-
-GO
-
-UPDATE [Colleges] SET [Created] = '2024-01-07T22:12:29.7929064+05:45'
-WHERE [Id] = 15;
-SELECT @@ROWCOUNT;
-
-GO
-
-UPDATE [Colleges] SET [Created] = '2024-01-07T22:12:29.7929065+05:45'
-WHERE [Id] = 16;
-SELECT @@ROWCOUNT;
-
-GO
-
-UPDATE [Colleges] SET [Created] = '2024-01-07T22:12:29.7929066+05:45'
-WHERE [Id] = 17;
-SELECT @@ROWCOUNT;
-
-GO
-
-UPDATE [Colleges] SET [Created] = '2024-01-07T22:12:29.7929067+05:45'
-WHERE [Id] = 18;
-SELECT @@ROWCOUNT;
-
-GO
-
-UPDATE [Colleges] SET [Created] = '2024-01-07T22:12:29.7929068+05:45'
-WHERE [Id] = 19;
-SELECT @@ROWCOUNT;
-
-GO
-
-UPDATE [Colleges] SET [Created] = '2024-01-07T22:12:29.7929069+05:45'
-WHERE [Id] = 20;
-SELECT @@ROWCOUNT;
-
-GO
-
-UPDATE [Colleges] SET [Created] = '2024-01-07T22:12:29.7929098+05:45'
-WHERE [Id] = 21;
-SELECT @@ROWCOUNT;
-
-GO
-
-UPDATE [Colleges] SET [Created] = '2024-01-07T22:12:29.7929099+05:45'
-WHERE [Id] = 22;
-SELECT @@ROWCOUNT;
-
-GO
-
-UPDATE [Colleges] SET [Created] = '2024-01-07T22:12:29.7929100+05:45'
-WHERE [Id] = 23;
-SELECT @@ROWCOUNT;
-
-GO
-
-UPDATE [Colleges] SET [Created] = '2024-01-07T22:12:29.7929101+05:45'
-WHERE [Id] = 24;
-SELECT @@ROWCOUNT;
-
-GO
-
-UPDATE [Tags] SET [Created] = '2024-01-07T22:12:29.7929475+05:45'
-WHERE [Id] = 1;
-SELECT @@ROWCOUNT;
-
-GO
-
-UPDATE [Tags] SET [Created] = '2024-01-07T22:12:29.7929479+05:45'
-WHERE [Id] = 2;
-SELECT @@ROWCOUNT;
-
-GO
-
-UPDATE [TechPrograms] SET [Created] = '2024-01-07T22:12:29.7929431+05:45'
-WHERE [Id] = 1;
-SELECT @@ROWCOUNT;
-
-GO
-
-UPDATE [TechPrograms] SET [Created] = '2024-01-07T22:12:29.7929435+05:45'
-WHERE [Id] = 2;
-SELECT @@ROWCOUNT;
-
-GO
-
-UPDATE [TechPrograms] SET [Created] = '2024-01-07T22:12:29.7929436+05:45'
-WHERE [Id] = 3;
-SELECT @@ROWCOUNT;
-
-GO
-
-UPDATE [TechPrograms] SET [Created] = '2024-01-07T22:12:29.7929437+05:45'
-WHERE [Id] = 4;
-SELECT @@ROWCOUNT;
-
-GO
-
-UPDATE [TechPrograms] SET [Created] = '2024-01-07T22:12:29.7929438+05:45'
-WHERE [Id] = 5;
-SELECT @@ROWCOUNT;
-
-GO
-
-UPDATE [TechPrograms] SET [Created] = '2024-01-07T22:12:29.7929439+05:45'
-WHERE [Id] = 6;
-SELECT @@ROWCOUNT;
-
-GO
-
-UPDATE [TechPrograms] SET [Created] = '2024-01-07T22:12:29.7929440+05:45'
-WHERE [Id] = 7;
-SELECT @@ROWCOUNT;
-
-GO
-
-INSERT INTO [__EFMigrationsHistory] ([MigrationId], [ProductVersion])
-VALUES (N'20240107162730_addNameColumn', N'8.0.0');
+VALUES (N'20240123154133_Initial', N'8.0.0');
 GO
 
 COMMIT;

@@ -1,0 +1,4 @@
+{
+    "appService.defaultWebAppToDeploy": "/subscriptions/3d805784-de72-49da-9753-6de3697d7735/resourceGroups/apptech-resources/providers/Microsoft.Web/sites/appinterns",
+    "appService.deploySubpath": "AppTechnoSoft.Interns"
+}

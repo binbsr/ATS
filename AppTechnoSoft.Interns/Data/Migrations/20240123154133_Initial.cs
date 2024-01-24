@@ -21,6 +21,7 @@ namespace AppTechnoSoft.Interns.Data.Migrations
                         .Annotation("SqlServer:Identity", "1, 1"),
                     Start = table.Column<DateTime>(type: "datetime2", nullable: false),
                     End = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    Name = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     Created = table.Column<DateTime>(type: "datetime2", nullable: true),
                     CreatedBy = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     LastUpdated = table.Column<DateTime>(type: "datetime2", nullable: true),
@@ -379,39 +380,40 @@ namespace AppTechnoSoft.Interns.Data.Migrations
                 columns: new[] { "Id", "Created", "CreatedBy", "LastUpdated", "LastUpdatedBy", "Location", "Name" },
                 values: new object[,]
                 {
-                    { 1, new DateTime(2024, 1, 7, 16, 1, 35, 279, DateTimeKind.Local).AddTicks(5412), null, null, null, "Bhadrapur, Jhapa", "Mechi Multiple Campus" },
-                    { 2, new DateTime(2024, 1, 7, 16, 1, 35, 279, DateTimeKind.Local).AddTicks(5443), null, null, null, "Dhankuta", "Dhankuta Multiple Campus" },
-                    { 3, new DateTime(2024, 1, 7, 16, 1, 35, 279, DateTimeKind.Local).AddTicks(5445), null, null, null, "Dharan", "Central Campus of Technology" },
-                    { 4, new DateTime(2024, 1, 7, 16, 1, 35, 279, DateTimeKind.Local).AddTicks(5447), null, null, null, "Biratnagar", "Mahendra Morang Adarsha Multiple Campus" },
-                    { 5, new DateTime(2024, 1, 7, 16, 1, 35, 279, DateTimeKind.Local).AddTicks(5449), null, null, null, "Rajbiraj", "Mahendra Bindeshwori Multiple Campus" },
-                    { 6, new DateTime(2024, 1, 7, 16, 1, 35, 279, DateTimeKind.Local).AddTicks(5451), null, null, null, "Siraha", "Surya Narayan Satya Na. Mo. Yadav Campus" },
-                    { 7, new DateTime(2024, 1, 7, 16, 1, 35, 279, DateTimeKind.Local).AddTicks(5452), null, null, null, "Janakpur", "Ramsorup Ramsagar Multiple Campus" },
-                    { 8, new DateTime(2024, 1, 7, 16, 1, 35, 279, DateTimeKind.Local).AddTicks(5454), null, null, null, "Birgunj", "Thakur Ram Multiple Campus" },
-                    { 9, new DateTime(2024, 1, 7, 16, 1, 35, 279, DateTimeKind.Local).AddTicks(5456), null, null, null, "Bharatpur", "Birendra Multiple Campus" },
-                    { 10, new DateTime(2024, 1, 7, 16, 1, 35, 279, DateTimeKind.Local).AddTicks(5457), null, null, null, "Pokhara", "Prithivi Narayan Multiple Campus" },
-                    { 11, new DateTime(2024, 1, 7, 16, 1, 35, 279, DateTimeKind.Local).AddTicks(5459), null, null, null, "Mahendranagar", "SidhaNath Science Campus" },
-                    { 12, new DateTime(2024, 1, 7, 16, 1, 35, 279, DateTimeKind.Local).AddTicks(5460), null, null, null, "Nepalgunj", "Mahendra Multiple Campus" },
-                    { 13, new DateTime(2024, 1, 7, 16, 1, 35, 279, DateTimeKind.Local).AddTicks(5462), null, null, null, "Butwal", "Butwal Multiple Campus" },
-                    { 14, new DateTime(2024, 1, 7, 16, 1, 35, 279, DateTimeKind.Local).AddTicks(5463), null, null, null, "Palpa", "Tribhuvan Multiple Campus" },
-                    { 15, new DateTime(2024, 1, 7, 16, 1, 35, 279, DateTimeKind.Local).AddTicks(5465), null, null, null, "Ghantaghar", "Tri-Chandra Multiple Campus" },
-                    { 16, new DateTime(2024, 1, 7, 16, 1, 35, 279, DateTimeKind.Local).AddTicks(5466), null, null, null, "Lainchour", "Amrit Science Campus" },
-                    { 17, new DateTime(2024, 1, 7, 16, 1, 35, 279, DateTimeKind.Local).AddTicks(5468), null, null, null, "Patan", "Patan Multiple Campus" },
-                    { 18, new DateTime(2024, 1, 7, 16, 1, 35, 279, DateTimeKind.Local).AddTicks(5469), null, null, null, "Bhaktapur", "Bhaktapur Multiple Campus" },
-                    { 19, new DateTime(2024, 1, 7, 16, 1, 35, 279, DateTimeKind.Local).AddTicks(5471), null, null, null, "Bagbazar", "Padma Kanya Multiple Campus" },
-                    { 20, new DateTime(2024, 1, 7, 16, 1, 35, 279, DateTimeKind.Local).AddTicks(5472), null, null, null, "Ghorahi, Dang", "Mahendra Multiple Campus" },
-                    { 21, new DateTime(2024, 1, 7, 16, 1, 35, 279, DateTimeKind.Local).AddTicks(5474), null, null, null, "Baglung", "Dhaulagiri Campus" },
-                    { 22, new DateTime(2024, 1, 7, 16, 1, 35, 279, DateTimeKind.Local).AddTicks(5475), null, null, null, "Gorkha", "Gorkha Campus" },
-                    { 23, new DateTime(2024, 1, 7, 16, 1, 35, 279, DateTimeKind.Local).AddTicks(5476), null, null, null, "Bhairahawa", "Bhairahawa Multiple Campus" },
-                    { 24, new DateTime(2024, 1, 7, 16, 1, 35, 279, DateTimeKind.Local).AddTicks(5478), null, null, null, "Biratnagar", "Degree Campus" }
+                    { 1, new DateTime(2024, 1, 23, 21, 26, 33, 454, DateTimeKind.Local).AddTicks(5562), null, null, null, "Bhadrapur, Jhapa", "Mechi Multiple Campus" },
+                    { 2, new DateTime(2024, 1, 23, 21, 26, 33, 454, DateTimeKind.Local).AddTicks(5580), null, null, null, "Dhankuta", "Dhankuta Multiple Campus" },
+                    { 3, new DateTime(2024, 1, 23, 21, 26, 33, 454, DateTimeKind.Local).AddTicks(5581), null, null, null, "Dharan", "Central Campus of Technology" },
+                    { 4, new DateTime(2024, 1, 23, 21, 26, 33, 454, DateTimeKind.Local).AddTicks(5582), null, null, null, "Biratnagar", "Mahendra Morang Adarsha Multiple Campus" },
+                    { 5, new DateTime(2024, 1, 23, 21, 26, 33, 454, DateTimeKind.Local).AddTicks(5583), null, null, null, "Rajbiraj", "Mahendra Bindeshwori Multiple Campus" },
+                    { 6, new DateTime(2024, 1, 23, 21, 26, 33, 454, DateTimeKind.Local).AddTicks(5584), null, null, null, "Siraha", "Surya Narayan Satya Na. Mo. Yadav Campus" },
+                    { 7, new DateTime(2024, 1, 23, 21, 26, 33, 454, DateTimeKind.Local).AddTicks(5585), null, null, null, "Janakpur", "Ramsorup Ramsagar Multiple Campus" },
+                    { 8, new DateTime(2024, 1, 23, 21, 26, 33, 454, DateTimeKind.Local).AddTicks(5586), null, null, null, "Birgunj", "Thakur Ram Multiple Campus" },
+                    { 9, new DateTime(2024, 1, 23, 21, 26, 33, 454, DateTimeKind.Local).AddTicks(5587), null, null, null, "Bharatpur", "Birendra Multiple Campus" },
+                    { 10, new DateTime(2024, 1, 23, 21, 26, 33, 454, DateTimeKind.Local).AddTicks(5587), null, null, null, "Pokhara", "Prithivi Narayan Multiple Campus" },
+                    { 11, new DateTime(2024, 1, 23, 21, 26, 33, 454, DateTimeKind.Local).AddTicks(5588), null, null, null, "Mahendranagar", "SidhaNath Science Campus" },
+                    { 12, new DateTime(2024, 1, 23, 21, 26, 33, 454, DateTimeKind.Local).AddTicks(5589), null, null, null, "Nepalgunj", "Mahendra Multiple Campus" },
+                    { 13, new DateTime(2024, 1, 23, 21, 26, 33, 454, DateTimeKind.Local).AddTicks(5590), null, null, null, "Butwal", "Butwal Multiple Campus" },
+                    { 14, new DateTime(2024, 1, 23, 21, 26, 33, 454, DateTimeKind.Local).AddTicks(5590), null, null, null, "Palpa", "Tribhuvan Multiple Campus" },
+                    { 15, new DateTime(2024, 1, 23, 21, 26, 33, 454, DateTimeKind.Local).AddTicks(5591), null, null, null, "Ghantaghar", "Tri-Chandra Multiple Campus" },
+                    { 16, new DateTime(2024, 1, 23, 21, 26, 33, 454, DateTimeKind.Local).AddTicks(5592), null, null, null, "Lainchour", "Amrit Science Campus" },
+                    { 17, new DateTime(2024, 1, 23, 21, 26, 33, 454, DateTimeKind.Local).AddTicks(5593), null, null, null, "Patan", "Patan Multiple Campus" },
+                    { 18, new DateTime(2024, 1, 23, 21, 26, 33, 454, DateTimeKind.Local).AddTicks(5593), null, null, null, "Bhaktapur", "Bhaktapur Multiple Campus" },
+                    { 19, new DateTime(2024, 1, 23, 21, 26, 33, 454, DateTimeKind.Local).AddTicks(5594), null, null, null, "Bagbazar", "Padma Kanya Multiple Campus" },
+                    { 20, new DateTime(2024, 1, 23, 21, 26, 33, 454, DateTimeKind.Local).AddTicks(5595), null, null, null, "Ghorahi, Dang", "Mahendra Multiple Campus" },
+                    { 21, new DateTime(2024, 1, 23, 21, 26, 33, 454, DateTimeKind.Local).AddTicks(5596), null, null, null, "Baglung", "Dhaulagiri Campus" },
+                    { 22, new DateTime(2024, 1, 23, 21, 26, 33, 454, DateTimeKind.Local).AddTicks(5597), null, null, null, "Gorkha", "Gorkha Campus" },
+                    { 23, new DateTime(2024, 1, 23, 21, 26, 33, 454, DateTimeKind.Local).AddTicks(5598), null, null, null, "Bhairahawa", "Bhairahawa Multiple Campus" },
+                    { 24, new DateTime(2024, 1, 23, 21, 26, 33, 454, DateTimeKind.Local).AddTicks(5599), null, null, null, "Biratnagar", "Degree Campus" }
                 });
 
             migrationBuilder.InsertData(
-                table: "Tags",
-                columns: new[] { "Id", "ColorCode", "Created", "CreatedBy", "Description", "LastUpdated", "LastUpdatedBy", "Name" },
+                table: "Roles",
+                columns: new[] { "Id", "ConcurrencyStamp", "Name", "NormalizedName" },
                 values: new object[,]
                 {
-                    { 1, "", new DateTime(2024, 1, 7, 16, 1, 35, 279, DateTimeKind.Local).AddTicks(6030), null, "Specific module/sub-module for a training course", null, null, "Module" },
-                    { 2, "", new DateTime(2024, 1, 7, 16, 1, 35, 279, DateTimeKind.Local).AddTicks(6035), null, "Single display item for home page", null, null, "CarouselItem" }
+                    { "ce0d64ac-354d-4ade-8ed8-991be51234eb", "ce0d64ac-354d-4ade-8ed8-991be51234eb", "Admin", "ADMIN" },
+                    { "ce2e0bd6-7aac-42ff-8cee-5d6e95d556dc", "ce2e0bd6-7aac-42ff-8cee-5d6e95d556dc", "SuperAdmin", "SUPERADMIN" },
+                    { "f5230dfc-941b-4e51-9ae2-c99e09c3a8c9", "f5230dfc-941b-4e51-9ae2-c99e09c3a8c9", "Trainee", "TRAINEE" }
                 });
 
             migrationBuilder.InsertData(
@@ -419,14 +421,38 @@ namespace AppTechnoSoft.Interns.Data.Migrations
                 columns: new[] { "Id", "Affliation", "Created", "CreatedBy", "LastUpdated", "LastUpdatedBy", "Name" },
                 values: new object[,]
                 {
-                    { 1, "TU", new DateTime(2024, 1, 7, 16, 1, 35, 279, DateTimeKind.Local).AddTicks(5956), null, null, null, "BCA" },
-                    { 2, "PU", new DateTime(2024, 1, 7, 16, 1, 35, 279, DateTimeKind.Local).AddTicks(5962), null, null, null, "BCA" },
-                    { 3, "TU", new DateTime(2024, 1, 7, 16, 1, 35, 279, DateTimeKind.Local).AddTicks(5964), null, null, null, "BIT" },
-                    { 4, "PU", new DateTime(2024, 1, 7, 16, 1, 35, 279, DateTimeKind.Local).AddTicks(5965), null, null, null, "BIT" },
-                    { 5, "TU", new DateTime(2024, 1, 7, 16, 1, 35, 279, DateTimeKind.Local).AddTicks(5967), null, null, null, "BIM" },
-                    { 6, "TU", new DateTime(2024, 1, 7, 16, 1, 35, 279, DateTimeKind.Local).AddTicks(5969), null, null, null, "BScIT" },
-                    { 7, "PU", new DateTime(2024, 1, 7, 16, 1, 35, 279, DateTimeKind.Local).AddTicks(5971), null, null, null, "BScIT" }
+                    { 1, "TU", new DateTime(2024, 1, 23, 21, 26, 33, 454, DateTimeKind.Local).AddTicks(5789), null, null, null, "BCA" },
+                    { 2, "PU", new DateTime(2024, 1, 23, 21, 26, 33, 454, DateTimeKind.Local).AddTicks(5792), null, null, null, "BCA" },
+                    { 3, "TU", new DateTime(2024, 1, 23, 21, 26, 33, 454, DateTimeKind.Local).AddTicks(5793), null, null, null, "BIT" },
+                    { 4, "PU", new DateTime(2024, 1, 23, 21, 26, 33, 454, DateTimeKind.Local).AddTicks(5794), null, null, null, "BIT" },
+                    { 5, "TU", new DateTime(2024, 1, 23, 21, 26, 33, 454, DateTimeKind.Local).AddTicks(5795), null, null, null, "BIM" },
+                    { 6, "TU", new DateTime(2024, 1, 23, 21, 26, 33, 454, DateTimeKind.Local).AddTicks(5796), null, null, null, "BScIT" },
+                    { 7, "PU", new DateTime(2024, 1, 23, 21, 26, 33, 454, DateTimeKind.Local).AddTicks(5796), null, null, null, "BScIT" }
                 });
+
+            migrationBuilder.InsertData(
+                table: "Users",
+                columns: new[] { "Id", "AccessFailedCount", "ConcurrencyStamp", "Email", "EmailConfirmed", "LockoutEnabled", "LockoutEnd", "NormalizedEmail", "NormalizedUserName", "PasswordHash", "PhoneNumber", "PhoneNumberConfirmed", "SecurityStamp", "TwoFactorEnabled", "UserName" },
+                values: new object[] { "02610d47-09c5-44db-9272-ee96e85c41e7", 0, "896e5218-dcc0-4031-9603-9405e2ba7afa", "rawal.bishnu@live.com", true, false, null, null, "RAWAL.BISHNU@LIVE.COM", "AQAAAAIAAYagAAAAEEDgGdAmsEJtlmkEvBs5o39iCuab4wnzBhCwotfffet9hwfU9P5rGvn4Cs+B9IB+FQ==", null, false, "6a0f399c-1e85-49f9-9afc-728f142dbc1d", false, "rawal.bishnu@live.com" });
+
+            migrationBuilder.InsertData(
+                table: "Widgets",
+                columns: new[] { "Id", "Created", "CreatedBy", "Description", "HtmlContent", "LastUpdated", "LastUpdatedBy", "Title" },
+                values: new object[,]
+                {
+                    { 1, new DateTime(2024, 1, 23, 21, 26, 33, 454, DateTimeKind.Local).AddTicks(5827), "Seed", "An display item in home page", "Welcome to AppTechnoSoft! An initiative for students and freshers.", null, null, "CarouselItem" },
+                    { 2, new DateTime(2024, 1, 23, 21, 26, 33, 454, DateTimeKind.Local).AddTicks(5829), "Seed", "An display item in home page", "Bridging the gap between academia and industry!", null, null, "CarouselItem" },
+                    { 3, new DateTime(2024, 1, 23, 21, 26, 33, 454, DateTimeKind.Local).AddTicks(5830), "Seed", "An display item in home page", "We guide you on software R&D and SDLC to kickstart your career!", null, null, "CarouselItem" },
+                    { 4, new DateTime(2024, 1, 23, 21, 26, 33, 454, DateTimeKind.Local).AddTicks(5832), "Seed", "An display item in home page", "Replacement Opportunities!", null, null, "CarouselItem" },
+                    { 5, new DateTime(2024, 1, 23, 21, 26, 33, 454, DateTimeKind.Local).AddTicks(5834), "Seed", "An display item in home page", "From basics to professional touches!", null, null, "CarouselItem" },
+                    { 6, new DateTime(2024, 1, 23, 21, 26, 33, 454, DateTimeKind.Local).AddTicks(5835), "Seed", "GIT and GitHub Essentials", "todo", null, null, "Module" },
+                    { 7, new DateTime(2024, 1, 23, 21, 26, 33, 454, DateTimeKind.Local).AddTicks(5837), "Seed", "Training + Internship Combo", "todo", null, null, "HomeIntro" }
+                });
+
+            migrationBuilder.InsertData(
+                table: "UserRole",
+                columns: new[] { "RoleId", "UserId" },
+                values: new object[] { "ce2e0bd6-7aac-42ff-8cee-5d6e95d556dc", "02610d47-09c5-44db-9272-ee96e85c41e7" });
 
             migrationBuilder.CreateIndex(
                 name: "IX_RoleClaims_RoleId",

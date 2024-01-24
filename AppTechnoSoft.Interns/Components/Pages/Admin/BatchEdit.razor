@@ -28,7 +28,7 @@
     [Parameter]
     public int? Id { get; set; }
 
-    Batch model = new();
+    Batch model;
     bool success;
     string pageTitle;
     bool IsAdd => Id is null or 0;
@@ -38,6 +38,12 @@
         if (IsAdd)
         {
             pageTitle = "Add Batch";
+            model = new()
+                {
+                    Start = DateTime.Now,
+                    End = DateTime.Now.AddDays(75)
+                };
+            model.Name = $"{"Batch".MakeUnique()} - {model.Start:MMM dd (yyyy)} to {model.End:MMM dd (yyyy)}";
         }
         else
         {

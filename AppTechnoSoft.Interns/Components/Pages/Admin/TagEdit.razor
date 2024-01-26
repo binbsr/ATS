@@ -68,12 +68,11 @@
         if (rowsAffected > 0)
         {
             SnackBar.Add("Tag saved successfully", Severity.Success);
+            Navigation.NavigateTo("/tags");
         }
         else
         {
             SnackBar.Add("Tag save failed", Severity.Error);
         }
-
-        Navigation.NavigateTo("/tags");
     }
 }

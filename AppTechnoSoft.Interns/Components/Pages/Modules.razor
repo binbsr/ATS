@@ -1,5 +1,7 @@
 ﻿@page "/modules"
 
+<PageTitle>Training Modules</PageTitle>
+
 @inject ApplicationDbContext db
 
 <MudStack Class="mud-width-full">
@@ -56,7 +58,7 @@ else
     {
         loadingData = true;
         
-        widgets = await db.Widgets.Where(x => x.Title == "Module").Include(x => x.Tags).ToArrayAsync();
+        widgets = await db.Widgets.Where(x => x.Title == "Module").Include(x => x.Tags).OrderBy(x => x.Description).ToArrayAsync();
         widgetFiltered = widgets.Where(x => x.Tags.Any(t => t.Name.Contains(InitialFilterCategory)));
 
         loadingData = false;

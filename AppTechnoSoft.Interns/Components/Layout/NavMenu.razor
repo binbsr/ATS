@@ -1,27 +1,34 @@
 ﻿
-<MudPaper Width="250px" Class="d-inline-flex py-3" Elevation="0">
-    <MudNavMenu Class="mud-width-full">
-        <MudNavLink Href="/" Match="NavLinkMatch.All" Icon="@Icons.Material.Filled.Home" IconColor="Color.Success">Home</MudNavLink>
-        <MudNavLink Href="/dashboard" Icon="@Icons.Material.Filled.Dashboard" IconColor="Color.Success">Your Dashboard</MudNavLink>
-        <MudNavLink Href="/modules" Icon="@Icons.Material.Filled.ViewModule" IconColor="Color.Success">Training Modules</MudNavLink>
-        <MudNavLink Href="/apply" Icon="@Icons.Material.Filled.Person3" IconColor="Color.Success">Apply</MudNavLink>
+<MudStack>
+    <MudPaper Width="250px" Class="d-inline-flex py-3 mb-3" Elevation="0">
+        <MudNavMenu Class="mud-width-full">
+            <MudNavLink Href="/" Match="NavLinkMatch.All" Icon="@Icons.Material.Filled.Home" IconColor="Color.Success">Home</MudNavLink>
+            <MudNavLink Href="/dashboard" Icon="@Icons.Material.Filled.Dashboard" IconColor="Color.Success">Your Dashboard</MudNavLink>
+            <MudNavLink Href="/modules" Icon="@Icons.Material.Filled.ViewModule" IconColor="Color.Success">Training Modules</MudNavLink>
+            <MudNavLink Href="/apply" Icon="@Icons.Material.Filled.Person3" IconColor="Color.Success">Apply</MudNavLink>
 
-        <AuthorizeView Roles="Admin">
-            <MudDivider Class="my-2" />
-            <MudNavLink Href="/programs" Icon="@Icons.Material.Filled.Book" IconColor="Color.Info">Programs</MudNavLink>
-            <MudNavLink Href="/colleges" Icon="@Icons.Material.Filled.School" IconColor="Color.Info">Colleges</MudNavLink>
-            <MudNavLink Href="/students" Icon="@Icons.Material.Filled.Groups3" IconColor="Color.Info">Students</MudNavLink>
-            <MudNavLink Href="/add-widget" Icon="@Icons.Material.Filled.Widgets" IconColor="Color.Info">Add Widget</MudNavLink>
-            <MudNavLink Href="/tags" Icon="@Icons.Material.Filled.Tag" IconColor="Color.Info">Tags</MudNavLink>
-            <MudNavLink Href="/batches" Icon="@Icons.Material.Sharp.BatchPrediction" IconColor="Color.Info">Batches</MudNavLink>
-            <MudNavLink Href="/teams" Icon="@Icons.Material.Sharp.GroupWork" IconColor="Color.Info">Teams</MudNavLink>            
-        </AuthorizeView>
+            <AuthorizeView Roles="Admin">
+                <MudDivider Class="my-2" />
+                <MudNavLink Href="/programs" Icon="@Icons.Material.Filled.Book" IconColor="Color.Info">Programs</MudNavLink>
+                <MudNavLink Href="/colleges" Icon="@Icons.Material.Filled.School" IconColor="Color.Info">Colleges</MudNavLink>
+                <MudNavLink Href="/students" Icon="@Icons.Material.Filled.Groups3" IconColor="Color.Info">Students</MudNavLink>
+                <MudNavLink Href="/add-widget" Icon="@Icons.Material.Filled.Widgets" IconColor="Color.Info">Add Widget</MudNavLink>
+                <MudNavLink Href="/tags" Icon="@Icons.Material.Filled.Tag" IconColor="Color.Info">Tags</MudNavLink>
+                <MudNavLink Href="/batches" Icon="@Icons.Material.Sharp.BatchPrediction" IconColor="Color.Info">Batches</MudNavLink>
+                <MudNavLink Href="/teams" Icon="@Icons.Material.Sharp.GroupWork" IconColor="Color.Info">Teams</MudNavLink>
+            </AuthorizeView>           
 
-        <AuthorizeView Roles="SuperAdmin">
-            <MudNavGroup Title="User Accounts" Icon="@Icons.Material.Filled.AdminPanelSettings" IconColor="Color.Warning" Expanded="true">
-                <MudNavLink Href="/identity/roles" Icon="@Icons.Material.Filled.Security" IconColor="Color.Warning">Roles</MudNavLink>
-                <MudNavLink Href="/identity/users" Icon="@Icons.Material.Filled.PersonSearch" IconColor="Color.Warning">Users</MudNavLink>
-            </MudNavGroup>
-        </AuthorizeView>        
-     </MudNavMenu>
- </MudPaper>
+            <AuthorizeView Roles="SuperAdmin">
+                <MudNavGroup Title="User Accounts" Icon="@Icons.Material.Filled.AdminPanelSettings" IconColor="Color.Warning" Expanded="true">
+                    <MudNavLink Href="/identity/roles" Icon="@Icons.Material.Filled.Security" IconColor="Color.Warning">Roles</MudNavLink>
+                    <MudNavLink Href="/identity/users" Icon="@Icons.Material.Filled.PersonSearch" IconColor="Color.Warning">Users</MudNavLink>
+                </MudNavGroup>
+            </AuthorizeView>
+        </MudNavMenu>
+    </MudPaper>
+    <MudContainer Style="@("position:absolute;left:0;bottom: 0;background:"+Colors.Blue.Darken3)">
+        <MudText Typo="Typo.subtitle2" Align="Align.Center" Class="my-2 py-4 text-white">
+            @DateTime.Now.Year &copy; APP TECHNOSOFT
+        </MudText>
+    </MudContainer>
+</MudStack>

@@ -4,52 +4,55 @@
 
 <PageTitle>Home</PageTitle>
 
-<MudGrid>
-    <MudItem md="12" xs="12">
-        <MudCarousel Class="mud-width-full"
-                     Style="height:400px;"
-                     ShowArrows="@true"
-                     ShowBullets="@true"
-                     EnableSwipeGesture="@true"
-                     TData="object">
-            @foreach (var item in homeItems.Where(x => x.Title == "CarouselItem"))
-            {
-                var parts = item.HtmlContent.Split(["<p>", "</p>"], StringSplitOptions.RemoveEmptyEntries);
-                
-                <MudCarouselItem Transition="Transition.Slide" Class="px-10 d-flex align-center flex-grow-1 gap-6">                    
-                    @if(parts.Length > 1)
-                    {
-                        <MudImage Src="@parts[1]" Height="400" />
-                    }
-                    <MudText Typo="Typo.h3" Align="Align.Center">@((MarkupString)parts[0])</MudText>
-                    <AuthorizeView Roles="Admin,SuperAdmin">
-                        <MudIconButton Icon="@Icons.Material.Filled.Edit" Color="Color.Warning" Size="Size.Small" Class="ml-auto" Href="@("/edit-widget/" + item.Id)" />
-                    </AuthorizeView>
-                </MudCarouselItem>
-            }
-        </MudCarousel>
-    </MudItem>
-</MudGrid>
-<MudPaper Class="pa-5 mt-4" Elevation="5">
-    @foreach (var item in homeItems.Where(x => x.Title == "HomeIntro"))
-    {
-        <MudStack Row>
-         <MudText Typo="Typo.h5" Align="Align.Center">@item.Description</MudText>
+@if (homeItems is null || homeItems.Count == 0)
+{
+    <MudProgressCircular />
+}
+else
+{
+    <MudCarousel Class="mud-width-full"
+                 Style="height:400px;"
+                 ShowArrows="@true"
+                 ShowBullets="@true"
+                 EnableSwipeGesture="@true"
+                 TData="object">
+        @foreach (var item in homeItems.Where(x => x.Title == "CarouselItem"))
+        {
+            var parts = item.HtmlContent.Split(["<p>", "</p>"], StringSplitOptions.RemoveEmptyEntries);
+
+            <MudCarouselItem Transition="Transition.Slide" Class="px-10 d-flex align-center flex-grow-1 gap-6">
+                @if (parts.Length > 1)
+                {
+                    <MudImage Src="@parts[1]" Height="400" />
+                }
+                <MudText Typo="Typo.h3" Align="Align.Center">@((MarkupString)parts[0])</MudText>
                 <AuthorizeView Roles="Admin,SuperAdmin">
                     <MudIconButton Icon="@Icons.Material.Filled.Edit" Color="Color.Warning" Size="Size.Small" Class="ml-auto" Href="@("/edit-widget/" + item.Id)" />
                 </AuthorizeView>
-            </MudStack>
-        <MudText Typo="Typo.subtitle2" Class="mb-4">
-            @((MarkupString)item.HtmlContent)
-        </MudText>
-    }
-</MudPaper>
+            </MudCarouselItem>
+        }
+    </MudCarousel>
+    <MudPaper Class="pa-5 mt-4" Elevation="5">
+        @foreach (var item in homeItems.Where(x => x.Title == "HomeIntro"))
+        {
+            <MudStack Row>
+             <MudText Typo="Typo.h5" Align="Align.Center">@item.Description</MudText>
+                    <AuthorizeView Roles="Admin,SuperAdmin">
+                        <MudIconButton Icon="@Icons.Material.Filled.Edit" Color="Color.Warning" Size="Size.Small" Class="ml-auto" Href="@("/edit-widget/" + item.Id)" />
+                    </AuthorizeView>
+                </MudStack>
+            <MudText Typo="Typo.subtitle2" Class="mb-4">
+                @((MarkupString)item.HtmlContent)
+            </MudText>
+        }
+    </MudPaper>
+}
 
 <AuthorizeView Roles="Admin,SuperAdmin">
     <MudText Typo="Typo.h6" Class="mt-4">Home Page Image References (Just Admins)</MudText>
     @foreach (var image in images)
     {
-        <MudImage Src="@image" Alt="@image" Class="rounded-lg" Height="100"/> @image
+        <MudImage Src="@image" Alt="@image" Class="rounded-lg" Height="100" /> @image
         <br />
     }
 </AuthorizeView>
@@ -59,14 +62,21 @@
     private List<Widget> homeItems = new();
     private string[] images = [];
 
+    [CascadingParameter]
+    private Task<AuthenticationState> AuthTask { get; set; }
+
     protected override async Task OnInitializedAsync()
     {
         homeItems = await db.Widgets.Where(x => x.Title == "CarouselItem" || x.Title == "HomeIntro").ToListAsync();
 
         // Get all home images for reference
-        var relativeAssetPath = $"homeitems";
-        var currentAppPath = Environment.CurrentDirectory;
-        var path = Path.Combine(currentAppPath, "wwwroot", relativeAssetPath);
-        images = Directory.GetFiles(path).Select(x => relativeAssetPath + "/" + Path.GetFileName(x)).ToArray();
+        var state = await AuthTask;
+        if(state.User.IsInRole("Admin") || state.User.IsInRole("SuperAdmin"))
+        {
+            var relativeAssetPath = $"homeitems";
+            var currentAppPath = Environment.CurrentDirectory;
+            var path = Path.Combine(currentAppPath, "wwwroot", relativeAssetPath);
+            images = Directory.GetFiles(path).Select(x => relativeAssetPath + "/" + Path.GetFileName(x)).ToArray();
+        }       
     }
 }

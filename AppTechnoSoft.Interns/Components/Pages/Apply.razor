@@ -10,6 +10,16 @@
     <DataAnnotationsValidator />
     <MudPaper Class="pa-5 mb-4" Elevation="5">
         <MudGrid Class="pa-4">
+            <MudItem md="12">
+                @if (alreadyApplied)
+                {
+                    <MudAlert Severity="Severity.Success" Variant="Variant.Outlined">We have already received your application, feel free to update your details if you have to.</MudAlert>
+                }
+                else
+                {
+                    <MudAlert Severity="Severity.Warning" Variant="Variant.Outlined">Please enter your details and click apply to start your traineeship journey.</MudAlert>
+                }
+            </MudItem>
             <MudItem md="6" xs="12">
                 <MudTextField @bind-Value="model.Name"
                               For="@(() => model.Name)"
@@ -20,7 +30,7 @@
                 <MudTextField @bind-Value="model.Email"
                               For="@(() => model.Email)"
                               Immediate="true"
-                              Label="Email" Disabled="true"/>
+                              Label="Email" Disabled="true" />
             </MudItem>
             <MudItem md="6" xs="12">
                 <MudTextField @bind-Value="model.Phone"
@@ -29,16 +39,28 @@
                               Label="Phone" />
             </MudItem>
             <MudItem md="6" xs="12">
-                <MudAutocomplete T="College" Label="Select College" @bind-Value="model.College"
-                                 SearchFunc="@SearchColleges" ToStringFunc="@(e=> e==null ? null : $"{e.Name} ({e.Location})")" ShowProgressIndicator="true" />
+                <MudAutocomplete T="College"
+                                 Label="Select College"
+                                 @bind-Value="model.College"
+                                 SearchFunc="@SearchColleges"
+                                 ToStringFunc="@(e=> e==null ? null : $"{e.Name} ({e.Location})")"
+                                 ShowProgressIndicator="true"
+                                 ProgressIndicatorColor="Color.Default"
+                                 MaxItems="null" />
             </MudItem>
             <MudItem md="6" xs="12">
-                <MudAutocomplete T="TechProgram" Label="Select Program" @bind-Value="model.TechProgram"
-                                 SearchFunc="@SearchPrograms" ToStringFunc="@(e=> e==null ? null : $"{e.Name} ({e.Affliation})")" ShowProgressIndicator="true" />
+                <MudAutocomplete T="TechProgram"
+                                 Label="Select Program"
+                                 @bind-Value="model.TechProgram"
+                                 SearchFunc="@SearchPrograms"
+                                 ToStringFunc="@(e=> e==null ? null : $"{e.Name} ({e.Affliation})")"
+                                 ShowProgressIndicator="true"
+                                 ProgressIndicatorColor="Color.Default"
+                                 MaxItems="null" />
             </MudItem>
             <MudItem md="6" xs="12">
-                <MudContainer Class="d-flex align-center gap-4 px-0">
-                    <MudFileUpload Class="d-flex" T="IBrowserFile" Accept=".png, .jpg" @bind-Files="@model.ProfileImage">
+                <MudContainer Class="d-flex align-center flex-grow-1 gap-4">
+                    <MudFileUpload Class="d-flex" T="IBrowserFile" Accept=".png, .jpg" FilesChanged="ProfileChanged">
                         <ButtonTemplate Context="btnContext">
                             <MudButton HtmlTag="label"
                                        Variant="Variant.Filled"
@@ -49,59 +71,79 @@
                             </MudButton>
                         </ButtonTemplate>
                     </MudFileUpload>
-                    <MudText Class="d-flex" Typo="Typo.subtitle1">@UploadImageLabel</MudText>
-                    </MudContainer>
-                </MudItem>
-            </MudGrid>
-        </MudPaper>
-        <MudPaper Class="pa-5 mb-4" Elevation="5">
-            <MudGrid>
-                <MudItem md="12">
-                    <MudText Typo="Typo.h6">Your experience and knowledge</MudText>
-                    <MudText Typo="Typo.subtitle1">Please be as sincere as you can, it's important to enroll you to appropriate batch</MudText>
-                </MudItem>
-                <MudItem md="6" xs="12">
-                    <MudText Typo="Typo.button">Web Development</MudText>
-                    <MudRadioGroup @bind-Value="@model.WebExperience">
-                        <MudStack Spacing="0">
-                            <MudRadio Value="WebExperience.None" Color="Color.Secondary">No knowledge at all</MudRadio>
-                            <MudRadio Value="WebExperience.LittleHtmlCssAndJs" Color="Color.Secondary">Know little Html, CSS and JS</MudRadio>
-                            <MudRadio Value="WebExperience.DevelopedHobbyWebApp" Color="Color.Secondary">Developed small hobby app</MudRadio>
-                            <MudRadio Value="WebExperience.DevelopedCommercialApp" Color="Color.Secondary">Developed Commercial app for users</MudRadio>
-                        </MudStack>
-                    </MudRadioGroup>
-                </MudItem>
-                <MudItem md="6" xs="12">
-                    <MudText Typo="Typo.button">Database Development</MudText>
-                    <MudRadioGroup @bind-Value="@model.DbExperience">
-                        <MudStack Spacing="0">
-                            <MudRadio Value="DbExperience.None" Color="Color.Secondary">No knowledge at all</MudRadio>
-                            <MudRadio Value="DbExperience.KnowLittleSql" Color="Color.Secondary">Know little SQL and relational databases</MudRadio>
-                            <MudRadio Value="DbExperience.ComfortableWithSql" Color="Color.Secondary">Comfortable with SQL and relational databases</MudRadio>
-                            <MudRadio Value="DbExperience.DesignedDbForApp" Color="Color.Secondary">Desinged database (schemas, constraints etc.) for app</MudRadio>
-                        </MudStack>
-                    </MudRadioGroup>
-                </MudItem>
-            </MudGrid>
-        </MudPaper>
-        <MudItem md="12">
-            <MudButton ButtonType="ButtonType.Submit" Style="float:right"
-                       Variant="Variant.Filled"
-                       Color="Color.Primary"
-                       Class="ml-auto"
-                       StartIcon="@Icons.Material.Sharp.HowToReg">
-                Apply for Traineeship
-            </MudButton>
-        </MudItem>
-    </EditForm>
 
-    @code {
+                    @if (profileImagePreview is not (null or ""))
+                    {
+                        <MudStack AlignItems="AlignItems.Center">
+                            <MudAvatar Style="height:80px; width:80px; font-size:2rem;">
+                                <MudImage Src="@profileImagePreview" />
+                            </MudAvatar>
+                            <MudText>Profile to upload</MudText>
+                        </MudStack>
+                    }
+
+                    @if (model.ProfileImagePath is not (null or ""))
+                    {
+                        <MudStack AlignItems="AlignItems.Center">
+                            <MudAvatar Style="height:80px; width:80px; font-size:2rem;">
+                                <MudImage Src="@model.ProfileImagePath" />
+                            </MudAvatar>
+                            <MudText>Current Profile</MudText>
+                        </MudStack>
+                    }
+                </MudContainer>
+            </MudItem>
+        </MudGrid>
+    </MudPaper>
+    <MudPaper Class="pa-5 mb-4" Elevation="5">
+        <MudGrid>
+            <MudItem md="12">
+                <MudText Typo="Typo.h6">Your experience and knowledge</MudText>
+                <MudText Typo="Typo.subtitle1">Please be as sincere as you can, it's important to enroll you to appropriate batch</MudText>
+            </MudItem>
+            <MudItem md="6" xs="12">
+                <MudText Typo="Typo.button">Web Development</MudText>
+                <MudRadioGroup @bind-Value="@model.WebExperience">
+                    <MudStack Spacing="0">
+                        <MudRadio Value="WebExperience.None" Color="Color.Secondary">No knowledge at all</MudRadio>
+                        <MudRadio Value="WebExperience.LittleHtmlCssAndJs" Color="Color.Secondary">Know little Html, CSS and JS</MudRadio>
+                        <MudRadio Value="WebExperience.DevelopedHobbyWebApp" Color="Color.Secondary">Developed small hobby app</MudRadio>
+                        <MudRadio Value="WebExperience.DevelopedCommercialApp" Color="Color.Secondary">Developed Commercial app for users</MudRadio>
+                    </MudStack>
+                </MudRadioGroup>
+            </MudItem>
+            <MudItem md="6" xs="12">
+                <MudText Typo="Typo.button">Database Development</MudText>
+                <MudRadioGroup @bind-Value="@model.DbExperience">
+                    <MudStack Spacing="0">
+                        <MudRadio Value="DbExperience.None" Color="Color.Secondary">No knowledge at all</MudRadio>
+                        <MudRadio Value="DbExperience.KnowLittleSql" Color="Color.Secondary">Know little SQL and relational databases</MudRadio>
+                        <MudRadio Value="DbExperience.ComfortableWithSql" Color="Color.Secondary">Comfortable with SQL and relational databases</MudRadio>
+                        <MudRadio Value="DbExperience.DesignedDbForApp" Color="Color.Secondary">Desinged database (schemas, constraints etc.) for app</MudRadio>
+                    </MudStack>
+                </MudRadioGroup>
+            </MudItem>
+        </MudGrid>
+    </MudPaper>
+    <MudItem md="12">
+        <MudButton ButtonType="ButtonType.Submit" Style="float:right"
+                   Variant="Variant.Filled"
+                   Color="Color.Primary"
+                   Class="ml-auto"
+                   StartIcon="@Icons.Material.Sharp.HowToReg">
+            @(alreadyApplied ? "Update Details" : "Apply for Traineeship")
+        </MudButton>
+    </MudItem>
+</EditForm>
+
+@code {
 
     private Student model = new();
+    bool alreadyApplied = false;
+    string profileImagePreview = "";
     MudForm form;
     List<College> colleges = [];
     List<TechProgram> techPrograms = [];
-    private string UploadImageLabel => model?.ProfileImage is null ? "" : $"{model.ProfileImage?.Name} ({((float)model.ProfileImage?.Size / 1024):F2} kb)";
     bool disabled = false;
 
     [CascadingParameter]
@@ -112,8 +154,22 @@
         var userState = await authenticationStateTask;
         var userId = userState.User.FindFirst(u => u.Type.Contains("nameidentifier"))?.Value;
         var user = await Db.Users.FindAsync(userId);
-        model.Email = user.Email;
-        model.ApplicationUserId = user.Id;
+
+        if (user is null)
+            return;
+
+        // Use logged in user email to fetch student data if already applied
+        var student = await Db.Students.Include(c => c.College).Include(t => t.TechProgram).FirstOrDefaultAsync(x => x.Email == user.Email);
+        if (student is null)
+        {
+            model.Email = user.Email;
+            model.ApplicationUserId = user.Id;
+        }
+        else
+        {
+            model = student;
+            alreadyApplied = true;
+        }
     }
 
     private async Task OnValidSubmit(EditContext editContext)
@@ -139,18 +195,41 @@
                     file.Name, ex.Message);
             }
         }
-        
-        Db.Students.Add(model);
+
+        if (model.Id is not null)
+        {
+            // User updating his/her details
+            Db.Students.Update(model);
+        }
+        else
+        {
+            Db.Students.Add(model);
+        }
+
         var rowsAffected = await Db.SaveChangesAsync();
 
         if (rowsAffected > 0)
         {
-            SnackBar.Add("Applicaion received successfully", Severity.Success);
+            SnackBar.Add("Applicaion details received successfully", Severity.Success);
             Navigation.NavigateTo("/dashboard");
         }
         else
         {
             SnackBar.Add("Applicaion process failed", Severity.Error);
+        }
+    }
+
+    private async Task ProfileChanged(IBrowserFile file)
+    {
+        model.ProfileImage = file;
+
+        // Prepare preview
+        var fileStream = file.OpenReadStream();
+        using (MemoryStream ms = new MemoryStream())
+        {
+            await fileStream.CopyToAsync(ms);
+            var base64data = Convert.ToBase64String(ms.ToArray());
+            profileImagePreview = $"data:image/png;base64," + base64data;
         }
     }
 

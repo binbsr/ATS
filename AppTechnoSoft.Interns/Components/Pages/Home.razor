@@ -11,48 +11,62 @@
                      ShowArrows="@true"
                      ShowBullets="@true"
                      EnableSwipeGesture="@true"
-                     AutoCycle="@true" TData="object">
-            @foreach (var content in carouselItems)
+                     TData="object">
+            @foreach (var item in homeItems.Where(x => x.Title == "CarouselItem"))
             {
-                <MudCarouselItem Transition="Transition.Slide" Style="@("background-color:" + content.Value)" Class="pt-5">
-                    <MudText Typo="Typo.h3" Align="Align.Center">@((MarkupString)content.Key)</MudText>
+                var parts = item.HtmlContent.Split(["<p>", "</p>"], StringSplitOptions.RemoveEmptyEntries);
+                
+                <MudCarouselItem Transition="Transition.Slide" Class="px-10 d-flex align-center flex-grow-1 gap-6">                    
+                    @if(parts.Length > 1)
+                    {
+                        <MudImage Src="@parts[1]" Height="400" />
+                    }
+                    <MudText Typo="Typo.h3" Align="Align.Center">@((MarkupString)parts[0])</MudText>
+                    <AuthorizeView Roles="Admin,SuperAdmin">
+                        <MudIconButton Icon="@Icons.Material.Filled.Edit" Color="Color.Warning" Size="Size.Small" Class="ml-auto" Href="@("/edit-widget/" + item.Id)" />
+                    </AuthorizeView>
                 </MudCarouselItem>
             }
         </MudCarousel>
     </MudItem>
 </MudGrid>
 <MudPaper Class="pa-5 mt-4" Elevation="5">
-    @foreach (var item in items.Where(x => x.Title == "HomeIntro"))
+    @foreach (var item in homeItems.Where(x => x.Title == "HomeIntro"))
     {
-        <MudText Typo="Typo.h5" Align="Align.Center">@item.Description</MudText>
-        <MudText Typo="Typo.subtitle2" Class="mb-5">
+        <MudStack Row>
+         <MudText Typo="Typo.h5" Align="Align.Center">@item.Description</MudText>
+                <AuthorizeView Roles="Admin,SuperAdmin">
+                    <MudIconButton Icon="@Icons.Material.Filled.Edit" Color="Color.Warning" Size="Size.Small" Class="ml-auto" Href="@("/edit-widget/" + item.Id)" />
+                </AuthorizeView>
+            </MudStack>
+        <MudText Typo="Typo.subtitle2" Class="mb-4">
             @((MarkupString)item.HtmlContent)
         </MudText>
-    }   
+    }
 </MudPaper>
+
+<AuthorizeView Roles="Admin,SuperAdmin">
+    <MudText Typo="Typo.h6" Class="mt-4">Home Page Image References (Just Admins)</MudText>
+    @foreach (var image in images)
+    {
+        <MudImage Src="@image" Alt="@image" Class="rounded-lg" Height="100"/> @image
+        <br />
+    }
+</AuthorizeView>
 
 
 @code {
-    private Dictionary<string, string> carouselItems = new();
-    private List<Widget> items = new();
+    private List<Widget> homeItems = new();
+    private string[] images = [];
 
     protected override async Task OnInitializedAsync()
     {
-        items = await db.Widgets.Where(x => x.Title == "CarouselItem" || x.Title == "HomeIntro").ToListAsync();
-        string[] colors = [ 
-            Colors.Red.Accent2, 
-            Colors.Purple.Accent2, 
-            Colors.LightBlue.Accent2, 
-            Colors.LightGreen.Accent2, 
-            Colors.Teal.Accent2, 
-            Colors.Lime.Accent2,
-            Colors.Amber.Accent2,
-            Colors.Orange.Accent3];
-        Random rnd = new();
+        homeItems = await db.Widgets.Where(x => x.Title == "CarouselItem" || x.Title == "HomeIntro").ToListAsync();
 
-        foreach (var item in items.Where(x => x.Title == "CarouselItem"))
-        {
-            carouselItems.Add(item.HtmlContent, colors[rnd.Next(0, colors.Length)]);
-        }
+        // Get all home images for reference
+        var relativeAssetPath = $"homeitems";
+        var currentAppPath = Environment.CurrentDirectory;
+        var path = Path.Combine(currentAppPath, "wwwroot", relativeAssetPath);
+        images = Directory.GetFiles(path).Select(x => relativeAssetPath + "/" + Path.GetFileName(x)).ToArray();
     }
 }

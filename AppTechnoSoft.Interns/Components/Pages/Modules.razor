@@ -57,8 +57,12 @@ else
     protected override async Task OnInitializedAsync()
     {
         loadingData = true;
-        
+
         widgets = await db.Widgets.Where(x => x.Title == "Module").Include(x => x.Tags).OrderBy(x => x.Description).ToArrayAsync();
+        
+        if (widgets is null || widgets.Length == 0)
+            return;
+
         widgetFiltered = widgets.Where(x => x.Tags.Any(t => t.Name.Contains(InitialFilterCategory)));
 
         loadingData = false;
@@ -66,6 +70,9 @@ else
 
     private void TriggerFilter(string value)
     {
+        if (value is null or "" || widgets is null)
+            return;
+
         widgetFiltered = widgets.Where(x => x.Tags.Any(t => t.Name.Contains(value)));
     }
 }

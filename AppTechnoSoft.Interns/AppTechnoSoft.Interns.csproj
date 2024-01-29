@@ -6,7 +6,7 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <UserSecretsId>aspnet-AppTechnoSoft.Interns-4bcb3d8c-ab52-40fa-8bfb-e054a0c8a8a9</UserSecretsId>
   </PropertyGroup>
-
+ 
   <ItemGroup>
     <PackageReference Include="Blazored.TextEditor" Version="1.1.0" />
     <PackageReference Include="Microsoft.AspNetCore.Authentication.Google" Version="8.0.0" />
@@ -15,11 +15,6 @@
     <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="8.0.0" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="8.0.0" />
     <PackageReference Include="MudBlazor" Version="6.12.0" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="Data\ViewModels\" />
-    <Folder Include="wwwroot\profile_uploads\" />
   </ItemGroup>
 
 </Project>

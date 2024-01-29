@@ -3,7 +3,6 @@
 
 @inject ApplicationDbContext Db
 @inject ISnackbar SnackBar
-@inject NavigationManager Navigation
 
 <PageTitle>@pageTitle</PageTitle>
 
@@ -131,7 +130,6 @@
         if (rowsAffected > 0)
         {
             SnackBar.Add("Widget saved successfully", Severity.Success);
-            Navigation.NavigateTo("/modules");
         }
         else
         {

@@ -8,3 +8,5 @@ homeitems/software_life_cycle.png (Will be used as image graphics display)
 > Example: 
 Experienced Intructors (Having 10+ years industry experience) - Splitted into two parts with ['(' ')'] separator. First used as title and second as description.
 
+## Team Description field
+> Using this field as 

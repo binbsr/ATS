@@ -19,26 +19,9 @@ else
     <MudGrid>
         <MudItem xs="12">
             <MudPaper Class="pa-4" Elevation="5">
-                <MudText Typo="Typo.h6" Class="my-2">@((MarkupString)$"Your Training Batch: <strong>{loggedInUserBatchName}</strong>")</MudText>
+                <MudText Typo="Typo.h6" Class="my-2">@((MarkupString)$"Training Batch: <strong>{loggedInUserBatchName}</strong>")</MudText>
                 <MudContainer Class="d-flex align-start gap-4 ml-0">
-                @foreach (var member in batchMembers)
-                {
-                    var user = loggedInUserId == member.UserId ? $"{member.Name} (You)" : member.Name;
-                    <MudStack AlignItems="AlignItems.Center">
-                        <MudAvatar Style="height:80px; width:80px; font-size:2rem;">
-                            <MudImage Src="@member.ProfilePath" />
-                        </MudAvatar>
-                        <MudText Typo="Typo.subtitle2">@user</MudText>
-                    </MudStack>
-                }
-                </MudContainer>
-            </MudPaper>
-        </MudItem>
-        <MudItem xs="12">
-            <MudPaper Class="pa-4" Elevation="5">
-                <MudText Typo="Typo.h6" Class="mb-2">@((MarkupString)$"Your Agile Team: <strong>{loggedInUserTeamName}</strong>")</MudText>
-                <MudContainer Class="d-flex align-start gap-4 ml-0">
-                    @foreach (var member in teamMembers)
+                    @foreach (var member in batchMembers)
                     {
                         var user = loggedInUserId == member.UserId ? $"{member.Name} (You)" : member.Name;
                         <MudStack AlignItems="AlignItems.Center">
@@ -46,24 +29,52 @@ else
                                 <MudImage Src="@member.ProfilePath" />
                             </MudAvatar>
                             <MudText Typo="Typo.subtitle2">@user</MudText>
-                        </MudStack>
+                            </MudStack>
                     }
                 </MudContainer>
             </MudPaper>
         </MudItem>
         <MudItem xs="12">
             <MudPaper Class="pa-4" Elevation="5">
-                <MudText Typo="Typo.h6" Class="mb-2">Project Title: <strong>@projectTitle</strong></MudText>
-                <MudText Typo="Typo.subtitle2" Class="mb-2">@projectDetails</MudText>
+                <MudText Typo="Typo.h6" Class="mb-2">@((MarkupString)$"Agile Team: <strong>{loggedInUserTeamName}</strong>")</MudText>
+                <MudGrid>
+                    <MudItem md="1" xs="12" Class="d-flex">
+                        <MudTooltip Text="@($"Team {loggedInUserTeamName} ({teamMembers.Count} members)")">
+                            <MudAvatar Style="height:120px; width:120px; font-size:2.5rem;" Rounded>
+                                <MudImage Src="@loggedInUserTeamAvatar" />
+                             </MudAvatar>                            
+                         </MudTooltip>
+                 </MudItem>
+                 <MudItem md="11" xs="12">
+                     <MudContainer Class="d-flex align-start gap-4 ml-0">
+                         @foreach (var member in teamMembers)
+                            {
+                                var user = loggedInUserId == member.UserId ? $"{member.Name} (You)" : member.Name;
+                                <MudStack AlignItems="AlignItems.Center">
+                                    <MudAvatar Style="height:80px; width:80px; font-size:2rem;">
+                                        <MudImage Src="@member.ProfilePath" />
+                                    </MudAvatar>
+                                    <MudText Typo="Typo.subtitle2">@user</MudText>
+                                    </MudStack>
+                            }
+                        </MudContainer>
+                    </MudItem>
+                </MudGrid>
             </MudPaper>
         </MudItem>
         <MudItem xs="12">
             <MudPaper Class="pa-4" Elevation="5">
-                <MudText Typo="Typo.h6" Class="mb-2"><strong>Your Accomplishments</strong></MudText>
-                <MudText Typo="Typo.subtitle2" Class="mb-2">This section shows your module progress, completed assignments and shareable certificate.</MudText>
-            </MudPaper>
-        </MudItem>
-    </MudGrid>
+                <MudText Typo="Typo.h6" Class="mb-2">Project Title: <strong>@projectTitle</strong></MudText>
+                <MudText Typo="Typo.subtitle2" Class="mb-2">@projectDetails</MudText>
+                </MudPaper>
+            </MudItem>
+            <MudItem xs="12">
+                <MudPaper Class="pa-4" Elevation="5">
+                    <MudText Typo="Typo.h6" Class="mb-2"><strong>Your Accomplishments</strong></MudText>
+                    <MudText Typo="Typo.subtitle2" Class="mb-2">This section shows your module progress, completed assignments and shareable certificate.</MudText>
+                </MudPaper>
+            </MudItem>
+        </MudGrid>
 }
 
 @code {
@@ -73,6 +84,7 @@ else
     Student? student;
     string loggedInUserTeamName = "Not assigned to any team";
     string loggedInUserBatchName = "Not assigned to any batch";
+    string loggedInUserTeamAvatar = "";
     string projectTitle = "Project not assigned to your team";
     string projectDetails = string.Empty;
     List<StudentViewModel> teamMembers = new();
@@ -103,16 +115,17 @@ else
             return;
 
         loggedInUserBatchName = student.Team.Batch.Name;
-        loggedInUserTeamName = student.Team.Name;        
+        loggedInUserTeamName = student.Team.Name;
+        loggedInUserTeamAvatar = student.Team.Description;
 
         var title = student.Team.ProjectTitle;
-        
-        if(title is not null or "")
+
+        if (title is not null or "")
         {
             projectTitle = title;
             projectDetails = student.Team.ProjectDetails ?? "";
         }
-       
+
         batchMembers = await Db.Students.Where(x => x.Team.Batch.Id == batchId).Include(x => x.Team).ThenInclude(b => b.Batch).Select(x => new StudentViewModel(x.Name, x.ApplicationUserId, x.ProfileImagePath, x.Team.Name, x.Team.Batch.Name)).ToListAsync();
         teamMembers = batchMembers.Where(x => x.TeamName == loggedInUserTeamName).ToList();
         loadingData = false;

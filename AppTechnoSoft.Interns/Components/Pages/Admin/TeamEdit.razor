@@ -11,7 +11,7 @@
               OnValidSubmit="OnValidSubmit">
         <DataAnnotationsValidator />
         <MudTextField Label="Title" @bind-Value="model.Name" For="@(() => model.Name)" />
-        <MudTextField Label="Description" Class="mt-3" @bind-Value="model.Description" />
+        <MudTextField Label="Team Image URL" Class="mt-3" @bind-Value="model.Description" />
         <MudTextField Label="Project Title" Class="mt-3" @bind-Value="model.ProjectTitle" />
         <MudTextField Label="Project Details" Lines="5" Class="mt-3" @bind-Value="model.ProjectDetails" />
         <MudSelect Dense="true"
@@ -29,7 +29,7 @@
         @if (!IsAdd)
         {
             <MudSelect T="string"
-                       Dense="true"
+                       Dense="true"                       
                        Label="Members of this team"
                        MultiSelection="true"
                        @bind-SelectedValues="@studentsSelected"

@@ -11,7 +11,7 @@
 else
 {
     <MudCarousel Class="mud-width-full"
-                 Style="height:400px;"
+                 Style="height:450px;"
                  ShowArrows="@true"
                  ShowBullets="@true"
                  EnableSwipeGesture="@true"
@@ -20,11 +20,13 @@ else
         {
             var parts = item.HtmlContent.Split(["<p>", "</p>"], StringSplitOptions.RemoveEmptyEntries);
 
-            <MudCarouselItem Transition="Transition.Slide" Class="px-10 d-flex align-center flex-grow-1 gap-6">
-                @if (parts.Length > 1)
-                {
-                    <MudImage Src="@parts[1]" Height="400" />
-                }
+            <MudCarouselItem Transition="Transition.Slide" Class="px-10 d-flex align-center flex-grow-1 gap-6"> 
+                <MudHidden Breakpoint="Breakpoint.SmAndDown">
+                    @if (parts.Length > 1)
+                    {
+                        <MudImage Src="@parts[1]" Height="400" />
+                    }                    
+                </MudHidden>
                 <MudText Typo="Typo.h3" Align="Align.Center">@((MarkupString)parts[0])</MudText>
                 <AuthorizeView Roles="Admin,SuperAdmin">
                     <MudIconButton Icon="@Icons.Material.Filled.Edit" Color="Color.Warning" Size="Size.Small" Class="ml-auto" Href="@("/edit-widget/" + item.Id)" />
@@ -32,20 +34,40 @@ else
             </MudCarouselItem>
         }
     </MudCarousel>
-    <MudPaper Class="pa-5 mt-4" Elevation="5">
+    <hr />
+    <MudGrid>
         @foreach (var item in homeItems.Where(x => x.Title == "HomeIntro"))
         {
-            <MudStack Row>
-             <MudText Typo="Typo.h5" Align="Align.Center">@item.Description</MudText>
-                    <AuthorizeView Roles="Admin,SuperAdmin">
-                        <MudIconButton Icon="@Icons.Material.Filled.Edit" Color="Color.Warning" Size="Size.Small" Class="ml-auto" Href="@("/edit-widget/" + item.Id)" />
-                    </AuthorizeView>
-                </MudStack>
-            <MudText Typo="Typo.subtitle2" Class="mb-4">
-                @((MarkupString)item.HtmlContent)
-            </MudText>
+            var parts = item.HtmlContent.Split(["<p>", "</p>"], StringSplitOptions.RemoveEmptyEntries);
+
+            <MudItem md="6" xs="12">
+                <MudCard Elevation="5">
+                    <MudCardHeader>
+                        <CardHeaderAvatar>
+                            <MudAvatar Color="Color.Primary">T</MudAvatar>
+                        </CardHeaderAvatar>
+                        <CardHeaderContent>
+                            <MudText Typo="Typo.h6">@item.Description</MudText>
+                                <MudText Typo="Typo.subtitle2">Great utilization of time</MudText>
+                            </CardHeaderContent>
+                            <CardHeaderActions>
+                                <AuthorizeView Roles="Admin,SuperAdmin">
+                                    <MudIconButton Icon="@Icons.Material.Filled.Edit" Color="Color.Warning" Size="Size.Small" Class="ml-auto" Href="@("/edit-widget/" + item.Id)" />
+                                </AuthorizeView>
+                            </CardHeaderActions>
+                        </MudCardHeader>
+                        <MudCardMedia Image="@((parts.Length > 1) ? parts[1] : "homeitems/pdevelopment.png")" Height="250" />
+                        <MudCardContent>
+                            <MudText Typo="Typo.body2">@((MarkupString)parts[0])</MudText>
+                        </MudCardContent>
+                        <MudCardActions>
+                            <MudButton Href="/apply" Color="Color.Primary" StartIcon="@Icons.Material.Sharp.PersonAddAlt1">Apply For Internship</MudButton>
+                            <MudButton Href="/modules" Color="Color.Primary" StartIcon="@Icons.Material.Sharp.ViewModule">Our Training Modules</MudButton>
+                        </MudCardActions>
+                    </MudCard>
+                </MudItem>
         }
-    </MudPaper>
+    </MudGrid>
 }
 
 <AuthorizeView Roles="Admin,SuperAdmin">
@@ -71,12 +93,12 @@ else
 
         // Get all home images for reference
         var state = await AuthTask;
-        if(state.User.IsInRole("Admin") || state.User.IsInRole("SuperAdmin"))
+        if (state.User.IsInRole("Admin") || state.User.IsInRole("SuperAdmin"))
         {
             var relativeAssetPath = $"homeitems";
             var currentAppPath = Environment.CurrentDirectory;
             var path = Path.Combine(currentAppPath, "wwwroot", relativeAssetPath);
             images = Directory.GetFiles(path).Select(x => relativeAssetPath + "/" + Path.GetFileName(x)).ToArray();
-        }       
+        }
     }
 }

@@ -39,24 +39,25 @@ else
         @foreach (var item in homeItems.Where(x => x.Title == "HomeIntro"))
         {
             var parts = item.HtmlContent.Split(["<p>", "</p>"], StringSplitOptions.RemoveEmptyEntries);
+            var titleParts = item.Description.Split(["(", ")"], StringSplitOptions.RemoveEmptyEntries);
 
             <MudItem md="6" xs="12">
-                <MudCard Elevation="5">
+                <MudCard Elevation="5" Style="height: 500px">
                     <MudCardHeader>
                         <CardHeaderAvatar>
-                            <MudAvatar Color="Color.Primary">T</MudAvatar>
+                            <MudAvatar Color="Color.Primary">@titleParts[0][0]</MudAvatar>
                         </CardHeaderAvatar>
                         <CardHeaderContent>
-                            <MudText Typo="Typo.h6">@item.Description</MudText>
-                                <MudText Typo="Typo.subtitle2">Great utilization of time</MudText>
-                            </CardHeaderContent>
-                            <CardHeaderActions>
-                                <AuthorizeView Roles="Admin,SuperAdmin">
-                                    <MudIconButton Icon="@Icons.Material.Filled.Edit" Color="Color.Warning" Size="Size.Small" Class="ml-auto" Href="@("/edit-widget/" + item.Id)" />
-                                </AuthorizeView>
-                            </CardHeaderActions>
+                            <MudText Typo="Typo.h6">@titleParts[0]</MudText>
+                            <MudText Typo="Typo.subtitle2">@(titleParts.Length > 1 ? titleParts[1] : "We are here for you!")</MudText>
+                        </CardHeaderContent>
+                        <CardHeaderActions>
+                            <AuthorizeView Roles="Admin,SuperAdmin">
+                                <MudIconButton Icon="@Icons.Material.Filled.Edit" Color="Color.Warning" Size="Size.Small" Class="ml-auto" Href="@("/edit-widget/" + item.Id)" />
+                            </AuthorizeView>
+                        </CardHeaderActions>
                         </MudCardHeader>
-                        <MudCardMedia Image="@((parts.Length > 1) ? parts[1] : "homeitems/pdevelopment.png")" Height="250" />
+                        <MudCardMedia Image="@((parts.Length > 1) ? parts[1] : "homeitems/learncode.jpg")" Height="250" />
                         <MudCardContent>
                             <MudText Typo="Typo.body2">@((MarkupString)parts[0])</MudText>
                         </MudCardContent>
@@ -71,11 +72,10 @@ else
 }
 
 <AuthorizeView Roles="Admin,SuperAdmin">
-    <MudText Typo="Typo.h6" Class="mt-4">Home Page Image References (Just Admins)</MudText>
+    <MudText Typo="Typo.h6" Class="mt-6">Home Page Image References (Shown just to admins)</MudText>
     @foreach (var image in images)
     {
         <MudImage Src="@image" Alt="@image" Class="rounded-lg" Height="100" /> @image
-        <br />
     }
 </AuthorizeView>
 

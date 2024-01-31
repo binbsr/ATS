@@ -6,6 +6,10 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <UserSecretsId>aspnet-AppTechnoSoft.Interns-4bcb3d8c-ab52-40fa-8bfb-e054a0c8a8a9</UserSecretsId>
   </PropertyGroup>
+
+  <ItemGroup>
+    <None Remove="readme.md" />
+  </ItemGroup>
  
   <ItemGroup>
     <PackageReference Include="Blazored.TextEditor" Version="1.1.0" />

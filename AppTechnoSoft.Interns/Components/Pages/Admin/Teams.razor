@@ -3,7 +3,7 @@
 @inject ApplicationDbContext Db
 @inject ISnackbar SnackBar
 
-<MudTable Items="@teams" Hover="true" Filter="new Func<Team,bool>(FilterFunc1)" @bind-SelectedItem="selectedTeam" Loading="@loadingData">
+<MudTable Items="@teams" Hover="true" Dense Filter="new Func<Team,bool>(FilterFunc1)" @bind-SelectedItem="selectedTeam" Loading="@loadingData">
     <ToolBarContent>
         <MudFab Href="/add-team" StartIcon="@Icons.Material.Filled.Add" Title="Add New Team" Size="Size.Small" Color="Color.Tertiary"></MudFab>
         <MudSpacer />
@@ -16,18 +16,22 @@
     </ToolBarContent>
     <HeaderContent>
         <MudTh>#</MudTh>
+         <MudTh>Team Avatar</MudTh>
         <MudTh>Name</MudTh>
-        <MudTh>Description</MudTh>
         <MudTh>Batch</MudTh>
         <MudTh>Project Title</MudTh>
         <MudTh>Created</MudTh>
     </HeaderContent>
     <RowTemplate>
         <MudTd DataLabel="#">@(teams.IndexOf(context) + 1)</MudTd>
+        <MudTd DataLabel="Team Avatar">
+            <MudAvatar>
+                <MudImage Src="@context.Avatar" />
+            </MudAvatar>
+        </MudTd>
         <MudTd DataLabel="Name">@context.Name</MudTd>
-            <MudTd DataLabel="Description">@context.Description</MudTd>
-            <MudTd DataLabel="Description">@context.Batch.Name</MudTd>
-            <MudTd DataLabel="Project Title">@(context.ProjectTitle ?? "N/A")</MudTd>
+            <MudTd DataLabel="Batch">@(context?.Batch?.Name ?? "N/A")</MudTd>
+            <MudTd DataLabel="Project Title">@(context?.Project?.Title ?? "N/A")</MudTd>
             <MudTd DataLabel="Created">@context.Created</MudTd>
             <MudTd>
                 <MudIconButton Icon="@Icons.Material.Filled.Edit" Size="Size.Small" Color="Color.Warning" Href="@("/edit-team/" + context.Id)" />
@@ -59,7 +63,7 @@
     protected override async Task OnInitializedAsync()
     {
         loadingData = true;
-        teams = await Db.Teams.Include(x => x.Batch).ToListAsync();
+        teams = await Db.Teams.Include(x => x.Batch).Include(t => t.Project).ToListAsync();
         loadingData = false;
     }
 
@@ -70,9 +74,7 @@
         if (string.IsNullOrWhiteSpace(searchString))
             return true;
         if (team.Name.Contains(searchString, StringComparison.OrdinalIgnoreCase))
-            return true;
-        if (team.Description.Contains(searchString, StringComparison.OrdinalIgnoreCase))
-            return true;
+            return true;       
         return false;
     }
 

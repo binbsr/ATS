@@ -1,6 +1,7 @@
 ﻿@page "/apply"
 
 <PageTitle>Apply For Internship</PageTitle>
+
 @attribute [Authorize]
 @inject ApplicationDbContext Db
 @inject ISnackbar SnackBar
@@ -196,7 +197,7 @@
             }
         }
 
-        if (model.Id is not null)
+        if (alreadyApplied)
         {
             // User updating his/her details
             Db.Students.Update(model);

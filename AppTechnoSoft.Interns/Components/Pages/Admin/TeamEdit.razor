@@ -11,9 +11,18 @@
               OnValidSubmit="OnValidSubmit">
         <DataAnnotationsValidator />
         <MudTextField Label="Title" @bind-Value="model.Name" For="@(() => model.Name)" />
-        <MudTextField Label="Team Image URL" Class="mt-3" @bind-Value="model.Description" />
-        <MudTextField Label="Project Title" Class="mt-3" @bind-Value="model.ProjectTitle" />
-        <MudTextField Label="Project Details" Lines="5" Class="mt-3" @bind-Value="model.ProjectDetails" />
+        <MudTextField Label="Team Image URL" Class="mt-3" @bind-Value="model.Avatar" />
+        <MudSelect Dense="true"
+                   Label="Project"
+                   @bind-Value="@model.Project"
+                   ToStringFunc="b => b?.Title"
+                   Class="my-3"
+                   AnchorOrigin="Origin.BottomCenter">
+            @foreach (var project in projects)
+            {
+                <MudSelectItem Value="@project" />
+            }
+        </MudSelect>
         <MudSelect Dense="true"
                    Label="Batch"
                    @bind-Value="@model.Batch"
@@ -26,22 +35,22 @@
             }
         </MudSelect>
 
-        @if (!IsAdd)
-        {
-            <MudSelect T="string"
-                       Dense="true"                       
-                       Label="Members of this team"
-                       MultiSelection="true"
-                       @bind-SelectedValues="@studentsSelected"
-                       Class="my-3"
-                       MultiSelectionTextFunc="@(new Func<List<string>, string>(GetMultiSelectionText))"
-                       AnchorOrigin="Origin.BottomCenter">
-                @foreach (var student in students)
-                {
-                    <MudSelectItem Value="@student.Id">@student.Name</MudSelectItem>
-                }
-            </MudSelect>
-        }
+    @if (!IsAdd)
+    {
+        <MudSelect T="string"
+                   Dense="true"
+                   Label="Members of this team"
+                   MultiSelection="true"
+                   @bind-SelectedValues="@studentsSelected"
+                   Class="my-3"
+                   MultiSelectionTextFunc="@(new Func<List<string>, string>(GetMultiSelectionText))"
+                   AnchorOrigin="Origin.BottomCenter">
+            @foreach (var student in students)
+            {
+                <MudSelectItem Value="@student.Id">@student.Name</MudSelectItem>
+            }
+        </MudSelect>
+    }
 
     <MudButton ButtonType="ButtonType.Submit"
                Variant="Variant.Filled"
@@ -64,11 +73,13 @@
     IEnumerable<string> studentsSelected;
     List<ListItem> students = new();
     List<Batch> batches = new();
+    List<Project> projects = new();
     record ListItem(string Id, string Name, int? TeamId);
 
     protected override async Task OnInitializedAsync()
     {
         batches = await Db.Batches.ToListAsync();
+        projects = await Db.Projects.ToListAsync();
 
         if (IsAdd)
         {
@@ -77,7 +88,7 @@
         else
         {
             pageTitle = "Edit Team";
-            model = await Db.Teams.Include(x => x.Batch).FirstOrDefaultAsync(x => x.Id == Id);
+            model = await Db.Teams.Include(x => x.Batch).Include(t => t.Project).FirstOrDefaultAsync(x => x.Id == Id);
             students = await Db.Students.Select(x => new ListItem(x.Id, $"{x.Name} ({x.Email})", x.TeamId)).ToListAsync();
             studentsSelected = students.Where(x => x.TeamId == Id).Select(x => x.Id);
         }

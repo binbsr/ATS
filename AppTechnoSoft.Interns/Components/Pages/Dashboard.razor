@@ -116,14 +116,14 @@ else
 
         loggedInUserBatchName = student.Team.Batch.Name;
         loggedInUserTeamName = student.Team.Name;
-        loggedInUserTeamAvatar = student.Team.Description;
+        loggedInUserTeamAvatar = student.Team.Avatar;
 
-        var title = student.Team.ProjectTitle;
+        var title = student?.Team?.Project?.Title;
 
         if (title is not null or "")
         {
             projectTitle = title;
-            projectDetails = student.Team.ProjectDetails ?? "";
+            projectDetails = student.Team.Project.Requirements ?? "";
         }
 
         batchMembers = await Db.Students.Where(x => x.Team.Batch.Id == batchId).Include(x => x.Team).ThenInclude(b => b.Batch).Select(x => new StudentViewModel(x.Name, x.ApplicationUserId, x.ProfileImagePath, x.Team.Name, x.Team.Batch.Name)).ToListAsync();

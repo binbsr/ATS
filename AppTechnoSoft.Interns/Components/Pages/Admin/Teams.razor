@@ -26,12 +26,12 @@
         <MudTd DataLabel="#">@(teams.IndexOf(context) + 1)</MudTd>
         <MudTd DataLabel="Team Avatar">
             <MudAvatar>
-                <MudImage Src="@context.Description" />
+                <MudImage Src="@context.Avatar" />
             </MudAvatar>
         </MudTd>
         <MudTd DataLabel="Name">@context.Name</MudTd>
             <MudTd DataLabel="Batch">@(context?.Batch?.Name ?? "N/A")</MudTd>
-            <MudTd DataLabel="Project Title">@(context.ProjectTitle ?? "N/A")</MudTd>
+            <MudTd DataLabel="Project Title">@(context?.Project?.Title ?? "N/A")</MudTd>
             <MudTd DataLabel="Created">@context.Created</MudTd>
             <MudTd>
                 <MudIconButton Icon="@Icons.Material.Filled.Edit" Size="Size.Small" Color="Color.Warning" Href="@("/edit-team/" + context.Id)" />
@@ -63,7 +63,7 @@
     protected override async Task OnInitializedAsync()
     {
         loadingData = true;
-        teams = await Db.Teams.Include(x => x.Batch).ToListAsync();
+        teams = await Db.Teams.Include(x => x.Batch).Include(t => t.Project).ToListAsync();
         loadingData = false;
     }
 

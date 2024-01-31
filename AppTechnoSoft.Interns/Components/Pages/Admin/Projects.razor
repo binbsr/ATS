@@ -1,0 +1,125 @@
+﻿@page "/projects"
+
+@attribute [Authorize(Roles = "Admin")]
+@inject ApplicationDbContext Db
+@inject ISnackbar SnackBar
+
+<PageTitle>Team Projects</PageTitle>
+
+<MudTable Items="@projects" Hover="true" Breakpoint="Breakpoint.Sm" Filter="new Func<Project, bool>(FilterFunc)">
+    <ToolBarContent>
+        <MudFab Href="/add-project" StartIcon="@Icons.Material.Filled.Add" Title="Add New Project" Size="Size.Small" Color="Color.Tertiary"></MudFab>
+        <MudSpacer />
+        <MudTextField @bind-Value="searchString" Placeholder="Search"
+                      Adornment="Adornment.Start"
+                      AdornmentIcon="@Icons.Material.Filled.Search"
+                      IconSize="Size.Medium"
+                      Class="mt-0">
+        </MudTextField>
+    </ToolBarContent>
+    <ColGroup>
+        <col />
+        <col />
+        <col />
+        <col />
+        <col />
+    </ColGroup>
+    <HeaderContent>
+        <MudTh>Title</MudTh>
+        <MudTh>Repository</MudTh>
+        <MudTh>Board</MudTh>
+        <MudTh></MudTh>
+    </HeaderContent>
+    <RowTemplate>
+        <MudTd DataLabel="Title">@context.Title</MudTd>
+            <MudTd DataLabel="RepoUrl">@context.RepoUrl</MudTd>
+            <MudTd DataLabel="BoardUrl">@context.BoardUrl</MudTd>
+            <MudTd>
+                <MudButton Variant="Variant.Outlined" Size="Size.Small" OnClick="@(() => ShowBtnPress(context.Id))">
+                    @((ShowDetails == true) ? "Hide" : "Show") Requirements
+                </MudButton>
+            </MudTd>
+            <MudTd>
+                <MudIconButton Icon="@Icons.Material.Filled.Edit" Size="Size.Small" Color="Color.Warning" Href="@("/edit-project/" + context.Id)" />
+                <MudIconButton Icon="@Icons.Material.Sharp.Delete" Size="Size.Small" Color="Color.Error" OnClick="() => ConfirmDelete(context)" />
+                <MudMessageBox @ref="mbox" Title="Warning" CancelText="Cancel">
+                    <MessageContent>
+                        Are you sure to delete this project? It can't be undone!
+                    </MessageContent>
+                    <YesButton>
+                        <MudButton Variant="Variant.Filled" Color="Color.Error" Class="ml-2 mb-2 mr-3" StartIcon="@Icons.Material.Filled.DeleteForever">Delete</MudButton>
+                    </YesButton>
+                </MudMessageBox>
+            </MudTd>
+        </RowTemplate>
+        <ChildRowContent>
+            @if (ShowDetails)
+        {
+            <MudTr>
+                <td colspan="5">
+                    <MudCard Elevation="0">
+                        <MudCardHeader>
+                            <CardHeaderContent>
+                                <MudText Align="Align.Center" Typo="Typo.h6">@context.Title</MudText>
+                                    <MudDivider />
+                                </CardHeaderContent>
+                            </MudCardHeader>
+                            <MudCardContent>
+                                @((MarkupString)context.Requirements)
+                            </MudCardContent>
+                        </MudCard>
+                </td>
+            </MudTr>  
+        }
+    </ChildRowContent>
+</MudTable>
+
+@code
+{
+    private List<Project> projects = new();
+    private bool ShowDetails { get; set; }
+    string searchString;
+    MudMessageBox mbox { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        projects = await Db.Projects.ToListAsync();
+    }
+
+    private void ShowBtnPress(int projectId)
+    {
+        ShowDetails = !ShowDetails;
+    }
+
+    private async Task ConfirmDelete(Project project)
+    {
+        bool? result = await mbox.Show();
+        if (result == null)
+            return;
+
+        Db.Projects.Remove(project);
+
+        var rowsAffected = await Db.SaveChangesAsync();
+
+        if (rowsAffected > 0)
+        {
+            SnackBar.Add("Project Deleted successfully", Severity.Success);
+            projects.Remove(project);
+        }
+        else
+        {
+            SnackBar.Add("Project Delete failed", Severity.Error);
+        }
+    }
+
+    private bool FilterFunc(Project project) => Filter(project, searchString);
+
+    private bool Filter(Project project, string searchString)
+    {
+        if (string.IsNullOrWhiteSpace(searchString))
+            return true;
+        if (project.Title.Contains(searchString, StringComparison.OrdinalIgnoreCase))
+            return true;
+        return false;
+    }
+}

@@ -20,5 +20,9 @@
     <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="8.0.0" />
     <PackageReference Include="MudBlazor" Version="6.12.0" />
   </ItemGroup>
+ 
+  <ItemGroup>
+    <ProjectReference Include="..\AppTechnoSoft.Core\AppTechnoSoft.Core.csproj" />
+  </ItemGroup>
 
 </Project>

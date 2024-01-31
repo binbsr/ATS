@@ -6,7 +6,7 @@
 
 <PageTitle>Team Projects</PageTitle>
 
-<MudTable Items="@projects" Hover="true" Breakpoint="Breakpoint.Sm" Filter="new Func<Project, bool>(FilterFunc)">
+<MudTable Items="@projects" Hover="true" Breakpoint="Breakpoint.Sm" Filter="new Func<ProjectViewModel, bool>(FilterFunc)">
     <ToolBarContent>
         <MudFab Href="/add-project" StartIcon="@Icons.Material.Filled.Add" Title="Add New Project" Size="Size.Small" Color="Color.Tertiary"></MudFab>
         <MudSpacer />
@@ -76,28 +76,31 @@
 
 @code
 {
-    private List<Project> projects = new();
+    private List<ProjectViewModel> projects = new();
+    private ProjectViewModel currentProject = new();
     private bool ShowDetails { get; set; }
     string searchString;
     MudMessageBox mbox { get; set; }
 
     protected override async Task OnInitializedAsync()
     {
-        projects = await Db.Projects.ToListAsync();
+        var projectEntities = await Db.Projects.ToListAsync();
+        projects = projectEntities.ToViewModel();
     }
 
     private void ShowBtnPress(int projectId)
     {
-        ShowDetails = !ShowDetails;
+        currentProject = projects.Find(x => x.Id == projectId);
+        currentProject.ShowDetails = !currentProject.ShowDetails;
     }
 
-    private async Task ConfirmDelete(Project project)
+    private async Task ConfirmDelete(ProjectViewModel project)
     {
         bool? result = await mbox.Show();
         if (result == null)
             return;
 
-        Db.Projects.Remove(project);
+        Db.Projects.Remove(project.ToModel());
 
         var rowsAffected = await Db.SaveChangesAsync();
 
@@ -112,9 +115,9 @@
         }
     }
 
-    private bool FilterFunc(Project project) => Filter(project, searchString);
+    private bool FilterFunc(ProjectViewModel project) => Filter(project, searchString);
 
-    private bool Filter(Project project, string searchString)
+    private bool Filter(ProjectViewModel project, string searchString)
     {
         if (string.IsNullOrWhiteSpace(searchString))
             return true;

@@ -36,7 +36,7 @@
             <MudTd DataLabel="BoardUrl">@context.BoardUrl</MudTd>
             <MudTd>
                 <MudButton Variant="Variant.Outlined" Size="Size.Small" OnClick="@(() => ShowBtnPress(context.Id))">
-                    @((ShowDetails == true) ? "Hide" : "Show") Requirements
+                    @((currentProject.ShowDetails == true) ? "Hide" : "Show") Requirements
                 </MudButton>
             </MudTd>
             <MudTd>
@@ -53,24 +53,23 @@
             </MudTd>
         </RowTemplate>
         <ChildRowContent>
-            @if (ShowDetails)
-        {
-            <MudTr>
-                <td colspan="5">
-                    <MudCard Elevation="0">
-                        <MudCardHeader>
-                            <CardHeaderContent>
-                                <MudText Align="Align.Center" Typo="Typo.h6">@context.Title</MudText>
-                                    <MudDivider />
+            @if (currentProject.ShowDetails)
+            {
+                <MudTr>
+                    <td colspan="5">
+                        <MudCard Elevation="5">
+                            <MudCardHeader>
+                                <CardHeaderContent>
+                                    <MudText Align="Align.Center" Typo="Typo.h6">@context.Title</MudText>
                                 </CardHeaderContent>
-                            </MudCardHeader>
-                            <MudCardContent>
+                             </MudCardHeader>
+                             <MudCardContent>
                                 @((MarkupString)context.Requirements)
-                            </MudCardContent>
+                             </MudCardContent>
                         </MudCard>
-                </td>
-            </MudTr>  
-        }
+                    </td>
+                </MudTr>
+            }
     </ChildRowContent>
 </MudTable>
 

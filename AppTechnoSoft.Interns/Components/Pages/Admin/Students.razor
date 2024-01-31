@@ -42,7 +42,7 @@
         <PropertyColumn Property="x => x.WebExperience" Title="Web Exposure" />
         <PropertyColumn Property="x => x.DbExperience" Title="Db Exposure" />
         <PropertyColumn Property="x => x.Status" />
-        <TemplateColumn>
+        <TemplateColumn Title="Team">
             <CellTemplate>
                 @(context.Item.Team?.Name ?? "Not Assigned")
             </CellTemplate>

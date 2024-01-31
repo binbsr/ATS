@@ -104,7 +104,12 @@ else
         if (loggedInUserId is null)
             return;
 
-        student = await Db.Students.Where(x => x.ApplicationUserId == loggedInUserId).Include(t => t.Team).ThenInclude(b => b.Batch).FirstOrDefaultAsync();
+        student = await Db.Students.Where(x => x.ApplicationUserId == loggedInUserId)
+            .Include(t => t.Team)
+            .ThenInclude(b => b.Batch)
+            .Include(t => t.Team)
+            .ThenInclude(b => b.Project)
+            .FirstOrDefaultAsync();
 
         if (student is null || student.TeamId is null)
             return;

@@ -1,4 +1,3 @@
-using AppTechnoSoft.Interns.Components.Account.Pages.Manage;
 using AppTechnoSoft.Interns.Data.Models;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
@@ -17,6 +16,7 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
     public DbSet<Team> Teams { get; set; }
     public DbSet<Batch> Batches { get; set; }
     public DbSet<Project> Projects { get; set; }
+    public DbSet<Instructor> Instructors { get; set; }
 
     protected override void OnModelCreating(ModelBuilder builder)
     {
@@ -29,6 +29,10 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
         builder.Entity<IdentityUserLogin<string>>().ToTable("UserLogins");
         builder.Entity<IdentityRoleClaim<string>>().ToTable("RoleClaims");
         builder.Entity<IdentityUserRole<string>>().ToTable("UserRole");
+
+        builder.Entity<Instructor>()
+            .HasMany(e => e.Tags)
+            .WithMany();
 
         builder.Entity<College>()
             .HasData([
@@ -68,7 +72,7 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
                 new TechProgram { Id = 6, Name = "BScIT", Affliation = "TU" },
                 new TechProgram { Id = 7, Name = "BScIT", Affliation = "PU" },
             ]);
-              
+
 
         builder.Entity<Widget>()
             .HasData([

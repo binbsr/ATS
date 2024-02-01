@@ -1,0 +1,172 @@
+﻿@page "/add-instructor"
+@page "/edit-instructor/{Id:int}"
+
+@inject ApplicationDbContext Db
+@inject ISnackbar SnackBar
+@inject NavigationManager Navigation
+
+<PageTitle>@pageTitle</PageTitle>
+
+    <EditForm Model="@model" OnValidSubmit="OnValidSubmit">
+        <MudTextField Label="Title" @bind-Value="model.Name" />
+        <MudTextField Label="Resume Summary" Lines="6" Class="mt-3" @bind-Value="model.Resume" />
+
+        <MudField>
+            <MudStack Row AlignItems="AlignItems.Center">          
+
+            @if (profileImagePreview is not (null or ""))
+            {
+                <MudStack AlignItems="AlignItems.Center">
+                    <MudAvatar Style="height:80px; width:80px; font-size:2rem;">
+                        <MudImage Src="@profileImagePreview" />
+                    </MudAvatar>
+                    <MudText>Profile to upload</MudText>
+                </MudStack>
+            }
+            else
+            {
+                <MudStack AlignItems="AlignItems.Center">
+                    <MudAvatar Style="height:80px; width:80px; font-size:2rem;">
+                    </MudAvatar>
+                    <MudText>Profile to upload</MudText>
+                </MudStack>
+            }
+
+            @if (model.ProfilePath is not (null or ""))
+            {
+                <MudStack AlignItems="AlignItems.Center">
+                    <MudAvatar Style="height:80px; width:80px; font-size:2rem;">
+                        <MudImage Src="@model.ProfilePath" />
+                    </MudAvatar>
+                    <MudText>Current Profile</MudText>
+                </MudStack>
+            }
+            <MudFileUpload Class="d-flex" T="IBrowserFile" Accept=".png, .jpg" FilesChanged="ProfileChanged">
+                <ButtonTemplate Context="btnContext">
+                    <MudButton HtmlTag="label"
+                               Variant="Variant.Filled"
+                               Color="Color.Primary"
+                               StartIcon="@Icons.Material.Filled.Image"
+                               for="@btnContext.Id">
+                        Upload Profile Image
+                    </MudButton>
+                </ButtonTemplate>
+            </MudFileUpload>
+        </MudStack>
+    </MudField>
+
+    <MudSelect T="Tag"
+               Label="Tags"
+               HelperText="Check all tags that apply for this widget"
+               MultiSelection="true"
+               @bind-SelectedValues="@tagsSelected"
+               Class="mb-3"
+               MultiSelectionTextFunc="@(new Func<List<string>, string>(GetMultiSelectionText))"
+               AnchorOrigin="Origin.BottomCenter">
+        @foreach (var tag in tags)
+        {
+            <MudSelectItem Value="@tag">@tag.Name</MudSelectItem>
+        }
+    </MudSelect>
+
+
+    <MudButton ButtonType="ButtonType.Submit" Variant="Variant.Filled" Color="Color.Primary" Class="mt-3" StartIcon="@Icons.Material.Filled.Save">Save Instructor</MudButton>
+</EditForm>
+
+@code {
+
+    [Parameter]
+    public int? Id { get; set; }
+
+    Instructor model = new();
+    List<Tag> tags = new();
+    IEnumerable<Tag> tagsSelected;
+    string profileImagePreview = "";
+
+    string pageTitle;
+    bool IsAdd => Id is null or 0;
+
+    protected override async Task OnInitializedAsync()
+    {
+        tags = await Db.Tags.ToListAsync();
+
+        if (IsAdd)
+        {
+            pageTitle = "Add Instructor";
+        }
+        else
+        {
+            pageTitle = "Edit Instructor";
+            model = await Db.Instructors.Include(x => x.Tags).FirstAsync(x => x.Id == Id);
+            tagsSelected = model.Tags;
+        }
+    }
+
+    private async Task OnValidSubmit(EditContext context)
+    {
+        // Save instructor profile image first if it's uploaded
+        if (model.Profile is not null)
+        {
+            var file = model.Profile;
+            try
+            {
+                var fileName = Path.GetRandomFileName();
+                var relativeAssetPath = $"profile_uploads/{fileName}_{file.Name}";
+                var currentAppPath = Environment.CurrentDirectory;
+                var path = Path.Combine(currentAppPath, "wwwroot", relativeAssetPath);
+
+                await using FileStream fs = new(path, FileMode.Create);
+                await file.OpenReadStream().CopyToAsync(fs);
+                model.ProfilePath = relativeAssetPath;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("File: {Filename} Error: {Error}",
+                    file.Name, ex.Message);
+            }
+        }
+
+        model.Tags = tagsSelected.ToList();
+
+        if (IsAdd)
+        {
+            Db.Instructors.Add(model);
+        }
+        else
+        {
+            model.Id = Id.Value;
+            Db.Instructors.Update(model);
+        }
+
+        var rowsAffected = await Db.SaveChangesAsync();
+
+        if (rowsAffected > 0)
+        {
+            SnackBar.Add("Instructor saved successfully", Severity.Success);
+            Navigation.NavigateTo("/instructors");
+        }
+        else
+        {
+            SnackBar.Add("Instructor save failed", Severity.Error);
+        }
+    }
+
+    private string GetMultiSelectionText(List<string> selectedValues)
+    {
+        return $"{selectedValues.Count} tag{(selectedValues.Count > 1 ? "s have" : " has")} been selected";
+    }
+
+    private async Task ProfileChanged(IBrowserFile file)
+    {
+        model.Profile = file;
+
+        // Prepare preview
+        var fileStream = file.OpenReadStream();
+        using (MemoryStream ms = new MemoryStream())
+        {
+            await fileStream.CopyToAsync(ms);
+            var base64data = Convert.ToBase64String(ms.ToArray());
+            profileImagePreview = $"data:image/png;base64," + base64data;
+        }
+    }
+}

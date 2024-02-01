@@ -1,0 +1,48 @@
+﻿@page "/instructors"
+
+@inject ApplicationDbContext Db
+
+<PageTitle>Our Instructors</PageTitle>
+
+<MudGrid>
+    @foreach(var instructor in instructors)
+    {
+        <MudItem md="4" sm="6">
+            <MudCard Style="height:550px">
+                <MudCardHeader>
+                    <CardHeaderContent>
+                        <MudContainer Class="d-flex justify-center">
+                            <MudAvatar Style="height:220px; width:220px; font-size:3rem;" Elevation="5">
+                                <MudImage Src="@instructor.ProfilePath" />
+                            </MudAvatar>
+                        </MudContainer>                        
+                    </CardHeaderContent>
+                    <CardHeaderActions>
+                        <AuthorizeView Roles="Admin,SuperAdmin">
+                            <MudIconButton Icon="@Icons.Material.Filled.Edit" Color="Color.Warning" Size="Size.Small" Class="ml-auto" Href="@("/edit-instructor/"+instructor.Id)" />
+                        </AuthorizeView>
+                    </CardHeaderActions>
+                </MudCardHeader>
+                <MudCardContent>
+                    <MudText Typo="Typo.h5" Align="Align.Center">@instructor.Name</MudText>
+                    <MudText Typo="Typo.body2" Class="mt-4">@instructor.Resume</MudText>
+                </MudCardContent>
+                <MudCardActions>
+                    @foreach(var tag in instructor.Tags)
+                    {
+                        <MudChip Style="@("color:" + tag.ColorCode)">@tag.Name</MudChip>
+                    }                                       
+                </MudCardActions>
+            </MudCard>
+        </MudItem>
+    }
+</MudGrid>
+
+@code {
+    private List<Instructor> instructors = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        instructors = await Db.Instructors.Include(x => x.Tags).ToListAsync();
+    }
+}

@@ -20,10 +20,13 @@
                     <MudAlert Severity="Severity.Warning" Variant="Variant.Outlined">Please enter your details and click apply to start your traineeship journey.</MudAlert>
                 }
             </MudItem>
-            <MudItem md="6" xs="12">
+            <MudItem md="6" xs="12" Class="pb-0">
                 <MudTextField @bind-Value="model.Name"
                               Immediate="true"
                               Label="Full Name" />
+            </MudItem>
+            <MudItem md="6" xs="12" Class="pb-0">
+                <ImageUpload ExistingImagePath="@model.ProfileImagePath" ImageChanged="ProfileChanged" Label="Your Profile Image" />
             </MudItem>
             <MudItem md="6" xs="12">
                 <MudTextField @bind-Value="model.Email"
@@ -54,10 +57,7 @@
                                  ShowProgressIndicator="true"
                                  ProgressIndicatorColor="Color.Default"
                                  MaxItems="null" />
-            </MudItem>
-            <MudItem md="6" xs="12">
-                <ImageUpload ExistingImagePath="@model.ProfileImagePath" ImageChanged="ProfileChanged" Label="Your Profile Image" />
-            </MudItem>
+            </MudItem>            
         </MudGrid>
     </MudPaper>
     <MudPaper Class="pa-5 mb-4" Elevation="5">
@@ -66,7 +66,18 @@
                 <MudText Typo="Typo.h6">Your experience and knowledge</MudText>
                 <MudText Typo="Typo.subtitle1">Please be as sincere as you can, it's important to enroll you to appropriate batch</MudText>
             </MudItem>
-            <MudItem md="6" xs="12">
+            <MudItem md="4" xs="12">
+                <MudText Typo="Typo.button">General Programming</MudText>
+                <MudRadioGroup @bind-Value="@model.GeneralProgramming">
+                    <MudStack Spacing="0">
+                        <MudRadio Value="GeneralProgrammingExperience.None" Color="Color.Secondary">Know nothing about programming</MudRadio>
+                        <MudRadio Value="GeneralProgrammingExperience.KnowBasicProgrammingLogic" Color="Color.Secondary">Know basic logic (console read/write, conditions, loops etc.)</MudRadio>
+                        <MudRadio Value="GeneralProgrammingExperience.ConfidenceOnALanguage" Color="Color.Secondary">Can code on any of C/C++/C#/Java/Python/JavaScript</MudRadio>
+                        <MudRadio Value="GeneralProgrammingExperience.ConfidenceOnMultipleLanguageParadigms" Color="Color.Secondary">Can code on two or more programming languages</MudRadio>
+                    </MudStack>
+                </MudRadioGroup>
+            </MudItem>
+            <MudItem md="4" xs="12">
                 <MudText Typo="Typo.button">Web Development</MudText>
                 <MudRadioGroup @bind-Value="@model.WebExperience">
                     <MudStack Spacing="0">
@@ -77,7 +88,7 @@
                     </MudStack>
                 </MudRadioGroup>
             </MudItem>
-            <MudItem md="6" xs="12">
+            <MudItem md="4" xs="12">
                 <MudText Typo="Typo.button">Database Development</MudText>
                 <MudRadioGroup @bind-Value="@model.DbExperience">
                     <MudStack Spacing="0">

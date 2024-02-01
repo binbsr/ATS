@@ -11,7 +11,7 @@
         <MudTextField Label="Title" @bind-Value="model.Name" />
         <MudTextField Label="Resume Summary" Lines="6" Class="mt-3" @bind-Value="model.Resume" />
         <MudTextField Label="Professional Role" Class="mt-3" @bind-Value="model.Role" />
-        <ImageUpload ExistingImagePath="@model.ProfilePath" ImageChanged="ProfileChanged" Label="Instrcutor Profile Image"/>
+        <ImageUpload ExistingImagePath="@model.ProfilePath" ImageChanged="ProfileChanged" Label="Instructor Profile Image"/>
         <MudSelect T="Tag"
                    Label="Tags"
                    MultiSelection="true"

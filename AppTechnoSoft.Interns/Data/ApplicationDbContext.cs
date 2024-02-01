@@ -17,6 +17,7 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
     public DbSet<Batch> Batches { get; set; }
     public DbSet<Project> Projects { get; set; }
     public DbSet<Instructor> Instructors { get; set; }
+    public DbSet<Attendance> Attendances { get; set; }
 
     protected override void OnModelCreating(ModelBuilder builder)
     {

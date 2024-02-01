@@ -7,70 +7,26 @@
 
 <PageTitle>@pageTitle</PageTitle>
 
-    <EditForm Model="@model" OnValidSubmit="OnValidSubmit">
+    <EditForm Model="@model" OnValidSubmit="OnValidSubmit" Context="formContext">
         <MudTextField Label="Title" @bind-Value="model.Name" />
         <MudTextField Label="Resume Summary" Lines="6" Class="mt-3" @bind-Value="model.Resume" />
-
-        <MudField>
-            <MudStack Row AlignItems="AlignItems.Center">          
-
-            @if (profileImagePreview is not (null or ""))
+        <MudTextField Label="Professional Role" Class="mt-3" @bind-Value="model.Role" />
+        <ImageUpload ExistingImagePath="@model.ProfilePath" ImageChanged="ProfileChanged" Label="Instructor Profile Image"/>
+        <MudSelect T="Tag"
+                   Label="Tags"
+                   MultiSelection="true"
+                   @bind-SelectedValues="@tagsSelected"
+                   Class="mb-3"
+                   MultiSelectionTextFunc="@(new Func<List<string>, string>(GetMultiSelectionText))"
+                   AnchorOrigin="Origin.BottomCenter">
+            @foreach (var tag in tags)
             {
-                <MudStack AlignItems="AlignItems.Center">
-                    <MudAvatar Style="height:80px; width:80px; font-size:2rem;">
-                        <MudImage Src="@profileImagePreview" />
-                    </MudAvatar>
-                    <MudText>Profile to upload</MudText>
-                </MudStack>
+                <MudSelectItem Value="@tag">@tag.Name</MudSelectItem>
             }
-            else
-            {
-                <MudStack AlignItems="AlignItems.Center">
-                    <MudAvatar Style="height:80px; width:80px; font-size:2rem;">
-                    </MudAvatar>
-                    <MudText>Profile to upload</MudText>
-                </MudStack>
-            }
+        </MudSelect>
+        <MudSwitch @bind-Value="@model.Publish" Color="Color.Success" UnCheckedColor="Color.Error" Label="Show this profile publicly" />
 
-            @if (model.ProfilePath is not (null or ""))
-            {
-                <MudStack AlignItems="AlignItems.Center">
-                    <MudAvatar Style="height:80px; width:80px; font-size:2rem;">
-                        <MudImage Src="@model.ProfilePath" />
-                    </MudAvatar>
-                    <MudText>Current Profile</MudText>
-                </MudStack>
-            }
-            <MudFileUpload Class="d-flex" T="IBrowserFile" Accept=".png, .jpg" FilesChanged="ProfileChanged">
-                <ButtonTemplate Context="btnContext">
-                    <MudButton HtmlTag="label"
-                               Variant="Variant.Filled"
-                               Color="Color.Primary"
-                               StartIcon="@Icons.Material.Filled.Image"
-                               for="@btnContext.Id">
-                        Upload Profile Image
-                    </MudButton>
-                </ButtonTemplate>
-            </MudFileUpload>
-        </MudStack>
-    </MudField>
-
-    <MudSelect T="Tag"
-               Label="Tags"
-               HelperText="Check all tags that apply for this widget"
-               MultiSelection="true"
-               @bind-SelectedValues="@tagsSelected"
-               Class="mb-3"
-               MultiSelectionTextFunc="@(new Func<List<string>, string>(GetMultiSelectionText))"
-               AnchorOrigin="Origin.BottomCenter">
-        @foreach (var tag in tags)
-        {
-            <MudSelectItem Value="@tag">@tag.Name</MudSelectItem>
-        }
-    </MudSelect>
-
-
-    <MudButton ButtonType="ButtonType.Submit" Variant="Variant.Filled" Color="Color.Primary" Class="mt-3" StartIcon="@Icons.Material.Filled.Save">Save Instructor</MudButton>
+        <MudButton ButtonType="ButtonType.Submit" Variant="Variant.Filled" Color="Color.Primary" Class="mt-3" StartIcon="@Icons.Material.Filled.Save">Save Instructor</MudButton>
 </EditForm>
 
 @code {
@@ -156,17 +112,8 @@
         return $"{selectedValues.Count} tag{(selectedValues.Count > 1 ? "s have" : " has")} been selected";
     }
 
-    private async Task ProfileChanged(IBrowserFile file)
+    private void ProfileChanged(IBrowserFile file)
     {
         model.Profile = file;
-
-        // Prepare preview
-        var fileStream = file.OpenReadStream();
-        using (MemoryStream ms = new MemoryStream())
-        {
-            await fileStream.CopyToAsync(ms);
-            var base64data = Convert.ToBase64String(ms.ToArray());
-            profileImagePreview = $"data:image/png;base64," + base64data;
-        }
     }
 }

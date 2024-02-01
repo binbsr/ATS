@@ -4,6 +4,7 @@ using AppTechnoSoft.Interns.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace AppTechnoSoft.Interns.Data.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20240201074443_columnsInstrcutor")]
+    partial class columnsInstrcutor
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -89,16 +92,16 @@ namespace AppTechnoSoft.Interns.Data.Migrations
                     b.HasData(
                         new
                         {
-                            Id = "6f3b973d-fe2b-47c4-96a9-a36d410757df",
+                            Id = "5af9e0cf-104d-4d35-9b01-844b83e3cc32",
                             AccessFailedCount = 0,
-                            ConcurrencyStamp = "59aa2257-5f00-4e34-81c3-8d97fde7dc53",
+                            ConcurrencyStamp = "734b0658-4eb4-4342-b263-92af088b880b",
                             Email = "rawal.bishnu@live.com",
                             EmailConfirmed = true,
                             LockoutEnabled = false,
                             NormalizedUserName = "RAWAL.BISHNU@LIVE.COM",
-                            PasswordHash = "AQAAAAIAAYagAAAAEC6StSSZsde2JxgIYAssvRzcbr4aJygVrBPYOca/KpxJS1cWJYDtu47ANn4UF2MusA==",
+                            PasswordHash = "AQAAAAIAAYagAAAAEKh5jT1DkwkWV4ok264fFudO9FouFp5+rWsTYlENEPkPjPpPDqBpDMKKz9cP31l+/Q==",
                             PhoneNumberConfirmed = false,
-                            SecurityStamp = "93ab1764-79a0-4d60-b1ac-14c76c7cdc4a",
+                            SecurityStamp = "a7334c46-1e4c-41ea-8799-4f29cb2a6b9a",
                             TwoFactorEnabled = false,
                             UserName = "rawal.bishnu@live.com"
                         });
@@ -175,168 +178,168 @@ namespace AppTechnoSoft.Interns.Data.Migrations
                         new
                         {
                             Id = 1,
-                            Created = new DateTime(2024, 2, 1, 18, 27, 35, 845, DateTimeKind.Local).AddTicks(5875),
+                            Created = new DateTime(2024, 2, 1, 13, 29, 42, 978, DateTimeKind.Local).AddTicks(8872),
                             Location = "Bhadrapur, Jhapa",
                             Name = "Mechi Multiple Campus"
                         },
                         new
                         {
                             Id = 2,
-                            Created = new DateTime(2024, 2, 1, 18, 27, 35, 845, DateTimeKind.Local).AddTicks(5893),
+                            Created = new DateTime(2024, 2, 1, 13, 29, 42, 978, DateTimeKind.Local).AddTicks(8898),
                             Location = "Dhankuta",
                             Name = "Dhankuta Multiple Campus"
                         },
                         new
                         {
                             Id = 3,
-                            Created = new DateTime(2024, 2, 1, 18, 27, 35, 845, DateTimeKind.Local).AddTicks(5895),
+                            Created = new DateTime(2024, 2, 1, 13, 29, 42, 978, DateTimeKind.Local).AddTicks(8900),
                             Location = "Dharan",
                             Name = "Central Campus of Technology"
                         },
                         new
                         {
                             Id = 4,
-                            Created = new DateTime(2024, 2, 1, 18, 27, 35, 845, DateTimeKind.Local).AddTicks(5896),
+                            Created = new DateTime(2024, 2, 1, 13, 29, 42, 978, DateTimeKind.Local).AddTicks(8930),
                             Location = "Biratnagar",
                             Name = "Mahendra Morang Adarsha Multiple Campus"
                         },
                         new
                         {
                             Id = 5,
-                            Created = new DateTime(2024, 2, 1, 18, 27, 35, 845, DateTimeKind.Local).AddTicks(5897),
+                            Created = new DateTime(2024, 2, 1, 13, 29, 42, 978, DateTimeKind.Local).AddTicks(8931),
                             Location = "Rajbiraj",
                             Name = "Mahendra Bindeshwori Multiple Campus"
                         },
                         new
                         {
                             Id = 6,
-                            Created = new DateTime(2024, 2, 1, 18, 27, 35, 845, DateTimeKind.Local).AddTicks(5898),
+                            Created = new DateTime(2024, 2, 1, 13, 29, 42, 978, DateTimeKind.Local).AddTicks(8933),
                             Location = "Siraha",
                             Name = "Surya Narayan Satya Na. Mo. Yadav Campus"
                         },
                         new
                         {
                             Id = 7,
-                            Created = new DateTime(2024, 2, 1, 18, 27, 35, 845, DateTimeKind.Local).AddTicks(5899),
+                            Created = new DateTime(2024, 2, 1, 13, 29, 42, 978, DateTimeKind.Local).AddTicks(8934),
                             Location = "Janakpur",
                             Name = "Ramsorup Ramsagar Multiple Campus"
                         },
                         new
                         {
                             Id = 8,
-                            Created = new DateTime(2024, 2, 1, 18, 27, 35, 845, DateTimeKind.Local).AddTicks(5900),
+                            Created = new DateTime(2024, 2, 1, 13, 29, 42, 978, DateTimeKind.Local).AddTicks(8935),
                             Location = "Birgunj",
                             Name = "Thakur Ram Multiple Campus"
                         },
                         new
                         {
                             Id = 9,
-                            Created = new DateTime(2024, 2, 1, 18, 27, 35, 845, DateTimeKind.Local).AddTicks(5900),
+                            Created = new DateTime(2024, 2, 1, 13, 29, 42, 978, DateTimeKind.Local).AddTicks(8936),
                             Location = "Bharatpur",
                             Name = "Birendra Multiple Campus"
                         },
                         new
                         {
                             Id = 10,
-                            Created = new DateTime(2024, 2, 1, 18, 27, 35, 845, DateTimeKind.Local).AddTicks(5901),
+                            Created = new DateTime(2024, 2, 1, 13, 29, 42, 978, DateTimeKind.Local).AddTicks(8938),
                             Location = "Pokhara",
                             Name = "Prithivi Narayan Multiple Campus"
                         },
                         new
                         {
                             Id = 11,
-                            Created = new DateTime(2024, 2, 1, 18, 27, 35, 845, DateTimeKind.Local).AddTicks(5902),
+                            Created = new DateTime(2024, 2, 1, 13, 29, 42, 978, DateTimeKind.Local).AddTicks(8939),
                             Location = "Mahendranagar",
                             Name = "SidhaNath Science Campus"
                         },
                         new
                         {
                             Id = 12,
-                            Created = new DateTime(2024, 2, 1, 18, 27, 35, 845, DateTimeKind.Local).AddTicks(5903),
+                            Created = new DateTime(2024, 2, 1, 13, 29, 42, 978, DateTimeKind.Local).AddTicks(8940),
                             Location = "Nepalgunj",
                             Name = "Mahendra Multiple Campus"
                         },
                         new
                         {
                             Id = 13,
-                            Created = new DateTime(2024, 2, 1, 18, 27, 35, 845, DateTimeKind.Local).AddTicks(5904),
+                            Created = new DateTime(2024, 2, 1, 13, 29, 42, 978, DateTimeKind.Local).AddTicks(8941),
                             Location = "Butwal",
                             Name = "Butwal Multiple Campus"
                         },
                         new
                         {
                             Id = 14,
-                            Created = new DateTime(2024, 2, 1, 18, 27, 35, 845, DateTimeKind.Local).AddTicks(5905),
+                            Created = new DateTime(2024, 2, 1, 13, 29, 42, 978, DateTimeKind.Local).AddTicks(8942),
                             Location = "Palpa",
                             Name = "Tribhuvan Multiple Campus"
                         },
                         new
                         {
                             Id = 15,
-                            Created = new DateTime(2024, 2, 1, 18, 27, 35, 845, DateTimeKind.Local).AddTicks(5906),
+                            Created = new DateTime(2024, 2, 1, 13, 29, 42, 978, DateTimeKind.Local).AddTicks(8943),
                             Location = "Ghantaghar",
                             Name = "Tri-Chandra Multiple Campus"
                         },
                         new
                         {
                             Id = 16,
-                            Created = new DateTime(2024, 2, 1, 18, 27, 35, 845, DateTimeKind.Local).AddTicks(5907),
+                            Created = new DateTime(2024, 2, 1, 13, 29, 42, 978, DateTimeKind.Local).AddTicks(8946),
                             Location = "Lainchour",
                             Name = "Amrit Science Campus"
                         },
                         new
                         {
                             Id = 17,
-                            Created = new DateTime(2024, 2, 1, 18, 27, 35, 845, DateTimeKind.Local).AddTicks(5907),
+                            Created = new DateTime(2024, 2, 1, 13, 29, 42, 978, DateTimeKind.Local).AddTicks(8947),
                             Location = "Patan",
                             Name = "Patan Multiple Campus"
                         },
                         new
                         {
                             Id = 18,
-                            Created = new DateTime(2024, 2, 1, 18, 27, 35, 845, DateTimeKind.Local).AddTicks(5908),
+                            Created = new DateTime(2024, 2, 1, 13, 29, 42, 978, DateTimeKind.Local).AddTicks(8948),
                             Location = "Bhaktapur",
                             Name = "Bhaktapur Multiple Campus"
                         },
                         new
                         {
                             Id = 19,
-                            Created = new DateTime(2024, 2, 1, 18, 27, 35, 845, DateTimeKind.Local).AddTicks(5909),
+                            Created = new DateTime(2024, 2, 1, 13, 29, 42, 978, DateTimeKind.Local).AddTicks(8949),
                             Location = "Bagbazar",
                             Name = "Padma Kanya Multiple Campus"
                         },
                         new
                         {
                             Id = 20,
-                            Created = new DateTime(2024, 2, 1, 18, 27, 35, 845, DateTimeKind.Local).AddTicks(5910),
+                            Created = new DateTime(2024, 2, 1, 13, 29, 42, 978, DateTimeKind.Local).AddTicks(8950),
                             Location = "Ghorahi, Dang",
                             Name = "Mahendra Multiple Campus"
                         },
                         new
                         {
                             Id = 21,
-                            Created = new DateTime(2024, 2, 1, 18, 27, 35, 845, DateTimeKind.Local).AddTicks(5911),
+                            Created = new DateTime(2024, 2, 1, 13, 29, 42, 978, DateTimeKind.Local).AddTicks(8951),
                             Location = "Baglung",
                             Name = "Dhaulagiri Campus"
                         },
                         new
                         {
                             Id = 22,
-                            Created = new DateTime(2024, 2, 1, 18, 27, 35, 845, DateTimeKind.Local).AddTicks(5912),
+                            Created = new DateTime(2024, 2, 1, 13, 29, 42, 978, DateTimeKind.Local).AddTicks(8952),
                             Location = "Gorkha",
                             Name = "Gorkha Campus"
                         },
                         new
                         {
                             Id = 23,
-                            Created = new DateTime(2024, 2, 1, 18, 27, 35, 845, DateTimeKind.Local).AddTicks(5913),
+                            Created = new DateTime(2024, 2, 1, 13, 29, 42, 978, DateTimeKind.Local).AddTicks(8953),
                             Location = "Bhairahawa",
                             Name = "Bhairahawa Multiple Campus"
                         },
                         new
                         {
                             Id = 24,
-                            Created = new DateTime(2024, 2, 1, 18, 27, 35, 845, DateTimeKind.Local).AddTicks(5913),
+                            Created = new DateTime(2024, 2, 1, 13, 29, 42, 978, DateTimeKind.Local).AddTicks(8954),
                             Location = "Biratnagar",
                             Name = "Degree Campus"
                         });
@@ -463,9 +466,6 @@ namespace AppTechnoSoft.Interns.Data.Migrations
 
                     b.Property<DateTime?>("FormSubmitted")
                         .HasColumnType("datetime2");
-
-                    b.Property<int>("GeneralProgramming")
-                        .HasColumnType("int");
 
                     b.Property<DateTime?>("LastUpdated")
                         .HasColumnType("datetime2");
@@ -626,49 +626,49 @@ namespace AppTechnoSoft.Interns.Data.Migrations
                         {
                             Id = 1,
                             Affliation = "TU",
-                            Created = new DateTime(2024, 2, 1, 18, 27, 35, 845, DateTimeKind.Local).AddTicks(6122),
+                            Created = new DateTime(2024, 2, 1, 13, 29, 42, 978, DateTimeKind.Local).AddTicks(9143),
                             Name = "BCA"
                         },
                         new
                         {
                             Id = 2,
                             Affliation = "PU",
-                            Created = new DateTime(2024, 2, 1, 18, 27, 35, 845, DateTimeKind.Local).AddTicks(6124),
+                            Created = new DateTime(2024, 2, 1, 13, 29, 42, 978, DateTimeKind.Local).AddTicks(9146),
                             Name = "BCA"
                         },
                         new
                         {
                             Id = 3,
                             Affliation = "TU",
-                            Created = new DateTime(2024, 2, 1, 18, 27, 35, 845, DateTimeKind.Local).AddTicks(6125),
+                            Created = new DateTime(2024, 2, 1, 13, 29, 42, 978, DateTimeKind.Local).AddTicks(9147),
                             Name = "BIT"
                         },
                         new
                         {
                             Id = 4,
                             Affliation = "PU",
-                            Created = new DateTime(2024, 2, 1, 18, 27, 35, 845, DateTimeKind.Local).AddTicks(6126),
+                            Created = new DateTime(2024, 2, 1, 13, 29, 42, 978, DateTimeKind.Local).AddTicks(9148),
                             Name = "BIT"
                         },
                         new
                         {
                             Id = 5,
                             Affliation = "TU",
-                            Created = new DateTime(2024, 2, 1, 18, 27, 35, 845, DateTimeKind.Local).AddTicks(6127),
+                            Created = new DateTime(2024, 2, 1, 13, 29, 42, 978, DateTimeKind.Local).AddTicks(9149),
                             Name = "BIM"
                         },
                         new
                         {
                             Id = 6,
                             Affliation = "TU",
-                            Created = new DateTime(2024, 2, 1, 18, 27, 35, 845, DateTimeKind.Local).AddTicks(6128),
+                            Created = new DateTime(2024, 2, 1, 13, 29, 42, 978, DateTimeKind.Local).AddTicks(9150),
                             Name = "BScIT"
                         },
                         new
                         {
                             Id = 7,
                             Affliation = "PU",
-                            Created = new DateTime(2024, 2, 1, 18, 27, 35, 845, DateTimeKind.Local).AddTicks(6128),
+                            Created = new DateTime(2024, 2, 1, 13, 29, 42, 978, DateTimeKind.Local).AddTicks(9151),
                             Name = "BScIT"
                         });
                 });
@@ -713,7 +713,7 @@ namespace AppTechnoSoft.Interns.Data.Migrations
                         new
                         {
                             Id = 1,
-                            Created = new DateTime(2024, 2, 1, 18, 27, 35, 845, DateTimeKind.Local).AddTicks(6160),
+                            Created = new DateTime(2024, 2, 1, 13, 29, 42, 978, DateTimeKind.Local).AddTicks(9194),
                             CreatedBy = "Seed",
                             Description = "An display item in home page",
                             HtmlContent = "Welcome to AppTechnoSoft! An initiative for students and freshers.",
@@ -722,7 +722,7 @@ namespace AppTechnoSoft.Interns.Data.Migrations
                         new
                         {
                             Id = 2,
-                            Created = new DateTime(2024, 2, 1, 18, 27, 35, 845, DateTimeKind.Local).AddTicks(6162),
+                            Created = new DateTime(2024, 2, 1, 13, 29, 42, 978, DateTimeKind.Local).AddTicks(9197),
                             CreatedBy = "Seed",
                             Description = "An display item in home page",
                             HtmlContent = "Bridging the gap between academia and industry!",
@@ -731,7 +731,7 @@ namespace AppTechnoSoft.Interns.Data.Migrations
                         new
                         {
                             Id = 3,
-                            Created = new DateTime(2024, 2, 1, 18, 27, 35, 845, DateTimeKind.Local).AddTicks(6164),
+                            Created = new DateTime(2024, 2, 1, 13, 29, 42, 978, DateTimeKind.Local).AddTicks(9200),
                             CreatedBy = "Seed",
                             Description = "An display item in home page",
                             HtmlContent = "We guide you on software R&D and SDLC to kickstart your career!",
@@ -740,7 +740,7 @@ namespace AppTechnoSoft.Interns.Data.Migrations
                         new
                         {
                             Id = 4,
-                            Created = new DateTime(2024, 2, 1, 18, 27, 35, 845, DateTimeKind.Local).AddTicks(6166),
+                            Created = new DateTime(2024, 2, 1, 13, 29, 42, 978, DateTimeKind.Local).AddTicks(9202),
                             CreatedBy = "Seed",
                             Description = "An display item in home page",
                             HtmlContent = "Replacement Opportunities!",
@@ -749,7 +749,7 @@ namespace AppTechnoSoft.Interns.Data.Migrations
                         new
                         {
                             Id = 5,
-                            Created = new DateTime(2024, 2, 1, 18, 27, 35, 845, DateTimeKind.Local).AddTicks(6168),
+                            Created = new DateTime(2024, 2, 1, 13, 29, 42, 978, DateTimeKind.Local).AddTicks(9205),
                             CreatedBy = "Seed",
                             Description = "An display item in home page",
                             HtmlContent = "From basics to professional touches!",
@@ -758,7 +758,7 @@ namespace AppTechnoSoft.Interns.Data.Migrations
                         new
                         {
                             Id = 6,
-                            Created = new DateTime(2024, 2, 1, 18, 27, 35, 845, DateTimeKind.Local).AddTicks(6170),
+                            Created = new DateTime(2024, 2, 1, 13, 29, 42, 978, DateTimeKind.Local).AddTicks(9207),
                             CreatedBy = "Seed",
                             Description = "GIT and GitHub Essentials",
                             HtmlContent = "todo",
@@ -767,7 +767,7 @@ namespace AppTechnoSoft.Interns.Data.Migrations
                         new
                         {
                             Id = 7,
-                            Created = new DateTime(2024, 2, 1, 18, 27, 35, 845, DateTimeKind.Local).AddTicks(6171),
+                            Created = new DateTime(2024, 2, 1, 13, 29, 42, 978, DateTimeKind.Local).AddTicks(9209),
                             CreatedBy = "Seed",
                             Description = "Training + Internship Combo",
                             HtmlContent = "todo",
@@ -819,22 +819,22 @@ namespace AppTechnoSoft.Interns.Data.Migrations
                     b.HasData(
                         new
                         {
-                            Id = "490fd83a-446c-46a1-92b5-8ff7e0d3c3e0",
-                            ConcurrencyStamp = "490fd83a-446c-46a1-92b5-8ff7e0d3c3e0",
+                            Id = "c37f3486-8b30-4e7c-baf8-d279fcd0492f",
+                            ConcurrencyStamp = "c37f3486-8b30-4e7c-baf8-d279fcd0492f",
                             Name = "SuperAdmin",
                             NormalizedName = "SUPERADMIN"
                         },
                         new
                         {
-                            Id = "e544108f-cef5-4d55-b825-610f89a917e5",
-                            ConcurrencyStamp = "e544108f-cef5-4d55-b825-610f89a917e5",
+                            Id = "8365d9c3-cbaf-466d-9878-61a30807ed18",
+                            ConcurrencyStamp = "8365d9c3-cbaf-466d-9878-61a30807ed18",
                             Name = "Admin",
                             NormalizedName = "ADMIN"
                         },
                         new
                         {
-                            Id = "c3c5fb0a-ddb0-4511-8bb5-d8895f9cf88b",
-                            ConcurrencyStamp = "c3c5fb0a-ddb0-4511-8bb5-d8895f9cf88b",
+                            Id = "e866ced8-0267-426f-9e73-329b85b59cf8",
+                            ConcurrencyStamp = "e866ced8-0267-426f-9e73-329b85b59cf8",
                             Name = "Trainee",
                             NormalizedName = "TRAINEE"
                         });
@@ -929,8 +929,8 @@ namespace AppTechnoSoft.Interns.Data.Migrations
                     b.HasData(
                         new
                         {
-                            UserId = "6f3b973d-fe2b-47c4-96a9-a36d410757df",
-                            RoleId = "490fd83a-446c-46a1-92b5-8ff7e0d3c3e0"
+                            UserId = "5af9e0cf-104d-4d35-9b01-844b83e3cc32",
+                            RoleId = "c37f3486-8b30-4e7c-baf8-d279fcd0492f"
                         });
                 });
 

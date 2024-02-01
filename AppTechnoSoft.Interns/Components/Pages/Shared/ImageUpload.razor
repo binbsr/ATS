@@ -1,0 +1,58 @@
+﻿<MudFileUpload Class="d-flex" T="IBrowserFile" Accept="image/*"
+               FilesChanged="FileChanged"
+               Hidden="@false"
+               InputClass="absolute mud-width-full mud-height-full overflow-hidden z-20"
+               InputStyle="opacity:0">
+    <ButtonTemplate>
+        <MudPaper Height="116px"
+                  Outlined="true"
+                  Class="relative rounded-lg border-2 border-dashed pa-4 mud-width-full mud-height-full z-10">
+            <MudStack Row AlignItems="AlignItems.Center">
+                 @if (ExistingImagePath is not (null or ""))
+                {
+                    <MudAvatar Style="height:80px; width:80px; font-size:2rem;">
+                        <MudImage Src="@ExistingImagePath" />
+                    </MudAvatar>
+                    <MudText>Current Profile</MudText>
+                }
+                <MudAvatar Style="height:80px; width:80px; font-size:2rem;">
+                    <MudImage Src="@profileImagePreview" />
+                </MudAvatar>
+                <MudText Typo="Typo.body1">
+                    @Label (Click or Drag & drop)
+                </MudText>
+            </MudStack>
+        </MudPaper>
+    </ButtonTemplate>
+</MudFileUpload>
+
+@code {
+
+    [Parameter]
+    public string Label { get; set; } = "Your Image";
+
+    [Parameter]
+    public string? ExistingImagePath { get; set; }
+
+    [Parameter]
+    public EventCallback<IBrowserFile> ImageChanged { get; set; }
+
+    private string profileImagePreview = string.Empty;
+
+    private async Task FileChanged(IBrowserFile file)
+    {
+        if (file is null)
+            return;
+
+        // Prepare preview
+        var fileStream = file.OpenReadStream();
+        using (MemoryStream ms = new MemoryStream())
+        {
+            await fileStream.CopyToAsync(ms);
+            var base64data = Convert.ToBase64String(ms.ToArray());
+            profileImagePreview = $"data:image/png;base64," + base64data;
+        }
+
+        await ImageChanged.InvokeAsync(file);
+    }
+}

@@ -3,6 +3,8 @@
 @inject ApplicationDbContext Db
 @inject ISnackbar SnackBar
 
+<PageTitle>Project Teams</PageTitle>
+
 <MudTable Items="@teams" Hover="true" Dense Filter="new Func<Team,bool>(FilterFunc1)" @bind-SelectedItem="selectedTeam" Loading="@loadingData">
     <ToolBarContent>
         <MudFab Href="/add-team" StartIcon="@Icons.Material.Filled.Add" Title="Add New Team" Size="Size.Small" Color="Color.Tertiary"></MudFab>

@@ -2,6 +2,8 @@
 @attribute [Authorize(Roles = "Admin")]
 @inject ApplicationDbContext db
 
+<PageTitle>Applications</PageTitle>
+
 <MudDataGrid T="Student"
              MultiSelection="true"
              Items="@studentList"

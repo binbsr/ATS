@@ -3,6 +3,8 @@
 @inject UserManager<ApplicationUser> UserManager
 @inject ISnackbar SnackBar
 
+<PageTitle>All Users</PageTitle>
+
 <MudTable Items="@users" Hover="true" Loading="@loadingData" Dense="true" Filter="new Func<ApplicationUser,bool>(FilterFunc1)">
     <ToolBarContent>
         <MudSpacer />

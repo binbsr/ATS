@@ -3,6 +3,8 @@
 @inject RoleManager<IdentityRole> RoleManager
 @inject ISnackbar SnackBar
 
+<PageTitle>All Roles</PageTitle>
+
 <MudTable Items="@roles" Hover="true" Loading="@loadingData" Dense="true">
     <ToolBarContent>
         <MudFab Href="/add-role" StartIcon="@Icons.Material.Filled.Add" Title="Add New Role" Size="Size.Small" Color="Color.Tertiary"></MudFab>

@@ -14,10 +14,7 @@
 
 @if (student is null)
 {
-    <MudText Typo="Typo.h5">
-        Please complete your registration proces first.
-        <MudLink Typo="Typo.h5" Href="/apply">Click Here</MudLink>
-    </MudText>
+    <ApplicationAlert />
 }
 else
 {
@@ -60,7 +57,7 @@ else
                                         <MudImage Src="@member.ProfilePath" />
                                     </MudAvatar>
                                     <MudText Typo="Typo.subtitle2">@user</MudText>
-                                    </MudStack>
+                                </MudStack>
                             }
                         </MudContainer>
                     </MudItem>

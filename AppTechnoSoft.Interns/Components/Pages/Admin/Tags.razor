@@ -51,7 +51,7 @@
     private Tag selectedTag = new();
     private bool loadingData;
     private string searchString = "";
-    MudMessageBox mbox { get; set; }
+    MudMessageBox mbox { get; set; } = null!;
 
     protected override async Task OnInitializedAsync()
     {
@@ -68,7 +68,7 @@
             return true;
         if (tag.Name.Contains(searchString, StringComparison.OrdinalIgnoreCase))
             return true;
-        if (tag.Description.Contains(searchString, StringComparison.OrdinalIgnoreCase))
+        if (tag!.Description!.Contains(searchString, StringComparison.OrdinalIgnoreCase))
             return true;
         if (tag.ColorCode.Contains(searchString, StringComparison.OrdinalIgnoreCase))
             return true;

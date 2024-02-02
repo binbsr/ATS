@@ -63,7 +63,7 @@ else
         if (widgets is null || widgets.Length == 0)
             return;
 
-        widgetFiltered = widgets.Where(x => x.Tags.Any(t => t.Name.Contains(InitialFilterCategory)));
+        widgetFiltered = widgets.Where(x => x!.Tags!.Any(t => t.Name.Contains(InitialFilterCategory)));
 
         loadingData = false;
     }
@@ -73,6 +73,6 @@ else
         if (value is null or "" || widgets is null)
             return;
 
-        widgetFiltered = widgets.Where(x => x.Tags.Any(t => t.Name.Contains(value)));
+        widgetFiltered = widgets.Where(x => x!.Tags!.Any(t => t.Name.Contains(value)));
     }
 }

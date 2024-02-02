@@ -80,7 +80,7 @@
     private ProjectViewModel currentProject = new();
     private bool ShowDetails { get; set; }
     string searchString = string.Empty;
-    MudMessageBox mbox { get; set; } = new();
+    MudMessageBox mbox { get; set; } = null!;
 
     protected override async Task OnInitializedAsync()
     {

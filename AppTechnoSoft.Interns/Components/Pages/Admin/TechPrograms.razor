@@ -20,7 +20,7 @@
     </ToolBarContent>
     <Columns>
         <PropertyColumn Property="x => programs.IndexOf(x) + 1" Title="#" Filterable="false"/>
-        <PropertyColumn Property="x => x.Name" SortBy="@_sortBy" />
+        <PropertyColumn Property="x => x.Name" />
         <PropertyColumn Property="x => x.Affliation" />
     </Columns>
     <PagerContent>
@@ -30,16 +30,8 @@
 
 @code {
     private List<TechProgram> programs = new();
-    private string _searchString;
-    private bool _sortNameByLength;
-    private bool loadingData = false;
-    private Func<TechProgram, object> _sortBy => x =>
-    {
-        if (_sortNameByLength)
-            return x.Name.Length;
-        else
-            return x.Name;
-    };
+    private string _searchString = string.Empty;
+    private bool loadingData = false;    
 
     private Func<TechProgram, bool> _quickFilter => x =>
     {

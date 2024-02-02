@@ -13,7 +13,7 @@
             @((MarkupString)Widget.HtmlContent)
         </MudContainer>
         <MudChipSet>
-            @foreach (var tag in Widget.Tags)
+            @foreach (var tag in Widget.Tags ?? [])
             {
                 <MudChip Style=@("color:" + tag.ColorCode)>@tag.Name</MudChip>
             }

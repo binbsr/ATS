@@ -3,6 +3,8 @@
 @inject ApplicationDbContext Db
 @inject ISnackbar SnackBar
 
+<PageTitle>Training Batches</PageTitle>
+
 <MudTable Items="@batches" Hover="true" Filter="new Func<Batch, bool>(FilterFunc1)" @bind-SelectedItem="selectedBatch" Loading="@loadingData">
     <ToolBarContent>
         <MudFab Href="/add-batch" StartIcon="@Icons.Material.Filled.Add" Title="Add New Batch" Size="Size.Small" Color="Color.Tertiary"></MudFab>
@@ -50,7 +52,7 @@
     private Batch selectedBatch = new();
     private bool loadingData;
     private string searchString = "";
-    MudMessageBox mbox { get; set; }
+    MudMessageBox mbox { get; set; } = null!;
 
     protected override async Task OnInitializedAsync()
     {

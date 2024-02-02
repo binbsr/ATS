@@ -41,7 +41,7 @@
 
     List<IdentityRole> roles = new();
     bool loadingData = false;
-    MudMessageBox mbox { get; set; }
+    MudMessageBox mbox { get; set; } = null!;
 
     protected override async Task OnInitializedAsync()
     {

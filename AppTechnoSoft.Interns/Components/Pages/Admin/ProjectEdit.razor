@@ -70,9 +70,9 @@
     [Parameter]
     public int? Id { get; set; }
 
-    BlazoredTextEditor QuillHtml;
+    BlazoredTextEditor QuillHtml = null!;
     Project model = new();
-    string pageTitle;
+    string pageTitle = string.Empty;
     bool IsAdd => Id is null or 0;
 
     protected override async Task OnInitializedAsync()
@@ -105,7 +105,7 @@
         }
         else
         {
-            model.Id = Id.Value;
+            model.Id = Id!.Value;
             Db.Projects.Update(model);
         }
 

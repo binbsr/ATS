@@ -52,8 +52,8 @@
 
     List<ApplicationUser> users = new();
     bool loadingData = false;
-    string searchString;
-    MudMessageBox mbox { get; set; }
+    string searchString = string.Empty;
+    MudMessageBox mbox { get; set; } = null!;
 
     protected override async Task OnInitializedAsync()
     {
@@ -87,9 +87,9 @@
     {
         if (string.IsNullOrWhiteSpace(searchString))
             return true;
-        if (user.UserName.Contains(searchString, StringComparison.OrdinalIgnoreCase))
+        if (user!.UserName!.Contains(searchString, StringComparison.OrdinalIgnoreCase))
             return true;
-        if (user.Email.Contains(searchString, StringComparison.OrdinalIgnoreCase))
+        if (user!.Email!.Contains(searchString, StringComparison.OrdinalIgnoreCase))
             return true;
         return false;
     }

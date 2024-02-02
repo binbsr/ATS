@@ -29,7 +29,7 @@
                     <MudText Typo="Typo.body2" Class="mt-4">@instructor.Resume</MudText>
                 </MudCardContent>
                 <MudCardActions>
-                    @foreach(var tag in instructor.Tags)
+                    @foreach(var tag in instructor.Tags!)
                     {
                         <MudChip Style="@("color:" + tag.ColorCode)">@tag.Name</MudChip>
                     }                                       

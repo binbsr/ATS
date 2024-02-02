@@ -47,8 +47,8 @@
                 @(context.Item.Team?.Name ?? "Not Assigned")
             </CellTemplate>
         </TemplateColumn>
-        <PropertyColumn Property="x => x.College.Name" Title="College" />
-        <PropertyColumn Property="x => x.TechProgram.Name" Title="Program" />
+        <PropertyColumn Property="x => x.College!.Name" Title="College" />
+        <PropertyColumn Property="x => x.TechProgram!.Name" Title="Program" />
         <PropertyColumn Property="x => x.FormSubmitted" />
     </Columns>
     <PagerContent>
@@ -58,8 +58,7 @@
 
 @code {
     private List<Student> studentList = new();
-    private string _searchString;
-    private bool _sortNameByLength;
+    private string _searchString = string.Empty;
     private bool loadingData = false;
 
     private Func<Student, bool> _quickFilter => x =>

@@ -116,13 +116,11 @@
 
     private Student model = new();
     bool alreadyApplied = false;
-    string profileImagePreview = "";
     List<College> colleges = [];
     List<TechProgram> techPrograms = [];
-    bool disabled = false;
 
     [CascadingParameter]
-    private Task<AuthenticationState> authenticationStateTask { get; set; }
+    private Task<AuthenticationState> authenticationStateTask { get; set; } = null!;
 
     protected override async Task OnInitializedAsync()
     {
@@ -137,7 +135,7 @@
         var student = await Db.Students.Include(c => c.College).Include(t => t.TechProgram).FirstOrDefaultAsync(x => x.Email == user.Email);
         if (student is null)
         {
-            model.Email = user.Email;
+            model.Email = user.Email!;
             model.ApplicationUserId = user.Id;
         }
         else
@@ -194,7 +192,7 @@
         }
     }
 
-    private async Task ProfileChanged(IBrowserFile file)
+    private void ProfileChanged(IBrowserFile file)
     {
         model.ProfileImage = file;
     }
@@ -203,7 +201,7 @@
     {
         if (!colleges.Any())
         {
-            colleges = Db.Colleges.ToList();
+            colleges = await Db.Colleges.ToListAsync();
         }
 
         if (value is null or "")
@@ -218,7 +216,7 @@
     {
         if (!techPrograms.Any())
         {
-            techPrograms = Db.TechPrograms.ToList();
+            techPrograms = await Db.TechPrograms.ToListAsync();
         }
 
         if (value is null or "")

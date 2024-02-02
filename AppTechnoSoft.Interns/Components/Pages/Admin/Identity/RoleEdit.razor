@@ -28,8 +28,7 @@
     public string? Id { get; set; }
 
     IdentityRole model = new();
-    bool success;
-    string pageTitle;
+    string pageTitle = string.Empty;
     string errorMessage = string.Empty;
     bool IsAdd => Id is null or "";
 
@@ -42,7 +41,7 @@
         else
         {
             pageTitle = "Edit Role";
-            model = await RoleManager.FindByIdAsync(Id);
+            model = await RoleManager.FindByIdAsync(Id!) ?? new();
         }
     }
 
@@ -50,7 +49,7 @@
     {
         errorMessage = string.Empty;
         IdentityResult result;
-        if (IsAdd)
+        if (IsAdd && model.Name is not null)
         {
             var roleExists = await RoleManager.RoleExistsAsync(model.Name);
             if (roleExists)
@@ -69,12 +68,11 @@
         if (result.Succeeded)
         {
             SnackBar.Add("Role saved successfully", Severity.Success);
+            Navigation.NavigateTo("/identity/roles");
         }
         else
         {
             SnackBar.Add("Role save failed", Severity.Error);
         }
-
-        Navigation.NavigateTo("/identity/roles");
     }
 }

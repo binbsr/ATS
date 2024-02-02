@@ -7,6 +7,11 @@
 
 <PageTitle>Your dashboard</PageTitle>
 
+@if (loadingData)
+{
+    <MudProgressCircular />
+}
+
 @if (student is null)
 {
     <MudText Typo="Typo.h5">
@@ -41,9 +46,9 @@ else
                     <MudItem md="1" xs="12" Class="d-flex">
                         <MudTooltip Text="@($"Team {loggedInUserTeamName} ({teamMembers.Count} members)")">
                             <MudAvatar Style="height:120px; width:120px; font-size:2.5rem;" Rounded>
-                                <MudImage Src="@loggedInUserTeamAvatar" />
-                             </MudAvatar>                            
-                         </MudTooltip>
+                             <MudImage Src="@loggedInUserTeamAvatar" />
+                         </MudAvatar>
+                     </MudTooltip>
                  </MudItem>
                  <MudItem md="11" xs="12">
                      <MudContainer Class="d-flex align-start gap-4 ml-0">
@@ -79,8 +84,8 @@ else
 
 @code {
 
-    bool loadingData;
-    string loggedInUserId;
+    bool loadingData = false;
+    string loggedInUserId = string.Empty;
     Student? student;
     string loggedInUserTeamName = "Not assigned to any team";
     string loggedInUserBatchName = "Not assigned to any batch";
@@ -92,46 +97,52 @@ else
     record StudentViewModel(string Name, string UserId, string ProfilePath, string TeamName, string BatchName);
 
     [CascadingParameter]
-    private Task<AuthenticationState> AuthTask { get; set; }
+    private Task<AuthenticationState> AuthTask { get; set; } = null!;
 
     protected override async Task OnInitializedAsync()
     {
         loadingData = true;
         var userTask = await AuthTask;
         var loggedInUser = userTask.User;
-        loggedInUserId = loggedInUser.FindFirst(u => u.Type.Contains("nameidentifier"))?.Value;
+        loggedInUserId = loggedInUser?.FindFirst(u => u.Type.Contains("nameidentifier"))?.Value ?? string.Empty;
 
-        if (loggedInUserId is null)
+        if (loggedInUserId == string.Empty)
             return;
 
         student = await Db.Students.Where(x => x.ApplicationUserId == loggedInUserId)
             .Include(t => t.Team)
-            .ThenInclude(b => b.Batch)
+            .ThenInclude(b => b!.Batch)
             .Include(t => t.Team)
-            .ThenInclude(b => b.Project)
+            .ThenInclude(b => b!.Project)
             .FirstOrDefaultAsync();
 
         if (student is null || student.TeamId is null)
+        {
+            loadingData = false;
             return;
+        }
 
         var batchId = student?.Team?.Batch?.Id;
 
         if (batchId is null)
             return;
 
-        loggedInUserBatchName = student.Team.Batch.Name;
-        loggedInUserTeamName = student.Team.Name;
-        loggedInUserTeamAvatar = student.Team.Avatar;
+        loggedInUserBatchName = student?.Team?.Batch?.Name ?? string.Empty;
+        loggedInUserTeamName = student?.Team?.Name ?? string.Empty;
+        loggedInUserTeamAvatar = student?.Team?.Avatar ?? string.Empty;
 
         var title = student?.Team?.Project?.Title;
 
         if (title is not null or "")
         {
             projectTitle = title;
-            projectDetails = student.Team.Project.Requirements ?? "";
+            projectDetails = student!.Team!.Project!.Requirements;
         }
 
-        batchMembers = await Db.Students.Where(x => x.Team.Batch.Id == batchId).Include(x => x.Team).ThenInclude(b => b.Batch).Select(x => new StudentViewModel(x.Name, x.ApplicationUserId, x.ProfileImagePath, x.Team.Name, x.Team.Batch.Name)).ToListAsync();
+        batchMembers = await Db.Students.Where(x => x!.Team!.Batch!.Id == batchId)
+            .Include(x => x.Team).ThenInclude(b => b!.Batch)
+            .Select(x => new StudentViewModel(x.Name, x.ApplicationUserId!, x.ProfileImagePath!, x!.Team!.Name, x!.Team!.Batch!.Name))
+            .ToListAsync();
         teamMembers = batchMembers.Where(x => x.TeamName == loggedInUserTeamName).ToList();
         loadingData = false;
     }

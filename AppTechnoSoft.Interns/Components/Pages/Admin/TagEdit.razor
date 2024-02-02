@@ -34,8 +34,7 @@
     public int? Id { get; set; }
 
     Tag model = new();
-    bool success;
-    string pageTitle;
+    string pageTitle = string.Empty;
     bool IsAdd => Id is null or 0;
 
     protected override async Task OnInitializedAsync()
@@ -47,7 +46,7 @@
         else
         {
             pageTitle = "Edit Tag";
-            model = await Db.Tags.FindAsync(Id);
+            model = await Db.Tags.FindAsync(Id) ?? new();
         }
     }
 
@@ -59,7 +58,7 @@
         }
         else
         {
-            model.Id = Id.Value;
+            model.Id = Id!.Value;
             Db.Tags.Update(model);
         }
 

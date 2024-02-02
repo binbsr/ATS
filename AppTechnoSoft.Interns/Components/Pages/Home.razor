@@ -85,7 +85,7 @@ else
     private string[] images = [];
 
     [CascadingParameter]
-    private Task<AuthenticationState> AuthTask { get; set; }
+    private Task<AuthenticationState> AuthTask { get; set; } = null!;
 
     protected override async Task OnInitializedAsync()
     {

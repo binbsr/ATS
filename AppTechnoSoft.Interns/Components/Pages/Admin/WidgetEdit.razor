@@ -80,12 +80,11 @@
     [Parameter]
     public int? Id { get; set; }
 
-    BlazoredTextEditor QuillHtml;
+    BlazoredTextEditor QuillHtml = null!;
     Widget model = new Widget();
     List<Tag> tags = new();
-    IEnumerable<Tag> tagsSelected;
-    bool success;
-    string pageTitle;
+    IEnumerable<Tag> tagsSelected = [];
+    string pageTitle = string.Empty;
     bool IsAdd => Id is null or 0;
 
     protected override async Task OnInitializedAsync()
@@ -100,7 +99,7 @@
         {
             pageTitle = "Edit Widget";
             model = await Db.Widgets.Include(x => x.Tags).FirstAsync(x => x.Id == Id);
-            tagsSelected = model.Tags;
+            tagsSelected = model.Tags ?? [];
         }
     }
 
@@ -121,7 +120,7 @@
         }
         else
         {
-            model.Id = Id.Value;
+            model.Id = Id!.Value;
             Db.Widgets.Update(model);
         }
 

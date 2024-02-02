@@ -58,7 +58,7 @@
     private Team selectedTeam = new();
     private bool loadingData;
     private string searchString = "";
-    MudMessageBox mbox { get; set; }
+    MudMessageBox mbox { get; set; } = null!;
 
     protected override async Task OnInitializedAsync()
     {

@@ -22,7 +22,7 @@
     </ToolBarContent>
     <Columns>
         <PropertyColumn Property="x => CollegeList.IndexOf(x) + 1" Title="#" Filterable="false"/>
-        <PropertyColumn Property="x => x.Name" SortBy="@_sortBy" />
+        <PropertyColumn Property="x => x.Name" />
         <PropertyColumn Property="x => x.Location" />
         <TemplateColumn Filterable="false" CellClass="d-flex justify-end">
             <CellTemplate>
@@ -46,18 +46,9 @@
 
 @code {
     private List<College> CollegeList = new List<College>();
-    private string _searchString;
-    private bool _sortNameByLength;
+    private string _searchString = string.Empty;
     private bool loadingData = false;
-    MudMessageBox mbox { get; set; }
-
-    private Func<College, object> _sortBy => x =>
-    {
-        if (_sortNameByLength)
-            return x.Name.Length;
-        else
-            return x.Name;
-    };
+    MudMessageBox mbox { get; set; } = null!;
 
     private Func<College, bool> _quickFilter => x =>
     {

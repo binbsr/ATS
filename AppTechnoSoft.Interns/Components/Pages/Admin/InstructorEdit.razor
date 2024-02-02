@@ -36,10 +36,8 @@
 
     Instructor model = new();
     List<Tag> tags = new();
-    IEnumerable<Tag> tagsSelected;
-    string profileImagePreview = "";
-
-    string pageTitle;
+    IEnumerable<Tag> tagsSelected = [];
+    string pageTitle = string.Empty;
     bool IsAdd => Id is null or 0;
 
     protected override async Task OnInitializedAsync()
@@ -54,7 +52,7 @@
         {
             pageTitle = "Edit Instructor";
             model = await Db.Instructors.Include(x => x.Tags).FirstAsync(x => x.Id == Id);
-            tagsSelected = model.Tags;
+            tagsSelected = model?.Tags ?? [];
         }
     }
 
@@ -90,7 +88,7 @@
         }
         else
         {
-            model.Id = Id.Value;
+            model.Id = Id!.Value;
             Db.Instructors.Update(model);
         }
 

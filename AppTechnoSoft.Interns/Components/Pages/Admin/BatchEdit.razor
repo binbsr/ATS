@@ -28,9 +28,8 @@
     [Parameter]
     public int? Id { get; set; }
 
-    Batch model;
-    bool success;
-    string pageTitle;
+    Batch model = new();
+    string pageTitle = string.Empty;
     bool IsAdd => Id is null or 0;
 
     protected override async Task OnInitializedAsync()
@@ -48,7 +47,7 @@
         else
         {
             pageTitle = "Edit Batch";
-            model = await Db.Batches.FindAsync(Id);
+            model = await Db.Batches.FindAsync(Id) ?? new();
         }
     }
 
@@ -60,7 +59,7 @@
         }
         else
         {
-            model.Id = Id.Value;
+            model.Id = Id!.Value;
             Db.Batches.Update(model);
         }
 
@@ -80,8 +79,12 @@
 
     private void DatesChanged(DateRange range)
     {
+        if (range.Start is null || range.End is null)
+            return;
+
         model.Start = range.Start.Value;
         model.End = range.End.Value;
-        model.Name = $"{"Batch".MakeUnique()} - {range.Start:MMM dd (yyyy)} to {range.End:MMM dd (yyyy)}";
+        var batchName = IsAdd ? "Batch".MakeUnique() : model.Name[..model.Name.IndexOf("-")].TrimEnd();
+        model.Name = $"{batchName} - {range.Start:MMM dd (yyyy)} to {range.End:MMM dd (yyyy)}";
     }
 }

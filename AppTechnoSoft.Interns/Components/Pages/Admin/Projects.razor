@@ -36,7 +36,7 @@
             <MudTd DataLabel="BoardUrl">@context.BoardUrl</MudTd>
             <MudTd>
                 <MudButton Variant="Variant.Outlined" Size="Size.Small" OnClick="@(() => ShowBtnPress(context.Id))">
-                    @((currentProject.ShowDetails == true) ? "Hide" : "Show") Requirements
+                    @((context.ShowDetails == true) ? "Hide" : "Show") Requirements
                 </MudButton>
             </MudTd>
             <MudTd>
@@ -53,7 +53,7 @@
             </MudTd>
         </RowTemplate>
         <ChildRowContent>
-            @if (currentProject.ShowDetails)
+            @if (context.ShowDetails)
             {
                 <MudTr>
                     <td colspan="5">
@@ -75,21 +75,22 @@
 
 @code
 {
-    private List<ProjectViewModel> projects = new();
+    private List<ProjectViewModel> projects = [];
+    private List<Project> projectEntities = [];
     private ProjectViewModel currentProject = new();
     private bool ShowDetails { get; set; }
-    string searchString;
-    MudMessageBox mbox { get; set; }
+    string searchString = string.Empty;
+    MudMessageBox mbox { get; set; } = null!;
 
     protected override async Task OnInitializedAsync()
     {
-        var projectEntities = await Db.Projects.ToListAsync();
+        projectEntities = await Db.Projects.ToListAsync();
         projects = projectEntities.ToViewModel();
     }
 
     private void ShowBtnPress(int projectId)
     {
-        currentProject = projects.Find(x => x.Id == projectId);
+        currentProject = projects.Find(x => x.Id == projectId) ?? new();
         currentProject.ShowDetails = !currentProject.ShowDetails;
     }
 
@@ -99,7 +100,11 @@
         if (result == null)
             return;
 
-        Db.Projects.Remove(project.ToModel());
+        var model = projectEntities.Find(x => x.Id == project.Id);
+        if (model is null)
+            return;
+
+        Db.Projects.Remove(model);
 
         var rowsAffected = await Db.SaveChangesAsync();
 

@@ -28,8 +28,7 @@
     public int? Id { get; set; }
 
     College model = new();
-    bool success;
-    string pageTitle;
+    string pageTitle = string.Empty;
     bool IsAdd => Id is null or 0;
 
     protected override async Task OnInitializedAsync()
@@ -41,7 +40,7 @@
         else
         {
             pageTitle = "Edit College";
-            model = await Db.Colleges.FindAsync(Id);
+            model = await Db.Colleges.FindAsync(Id) ?? new();
         }
     }
 
@@ -53,7 +52,7 @@
         }
         else
         {
-            model.Id = Id.Value;
+            model.Id = Id!.Value;
             Db.Colleges.Update(model);
         }
 

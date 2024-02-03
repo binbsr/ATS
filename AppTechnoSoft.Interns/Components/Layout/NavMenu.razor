@@ -14,18 +14,19 @@
             </AuthorizeView>
 
             <AuthorizeView Roles="Admin">
-                <MudDivider Class="my-2" />
-                <MudNavLink Href="/attendance" Icon="@Icons.Material.Filled.Checklist" IconColor="Color.Info">Attendance</MudNavLink>
-                <MudNavLink Href="/programs" Icon="@Icons.Material.Filled.Book" IconColor="Color.Info">Programs</MudNavLink>
-                <MudNavLink Href="/colleges" Icon="@Icons.Material.Filled.School" IconColor="Color.Info">Colleges</MudNavLink>
-                <MudNavLink Href="/students" Icon="@Icons.Material.Filled.Groups3" IconColor="Color.Info">Students</MudNavLink>
-                <MudNavLink Href="/add-widget" Icon="@Icons.Material.Filled.Widgets" IconColor="Color.Info">Add Widget</MudNavLink>
-                <MudNavLink Href="/add-instructor" Icon="@Icons.Material.Filled.PersonAdd" IconColor="Color.Info">Add Instructor</MudNavLink>
-                <MudNavLink Href="/tags" Icon="@Icons.Material.Filled.Tag" IconColor="Color.Info">Tags</MudNavLink>
-                <MudNavLink Href="/batches" Icon="@Icons.Material.Sharp.BatchPrediction" IconColor="Color.Info">Batches</MudNavLink>
-                <MudNavLink Href="/teams" Icon="@Icons.Material.Sharp.GroupWork" IconColor="Color.Info">Teams</MudNavLink>
-                <MudNavLink Href="/projects" Icon="@Icons.Material.Sharp.Code" IconColor="Color.Info">Projects</MudNavLink>
-            </AuthorizeView>           
+                <MudNavGroup Title="Admin Panel" Icon="@Icons.Material.Filled.VerifiedUser" IconColor="Color.Info">
+                    <MudNavLink Href="/attendance" Icon="@Icons.Material.Filled.Checklist" IconColor="Color.Info">Attendance</MudNavLink>
+                    <MudNavLink Href="/programs" Icon="@Icons.Material.Filled.Book" IconColor="Color.Info">Programs</MudNavLink>
+                    <MudNavLink Href="/colleges" Icon="@Icons.Material.Filled.School" IconColor="Color.Info">Colleges</MudNavLink>
+                    <MudNavLink Href="/students" Icon="@Icons.Material.Filled.Groups3" IconColor="Color.Info">Students</MudNavLink>
+                    <MudNavLink Href="/add-widget" Icon="@Icons.Material.Filled.Widgets" IconColor="Color.Info">Add Widget</MudNavLink>
+                    <MudNavLink Href="/add-instructor" Icon="@Icons.Material.Filled.PersonAdd" IconColor="Color.Info">Add Instructor</MudNavLink>
+                    <MudNavLink Href="/tags" Icon="@Icons.Material.Filled.Tag" IconColor="Color.Info">Tags</MudNavLink>
+                    <MudNavLink Href="/batches" Icon="@Icons.Material.Sharp.BatchPrediction" IconColor="Color.Info">Batches</MudNavLink>
+                    <MudNavLink Href="/teams" Icon="@Icons.Material.Sharp.GroupWork" IconColor="Color.Info">Teams</MudNavLink>
+                    <MudNavLink Href="/projects" Icon="@Icons.Material.Sharp.Code" IconColor="Color.Info">Projects</MudNavLink>
+                </MudNavGroup>
+            </AuthorizeView>
 
             <AuthorizeView Roles="SuperAdmin">
                 <MudNavGroup Title="User Accounts" Icon="@Icons.Material.Filled.AdminPanelSettings" IconColor="Color.Warning">

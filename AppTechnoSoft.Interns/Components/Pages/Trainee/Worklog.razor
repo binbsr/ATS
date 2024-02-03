@@ -13,12 +13,13 @@
 else
 {
     <EditForm Model="@viewModel" OnValidSubmit="OnValidSubmit">
+        <DataAnnotationsValidator />
         <MudCard Class="p-2">
             <MudCardContent>
                 <MudGrid>
                     <MudItem md="4" xs="12">
                         <MudText Align="Align.Center" Typo="Typo.h6" Class="mb-2">Log Date</MudText>
-                        <MudDatePicker Label="Date" @bind-Date="viewModel.Date" PickerVariant="PickerVariant.Static" Color="Color.Secondary"
+                        <MudDatePicker Label="Date" Date="viewModel.Date" DateChanged="SelectionDateChanged" PickerVariant="PickerVariant.Static" Color="Color.Secondary"
                                        IsDateDisabledFunc="@((DateTime dt)=>(dt > DateTime.Today) || (DateTime.Now.Date >= dt.AddDays(3).Date) || (int)dt.DayOfWeek == 0 || (int)dt.DayOfWeek == 6)"
                                        AdditionalDateClassesFunc="@((DateTime dt)=>((int)dt.DayOfWeek == 0 ? "red-text text-accent-4" : ""))" />
                     </MudItem>
@@ -30,12 +31,24 @@ else
                          <MudText Align="Align.Center" Typo="Typo.h6" Class="mb-2">Punchout Time</MudText>
                          <MudTimePicker AmPm @bind-Time="viewModel.PunchOut" PickerVariant="PickerVariant.Static" Color="Color.Secondary" />
                      </MudItem>
-                 </MudGrid>
-                 <MudTextField Variant="Variant.Outlined" Label="Your task(s)" Lines="5" Class="mt-3" @bind-Value="viewModel.Task" />
+                     <MudItem md="8" sm="12">
+                         <MudText Color="Color.Info" Typo="Typo.h6">NOTE: You can log work for today and last 2 days in case you missed.</MudText>
+                     </MudItem>
+                     <MudItem md="4" sm="12">
+                         <MudText Align="Align.Right" Color="Color.Info" Typo="Typo.h6">@viewModel.Date!.Value.ToShortDateString() - @((viewModel.PunchOut - viewModel.PunchIn)!.Value.ToString(@"hh\:mm")) work hours</MudText>
+                    </MudItem>
+                </MudGrid>
+                <MudTextField Variant="Variant.Outlined"
+                              Label="Your task(s)"
+                              Lines="5"
+                              Class="mt-3"
+                              @bind-Value="viewModel.Task"
+                              For="@(() => viewModel.Task)"
+                                Immediate />
              </MudCardContent>
              <MudCardActions>
                  <MudButton ButtonType="ButtonType.Submit" Variant="Variant.Filled" Color="Color.Primary" Class="ml-auto" StartIcon="@Icons.Material.Sharp.Save">
-                     Save Log
+                     @(logExists ? "Save" : "Punchout")
                  </MudButton>
              </MudCardActions>
          </MudCard>
@@ -46,6 +59,7 @@ else
 
     private AttendanceViewModel viewModel = null!;
     private Student studentModel = null!;
+    bool logExists = false;
 
     [CascadingParameter]
     private Task<AuthenticationState> AuthTask { get; set; } = null!;
@@ -66,8 +80,24 @@ else
         viewModel = new()
             {
                 StudentId = studentModel!.Id,
-                Date = DateTime.Today
+                Date = DateTime.Today,
+                PunchIn = DateTime.Now.TimeOfDay,
+                PunchOut = DateTime.Now.TimeOfDay
             };
+    }
+
+    private async Task SelectionDateChanged(DateTime? selectedDate)
+    {
+        //Fetch tasks if added already for his date
+        var m = await Db.Attendances.FirstOrDefaultAsync(x => x.Date == DateOnly.FromDateTime(selectedDate!.Value));
+        if (m is null)
+        {
+            logExists = false;
+            return;
+        }
+
+        logExists = true;
+        viewModel = m.ToViewModel();
     }
 
     private async Task OnValidSubmit(EditContext context)
@@ -77,7 +107,10 @@ else
 
         var model = viewModel.ToModel();
 
-        Db.Attendances.Add(model);
+        if (logExists)
+            Db.Attendances.Update(model);
+        else
+            Db.Attendances.Add(model);
 
         var rowsAffected = await Db.SaveChangesAsync();
 
@@ -87,7 +120,7 @@ else
         }
         else
         {
-            SnackBar.Add("Couldn't add your worlog!", Severity.Error);
+            SnackBar.Add("Couldn't add your worlog.", Severity.Error);
         }
     }
 }

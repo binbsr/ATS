@@ -12,47 +12,72 @@
 }
 else
 {
-    <EditForm Model="@viewModel" OnValidSubmit="OnValidSubmit">
-        <DataAnnotationsValidator />
-        <MudCard Class="p-2">
-            <MudCardContent>
-                <MudGrid>
-                    <MudItem md="4" xs="12">
-                        <MudText Align="Align.Center" Typo="Typo.h6" Class="mb-2">Log Date</MudText>
-                        <MudDatePicker Label="Date" Date="viewModel.Date" DateChanged="SelectionDateChanged" PickerVariant="PickerVariant.Static" Color="Color.Secondary"
-                                       IsDateDisabledFunc="@((DateTime dt)=>(dt > DateTime.Today) || (DateTime.Now.Date >= dt.AddDays(3).Date) || (int)dt.DayOfWeek == 0 || (int)dt.DayOfWeek == 6)"
-                                       AdditionalDateClassesFunc="@((DateTime dt)=>((int)dt.DayOfWeek == 0 ? "red-text text-accent-4" : ""))" />
-                    </MudItem>
-                    <MudItem md="4" sm="12">
-                        <MudText Align="Align.Center" Typo="Typo.h6" Class="mb-2">Punchin Time</MudText>
-                        <MudTimePicker AmPm @bind-Time="viewModel.PunchIn" PickerVariant="PickerVariant.Static" Color="Color.Secondary" />
-                     </MudItem>
-                     <MudItem md="4" sm="12">
-                         <MudText Align="Align.Center" Typo="Typo.h6" Class="mb-2">Punchout Time</MudText>
-                         <MudTimePicker AmPm @bind-Time="viewModel.PunchOut" PickerVariant="PickerVariant.Static" Color="Color.Secondary" />
-                     </MudItem>
-                     <MudItem md="8" sm="12">
-                         <MudText Color="Color.Info" Typo="Typo.h6">NOTE: You can log work for today and last 2 days in case you missed.</MudText>
-                     </MudItem>
-                     <MudItem md="4" sm="12">
-                         <MudText Align="Align.Right" Color="Color.Info" Typo="Typo.h6">@viewModel.Date!.Value.ToShortDateString() - @((viewModel.PunchOut - viewModel.PunchIn)!.Value.ToString(@"hh\:mm")) work hours</MudText>
-                    </MudItem>
-                </MudGrid>
-                <MudTextField Variant="Variant.Outlined"
-                              Label="Your task(s)"
-                              Lines="5"
-                              Class="mt-3"
-                              @bind-Value="viewModel.Task"
-                              For="@(() => viewModel.Task)"
-                                Immediate />
-             </MudCardContent>
-             <MudCardActions>
-                 <MudButton ButtonType="ButtonType.Submit" Variant="Variant.Filled" Color="Color.Primary" Class="ml-auto" StartIcon="@Icons.Material.Sharp.Save">
-                     @(logExists ? "Save" : "Punchout")
-                 </MudButton>
-             </MudCardActions>
-         </MudCard>
-     </EditForm>
+    <MudTabs Outlined>
+     <MudTabPanel Text="Daily Tasks" Icon="@Icons.Material.Sharp.AddTask">
+         <EditForm Model="@viewModel" OnValidSubmit="OnValidSubmit">
+             <DataAnnotationsValidator />
+             <MudCard Class="p-2">
+                 <MudCardContent>
+                     <MudGrid>
+                         <MudItem md="4" xs="12">
+                             <MudText Align="Align.Center" Typo="Typo.h6" Class="mb-2">Log Date</MudText>
+                             <MudDatePicker Label="Date"
+                                            Date="viewModel.Date"
+                                            DateChanged="SelectionDateChanged"
+                                            PickerVariant="PickerVariant.Static"
+                                            Color="Color.Secondary"
+                                            Orientation="Orientation.Landscape"
+                                            IsDateDisabledFunc="ShouldDisableDates"
+                                            AdditionalDateClassesFunc="@((DateTime dt)=>((int)dt.DayOfWeek == 0 ? "red-text text-accent-4" : ""))" />
+                         </MudItem>
+                         <MudItem md="4" sm="12">
+                             <MudText Align="Align.Center" Typo="Typo.h6" Class="mb-2">Punchin Time</MudText>
+                             <MudTimePicker AmPm @bind-Time="viewModel.PunchIn" PickerVariant="PickerVariant.Static" Color="Color.Secondary" />
+                             </MudItem>
+                             <MudItem md="4" sm="12">
+                                 <MudText Align="Align.Center" Typo="Typo.h6" Class="mb-2">Punchout Time</MudText>
+                                 <MudTimePicker AmPm @bind-Time="viewModel.PunchOut" PickerVariant="PickerVariant.Static" Color="Color.Secondary" />
+                             </MudItem>
+                             <MudItem md="8" sm="12">
+                                 <MudText Color="Color.Info" Typo="Typo.h6">NOTE: You can log work for today and last 2 days in case you missed.</MudText>
+                             </MudItem>
+                             <MudItem md="4" sm="12">
+                                 <MudText Align="Align.Right" Color="Color.Info" Typo="Typo.h6">@viewModel.Date!.Value.ToShortDateString() - @((viewModel.PunchOut - viewModel.PunchIn)!.Value.ToString(@"hh\:mm")) work hours</MudText>
+                            </MudItem>
+                        </MudGrid>
+                        <MudTextField Variant="Variant.Outlined"
+                                      Label="Add task summary"
+                                      Lines="5"
+                                      Class="mt-3"
+                                      @bind-Value="viewModel.Task"
+                                      For="@(() => viewModel.Task)"
+                                        Immediate />
+                     </MudCardContent>
+                     <MudCardActions>
+                         <MudButton ButtonType="ButtonType.Submit" Variant="Variant.Filled" Color="Color.Primary" Class="ml-auto" StartIcon="@Icons.Material.Sharp.Save">
+                             @(logExists ? "Save" : "Punchout")
+                         </MudButton>
+                     </MudCardActions>
+                 </MudCard>
+             </EditForm>
+         </MudTabPanel>
+         <MudTabPanel Text="Attedance History" Icon="@Icons.Material.Filled.History" OnClick="LoadAttendances">
+             <MudTable Items="@allAttendances" Hover="true" Breakpoint="Breakpoint.Sm" Loading="@loading" LoadingProgressColor="Color.Secondary">
+                 <HeaderContent>
+                     <MudTh>Date</MudTh>
+                     <MudTh>PunchIn</MudTh>
+                     <MudTh>PunchOut</MudTh>
+                     <MudTh>Task Done</MudTh>
+                 </HeaderContent>
+                 <RowTemplate>
+                     <MudTd DataLabel="Nr">@context.Date</MudTd>
+                     <MudTd DataLabel="Sign">@context.PunchIn</MudTd>
+                     <MudTd DataLabel="Name">@context.PunchOut</MudTd>
+                     <MudTd DataLabel="Molar mass">@context.WorkLog</MudTd>
+                 </RowTemplate>
+             </MudTable>
+         </MudTabPanel>
+    </MudTabs>
 }
 
 @code {
@@ -60,6 +85,8 @@ else
     private AttendanceViewModel viewModel = null!;
     private Student studentModel = null!;
     bool logExists = false;
+    List<Attendance> allAttendances = new();
+    bool loading = false;
 
     [CascadingParameter]
     private Task<AuthenticationState> AuthTask { get; set; } = null!;
@@ -88,8 +115,12 @@ else
 
     private async Task SelectionDateChanged(DateTime? selectedDate)
     {
+        if (selectedDate is null || selectedDate == default)
+            return;
+
         //Fetch tasks if added already for his date
-        var m = await Db.Attendances.FirstOrDefaultAsync(x => x.Date == DateOnly.FromDateTime(selectedDate!.Value));
+        var date = DateOnly.FromDateTime(selectedDate!.Value);
+        var m = await Db.Attendances.AsNoTracking().FirstOrDefaultAsync(x => x.Date == date);
         if (m is null)
         {
             logExists = false;
@@ -123,4 +154,17 @@ else
             SnackBar.Add("Couldn't add your worlog.", Severity.Error);
         }
     }
+
+    private async Task LoadAttendances()
+    {
+        loading = true;
+        allAttendances = await Db.Attendances.Where(x => x.StudentId == viewModel.StudentId).ToListAsync();
+        loading = false;
+    }
+
+    private bool ShouldDisableDates(DateTime dt) =>
+        dt > DateTime.Today         // Future dates
+        || (DateTime.Today >= dt.AddDays(3).Date)  // Last 3 days including today
+        || (int)dt.DayOfWeek == 0   // Sunday
+        || (int)dt.DayOfWeek == 6;  // Saturday
 }

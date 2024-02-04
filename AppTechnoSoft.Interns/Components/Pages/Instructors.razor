@@ -8,7 +8,7 @@
     @foreach(var instructor in instructors)
     {
         <MudItem md="4" sm="6">
-            <MudCard Style="height:550px">
+            <MudCard>
                 <MudCardHeader>
                     <CardHeaderContent>
                         <MudContainer Class="d-flex justify-center">
@@ -40,10 +40,22 @@
 </MudGrid>
 
 @code {
+
+    [CascadingParameter]
+    private Task<AuthenticationState> AuthTask { get; set; } = null!;
+
     private List<Instructor> instructors = new();
 
     protected override async Task OnInitializedAsync()
     {
-        instructors = await Db.Instructors.Include(x => x.Tags).ToListAsync();
+        var state = await AuthTask;
+        if (state?.User is not null && (state.User.IsInRole("Admin") || state.User.IsInRole("SuperAdmin")))
+        {
+            instructors = await Db.Instructors.Include(x => x.Tags).ToListAsync();
+        }
+        else
+        {
+            instructors = await Db.Instructors.Include(x => x.Tags).Where(y => y.Publish).ToListAsync();
+        }
     }
 }

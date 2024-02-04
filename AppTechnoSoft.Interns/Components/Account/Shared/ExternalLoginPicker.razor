@@ -27,9 +27,9 @@ else
                 {
                     if(provider.DisplayName == "Google")
                     {
-                        <button type="submit" class="btn btn-info" name="provider" value="@provider.Name" title="Log in using your @provider.DisplayName account">
+                        <button type="submit" class="btn btn-lg btn-info" name="provider" value="@provider.Name" title="Log in using your @provider.DisplayName account">
                             <MudIcon Icon="@Icons.Custom.Brands.Google" Color="Color.Info"></MudIcon>
-                            Sign in with your @provider.DisplayName account
+                            @provider.DisplayName account
                         </button>
                     }
                     else

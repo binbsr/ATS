@@ -33,4 +33,7 @@ public static class AttendanceMapper
 
         return viewModel;
     }
+
+    public static List<AttendanceViewModel> ToViewModel(this List<Attendance> models) 
+        => models.Select(x => x.ToViewModel()).ToList();
 }

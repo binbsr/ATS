@@ -1,0 +1,42 @@
+﻿@inject IDbContextFactory<ApplicationDbContext> DbFactory
+
+<MudPaper Class="p-3 mb-2 border-double border-4 mud-border-warning" Elevation="15">
+    @if (tags is null || tags.Count == 0)
+    {
+        <MudProgressCircular Size="Size.Large" />
+    }
+    else
+    {
+        <MudChipSet SelectedChipChanged="FilterChanged" Filter="true">
+            @foreach (var tag in tags)
+            {
+                <MudChip SelectedColor="Color.Success" Size="Size.Large" Text="@tag.Name" Style="@("color:" + tag.ColorCode ?? "")"></MudChip>
+            }
+        </MudChipSet>
+    }
+</MudPaper>
+
+@code {
+
+    [Parameter]
+    public required string TagDescription { get; set; }
+
+    [Parameter]
+    public EventCallback<string> FilterTriggered { get; set; }
+
+    public List<Tag> tags = [];
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (TagDescription is null or "")
+            return;
+
+        using var Db = DbFactory.CreateDbContext();
+        tags = await Db.Tags.Where(x => x.Description!.Contains(TagDescription)).ToListAsync();
+    }
+
+    private async Task FilterChanged(MudChip chip)
+    {
+        await FilterTriggered.InvokeAsync(chip?.Text ?? string.Empty);
+    }
+}

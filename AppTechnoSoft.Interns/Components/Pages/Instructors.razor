@@ -1,13 +1,14 @@
 ﻿@page "/instructors"
 
-@inject ApplicationDbContext Db
+@inject IDbContextFactory<ApplicationDbContext> DbFactory
 
 <PageTitle>Our Instructors</PageTitle>
 
+<TagFilter TagDescription="tech" FilterTriggered="FilterChanged" />
 <MudGrid>
-    @foreach(var instructor in instructors)
+    @foreach (var instructor in instructorFiltered)
     {
-        <MudItem md="4" sm="6">
+        <MudItem xl="3" lg="4" md="6" sm="6" xs="12">
             <MudCard>
                 <MudCardHeader>
                     <CardHeaderContent>
@@ -15,7 +16,7 @@
                             <MudAvatar Style="height:220px; width:220px; font-size:3rem;" Elevation="5">
                                 <MudImage Src="@instructor.ProfilePath" />
                             </MudAvatar>
-                        </MudContainer>                        
+                        </MudContainer>
                     </CardHeaderContent>
                     <CardHeaderActions>
                         <AuthorizeView Roles="Admin,SuperAdmin">
@@ -25,14 +26,14 @@
                 </MudCardHeader>
                 <MudCardContent>
                     <MudText Typo="Typo.h5" Align="Align.Center">@instructor.Name</MudText>
-                    <MudText Typo="Typo.h6" Align="Align.Center" Color="Color.Secondary">@instructor.Role</MudText>
-                    <MudText Typo="Typo.body2" Class="mt-4">@instructor.Resume</MudText>
-                </MudCardContent>
-                <MudCardActions>
-                    @foreach(var tag in instructor.Tags!)
+                        <MudText Typo="Typo.h6" Align="Align.Center" Color="Color.Secondary">@instructor.Role</MudText>
+                        <MudText Typo="Typo.body2" Class="mt-4">@instructor.Resume</MudText>
+                    </MudCardContent>
+                    <MudCardActions>
+                        @foreach (var tag in instructor.Tags!)
                     {
                         <MudChip Style="@("color:" + tag.ColorCode)">@tag.Name</MudChip>
-                    }                                       
+                    }
                 </MudCardActions>
             </MudCard>
         </MudItem>
@@ -45,10 +46,13 @@
     private Task<AuthenticationState> AuthTask { get; set; } = null!;
 
     private List<Instructor> instructors = new();
+    private List<Instructor> instructorFiltered = [];
 
     protected override async Task OnInitializedAsync()
-    {
+    {        
         var state = await AuthTask;
+        using var Db = DbFactory.CreateDbContext();
+
         if (state?.User is not null && (state.User.IsInRole("Admin") || state.User.IsInRole("SuperAdmin")))
         {
             instructors = await Db.Instructors.Include(x => x.Tags).ToListAsync();
@@ -56,6 +60,20 @@
         else
         {
             instructors = await Db.Instructors.Include(x => x.Tags).Where(y => y.Publish).ToListAsync();
+        }
+
+        instructorFiltered = instructors;
+    }
+
+    private void FilterChanged(string filterText)
+    {
+        if (filterText is null or "")
+        {
+            instructorFiltered = instructors;
+        }
+        else
+        {
+            instructorFiltered = instructors.Where(x => x.Tags!.Any(y => y.Name == filterText)).ToList();
         }
     }
 }

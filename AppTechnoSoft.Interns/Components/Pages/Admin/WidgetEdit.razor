@@ -105,13 +105,14 @@
 
     private async Task OnValidSubmit(EditContext context)
     {
-        model.HtmlContent = await QuillHtml.GetHTML();
+        var widgetContent = await this.QuillHtml.GetHTML();
 
-        if (model.HtmlContent is null or "")
+        if (widgetContent is null or "")
         {
             return;
         }
 
+        model.HtmlContent = widgetContent;
         model.Tags = tagsSelected.ToList();
 
         if (IsAdd)

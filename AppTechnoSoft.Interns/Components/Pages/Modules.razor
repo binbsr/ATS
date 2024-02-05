@@ -2,25 +2,9 @@
 
 <PageTitle>Training Modules</PageTitle>
 
-@inject ApplicationDbContext db
+@inject IDbContextFactory<ApplicationDbContext> DbFactory
 
-<MudStack Class="mud-width-full">
-    <MudToggleGroup T="string" SelectedClass="black white-text" ValueChanged="TriggerFilter" Value="@InitialFilterCategory">
-        @foreach(var filter in Filters)
-        {
-            <MudToggleItem Value="@filter.Category">
-                <div class="mud-width-full mud-height-full">
-                    <div class="d-flex align-center justify-space-between">
-                        <MudText Typo="Typo.h6">@filter.Title</MudText>
-                        <MudChip Color="@(context ? Color.Success : Color.Primary)" Icon="@(context ? Icons.Material.Filled.Check : "")">@filter.Tag</MudChip>
-                    </div>
-                    <MudText Typo="Typo.subtitle2">@filter.Details</MudText>
-                </div>
-            </MudToggleItem>
-        }                
-    </MudToggleGroup>
-</MudStack>
-
+<TagFilter TagDescription="module" FilterTriggered="FilterChanged" />
 @if (loadingData)
 {
     <MudSkeleton SkeletonType="SkeletonType.Rectangle" Height="100px" Class="mb-3" />
@@ -43,36 +27,34 @@ else
 @code {
     Widget[] widgets = [];
     IEnumerable<Widget> widgetFiltered = [];
+    private List<Tag> tags = [];
 
     bool loadingData;
-    record Filter(string Category, string Title, string Tag, string Details);
-    List<Filter> Filters => [
-        new("Interns", "For Interns", "Internship", "Suitable for students aiming to know basics of software development and get their academic internship credits done."),
-        new("Training", "Tech Training", "Training", "Suitable for fresh graduates and students aiming to pursue software development career in Nepal and abroad."),
-        new("Pro", "Advanced Training", "Training Pro", "Suitable for software professionals aiming to enhance their knowledge horizon and for better career growth.")
-    ];
-
-    string InitialFilterCategory => Filters[0].Category;
-
+   
     protected override async Task OnInitializedAsync()
     {
-        loadingData = true;
-
-        widgets = await db.Widgets.Where(x => x.Title == "Module").Include(x => x.Tags).OrderBy(x => x.Description).ToArrayAsync();
+        loadingData = true;        
+        
+        using var Db = DbFactory.CreateDbContext();
+        widgets = await Db.Widgets.Where(x => x.Title == "Module").Include(x => x.Tags).OrderBy(x => x.Description).ToArrayAsync();
         
         if (widgets is null || widgets.Length == 0)
             return;
 
-        widgetFiltered = widgets.Where(x => x!.Tags!.Any(t => t.Name.Contains(InitialFilterCategory)));
+        widgetFiltered = widgets;
 
         loadingData = false;
     }
 
-    private void TriggerFilter(string value)
+    private void FilterChanged(string filterText)
     {
-        if (value is null or "" || widgets is null)
-            return;
-
-        widgetFiltered = widgets.Where(x => x!.Tags!.Any(t => t.Name.Contains(value)));
+        if (filterText is null or "")
+        {
+            widgetFiltered = widgets;
+        }
+        else
+        {
+            widgetFiltered = widgets.Where(x => x.Tags!.Any(y => y.Name == filterText)).ToList();
+        }
     }
 }

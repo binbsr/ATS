@@ -1,17 +1,10 @@
 ﻿@page "/instructors"
 
-@inject ApplicationDbContext Db
+@inject IDbContextFactory<ApplicationDbContext> DbFactory
 
 <PageTitle>Our Instructors</PageTitle>
 
-<MudPaper Class="p-3 mb-2 border-double border-4 mud-border-warning" Elevation="15" >
-    <MudChipSet SelectedChipChanged="FilterChanged" Filter="true">
-        @foreach (var tag in tags)
-        {
-            <MudChip SelectedColor="Color.Success" Size="Size.Large" Text="@tag.Name" Style="@("color:" + tag.ColorCode ?? "")"></MudChip>
-        }
-    </MudChipSet>
-</MudPaper>
+<TagFilter TagDescription="tech" FilterTriggered="FilterChanged" />
 <MudGrid>
     @foreach (var instructor in instructorFiltered)
     {
@@ -54,14 +47,12 @@
 
     private List<Instructor> instructors = new();
     private List<Instructor> instructorFiltered = [];
-    private List<Tag> tags = [];
 
     protected override async Task OnInitializedAsync()
-    {
-        // Fetch tags for filter
-        tags = await Db.Tags.Where(x => x.Description.Contains("Tech")).ToListAsync();
-
+    {        
         var state = await AuthTask;
+        using var Db = DbFactory.CreateDbContext();
+
         if (state?.User is not null && (state.User.IsInRole("Admin") || state.User.IsInRole("SuperAdmin")))
         {
             instructors = await Db.Instructors.Include(x => x.Tags).ToListAsync();
@@ -74,15 +65,15 @@
         instructorFiltered = instructors;
     }
 
-    private void FilterChanged(MudChip chip)
+    private void FilterChanged(string filterText)
     {
-        if (chip?.Text is null)
+        if (filterText is null or "")
         {
             instructorFiltered = instructors;
         }
         else
         {
-            instructorFiltered = instructors.Where(x => x.Tags!.Any(y => y.Name == chip.Text)).ToList();
+            instructorFiltered = instructors.Where(x => x.Tags!.Any(y => y.Name == filterText)).ToList();
         }
     }
 }

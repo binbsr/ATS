@@ -4,7 +4,7 @@
 @inject NavigationManager Navigation
 @inject ISnackbar SnackBar
 
-<PageTitle>Worklog</PageTitle>
+<PageTitle>Log Tasks</PageTitle>
 
 @if (studentModel is null)
 {
@@ -42,7 +42,7 @@ else
                                  <MudText Color="Color.Info" Typo="Typo.h6">NOTE: You can log work for today and last 2 days in case you missed.</MudText>
                              </MudItem>
                              <MudItem md="4" sm="12">
-                                 <MudText Align="Align.Right" Color="Color.Info" Typo="Typo.h6">@viewModel.Date!.Value.ToShortDateString() - @((viewModel.PunchOut - viewModel.PunchIn)!.Value.ToString(@"hh\:mm")) work hours</MudText>
+                                 <MudText Align="Align.Right" Color="Color.Info" Typo="Typo.h6">@viewModel.Date!.Value.ToShortDateString() - @((viewModel!.PunchOut - viewModel!.PunchIn)!.Value.ToString(@"hh\:mm")) WorkHrs</MudText>
                             </MudItem>
                         </MudGrid>
                         <MudTextField Variant="Variant.Outlined"
@@ -111,24 +111,29 @@ else
                 PunchIn = DateTime.Now.TimeOfDay,
                 PunchOut = DateTime.Now.TimeOfDay
             };
+
+        (logExists, viewModel) = await FetchLog(viewModel.Date);
     }
 
     private async Task SelectionDateChanged(DateTime? selectedDate)
     {
-        if (selectedDate is null || selectedDate == default)
-            return;
+        viewModel.Date = selectedDate;
+        (logExists, viewModel) = await FetchLog(selectedDate);
+    }
 
-        //Fetch tasks if added already for his date
-        var date = DateOnly.FromDateTime(selectedDate!.Value);
+    private async Task<(bool, AttendanceViewModel)> FetchLog(DateTime? dateTime)
+    {
+        if (dateTime is null || dateTime == default)
+            return (false, viewModel);            
+
+        var date = DateOnly.FromDateTime(dateTime.Value);
         var m = await Db.Attendances.AsNoTracking().FirstOrDefaultAsync(x => x.Date == date);
         if (m is null)
-        {
-            logExists = false;
-            return;
-        }
+            return (false, viewModel);
 
-        logExists = true;
+        // Mutate viewmodel
         viewModel = m.ToViewModel();
+        return (true, viewModel);
     }
 
     private async Task OnValidSubmit(EditContext context)

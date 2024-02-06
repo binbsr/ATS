@@ -4,7 +4,10 @@
 <AuthorizeView>
     <Authorized>
         <MudLink Href="/account/manage" Class="mr-2" Underline="Underline.None">
-            <MudIcon Icon="@Icons.Material.Sharp.Person3"/><b>@context.User.Identity?.Name</b>
+            <MudText Typo="Typo.subtitle1" Class="text-white">
+                <MudIcon Icon="@Icons.Material.Sharp.Person3" />
+                <b>@context.User.Identity?.Name</b>
+            </MudText>
         </MudLink>
         <form action="Account/Logout" method="post">
             <AntiforgeryToken />
@@ -17,8 +20,8 @@
          </form>
      </Authorized>
      <NotAuthorized>
-         <MudButton Href="Account/Register" StartIcon="@Icons.Material.Sharp.PersonAdd" Variant="Variant.Outlined">Register</MudButton>
-         <MudButton Href="Account/Login" StartIcon="@Icons.Material.Sharp.Login" Variant="Variant.Outlined" Class="ml-2">Login</MudButton>
+         <MudButton Href="Account/Register" StartIcon="@Icons.Material.Sharp.PersonAdd" Variant="Variant.Filled" Color="Color.Warning">Register</MudButton>
+         <MudButton Href="Account/Login" StartIcon="@Icons.Material.Sharp.Login" Variant="Variant.Filled" Class="ml-2" Color="Color.Warning">Login</MudButton>
      </NotAuthorized>
  </AuthorizeView>
 

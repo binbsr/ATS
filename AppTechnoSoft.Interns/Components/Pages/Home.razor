@@ -10,42 +10,44 @@
 }
 else
 {
-    <MudCarousel Class="mud-width-full"
-                 Style="height:450px;"
-                 ShowArrows="@true"
-                 ShowBullets="@true"
-                 EnableSwipeGesture="@true"
-                 TData="object">
-        @foreach (var item in homeItems.Where(x => x.Title == "CarouselItem"))
-        {
-            var parts = item.HtmlContent.Split(["<p>", "</p>"], StringSplitOptions.RemoveEmptyEntries);
+    <MudPaper Elevation="10" Class="mb-3">
+        <MudCarousel Class="mud-width-full"
+                     Style="height:450px;"
+                     ShowArrows="@true"
+                     ShowBullets="@true"
+                     EnableSwipeGesture="@true"
+                     TData="object">
+            @foreach (var item in homeItems.Where(x => x.Title == "CarouselItem"))
+            {
+                var parts = item.HtmlContent.Split(["<p>", "</p>"], StringSplitOptions.RemoveEmptyEntries);
 
-            <MudCarouselItem Transition="Transition.Slide" Class="px-10 d-flex align-center flex-grow-1 gap-6"> 
-                <MudHidden Breakpoint="Breakpoint.SmAndDown">
-                    @if (parts.Length > 1)
-                    {
-                        <MudImage Src="@parts[1]" Height="400" />
-                    }                    
-                </MudHidden>
-                <MudText Typo="Typo.h3" Align="Align.Center">@((MarkupString)parts[0])</MudText>
-                <AuthorizeView Roles="Admin,SuperAdmin">
-                    <MudIconButton Icon="@Icons.Material.Filled.Edit" Color="Color.Warning" Size="Size.Small" Class="ml-auto" Href="@("/edit-widget/" + item.Id)" />
-                </AuthorizeView>
-            </MudCarouselItem>
-        }
-    </MudCarousel>
-    <hr />
+                <MudCarouselItem Transition="Transition.Slide" Class="px-10 d-flex align-center flex-grow-1 gap-6">
+                    <MudHidden Breakpoint="Breakpoint.SmAndDown">
+                        @if (parts.Length > 1)
+                        {
+                            <MudImage Src="@parts[1]" Height="400" />
+                        }
+                    </MudHidden>
+                    <MudText Typo="Typo.h3" Align="Align.Center">@((MarkupString)parts[0])</MudText>
+                    <AuthorizeView Roles="Admin,SuperAdmin">
+                        <MudIconButton Icon="@Icons.Material.Filled.Edit" Color="Color.Warning" Size="Size.Small" Class="ml-auto" Href="@("/edit-widget/" + item.Id)" />
+                    </AuthorizeView>
+                </MudCarouselItem>
+            }
+        </MudCarousel>
+    </MudPaper>
+    
     <MudGrid>
         @foreach (var item in homeItems.Where(x => x.Title == "HomeIntro"))
         {
             var parts = item.HtmlContent.Split(["<p>", "</p>"], StringSplitOptions.RemoveEmptyEntries);
             var titleParts = item.Description.Split(["(", ")"], StringSplitOptions.RemoveEmptyEntries);
 
-            <MudItem md="6" xs="12">
+            <MudItem md="6" sm="12">
                 <MudCard Elevation="5">
                     <MudCardHeader>
                         <CardHeaderAvatar>
-                            <MudAvatar Color="Color.Primary">@titleParts[0][0]</MudAvatar>
+                            <MudAvatar Color="Color.Error">@titleParts[0][0]</MudAvatar>
                         </CardHeaderAvatar>
                         <CardHeaderContent>
                             <MudText Typo="Typo.h6">@titleParts[0]</MudText>
@@ -81,7 +83,7 @@ else
 
 
 @code {
-    private List<Widget> homeItems = new();
+    private List<Widget> homeItems = [];
     private string[] images = [];
 
     [CascadingParameter]

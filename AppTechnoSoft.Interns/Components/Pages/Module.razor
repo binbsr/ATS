@@ -4,7 +4,16 @@
             <MudIcon Icon="@(isOpen ? Icons.Material.Sharp.HorizontalRule : Icons.Material.Sharp.Add)" Class="mr-2 mt-1"></MudIcon>
             <MudText Typo="Typo.h6">@Widget.Description</MudText>
             <AuthorizeView Roles="Admin,SuperAdmin">
-                <MudIconButton Icon="@Icons.Material.Filled.Edit" Color="Color.Warning" Size="Size.Small" Class="ml-auto" Href="@EditUrl" />
+                    <MudIconButton Icon="@Icons.Material.Filled.Edit" Color="Color.Warning" Size="Size.Small" Class="ml-auto" Href="@EditUrl" />
+                    <MudIconButton Icon="@Icons.Material.Sharp.Delete" Size="Size.Small" Color="Color.Error" OnClick="() => ConfirmDelete()" />
+                    <MudMessageBox @ref="mbox" Title="Warning" CancelText="Cancel">
+                        <MessageContent>
+                            Are you sure to delete this module? It can't be undone!
+                        </MessageContent>
+                        <YesButton>
+                            <MudButton Variant="Variant.Filled" Color="Color.Error" Class="ml-2 mb-2 mr-3" StartIcon="@Icons.Material.Filled.DeleteForever">Delete</MudButton>
+                        </YesButton>
+                    </MudMessageBox>
             </AuthorizeView>
         </div>
     </TitleContent>
@@ -26,6 +35,19 @@
     [Parameter]
     public Widget Widget { get; set; } = new();
 
+    [Parameter]
+    public EventCallback<Widget> DeleteCallBack { get; set; }
+
     public string EditUrl => $"/edit-widget/{Widget.Id}";
     bool isOpen;
+    MudMessageBox mbox { get; set; } = null!;
+
+    private async Task ConfirmDelete()
+    {
+        bool? result = await mbox.Show();
+        if (result == null)
+            return;
+
+        await DeleteCallBack.InvokeAsync(Widget);
+    }
 }

@@ -3,6 +3,7 @@
 <PageTitle>Training Modules</PageTitle>
 
 @inject IDbContextFactory<ApplicationDbContext> DbFactory
+@inject ISnackbar SnackBar
 
 <TagFilter TagDescription="module" FilterTriggered="FilterChanged" />
 @if (loadingData)
@@ -17,7 +18,7 @@ else
             @foreach (var widget in widgetFiltered)
             {
                 <MudItem md="6" xs="12">
-                    <Module Widget="@widget" />
+                    <Module Widget="@widget" DeleteCallBack="DeleteInitiated"/>
                 </MudItem>
             }
         </MudGrid>
@@ -25,20 +26,21 @@ else
 }
 
 @code {
-    Widget[] widgets = [];
-    IEnumerable<Widget> widgetFiltered = [];
+
+    List<Widget> widgets = [];
+    List<Widget> widgetFiltered = [];
     private List<Tag> tags = [];
 
     bool loadingData;
-   
+
     protected override async Task OnInitializedAsync()
     {
         loadingData = true;        
-        
+
         using var Db = DbFactory.CreateDbContext();
-        widgets = await Db.Widgets.Where(x => x.Title == "Module").Include(x => x.Tags).OrderBy(x => x.Description).ToArrayAsync();
-        
-        if (widgets is null || widgets.Length == 0)
+        widgets = await Db.Widgets.Where(x => x.Title == "Module").Include(x => x.Tags).OrderBy(x => x.Description).ToListAsync();
+
+        if (widgets is null || widgets.Count == 0)
             return;
 
         widgetFiltered = widgets;
@@ -55,6 +57,24 @@ else
         else
         {
             widgetFiltered = widgets.Where(x => x.Tags!.Any(y => y.Name == filterText)).ToList();
+        }
+    }
+
+    private async Task DeleteInitiated(Widget widget)
+    {
+        using var Db = DbFactory.CreateDbContext();
+        Db.Widgets.Remove(widget);
+
+        var rowsAffected = await Db.SaveChangesAsync();
+
+        if (rowsAffected > 0)
+        {
+            SnackBar.Add("Module Deleted successfully", Severity.Success);
+            widgetFiltered.Remove(widget);
+        }
+        else
+        {
+            SnackBar.Add("Module Delete failed", Severity.Error);
         }
     }
 }

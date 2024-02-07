@@ -8,14 +8,14 @@ public class BaseEntity
 
     public BaseEntity AddLastUpdatedStamps(string? lastUpdateUserName)
     {
-        LastUpdated = DateTime.Now;
+        LastUpdated = DateTime.UtcNow;
         LastUpdatedBy = lastUpdateUserName;
         return this;
     }
 
     public BaseEntity AddCreatedStamps(string? createUserName)
     {
-        Created = DateTime.Now;
+        Created = DateTime.UtcNow;
         CreatedBy = createUserName;
         return this;
     }

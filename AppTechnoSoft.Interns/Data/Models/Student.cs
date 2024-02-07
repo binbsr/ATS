@@ -17,7 +17,7 @@ public class Student : BaseEntity
     public GeneralProgrammingExperience GeneralProgramming { get; set; } = GeneralProgrammingExperience.None;
     public WebExperience WebExperience { get; set; } = WebExperience.None;
     public DbExperience DbExperience { get; set; } = DbExperience.None;
-    public DateTime? FormSubmitted { get; set; } = DateTime.Now;
+    public DateTime? FormSubmitted { get; set; } = DateTime.UtcNow;
     public Status Status { get; set; } = Status.Applied;
 
     [NotMapped]

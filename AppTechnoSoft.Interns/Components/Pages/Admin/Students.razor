@@ -58,7 +58,7 @@
                     <b>Program</b><MudText Typo="Typo.body1">@context.Item.TechProgram!.Name</MudText>
                 </MudItem>
                 <MudItem md="3" sm="4" Class="p-2">
-                    <b>Applied</b><MudText Typo="Typo.body1">@context.Item.FormSubmitted</MudText>
+                    <b>Applied</b><MudText Typo="Typo.body1">@context.Item.FormSubmitted.Humanize()</MudText>
                 </MudItem>
                 <MudItem md="3" sm="4" Class="p-2">
                     <b>General Programming</b><MudText Typo="Typo.body1">@context.Item.GeneralProgramming.GetGeneralProgText()</MudText>

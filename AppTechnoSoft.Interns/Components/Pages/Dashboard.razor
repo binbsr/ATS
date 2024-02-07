@@ -57,7 +57,7 @@ else
                                         <MudImage Src="@member.ProfilePath" />
                                     </MudAvatar>
                                     <MudText Typo="Typo.subtitle2">@user</MudText>
-                                </MudStack>
+                                    </MudStack>
                             }
                         </MudContainer>
                     </MudItem>
@@ -106,25 +106,20 @@ else
         if (loggedInUserId == string.Empty)
             return;
 
-        student = await Db.Students.Where(x => x.ApplicationUserId == loggedInUserId)
-            .Include(t => t.Team)
-            .ThenInclude(b => b!.Batch)
+        student = await Db.Students
+            .Where(x => x.ApplicationUserId == loggedInUserId)
+            .Include(b => b!.Batch)
             .Include(t => t.Team)
             .ThenInclude(b => b!.Project)
             .FirstOrDefaultAsync();
 
-        if (student is null || student.TeamId is null)
+        if (student is null || student.BatchId is null)
         {
             loadingData = false;
             return;
         }
 
-        var batchId = student?.Team?.Batch?.Id;
-
-        if (batchId is null)
-            return;
-
-        loggedInUserBatchName = student?.Team?.Batch?.Name ?? string.Empty;
+        loggedInUserBatchName = student?.Batch?.Name ?? string.Empty;
         loggedInUserTeamName = student?.Team?.Name ?? string.Empty;
         loggedInUserTeamAvatar = student?.Team?.Avatar ?? string.Empty;
 
@@ -136,9 +131,9 @@ else
             projectDetails = student!.Team!.Project!.Requirements;
         }
 
-        batchMembers = await Db.Students.Where(x => x!.Team!.Batch!.Id == batchId)
-            .Include(x => x.Team).ThenInclude(b => b!.Batch)
-            .Select(x => new StudentViewModel(x.Name, x.ApplicationUserId!, x.ProfileImagePath!, x!.Team!.Name, x!.Team!.Batch!.Name))
+        batchMembers = await Db.Students
+            .Where(x => x.BatchId == student!.BatchId)
+            .Select(x => new StudentViewModel(x.Name, x.ApplicationUserId!, x.ProfileImagePath!, x!.Team!.Name, x!.Batch!.Name))
             .ToListAsync();
         teamMembers = batchMembers.Where(x => x.TeamName == loggedInUserTeamName).ToList();
         loadingData = false;

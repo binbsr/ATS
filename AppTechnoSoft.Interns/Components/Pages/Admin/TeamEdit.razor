@@ -7,8 +7,7 @@
 
 <PageTitle>@pageTitle</PageTitle>
 
-    <EditForm Model="@model"
-              OnValidSubmit="OnValidSubmit">
+    <EditForm Model="@model" OnValidSubmit="OnValidSubmit">
         <DataAnnotationsValidator />
         <MudTextField Label="Title" @bind-Value="model.Name" For="@(() => model.Name)" />
         <MudTextField Label="Team Image URL" Class="mt-3" @bind-Value="model.Avatar" />
@@ -22,18 +21,18 @@
             {
                 <MudSelectItem Value="@project" />
             }
-        </MudSelect>
-        <MudSelect Dense="true"
-                   Label="Batch"
-                   @bind-Value="@model.Batch"
-                   ToStringFunc="b => b!.Name"
-                   Class="my-3"
-                   AnchorOrigin="Origin.BottomCenter">
-            @foreach (var batch in batches)
-            {
-                <MudSelectItem Value="@batch" />
-            }
-        </MudSelect>
+    </MudSelect>
+    <MudSelect Dense="true"
+               Label="Batch"
+               @bind-Value="@model.Batch"
+               ToStringFunc="b => b!.Name"
+               Class="my-3"
+               AnchorOrigin="Origin.BottomCenter">
+        @foreach (var batch in batches)
+        {
+            <MudSelectItem Value="@batch" />
+        }
+    </MudSelect>
 
     @if (!IsAdd)
     {

@@ -8,32 +8,53 @@
 
 <PageTitle>@pageTitle</PageTitle>
 
-    <EditForm Model="@model"
-              OnValidSubmit="OnValidSubmit">
+    <EditForm Model="@model" OnValidSubmit="OnValidSubmit">
         <DataAnnotationsValidator />
         <MudTextField Label="Name" Value="@model.Name" Disabled />
-        <MudDateRangePicker Label="Batch Duration" DateRange="@(new DateRange(model.Start, model.End))" DateRangeChanged="DatesChanged"/>
+     <MudDateRangePicker Label="Batch Duration" DateRange="@(new DateRange(model.Start, model.End))" DateRangeChanged="DatesChanged" />
 
-        <MudButton ButtonType="ButtonType.Submit"
-                   Variant="Variant.Filled"
-                   Color="Color.Primary"
-                   Class="mt-3"
-                   StartIcon="@Icons.Material.Filled.Save">
-            Save Batch
-        </MudButton>
-    </EditForm>
+     <MudSelect T="string"
+                Dense="true"
+                Label="Batch Members"
+                MultiSelection="true"
+                @bind-SelectedValues="@studentsSelected"
+                Class="my-3"
+                MultiSelectionTextFunc="@(new Func<List<string>, string>(GetMultiSelectionText))"
+                AnchorOrigin="Origin.BottomCenter">
+        @foreach (var student in students)
+        {
+            <MudSelectItem Value="@student.Id">@student.Name</MudSelectItem>
+        }
+    </MudSelect>
 
- @code {
+    <MudButton ButtonType="ButtonType.Submit"
+               Variant="Variant.Filled"
+               Color="Color.Primary"
+               Class="mt-3"
+               StartIcon="@Icons.Material.Filled.Save">
+        Save Batch
+    </MudButton>
+</EditForm>
+
+@code {
 
     [Parameter]
     public int? Id { get; set; }
 
+    [CascadingParameter]
+    private Task<AuthenticationState> AuthTask { get; set; } = null!;
+
     Batch model = new();
+    IEnumerable<string> studentsSelected = [];
+    List<ListItem> students = new();
+    record ListItem(string Id, string Name, int? BatchId);
     string pageTitle = string.Empty;
     bool IsAdd => Id is null or 0;
 
     protected override async Task OnInitializedAsync()
     {
+        students = await Db.Students.Select(x => new ListItem(x.Id, $"{x.Name} ({x.Email})", x.BatchId)).ToListAsync();
+
         if (IsAdd)
         {
             pageTitle = "Add Batch";
@@ -48,22 +69,33 @@
         {
             pageTitle = "Edit Batch";
             model = await Db.Batches.FindAsync(Id) ?? new();
+            studentsSelected = students.Where(x => x.BatchId == Id).Select(x => x.Id);
         }
     }
 
     private async Task OnValidSubmit(EditContext context)
-    {        
+    {
+        var state = await AuthTask;
+        var userName = state.User.Identity?.Name;
+
         if (IsAdd)
         {
+            model.AddCreatedStamps(userName);
             Db.Batches.Add(model);
         }
         else
         {
             model.Id = Id!.Value;
+            model.AddLastUpdatedStamps(userName);
             Db.Batches.Update(model);
         }
 
         var rowsAffected = await Db.SaveChangesAsync();
+
+        if(studentsSelected.Any())
+        {
+            rowsAffected = Db.Students.Where(s => studentsSelected.Contains(s.Id)).ExecuteUpdate(x => x.SetProperty(y => y.BatchId, model.Id));
+        }
 
         if (rowsAffected > 0)
         {
@@ -86,5 +118,10 @@
         model.End = range.End.Value;
         var batchName = IsAdd ? "Batch".MakeUnique() : model.Name[..model.Name.IndexOf("-")].TrimEnd();
         model.Name = $"{batchName} - {range.Start:MMM dd (yyyy)} to {range.End:MMM dd (yyyy)}";
+    }
+
+    private string GetMultiSelectionText(List<string> selectedValues)
+    {
+        return $"{selectedValues.Count} student{(selectedValues.Count > 1 ? "s have" : " has")} been selected";
     }
 }

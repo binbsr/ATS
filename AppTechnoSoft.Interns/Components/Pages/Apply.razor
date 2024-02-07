@@ -57,7 +57,7 @@
                                  ShowProgressIndicator="true"
                                  ProgressIndicatorColor="Color.Default"
                                  MaxItems="null" />
-            </MudItem>            
+            </MudItem>
         </MudGrid>
     </MudPaper>
     <MudPaper Class="pa-5 mb-4" Elevation="5">
@@ -70,10 +70,10 @@
                 <MudText Typo="Typo.button">General Programming</MudText>
                 <MudRadioGroup @bind-Value="@model.GeneralProgramming">
                     <MudStack Spacing="0">
-                        <MudRadio Value="GeneralProgrammingExperience.None" Color="Color.Secondary">Know nothing about programming</MudRadio>
-                        <MudRadio Value="GeneralProgrammingExperience.KnowBasicProgrammingLogic" Color="Color.Secondary">Know basic logic (console read/write, conditions, loops etc.)</MudRadio>
-                        <MudRadio Value="GeneralProgrammingExperience.ConfidenceOnALanguage" Color="Color.Secondary">Can code on any of C/C++/C#/Java/Python/JavaScript</MudRadio>
-                        <MudRadio Value="GeneralProgrammingExperience.ConfidenceOnMultipleLanguageParadigms" Color="Color.Secondary">Can code on two or more programming languages</MudRadio>
+                        @foreach (var item in Enum.GetValues<GeneralProgrammingExperience>())
+                        {
+                            <MudRadio Value="item" Color="Color.Secondary">@item.GetGeneralProgText()</MudRadio>
+                        }
                     </MudStack>
                 </MudRadioGroup>
             </MudItem>
@@ -81,10 +81,10 @@
                 <MudText Typo="Typo.button">Web Development</MudText>
                 <MudRadioGroup @bind-Value="@model.WebExperience">
                     <MudStack Spacing="0">
-                        <MudRadio Value="WebExperience.None" Color="Color.Secondary">No knowledge at all</MudRadio>
-                        <MudRadio Value="WebExperience.LittleHtmlCssAndJs" Color="Color.Secondary">Know little Html, CSS and JS</MudRadio>
-                        <MudRadio Value="WebExperience.DevelopedHobbyWebApp" Color="Color.Secondary">Developed small hobby app</MudRadio>
-                        <MudRadio Value="WebExperience.DevelopedCommercialApp" Color="Color.Secondary">Developed Commercial app for users</MudRadio>
+                        @foreach (var item in Enum.GetValues<WebExperience>())
+                        {
+                            <MudRadio Value="item" Color="Color.Secondary">@item.GetWebExperienceText()</MudRadio>
+                        }
                     </MudStack>
                 </MudRadioGroup>
             </MudItem>
@@ -92,10 +92,10 @@
                 <MudText Typo="Typo.button">Database Development</MudText>
                 <MudRadioGroup @bind-Value="@model.DbExperience">
                     <MudStack Spacing="0">
-                        <MudRadio Value="DbExperience.None" Color="Color.Secondary">No knowledge at all</MudRadio>
-                        <MudRadio Value="DbExperience.KnowLittleSql" Color="Color.Secondary">Know little SQL and relational databases</MudRadio>
-                        <MudRadio Value="DbExperience.ComfortableWithSql" Color="Color.Secondary">Comfortable with SQL and relational databases</MudRadio>
-                        <MudRadio Value="DbExperience.DesignedDbForApp" Color="Color.Secondary">Desinged database (schemas, constraints etc.) for app</MudRadio>
+                        @foreach (var item in Enum.GetValues<DbExperience>())
+                        {
+                            <MudRadio Value="item" Color="Color.Secondary">@item.GetDbExperienceText()</MudRadio>
+                        }
                     </MudStack>
                 </MudRadioGroup>
             </MudItem>

@@ -7,8 +7,7 @@
 
 <PageTitle>@pageTitle</PageTitle>
 
-    <EditForm Model="@model"
-              OnValidSubmit="OnValidSubmit">
+    <EditForm Model="@model" OnValidSubmit="OnValidSubmit">
         <DataAnnotationsValidator />
         <MudTextField Label="Title" @bind-Value="model.Name" For="@(() => model.Name)" />
         <MudTextField Label="Team Image URL" Class="mt-3" @bind-Value="model.Avatar" />
@@ -19,38 +18,37 @@
                    Class="my-3"
                    AnchorOrigin="Origin.BottomCenter">
             @foreach (var project in projects)
-            {
-                <MudSelectItem Value="@project" />
-            }
-        </MudSelect>
-        <MudSelect Dense="true"
-                   Label="Batch"
-                   @bind-Value="@model.Batch"
-                   ToStringFunc="b => b!.Name"
-                   Class="my-3"
-                   AnchorOrigin="Origin.BottomCenter">
-            @foreach (var batch in batches)
-            {
-                <MudSelectItem Value="@batch" />
-            }
-        </MudSelect>
+        {
+            <MudSelectItem Value="@project" />
+        }
+    </MudSelect>
+    <MudSelect T="Batch"
+               Dense="true"
+               Label="Batch"
+               Value="@model.Batch"
+               ValueChanged="BatchChanged"
+               ToStringFunc="b => b!.Name"
+               Class="my-3"
+               AnchorOrigin="Origin.BottomCenter">
+        @foreach (var batch in batches)
+        {
+            <MudSelectItem Value="@batch" />
+        }
+    </MudSelect>
 
-    @if (!IsAdd)
-    {
-        <MudSelect T="string"
-                   Dense="true"
-                   Label="Members of this team"
-                   MultiSelection="true"
-                   @bind-SelectedValues="@studentsSelected"
-                   Class="my-3"
-                   MultiSelectionTextFunc="@(new Func<List<string>, string>(GetMultiSelectionText))"
-                   AnchorOrigin="Origin.BottomCenter">
-            @foreach (var student in students)
-            {
-                <MudSelectItem Value="@student.Id">@student.Name</MudSelectItem>
-            }
-        </MudSelect>
-    }
+    <MudSelect T="string"
+               Dense="true"
+               Label="Members"
+               MultiSelection="true"
+               @bind-SelectedValues="@studentsSelected"
+               Class="my-3"
+               MultiSelectionTextFunc="@(new Func<List<string>, string>(GetMultiSelectionText))"
+               AnchorOrigin="Origin.BottomCenter">
+        @foreach (var student in students)
+        {
+            <MudSelectItem Value="@student.Id">@student.Name</MudSelectItem>
+        }
+    </MudSelect>
 
     <MudButton ButtonType="ButtonType.Submit"
                Variant="Variant.Filled"
@@ -65,6 +63,9 @@
 
     [Parameter]
     public int? Id { get; set; }
+
+    [CascadingParameter]
+    private Task<AuthenticationState> AuthTask { get; set; } = null!;
 
     Team model = new();
     string pageTitle = string.Empty;
@@ -88,27 +89,40 @@
         {
             pageTitle = "Edit Team";
             model = await Db.Teams.Include(x => x.Batch).Include(t => t.Project).FirstOrDefaultAsync(x => x.Id == Id) ?? new();
-            students = await Db.Students.Select(x => new ListItem(x.Id, $"{x.Name} ({x.Email})", x.TeamId)).ToListAsync();
+            students = await Db.Students.Where(x => x.BatchId == model.Batch!.Id).Select(x => new ListItem(x.Id, $"{x.Name} ({x.Email})", x.TeamId)).ToListAsync();
             studentsSelected = students.Where(x => x.TeamId == Id).Select(x => x.Id);
         }
     }
 
     private async Task OnValidSubmit(EditContext context)
     {
+        var state = await AuthTask;
+        var userName = state.User.Identity?.Name;
+
         if (IsAdd)
         {
+            model.AddCreatedStamps(userName);
             Db.Teams.Add(model);
         }
         else
         {
             model.Id = Id!.Value;
-
+            model.AddLastUpdatedStamps(userName);
             // Update student table
-            Db.Students.Where(s => studentsSelected.Contains(s.Id)).ExecuteUpdate(x => x.SetProperty(y => y.TeamId, model.Id));
             Db.Teams.Update(model);
         }
 
         var rowsAffected = await Db.SaveChangesAsync();
+
+        if (studentsSelected.Any())
+        {
+            rowsAffected = Db.Students
+                .Where(s => studentsSelected.Contains(s.Id))
+                .ExecuteUpdate(x => x
+                    .SetProperty(y => y.TeamId, model.Id)
+                    .SetProperty(y => y.Status, Status.ProjectStarted)
+                );
+        }
 
         if (rowsAffected > 0)
         {
@@ -120,6 +134,13 @@
         }
 
         Navigation.NavigateTo("/teams");
+    }
+
+    private async Task BatchChanged(Batch batch)
+    {
+        model.Batch = batch;
+        students = await Db.Students.Where(x => x.BatchId == batch.Id).Select(x => new ListItem(x.Id, $"{x.Name} ({x.Email})", x.TeamId)).ToListAsync();
+        studentsSelected = students.Where(x => x.TeamId == Id).Select(x => x.Id);
     }
 
     private string GetMultiSelectionText(List<string> selectedValues)

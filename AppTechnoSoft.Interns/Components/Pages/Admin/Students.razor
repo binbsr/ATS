@@ -1,4 +1,4 @@
-﻿@page "/students"
+﻿@page "/applications"
 @attribute [Authorize(Roles = "Admin")]
 @inject ApplicationDbContext db
 
@@ -12,53 +12,71 @@
              Hover="true"
              QuickFilter="@_quickFilter"
              Loading="loadingData"
+             ReadOnly="true"
              Hideable="true"
              Dense="true">
 
     <ToolBarContent>
-        <MudText Typo="Typo.h6">All Tech Students</MudText>
+        <MudText Typo="Typo.h6">All Applications</MudText>
         <MudSpacer />
         <MudTextField @bind-Value="_searchString" Placeholder="Search" Adornment="Adornment.Start" Immediate="true"
                       AdornmentIcon="@Icons.Material.Filled.Search" IconSize="Size.Medium" Class="mt-0"></MudTextField>
     </ToolBarContent>
     <Columns>
+        <HierarchyColumn T="Student" />
         <TemplateColumn Filterable="false">
-            <CellTemplate>                
-                <MudLink Href="@("/students/" + context.Item.Id)">
-                    <MudAvatar>
-                        @if (context.Item.ProfileImagePath is null or "")
-                        {
-                            <MudIcon Icon="@Icons.Material.Outlined.Person2" />
-                        }
-                        else
-                        {
-                            <MudImage Src="@context.Item.ProfileImagePath"></MudImage>
-                        }
-                    </MudAvatar>
-                </MudLink>
+            <CellTemplate>
+                <MudAvatar>
+                    @if (context.Item.ProfileImagePath is null or "")
+                    {
+                        <MudIcon Icon="@Icons.Material.Outlined.Person2" />
+                    }
+                    else
+                    {
+                        <MudImage Src="@context.Item.ProfileImagePath"></MudImage>
+                    }
+                </MudAvatar>
             </CellTemplate>
         </TemplateColumn>
         <PropertyColumn Property="x => x.Name" Filterable="false" />
         <PropertyColumn Property="x => x.Phone" Filterable="false" />
         <PropertyColumn Property="x => x.Email" Filterable="false" />
-        <PropertyColumn Property="x => x.WebExperience" Title="Web Exposure" />
-        <PropertyColumn Property="x => x.DbExperience" Title="Db Exposure" />
         <PropertyColumn Property="x => x.Status" />
-        <TemplateColumn Title="Team">
-            <CellTemplate>
-                @(context.Item.Team?.Name ?? "Not Assigned")
-            </CellTemplate>
-        </TemplateColumn>
-        <PropertyColumn Property="x => x.College!.Name" Title="College" />
-        <PropertyColumn Property="x => x.TechProgram!.Name" Title="Program" />
-        <PropertyColumn Property="x => x.FormSubmitted" />
     </Columns>
-    <PagerContent>
-        <MudDataGridPager T="Student" PageSizeOptions="[15, 30, 50, 100, 200]" />
-    </PagerContent>
-</MudDataGrid>
+    <ChildRowContent>
+        <MudGrid Class="p-2">
+            <MudItem md="3" sm="4" Class="p-2">
+                <b>Name</b><MudText Typo="Typo.body1">@context.Item.Name</MudText>
+                </MudItem>
+                <MudItem md="3" sm="4" Class="p-2">
+                    <b>College</b><MudText Typo="Typo.body1">@context.Item.College!.Name</MudText>
+                </MudItem>
+                <MudItem md="3" sm="4" Class="p-2">
+                    <b>Team</b><MudText Typo="Typo.body1">@(context.Item.Team?.Name ?? "Not Assigned")</MudText>
+                </MudItem>
+                <MudItem md="3" sm="4" Class="p-2">
+                    <b>Program</b><MudText Typo="Typo.body1">@context.Item.TechProgram!.Name</MudText>
+                </MudItem>
+                <MudItem md="3" sm="4" Class="p-2">
+                    <b>Applied</b><MudText Typo="Typo.body1">@context.Item.FormSubmitted.Humanize()</MudText>
+                </MudItem>
+                <MudItem md="3" sm="4" Class="p-2">
+                    <b>General Programming</b><MudText Typo="Typo.body1">@context.Item.GeneralProgramming.GetGeneralProgText()</MudText>
+                </MudItem>
+                <MudItem md="3" sm="4" Class="p-2">
+                    <b>Web Development Experience</b><MudText Typo="Typo.body1">@context.Item.WebExperience.GetWebExperienceText()</MudText>
+                </MudItem>
+                <MudItem md="3" sm="4" Class="p-2">
+                    <b>Database Development Experience</b><MudText Typo="Typo.body1">@context.Item.DbExperience.GetDbExperienceText()</MudText>
+                </MudItem>
+            </MudGrid>
+        </ChildRowContent>
+        <PagerContent>
+            <MudDataGridPager T="Student" PageSizeOptions="[15, 30, 50, 100, 200]" />
+        </PagerContent>
+    </MudDataGrid>
 
-@code {
+    @code {
     private List<Student> studentList = new();
     private string _searchString = string.Empty;
     private bool loadingData = false;

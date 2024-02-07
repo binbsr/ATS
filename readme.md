@@ -1,3 +1,8 @@
+## Widget Title
+1. Text **module** will be used to get all training modules.
+1. Text **HomeIntro** will be used render items on home page (bottom part)
+1. Text **CarouselItem** will be used render carouselitems on home page (top part)
+
 ## HTML Content parts
 > Example on text editor:
 We guide you on software R&D and SDLC to kickstart your career! (Will be used as text title, can be any number of lines withour line breaks)
@@ -18,3 +23,10 @@ Experienced Intructors (Having 10+ years industry experience) - Splitted into tw
         new("Pro", "Advanced Training", "Training Pro", "Suitable for software professionals aiming to enhance their knowledge horizon and for better career growth.")
     ];
 ```
+
+## Tags
+
+Tag description is used to fetch filters, so please describe your tag accordigly
+
+> Modules - **module**
+> Instrcutors - **tech**

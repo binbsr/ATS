@@ -21,12 +21,16 @@
         <MudTh>Name</MudTh>
         <MudTh>Start Date</MudTh>
         <MudTh>End Date</MudTh>
+        <MudTh>Created</MudTh>
+        <MudTh>Created By</MudTh>
     </HeaderContent>
     <RowTemplate>
         <MudTd DataLabel="#">@(batches.IndexOf(context) + 1)</MudTd>
         <MudTd DataLabel="Name">@context.Name</MudTd>
-            <MudTd DataLabel="Description">@context.Start.ToLongDateString()</MudTd>
-            <MudTd DataLabel="ColorCode">@context.End.ToLongDateString()</MudTd>
+            <MudTd DataLabel="Start">@context.Start.Humanize()</MudTd>
+            <MudTd DataLabel="End">@context.End.Humanize()</MudTd>
+            <MudTd DataLabel="Created">@context.Created.Humanize()</MudTd>
+            <MudTd DataLabel="CreatedBy">@(context.CreatedBy ?? "N/A")</MudTd>
             <MudTd>
                 <MudIconButton Icon="@Icons.Material.Filled.Edit" Size="Size.Small" Color="Color.Warning" Href="@("/edit-batch/" + context.Id)" />
                 <MudIconButton Icon="@Icons.Material.Sharp.Delete" Size="Size.Small" Color="Color.Error" OnClick="() => ConfirmDelete(context)" />
@@ -57,7 +61,7 @@
     protected override async Task OnInitializedAsync()
     {
         loadingData = true;
-        batches = await Db.Batches.ToListAsync();
+        batches = await Db.Batches.ToListAsync();        
         loadingData = false;
     }
 

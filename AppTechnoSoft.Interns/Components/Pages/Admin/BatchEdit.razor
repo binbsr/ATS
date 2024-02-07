@@ -92,9 +92,14 @@
 
         var rowsAffected = await Db.SaveChangesAsync();
 
-        if(studentsSelected.Any())
+        if (studentsSelected.Any())
         {
-            rowsAffected = Db.Students.Where(s => studentsSelected.Contains(s.Id)).ExecuteUpdate(x => x.SetProperty(y => y.BatchId, model.Id));
+            rowsAffected = Db.Students
+                .Where(s => studentsSelected.Contains(s.Id))
+                .ExecuteUpdate(x => x
+                    .SetProperty(y => y.BatchId, model.Id)
+                    .SetProperty(y => y.Status, Status.Enrolled)
+                );
         }
 
         if (rowsAffected > 0)

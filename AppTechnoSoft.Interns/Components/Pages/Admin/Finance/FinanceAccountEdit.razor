@@ -60,7 +60,7 @@
     private async Task OnValidSubmit(EditContext context)
     {
         model.StudentId = selectedStudent.Id;
-        model.Discount = model.Discount / (float) 100;
+        model.Discount = model.Discount / 100.0f;
         Db.FinAccounts.Add(model);
         var rowsAffected = await Db.SaveChangesAsync();
 

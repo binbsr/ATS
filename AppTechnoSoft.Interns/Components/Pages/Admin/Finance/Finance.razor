@@ -43,33 +43,18 @@
         <PropertyColumn Property="x => x.Name" IsEditable="false" />
         <PropertyColumn Property="x => x.Phone" IsEditable="false" />
         <PropertyColumn Property="x => x.Email" IsEditable="false" />
-        <TemplateColumn Title="Fee">
-            <CellTemplate>
-                @context.Item.FeeAmount.AsCurrency()
-            </CellTemplate>
+        <PropertyColumn Property="x => x.FeeAmount" Title="Fee" Format="C2" Culture="@(new CultureInfo("ne-NP"))" AggregateDefinition="FeeAggregation" />
+        <PropertyColumn Property="x => x.Discount" Format="P2" AggregateDefinition="DiscountAggregation">
             <EditTemplate>
-
+                <MudNumericField Variant="Variant.Outlined" Value="@(context.Item.Discount * 100)" />
             </EditTemplate>
-        </TemplateColumn>
-        <TemplateColumn Title="Discount">
-            <CellTemplate>
-                @context.Item.Discount.AsPercentage()
-            </CellTemplate>
-        </TemplateColumn>
-        <TemplateColumn Title="TotalAmount" IsEditable="false">
-            <CellTemplate>
-                @context.Item.TotalAmount.AsCurrency()
-            </CellTemplate>
-        </TemplateColumn>
-        <TemplateColumn Title="PaidAmount">
-            <CellTemplate>
-                @context.Item.PaidAmount.AsCurrency()
-            </CellTemplate>
-        </TemplateColumn>
-        <TemplateColumn Title="Remaining" IsEditable="false">
+        </PropertyColumn>
+        <PropertyColumn Property="x => x.TotalAmount" Title="Total Fee" Format="C2" Culture="@(new CultureInfo("ne-NP"))" IsEditable="false" AggregateDefinition="TotalFeeToPayAggregation" />
+        <PropertyColumn Property="x => x.PaidAmount" Title="Paid" Format="C2" Culture="@(new CultureInfo("ne-NP"))" AggregateDefinition="TotalFeePaidAggregation" />
+        <TemplateColumn Title="Remaining" IsEditable="false" AggregateDefinition="TotalRemainingAggregation">
             <CellTemplate>
                 @((context.Item.TotalAmount - context.Item.PaidAmount).AsCurrency())
-            </CellTemplate>
+            </CellTemplate>            
         </TemplateColumn>
         <TemplateColumn CellClass="d-flex justify-end">
             <CellTemplate>
@@ -90,6 +75,56 @@
     private List<StudentFeeViewModel> StudentFees = [];
     private string _searchString = string.Empty;
     private bool loadingData = false;
+
+    AggregateDefinition<StudentFeeViewModel> FeeAggregation = new()
+        {
+            Type = AggregateType.Custom,
+            CustomAggregate = x =>
+            {
+                var totalFee = x.Sum(y => y.FeeAmount);
+                return $"{totalFee.AsCurrency()} Total";
+            }
+        };
+
+    AggregateDefinition<StudentFeeViewModel> DiscountAggregation = new()
+        {
+            Type = AggregateType.Custom,
+            CustomAggregate = x =>
+            {
+                var totalDiscountAmount = x.Sum(y => y.FeeAmount * y.Discount);
+                return $"{totalDiscountAmount.AsCurrency()} Total";
+            }
+        };
+
+    AggregateDefinition<StudentFeeViewModel> TotalFeeToPayAggregation = new()
+        {
+            Type = AggregateType.Custom,
+            CustomAggregate = x =>
+            {
+                var totalTotalFeeToPayAmount = x.Sum(y => y.TotalAmount);
+                return $"{totalTotalFeeToPayAmount.AsCurrency()} Total";
+            }
+        };
+
+    AggregateDefinition<StudentFeeViewModel> TotalFeePaidAggregation = new()
+        {
+            Type = AggregateType.Custom,
+            CustomAggregate = x =>
+            {
+                var totalTotalFeePaidAmount = x.Sum(y => y.PaidAmount);
+                return $"{totalTotalFeePaidAmount.AsCurrency()} Total";
+            }
+        };
+
+    AggregateDefinition<StudentFeeViewModel> TotalRemainingAggregation = new()
+        {
+            Type = AggregateType.Custom,
+            CustomAggregate = x =>
+            {
+                var totalRemainingAmount = x.Sum(y => y.RemainingAmount);
+                return $"{totalRemainingAmount.AsCurrency()} Total";
+            }
+        };
 
     private Func<StudentFeeViewModel, bool> _quickFilter => x =>
     {
@@ -130,7 +165,7 @@
 
         foreach (StudentFeeViewModel student in studentsWithAccounts)
         {
-            student.TotalAmount = student.FeeAmount - (student.FeeAmount * student.Discount / 100);
+            student.TotalAmount = student.FeeAmount - (student.FeeAmount * student.Discount);
             student.RemainingAmount = student.TotalAmount - student.PaidAmount;
             StudentFees.Add(student);
         }
@@ -150,9 +185,9 @@
         var account = new FinAccount
             {
                 Id = item.Id,
-                FeeAmount = item.FeeAmount.Value,
-                Discount = item.Discount.Value,
-                PaidAmount = item.PaidAmount.Value,
+                FeeAmount = item.FeeAmount!.Value,
+                Discount = item.Discount!.Value / 100.0f,
+                PaidAmount = item.PaidAmount!.Value,
                 StudentId = item.StudentId
             };
 

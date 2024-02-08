@@ -28,11 +28,8 @@ public class Student : BaseEntity
     public College? College { get; set; }
 
     public int TechProgramId { get; set; }
-    public TechProgram? TechProgram { get; set; }
-
-    public int? FinAccountId { get; set; }
-    public FinAccount? FinAccount { get; set; }
-
+    public TechProgram? TechProgram { get; set; }   
+   
     public int? TeamId { get; set; }
     public Team? Team { get; set; }
 
@@ -41,4 +38,6 @@ public class Student : BaseEntity
 
     public string? ApplicationUserId { get; set; }
     public ApplicationUser? User { get; set; }
+
+    public FinAccount? FinAccount { get; set; }
 }

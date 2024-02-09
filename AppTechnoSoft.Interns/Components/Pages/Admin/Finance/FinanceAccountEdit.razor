@@ -1,0 +1,91 @@
+﻿@page "/add-fee-account"
+
+@inject ApplicationDbContext Db
+@inject ISnackbar SnackBar
+@inject NavigationManager Navigation
+
+<PageTitle>Add Fee Account</PageTitle>
+<MudContainer>
+    <EditForm Model="@model" OnValidSubmit="OnValidSubmit">
+
+        <MudAutocomplete T="StudentSelectListItem"
+                         Label="Select Student"
+                         Required="true"
+                         @bind-Value="selectedStudent"
+                         SearchFunc="@SearchPrograms"
+                         Immediate="true"
+                         ToStringFunc="@(e=> e==null ? null : $"{e.Name} ({e.Email})")"
+                         ShowProgressIndicator="true"
+                         ProgressIndicatorColor="Color.Info"
+                         MaxItems="null"
+                         Validation="@(new Func<StudentSelectListItem, IEnumerable<string>>(Validate))" />
+
+        <MudNumericField Label="Fee Amount" Class="mt-3" @bind-Value="model.FeeAmount" />
+        <MudNumericField Label="Discount" Class="mt-3" @bind-Value="model.Discount" Min="0" Max="100" />
+        <MudNumericField Label="Paid Amount" Class="mt-3" @bind-Value="model.PaidAmount" />
+
+
+        <MudButton ButtonType="ButtonType.Submit"
+                   Variant="Variant.Filled"
+                   Color="Color.Primary"
+                   Class="mt-3"
+                   StartIcon="@Icons.Material.Filled.Save">
+            Save Fee Account
+        </MudButton>
+    </EditForm>
+</MudContainer>
+
+@code {
+
+    FinAccount model = new();
+    record StudentSelectListItem(string Id, string Name, string Email);
+    List<StudentSelectListItem> students = [];
+    StudentSelectListItem selectedStudent = null!;
+
+    private async Task<IEnumerable<StudentSelectListItem>> SearchPrograms(string value)
+    {
+        if (!students.Any())
+        {
+            students = await Db.Students.Select(x => new StudentSelectListItem(x.Id, x.Name, x.Email)).ToListAsync();
+        }
+
+        if (value is null or "")
+        {
+            return students;
+        }
+
+        return students.Where(x => x.Name.Contains(value, StringComparison.OrdinalIgnoreCase) || x.Email.Contains(value, StringComparison.OrdinalIgnoreCase));
+    }
+
+    private async Task OnValidSubmit(EditContext context)
+    {
+        model.StudentId = selectedStudent.Id;
+        model.Discount = model.Discount / 100.0f;
+        Db.FinAccounts.Add(model);
+        var rowsAffected = await Db.SaveChangesAsync();
+
+        if (rowsAffected > 0)
+        {
+            SnackBar.Add("New Fee Account Added Successfully", Severity.Success);
+            Navigation.NavigateTo("/finance");
+        }
+        else
+        {
+            SnackBar.Add("Fee Account Save Failed", Severity.Error);
+        }
+    }
+
+    private IEnumerable<string> Validate(StudentSelectListItem value)
+    {
+        if (value is null)
+        {
+            yield return "The student is required for fee account.";
+            yield break;
+        }
+
+        if (!students.Contains(value))
+        {
+            yield return "Incorrect student name.";
+        }
+    }
+}

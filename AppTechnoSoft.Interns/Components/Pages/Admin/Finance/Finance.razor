@@ -1,0 +1,208 @@
+﻿@page "/finance"
+@using System.Globalization
+@attribute [Authorize(Roles = "SuperAdmin")]
+@inject ApplicationDbContext db
+@inject ISnackbar SnackBar
+
+<PageTitle>Fee Accounts</PageTitle>
+
+<MudDataGrid T="StudentFeeViewModel"
+             MultiSelection="true"
+             Items="@StudentFees"
+             SortMode="SortMode.Multiple"
+             Hover="true"
+             QuickFilter="@_quickFilter"
+             Loading="loadingData"
+             Hideable="true"
+             ReadOnly="false"
+             Dense="true"
+             EditMode="DataGridEditMode.Form"
+             EditTrigger="DataGridEditTrigger.Manual"
+             CommittedItemChanges="@CommittedItemChanges">
+    <ToolBarContent>
+        <MudFab Href="/add-fee-account" StartIcon="@Icons.Material.Filled.Add" Title="Add New Fee Account" Size="Size.Small" Color="Color.Tertiary"></MudFab>
+        <MudSpacer />
+        <MudTextField @bind-Value="_searchString" Placeholder="Search" Adornment="Adornment.Start" Immediate="true"
+                      AdornmentIcon="@Icons.Material.Filled.Search" IconSize="Size.Medium" Class="mt-0"></MudTextField>
+    </ToolBarContent>
+    <Columns>
+        <TemplateColumn IsEditable="false">
+            <CellTemplate>
+                <MudAvatar>
+                    @if (context.Item.ProfileImagePath is null or "")
+                    {
+                        <MudIcon Icon="@Icons.Material.Outlined.Person2" />
+                    }
+                    else
+                    {
+                        <MudImage Src="@context.Item.ProfileImagePath"></MudImage>
+                    }
+                </MudAvatar>
+            </CellTemplate>
+        </TemplateColumn>
+        <PropertyColumn Property="x => x.Name" IsEditable="false" />
+        <PropertyColumn Property="x => x.Phone" IsEditable="false" />
+        <PropertyColumn Property="x => x.Email" IsEditable="false" />
+        <PropertyColumn Property="x => x.FeeAmount" Title="Fee" Format="C2" Culture="@(new CultureInfo("ne-NP"))" AggregateDefinition="FeeAggregation" />
+        <PropertyColumn Property="x => x.Discount" Format="P2" AggregateDefinition="DiscountAggregation">
+            <EditTemplate>
+                <MudNumericField Variant="Variant.Outlined" Value="@(context.Item.Discount * 100)" />
+            </EditTemplate>
+        </PropertyColumn>
+        <PropertyColumn Property="x => x.TotalAmount" Title="Total Fee" Format="C2" Culture="@(new CultureInfo("ne-NP"))" IsEditable="false" AggregateDefinition="TotalFeeToPayAggregation" />
+        <PropertyColumn Property="x => x.PaidAmount" Title="Paid" Format="C2" Culture="@(new CultureInfo("ne-NP"))" AggregateDefinition="TotalFeePaidAggregation" />
+        <TemplateColumn Title="Remaining" IsEditable="false" AggregateDefinition="TotalRemainingAggregation">
+            <CellTemplate>
+                @((context.Item.TotalAmount - context.Item.PaidAmount).AsCurrency())
+            </CellTemplate>            
+        </TemplateColumn>
+        <TemplateColumn CellClass="d-flex justify-end">
+            <CellTemplate>
+                <MudIconButton Icon="@Icons.Material.Outlined.Edit" OnClick="@context.Actions.StartEditingItemAsync" />
+            </CellTemplate>
+        </TemplateColumn>
+    </Columns>
+    <PagerContent>
+        <MudDataGridPager T="StudentFeeViewModel" PageSizeOptions="[15, 30, 50, 100, 200]" />
+    </PagerContent>
+</MudDataGrid>
+
+@code {
+
+    [CascadingParameter]
+    private Task<AuthenticationState> AuthTask { get; set; } = null!;
+
+    private List<StudentFeeViewModel> StudentFees = [];
+    private string _searchString = string.Empty;
+    private bool loadingData = false;
+
+    AggregateDefinition<StudentFeeViewModel> FeeAggregation = new()
+        {
+            Type = AggregateType.Custom,
+            CustomAggregate = x =>
+            {
+                var totalFee = x.Sum(y => y.FeeAmount);
+                return $"{totalFee.AsCurrency()} Total";
+            }
+        };
+
+    AggregateDefinition<StudentFeeViewModel> DiscountAggregation = new()
+        {
+            Type = AggregateType.Custom,
+            CustomAggregate = x =>
+            {
+                var totalDiscountAmount = x.Sum(y => y.FeeAmount * y.Discount);
+                return $"{totalDiscountAmount.AsCurrency()} Total";
+            }
+        };
+
+    AggregateDefinition<StudentFeeViewModel> TotalFeeToPayAggregation = new()
+        {
+            Type = AggregateType.Custom,
+            CustomAggregate = x =>
+            {
+                var totalTotalFeeToPayAmount = x.Sum(y => y.TotalAmount);
+                return $"{totalTotalFeeToPayAmount.AsCurrency()} Total";
+            }
+        };
+
+    AggregateDefinition<StudentFeeViewModel> TotalFeePaidAggregation = new()
+        {
+            Type = AggregateType.Custom,
+            CustomAggregate = x =>
+            {
+                var totalTotalFeePaidAmount = x.Sum(y => y.PaidAmount);
+                return $"{totalTotalFeePaidAmount.AsCurrency()} Total";
+            }
+        };
+
+    AggregateDefinition<StudentFeeViewModel> TotalRemainingAggregation = new()
+        {
+            Type = AggregateType.Custom,
+            CustomAggregate = x =>
+            {
+                var totalRemainingAmount = x.Sum(y => y.RemainingAmount);
+                return $"{totalRemainingAmount.AsCurrency()} Total";
+            }
+        };
+
+    private Func<StudentFeeViewModel, bool> _quickFilter => x =>
+    {
+        if (string.IsNullOrWhiteSpace(_searchString))
+            return true;
+
+        if (x.Name.Contains(_searchString, StringComparison.OrdinalIgnoreCase))
+            return true;
+
+        if (x.Email.Contains(_searchString, StringComparison.OrdinalIgnoreCase))
+            return true;
+
+        if (x.Phone.Contains(_searchString, StringComparison.OrdinalIgnoreCase))
+            return true;
+
+        return false;
+    };
+
+    protected override async Task OnInitializedAsync()
+    {
+        loadingData = true;
+        var studentsWithAccounts = await db.FinAccounts
+            .Include(s => s.Student)
+            .AsNoTracking()
+            .Select(x => new StudentFeeViewModel
+                {
+                    Id = x.Id,
+                    StudentId = x.Student.Id,
+                    ProfileImagePath = x.Student.ProfileImagePath,
+                    Name = x.Student.Name,
+                    Email = x.Student.Email,
+                    Phone = x.Student.Phone,
+                    Status = x.Student.Status,
+                    FeeAmount = x.FeeAmount,
+                    Discount = x.Discount,
+                    PaidAmount = x.PaidAmount
+                }).ToListAsync();
+
+        foreach (StudentFeeViewModel student in studentsWithAccounts)
+        {
+            student.TotalAmount = student.FeeAmount - (student.FeeAmount * student.Discount);
+            student.RemainingAmount = student.TotalAmount - student.PaidAmount;
+            StudentFees.Add(student);
+        }
+
+        loadingData = false;
+    }
+
+
+    async Task CommittedItemChanges(StudentFeeViewModel item)
+    {
+        if (item is null)
+            return;
+
+        var state = await AuthTask;
+        var userName = state.User.Identity?.Name;
+
+        var account = new FinAccount
+            {
+                Id = item.Id,
+                FeeAmount = item.FeeAmount!.Value,
+                Discount = item.Discount!.Value / 100.0f,
+                PaidAmount = item.PaidAmount!.Value,
+                StudentId = item.StudentId
+            };
+
+        account.AddLastUpdatedStamps(userName);
+
+        db.FinAccounts.Update(account);
+        var rowsAffected = await db.SaveChangesAsync();
+
+        if (rowsAffected > 0)
+        {
+            SnackBar.Add("Fee Account Saved Successfully", Severity.Success);
+        }
+        else
+        {
+            SnackBar.Add("Fee Account Save Failed", Severity.Error);
+        }
+    }
+}

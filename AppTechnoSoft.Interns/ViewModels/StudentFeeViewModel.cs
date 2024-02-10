@@ -1,4 +1,6 @@
-﻿using AppTechnoSoft.Interns.Data.Enums;
+﻿using AppTechnoSoft.Interns.Components.Pages.Admin;
+using AppTechnoSoft.Interns.Data.Enums;
+using AppTechnoSoft.Interns.Data.Models;
 
 namespace AppTechnoSoft.Core.ViewModels;
 public class StudentFeeViewModel
@@ -12,7 +14,10 @@ public class StudentFeeViewModel
     public Status Status { get; set; }
     public float? FeeAmount { get; set; }
     public float? Discount { get; set; }
-    public float? TotalAmount { get; set; }
     public float? PaidAmount { get; set; }
-    public float? RemainingAmount { get; set; }
+    public string? AddedBy { get; set; }
+    public DateTime? Added { get; set; }
+    public bool Enabled { get; set; }
+    public float? TotalAmount => FeeAmount - (FeeAmount * Discount / 100);
+    public float? RemainingAmount => TotalAmount - PaidAmount;
 }

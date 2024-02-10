@@ -1,5 +1,7 @@
 ﻿@page "/add-fee-account"
 
+@attribute [Authorize(Roles = "SuperAdmin")]
+
 @inject ApplicationDbContext Db
 @inject ISnackbar SnackBar
 @inject NavigationManager Navigation
@@ -37,6 +39,9 @@
 
 @code {
 
+    [CascadingParameter]
+    private Task<AuthenticationState> AuthTask { get; set; } = null!;
+
     FinAccount model = new();
     record StudentSelectListItem(string Id, string Name, string Email);
     List<StudentSelectListItem> students = [];
@@ -60,7 +65,13 @@
     private async Task OnValidSubmit(EditContext context)
     {
         model.StudentId = selectedStudent.Id;
-        model.Discount = model.Discount / 100.0f;
+        model.Discount = model.Discount;
+
+        var state = await AuthTask;
+        var userName = state.User.Identity?.Name;
+
+        model.AddCreatedStamps(userName);
+
         Db.FinAccounts.Add(model);
         var rowsAffected = await Db.SaveChangesAsync();
 

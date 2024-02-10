@@ -41,21 +41,27 @@
             </CellTemplate>
         </TemplateColumn>
         <PropertyColumn Property="x => x.Name" IsEditable="false" />
-        <PropertyColumn Property="x => x.Phone" IsEditable="false" />
-        <PropertyColumn Property="x => x.Email" IsEditable="false" />
-        <PropertyColumn Property="x => x.FeeAmount" Title="Fee" Format="C2" Culture="@(new CultureInfo("ne-NP"))" AggregateDefinition="FeeAggregation" />
-        <PropertyColumn Property="x => x.Discount" Format="P2" AggregateDefinition="DiscountAggregation">
-            <EditTemplate>
-                <MudNumericField Variant="Variant.Outlined" Value="@(context.Item.Discount * 100)" />
-            </EditTemplate>
+        <PropertyColumn Property="x => x.Phone" IsEditable="false">
+            <FooterTemplate>Total</FooterTemplate>
         </PropertyColumn>
+        <PropertyColumn Property="x => x.FeeAmount" Title="Fee" Format="C2" Culture="@(new CultureInfo("ne-NP"))" AggregateDefinition="FeeAggregation" />
+        <TemplateColumn AggregateDefinition="DiscountAggregation" Title="Discount">
+            <CellTemplate>
+                @(context.Item.Discount + "%")
+            </CellTemplate>
+            <EditTemplate>
+                <MudNumericField Variant="Variant.Outlined" @bind-Value="@context.Item.Discount" Label="Discount" />
+            </EditTemplate>
+        </TemplateColumn>       
         <PropertyColumn Property="x => x.TotalAmount" Title="Total Fee" Format="C2" Culture="@(new CultureInfo("ne-NP"))" IsEditable="false" AggregateDefinition="TotalFeeToPayAggregation" />
         <PropertyColumn Property="x => x.PaidAmount" Title="Paid" Format="C2" Culture="@(new CultureInfo("ne-NP"))" AggregateDefinition="TotalFeePaidAggregation" />
         <TemplateColumn Title="Remaining" IsEditable="false" AggregateDefinition="TotalRemainingAggregation">
             <CellTemplate>
                 @((context.Item.TotalAmount - context.Item.PaidAmount).AsCurrency())
-            </CellTemplate>            
+            </CellTemplate>
         </TemplateColumn>
+        <PropertyColumn Property="x => x.AddedBy" Title="Added By" IsEditable="false" />
+        <PropertyColumn Property="x => x.Enabled" />
         <TemplateColumn CellClass="d-flex justify-end">
             <CellTemplate>
                 <MudIconButton Icon="@Icons.Material.Outlined.Edit" OnClick="@context.Actions.StartEditingItemAsync" />
@@ -82,7 +88,7 @@
             CustomAggregate = x =>
             {
                 var totalFee = x.Sum(y => y.FeeAmount);
-                return $"{totalFee.AsCurrency()} Total";
+                return $"{totalFee.AsCurrency()}";
             }
         };
 
@@ -92,7 +98,7 @@
             CustomAggregate = x =>
             {
                 var totalDiscountAmount = x.Sum(y => y.FeeAmount * y.Discount);
-                return $"{totalDiscountAmount.AsCurrency()} Total";
+                return $"{totalDiscountAmount.AsCurrency()}";
             }
         };
 
@@ -102,7 +108,7 @@
             CustomAggregate = x =>
             {
                 var totalTotalFeeToPayAmount = x.Sum(y => y.TotalAmount);
-                return $"{totalTotalFeeToPayAmount.AsCurrency()} Total";
+                return $"{totalTotalFeeToPayAmount.AsCurrency()}";
             }
         };
 
@@ -112,7 +118,7 @@
             CustomAggregate = x =>
             {
                 var totalTotalFeePaidAmount = x.Sum(y => y.PaidAmount);
-                return $"{totalTotalFeePaidAmount.AsCurrency()} Total";
+                return $"{totalTotalFeePaidAmount.AsCurrency()}";
             }
         };
 
@@ -122,7 +128,7 @@
             CustomAggregate = x =>
             {
                 var totalRemainingAmount = x.Sum(y => y.RemainingAmount);
-                return $"{totalRemainingAmount.AsCurrency()} Total";
+                return $"{totalRemainingAmount.AsCurrency()}";
             }
         };
 
@@ -146,33 +152,14 @@
     protected override async Task OnInitializedAsync()
     {
         loadingData = true;
-        var studentsWithAccounts = await db.FinAccounts
+
+        StudentFees = await db.FinAccounts
             .Include(s => s.Student)
             .AsNoTracking()
-            .Select(x => new StudentFeeViewModel
-                {
-                    Id = x.Id,
-                    StudentId = x.Student.Id,
-                    ProfileImagePath = x.Student.ProfileImagePath,
-                    Name = x.Student.Name,
-                    Email = x.Student.Email,
-                    Phone = x.Student.Phone,
-                    Status = x.Student.Status,
-                    FeeAmount = x.FeeAmount,
-                    Discount = x.Discount,
-                    PaidAmount = x.PaidAmount
-                }).ToListAsync();
-
-        foreach (StudentFeeViewModel student in studentsWithAccounts)
-        {
-            student.TotalAmount = student.FeeAmount - (student.FeeAmount * student.Discount);
-            student.RemainingAmount = student.TotalAmount - student.PaidAmount;
-            StudentFees.Add(student);
-        }
-
+            .Select(x => x.ToViewModel()).ToListAsync();
+            
         loadingData = false;
     }
-
 
     async Task CommittedItemChanges(StudentFeeViewModel item)
     {
@@ -182,14 +169,7 @@
         var state = await AuthTask;
         var userName = state.User.Identity?.Name;
 
-        var account = new FinAccount
-            {
-                Id = item.Id,
-                FeeAmount = item.FeeAmount!.Value,
-                Discount = item.Discount!.Value / 100.0f,
-                PaidAmount = item.PaidAmount!.Value,
-                StudentId = item.StudentId
-            };
+        var account = item.ToModel();
 
         account.AddLastUpdatedStamps(userName);
 

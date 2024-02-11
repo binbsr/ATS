@@ -14,12 +14,14 @@
                          Label="Select Student"
                          Required="true"
                          @bind-Value="selectedStudent"
-                         SearchFunc="@SearchPrograms"
+                         SearchFunc="@SearchStudents"
                          Immediate="true"
                          ToStringFunc="@(e=> e==null ? null : $"{e.Name} ({e.Email})")"
                          ShowProgressIndicator="true"
                          ProgressIndicatorColor="Color.Info"
                          MaxItems="null"
+                         Variant="Variant.Outlined"
+                         ItemDisabledFunc="(x => x.FeeAccountId != null || x.FeeAccountId != default)"
                          Validation="@(new Func<StudentSelectListItem, IEnumerable<string>>(Validate))" />
 
         <MudNumericField Label="Fee Amount" Class="mt-3" @bind-Value="model.FeeAmount" />
@@ -42,16 +44,16 @@
     [CascadingParameter]
     private Task<AuthenticationState> AuthTask { get; set; } = null!;
 
-    FinAccount model = new();
-    record StudentSelectListItem(string Id, string Name, string Email);
+    FinAccount model = new() { FeeAmount = 10000f, PaidAmount = 2000f };
+    record StudentSelectListItem(string Id, string Name, string Email, int? FeeAccountId);
     List<StudentSelectListItem> students = [];
     StudentSelectListItem selectedStudent = null!;
 
-    private async Task<IEnumerable<StudentSelectListItem>> SearchPrograms(string value)
+    private async Task<IEnumerable<StudentSelectListItem>> SearchStudents(string value)
     {
         if (!students.Any())
         {
-            students = await Db.Students.Select(x => new StudentSelectListItem(x.Id, x.Name, x.Email)).ToListAsync();
+            students = await Db.Students.Include(x => x.FinAccount).Select(x => new StudentSelectListItem(x.Id, x.Name, x.Email, x.FinAccount.Id)).ToListAsync();            
         }
 
         if (value is null or "")

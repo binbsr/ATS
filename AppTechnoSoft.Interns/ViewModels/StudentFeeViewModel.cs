@@ -18,6 +18,7 @@ public class StudentFeeViewModel
     public string? AddedBy { get; set; }
     public DateTime? Added { get; set; }
     public bool Enabled { get; set; }
-    public float? TotalAmount => FeeAmount - (FeeAmount * Discount / 100);
+    public float? DiscountAmount => FeeAmount * Discount / 100.0f;
+    public float? TotalAmount => FeeAmount - DiscountAmount;
     public float? RemainingAmount => TotalAmount - PaidAmount;
 }

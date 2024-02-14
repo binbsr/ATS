@@ -46,14 +46,16 @@
         </PropertyColumn>
         <PropertyColumn Property="x => x.FeeAmount" Title="Fee" Format="C2" Culture="@(new CultureInfo("ne-NP"))" AggregateDefinition="FeeAggregation" />
         <TemplateColumn AggregateDefinition="DiscountAggregation" Title="Discount">
-            <CellTemplate>
-                @(context.Item.Discount + "%")
+            <CellTemplate>                
+                @context.Item.DiscountAmount.AsCurrency()
+                <br />
+                @($"({context.Item.Discount?.ToString("n2")}%)")
             </CellTemplate>
             <EditTemplate>
                 <MudNumericField Variant="Variant.Outlined" @bind-Value="@context.Item.Discount" Label="Discount" />
             </EditTemplate>
         </TemplateColumn>       
-        <PropertyColumn Property="x => x.TotalAmount" Title="Total Fee" Format="C2" Culture="@(new CultureInfo("ne-NP"))" IsEditable="false" AggregateDefinition="TotalFeeToPayAggregation" />
+        <PropertyColumn Property="x => x.TotalAmount" Title="Total" Format="C2" Culture="@(new CultureInfo("ne-NP"))" IsEditable="false" AggregateDefinition="TotalFeeToPayAggregation" />
         <PropertyColumn Property="x => x.PaidAmount" Title="Paid" Format="C2" Culture="@(new CultureInfo("ne-NP"))" AggregateDefinition="TotalFeePaidAggregation" />
         <TemplateColumn Title="Remaining" IsEditable="false" AggregateDefinition="TotalRemainingAggregation">
             <CellTemplate>
@@ -61,7 +63,17 @@
             </CellTemplate>
         </TemplateColumn>
         <PropertyColumn Property="x => x.AddedBy" Title="Added By" IsEditable="false" />
-        <PropertyColumn Property="x => x.Enabled" />
+        <TemplateColumn Title="Account Status">
+            <CellTemplate>
+                @(context.Item.Enabled ? "Enabled" : "Disabled")
+            </CellTemplate>
+            <EditTemplate>
+                <MudRadioGroup T="bool" @bind-Value="@context.Item.Enabled">
+                    <MudRadio Value="@true" Color="Color.Secondary">Enabled</MudRadio>
+                    <MudRadio Value="@false" Color="Color.Secondary">Disabled</MudRadio>                    
+                </MudRadioGroup>
+            </EditTemplate>
+        </TemplateColumn>
         <TemplateColumn CellClass="d-flex justify-end">
             <CellTemplate>
                 <MudIconButton Icon="@Icons.Material.Outlined.Edit" OnClick="@context.Actions.StartEditingItemAsync" />
@@ -97,7 +109,7 @@
             Type = AggregateType.Custom,
             CustomAggregate = x =>
             {
-                var totalDiscountAmount = x.Sum(y => y.FeeAmount * y.Discount);
+                var totalDiscountAmount = x.Sum(y => y.FeeAmount * y.Discount / 100);
                 return $"{totalDiscountAmount.AsCurrency()}";
             }
         };

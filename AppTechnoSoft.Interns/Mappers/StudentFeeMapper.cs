@@ -14,7 +14,8 @@ public static class StudentFeeMapper
             PaidAmount = viewModel.PaidAmount!.Value,
             StudentId = viewModel.StudentId,
             Created = viewModel.Added,
-            CreatedBy = viewModel.AddedBy            
+            CreatedBy = viewModel.AddedBy,
+            Enabled = viewModel.Enabled
         };
 
         return model;

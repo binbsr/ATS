@@ -189,10 +189,22 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
         builder.Entity<ApplicationUser>().HasData(appUser);
 
         builder.Entity<IdentityUserRole<string>>()
-            .HasData(new IdentityUserRole<string>
-            {
-                RoleId = superAdminRoleId,
-                UserId = superAdminId
-            });
+            .HasData([
+                new IdentityUserRole<string>
+                {
+                    RoleId = superAdminRoleId,
+                    UserId = superAdminId
+                },
+                new IdentityUserRole<string>
+                {
+                    RoleId = adminRoleId,
+                    UserId = superAdminId
+                },
+                new IdentityUserRole<string>
+                {
+                    RoleId = traineeRoleId,
+                    UserId = superAdminId
+                }
+            ]);
     }
 }

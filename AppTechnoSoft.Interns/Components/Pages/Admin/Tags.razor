@@ -25,7 +25,7 @@
     </HeaderContent>
     <RowTemplate>
         <MudTd DataLabel="#">@(tags.IndexOf(context) + 1)</MudTd>
-        <MudTd DataLabel="Name" Style="@($"color: {context.ColorCode}")">@context.Name</MudTd>
+        <MudTd DataLabel="Name"><MudChip Style="@("background:" + context.ColorCode ?? "")" Class="text-white">@context.Name</MudChip></MudTd>
             <MudTd DataLabel="Description">@context.Description</MudTd>
             <MudTd DataLabel="ColorCode">@context.ColorCode</MudTd>
             <MudTd>
@@ -46,8 +46,7 @@
         </PagerContent>
     </MudTable>
 
-
-    @code {
+@code {
 
     private List<Tag> tags = new();
     private Tag selectedTag = new();

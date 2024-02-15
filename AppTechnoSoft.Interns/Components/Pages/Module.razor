@@ -3,7 +3,7 @@
         <div class="d-flex">
             <MudIcon Icon="@(isOpen ? Icons.Material.Sharp.HorizontalRule : Icons.Material.Sharp.Add)" Class="mr-2 mt-1"></MudIcon>
             <MudText Typo="Typo.h6">@Widget.Description</MudText>
-                <MudText Class="ml-auto mt-1">Updated @((Widget.LastUpdated ?? Widget.Created).Humanize())</MudText>
+                <MudText Class="ml-auto mt-2" Typo="Typo.body2">Updated @((Widget.LastUpdated ?? Widget.Created).Humanize())</MudText>
                 <AuthorizeView Roles="Admin,SuperAdmin">
                     <MudIconButton Icon="@Icons.Material.Filled.Edit" Color="Color.Warning" Size="Size.Small" Href="@EditUrl" />
                     <MudIconButton Icon="@Icons.Material.Sharp.Delete" Size="Size.Small" Color="Color.Error" OnClick="() => ConfirmDelete()" />
@@ -25,7 +25,7 @@
             <MudChipSet>
                 @foreach (var tag in Widget.Tags ?? [])
             {
-                <MudChip Style=@("color:" + tag.ColorCode)>@tag.Name</MudChip>
+                <MudChip Style="@("background:" + tag.ColorCode ?? "")" Class="text-white">@tag.Name</MudChip>
             }
         </MudChipSet>
     </ChildContent>

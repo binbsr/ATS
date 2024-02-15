@@ -7,26 +7,27 @@
 
 <PageTitle>@pageTitle</PageTitle>
 
-    <EditForm Model="@model"
-              OnValidSubmit="OnValidSubmit">
-        <DataAnnotationsValidator />
-        <MudTextField Label="Title" @bind-Value="model.Name" For="@(() => model.Name)" />
-        <MudTextField Label="Description" Class="mt-3" @bind-Value="model.Description" For="@(() => model.Description)" />
-        <MudColorPicker ColorPickerView="ColorPickerView.Grid"
-                        AnchorOrigin="Origin.BottomCenter"
-                        Label="Color Code"
-                        @bind-Text="@model.ColorCode"
-                        Style="@($"color: {model.ColorCode};")"
-                        Placeholder="Select Color" />
-
-        <MudButton ButtonType="ButtonType.Submit"
-                   Variant="Variant.Filled"
-                   Color="Color.Primary"
-                   Class="mt-3"
-                   StartIcon="@Icons.Material.Filled.Save">
-            Save Tag
-        </MudButton>
-    </EditForm>
+    <MudContainer>
+        <EditForm Model="@model" OnValidSubmit="OnValidSubmit">
+            <DataAnnotationsValidator />
+            <MudTextField Label="Title" @bind-Value="model.Name" For="@(() => model.Name)" />
+            <MudTextField Label="Description" Class="mt-3" @bind-Value="model.Description" For="@(() => model.Description)" />
+            <MudColorPicker AnchorOrigin="Origin.BottomCenter"
+                            Label="Color Code"
+                            @bind-Text="@model.ColorCode"
+                            Style="@($"color: {model.ColorCode};")"
+                            Placeholder="Select Color"
+                            PickerVariant="PickerVariant.Inline"
+                            DisableToolbar="false" />
+            <MudButton ButtonType="ButtonType.Submit"
+                       Variant="Variant.Filled"
+                       Color="Color.Primary"
+                       Class="mt-3"
+                       StartIcon="@Icons.Material.Filled.Save">
+                Save Tag
+            </MudButton>
+        </EditForm>
+    </MudContainer>
 
     @code {
 

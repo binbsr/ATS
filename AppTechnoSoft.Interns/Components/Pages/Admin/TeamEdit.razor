@@ -6,59 +6,59 @@
 @inject NavigationManager Navigation
 
 <PageTitle>@pageTitle</PageTitle>
-
-    <EditForm Model="@model" OnValidSubmit="OnValidSubmit">
-        <DataAnnotationsValidator />
-        <MudTextField Label="Title" @bind-Value="model.Name" For="@(() => model.Name)" />
-        <MudTextField Label="Team Image URL" Class="mt-3" @bind-Value="model.Avatar" />
-        <MudSelect Dense="true"
-                   Label="Project"
-                   @bind-Value="@model.Project"
-                   ToStringFunc="b => b?.Title"
+    <MudContainer>
+        <EditForm Model="@model" OnValidSubmit="OnValidSubmit">
+            <DataAnnotationsValidator />
+            <MudTextField Label="Title" @bind-Value="model.Name" For="@(() => model.Name)" />
+            <MudTextField Label="Team Image URL" Class="mt-3" @bind-Value="model.Avatar" />
+            <MudSelect Dense="true"
+                       Label="Project"
+                       @bind-Value="@model.Project"
+                       ToStringFunc="b => b?.Title"
+                       Class="my-3"
+                       AnchorOrigin="Origin.BottomCenter">
+                @foreach (var project in projects)
+            {
+                <MudSelectItem Value="@project" />
+            }
+        </MudSelect>
+        <MudSelect T="Batch"
+                   Dense="true"
+                   Label="Batch"
+                   Value="@model.Batch"
+                   ValueChanged="BatchChanged"
+                   ToStringFunc="b => b!.Name"
                    Class="my-3"
                    AnchorOrigin="Origin.BottomCenter">
-            @foreach (var project in projects)
-        {
-            <MudSelectItem Value="@project" />
-        }
-    </MudSelect>
-    <MudSelect T="Batch"
-               Dense="true"
-               Label="Batch"
-               Value="@model.Batch"
-               ValueChanged="BatchChanged"
-               ToStringFunc="b => b!.Name"
-               Class="my-3"
-               AnchorOrigin="Origin.BottomCenter">
-        @foreach (var batch in batches)
-        {
-            <MudSelectItem Value="@batch" />
-        }
-    </MudSelect>
+            @foreach (var batch in batches)
+            {
+                <MudSelectItem Value="@batch" />
+            }
+        </MudSelect>
 
-    <MudSelect T="string"
-               Dense="true"
-               Label="Members"
-               MultiSelection="true"
-               @bind-SelectedValues="@studentsSelected"
-               Class="my-3"
-               MultiSelectionTextFunc="@(new Func<List<string>, string>(GetMultiSelectionText))"
-               AnchorOrigin="Origin.BottomCenter">
-        @foreach (var student in students)
-        {
-            <MudSelectItem Value="@student.Id">@student.Name</MudSelectItem>
-        }
-    </MudSelect>
+        <MudSelect T="string"
+                   Dense="true"
+                   Label="Members"
+                   MultiSelection="true"
+                   @bind-SelectedValues="@studentsSelected"
+                   Class="my-3"
+                   MultiSelectionTextFunc="@(new Func<List<string>, string>(GetMultiSelectionText))"
+                   AnchorOrigin="Origin.BottomCenter">
+            @foreach (var student in students)
+            {
+                <MudSelectItem Value="@student.Id">@student.Name</MudSelectItem>
+            }
+        </MudSelect>
 
-    <MudButton ButtonType="ButtonType.Submit"
-               Variant="Variant.Filled"
-               Color="Color.Primary"
-               Class="mt-3"
-               StartIcon="@Icons.Material.Filled.Save">
-        Save Team
-    </MudButton>
-</EditForm>
-
+        <MudButton ButtonType="ButtonType.Submit"
+                   Variant="Variant.Filled"
+                   Color="Color.Primary"
+                   Class="mt-3"
+                   StartIcon="@Icons.Material.Filled.Save">
+            Save Team
+        </MudButton>
+    </EditForm>
+</MudContainer>
 @code {
 
     [Parameter]

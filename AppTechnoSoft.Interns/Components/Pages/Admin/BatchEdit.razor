@@ -8,33 +8,35 @@
 
 <PageTitle>@pageTitle</PageTitle>
 
-    <EditForm Model="@model" OnValidSubmit="OnValidSubmit">
-        <DataAnnotationsValidator />
-        <MudTextField Label="Name" Value="@model.Name" Disabled />
-     <MudDateRangePicker Label="Batch Duration" DateRange="@(new DateRange(model.Start, model.End))" DateRangeChanged="DatesChanged" />
+    <MudContainer>
+        <EditForm Model="@model" OnValidSubmit="OnValidSubmit">
+            <DataAnnotationsValidator />
+            <MudTextField Label="Name" Value="@model.Name" Disabled />
+         <MudDateRangePicker Label="Batch Duration" DateRange="@(new DateRange(model.Start, model.End))" DateRangeChanged="DatesChanged" />
 
-     <MudSelect T="string"
-                Dense="true"
-                Label="Batch Members"
-                MultiSelection="true"
-                @bind-SelectedValues="@studentsSelected"
-                Class="my-3"
-                MultiSelectionTextFunc="@(new Func<List<string>, string>(GetMultiSelectionText))"
-                AnchorOrigin="Origin.BottomCenter">
-        @foreach (var student in students)
-        {
-            <MudSelectItem Value="@student.Id">@student.Name</MudSelectItem>
-        }
-    </MudSelect>
+         <MudSelect T="string"
+                    Dense="true"
+                    Label="Batch Members"
+                    MultiSelection="true"
+                    @bind-SelectedValues="@studentsSelected"
+                    Class="my-3"
+                    MultiSelectionTextFunc="@(new Func<List<string>, string>(GetMultiSelectionText))"
+                    AnchorOrigin="Origin.BottomCenter">
+             @foreach (var student in students)
+            {
+                <MudSelectItem Value="@student.Id">@student.Name</MudSelectItem>
+            }
+        </MudSelect>
 
-    <MudButton ButtonType="ButtonType.Submit"
-               Variant="Variant.Filled"
-               Color="Color.Primary"
-               Class="mt-3"
-               StartIcon="@Icons.Material.Filled.Save">
-        Save Batch
-    </MudButton>
-</EditForm>
+        <MudButton ButtonType="ButtonType.Submit"
+                   Variant="Variant.Filled"
+                   Color="Color.Primary"
+                   Class="mt-3"
+                   StartIcon="@Icons.Material.Filled.Save">
+            Save Batch
+        </MudButton>
+    </EditForm>
+</MudContainer>
 
 @code {
 

@@ -10,7 +10,7 @@
         <MudChipSet SelectedChipChanged="FilterChanged" Filter="true">
             @foreach (var tag in tags)
             {
-                <MudChip SelectedColor="Color.Success" Size="Size.Large" Text="@tag.Name" Style="@("color:" + tag.ColorCode ?? "")"></MudChip>
+                <MudChip SelectedColor="Color.Success" Size="Size.Large" Text="@tag.Name" Style="@("background:" + tag.ColorCode ?? "")" Class="text-white"></MudChip>
             }
         </MudChipSet>
     }

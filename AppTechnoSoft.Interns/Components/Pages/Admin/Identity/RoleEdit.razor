@@ -6,22 +6,22 @@
 @inject NavigationManager Navigation
 
 <PageTitle>@pageTitle</PageTitle>
+    <MudContainer>
+        <EditForm Model="@model"
+                  OnValidSubmit="OnValidSubmit">
+            <DataAnnotationsValidator />
+            <MudTextField Label="Title" @bind-Value="model.Name" For="@(() => model.Name)" />
 
-    <EditForm Model="@model"
-              OnValidSubmit="OnValidSubmit">
-        <DataAnnotationsValidator />
-        <MudTextField Label="Title" @bind-Value="model.Name" For="@(() => model.Name)" />       
-
-        <MudButton ButtonType="ButtonType.Submit"
-                   Variant="Variant.Filled"
-                   Color="Color.Primary"
-                   Class="mt-3"
-                   StartIcon="@Icons.Material.Filled.Save">
-            Save Role
-        </MudButton>
-        <MudText Color="Color.Error">@errorMessage</MudText>
-    </EditForm>
-
+            <MudButton ButtonType="ButtonType.Submit"
+                       Variant="Variant.Filled"
+                       Color="Color.Primary"
+                       Class="mt-3"
+                       StartIcon="@Icons.Material.Filled.Save">
+                Save Role
+            </MudButton>
+            <MudText Color="Color.Error">@errorMessage</MudText>
+        </EditForm>
+    </MudContainer>
     @code {
 
     [Parameter]

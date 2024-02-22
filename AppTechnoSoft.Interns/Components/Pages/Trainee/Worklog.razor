@@ -12,57 +12,53 @@
 }
 else
 {
-    <MudTabs Outlined>
-     <MudTabPanel Text="Daily Tasks" Icon="@Icons.Material.Sharp.AddTask">
-         <EditForm Model="@viewModel" OnValidSubmit="OnValidSubmit">
-             <DataAnnotationsValidator />
-             <MudCard Class="p-2">
-                 <MudCardContent>
-                     <MudGrid>
-                         <MudItem md="4" xs="12">
-                             <MudText Align="Align.Center" Typo="Typo.h6" Class="mb-2">Log Date</MudText>
-                             <MudDatePicker Label="Date"
-                                            Date="viewModel.Date"
-                                            DateChanged="SelectionDateChanged"
-                                            PickerVariant="PickerVariant.Static"
-                                            Color="Color.Secondary"
-                                            Orientation="Orientation.Landscape"
-                                            IsDateDisabledFunc="ShouldDisableDates"
-                                            AdditionalDateClassesFunc="@((DateTime dt)=>((int)dt.DayOfWeek == 0 ? "red-text text-accent-4" : ""))" />
-                         </MudItem>
-                         <MudItem md="4" sm="12">
-                             <MudText Align="Align.Center" Typo="Typo.h6" Class="mb-2">Punchin Time</MudText>
-                             <MudTimePicker AmPm @bind-Time="viewModel.PunchIn" PickerVariant="PickerVariant.Static" Color="Color.Secondary" />
+    <MudTabs Outlined @ref="tabs">
+         <MudTabPanel Text="Daily Tasks" Icon="@Icons.Material.Sharp.AddTask">
+             <EditForm Model="@viewModel" OnValidSubmit="OnValidSubmit">
+                 <DataAnnotationsValidator />
+                 <MudCard Class="p-2">
+                     <MudCardContent>
+                         <MudGrid>
+                             <MudItem md="4" xs="12">
+                                 <MudText Align="Align.Center" Typo="Typo.h6" Class="mb-2">Log Date</MudText>
+                                 <MudDatePicker Label="Date" Date="viewModel.Date" DateChanged="SelectionDateChanged"
+                                                PickerVariant="PickerVariant.Static" Color="Color.Secondary"
+                                                Orientation="Orientation.Landscape" IsDateDisabledFunc="ShouldDisableDates"
+                                                AdditionalDateClassesFunc="@((DateTime dt)=>((int)dt.DayOfWeek == 0 ? "red-text text-accent-4" : ""))" />
+                             </MudItem>
+                             <MudItem md="4" sm="12">
+                                 <MudText Align="Align.Center" Typo="Typo.h6" Class="mb-2">Punchin Time</MudText>
+                                 <MudTimePicker AmPm @bind-Time="viewModel.PunchIn" Color="Color.Secondary"
+                                                PickerVariant="PickerVariant.Static" />
                              </MudItem>
                              <MudItem md="4" sm="12">
                                  <MudText Align="Align.Center" Typo="Typo.h6" Class="mb-2">Punchout Time</MudText>
-                                 <MudTimePicker AmPm @bind-Time="viewModel.PunchOut" PickerVariant="PickerVariant.Static" Color="Color.Secondary" />
+                                 <MudTimePicker AmPm @bind-Time="viewModel.PunchOut" Color="Color.Secondary"
+                                                PickerVariant="PickerVariant.Static" />
                              </MudItem>
-                             <MudItem md="8" sm="12">
-                                 <MudText Color="Color.Info" Typo="Typo.h6">NOTE: You can log work for today and last 2 days in case you missed.</MudText>
-                             </MudItem>
-                             <MudItem md="4" sm="12">
-                                 <MudText Align="Align.Right" Color="Color.Info" Typo="Typo.h6">@viewModel.Date!.Value.ToShortDateString() - @((viewModel!.PunchOut - viewModel!.PunchIn)!.Value.ToString(@"hh\:mm")) WorkHrs</MudText>
+                             <MudItem Class="pt-0">
+                                 <MudText Align="Align.Right" Color="Color.Info" Typo="Typo.h6">
+                                     Work Hours
+                                     (@viewModel.Date!.Value.ToShortDateString()) - @((viewModel!.PunchOut -
+                                viewModel!.PunchIn)!.Value.ToString(@"hh\:mm"))
+                                </MudText>
                             </MudItem>
                         </MudGrid>
-                        <MudTextField Variant="Variant.Outlined"
-                                      Label="Add task summary"
-                                      Lines="5"
-                                      Class="mt-3"
-                                      @bind-Value="viewModel.Task"
-                                      For="@(() => viewModel.Task)"
-                                        Immediate />
+                        <MudTextField Variant="Variant.Outlined" Label="Add task summary" Lines="5" Class="mt-3"
+                                      @bind-Value="viewModel.Task" For="@(() => viewModel.Task)" Immediate />
                      </MudCardContent>
                      <MudCardActions>
-                         <MudButton ButtonType="ButtonType.Submit" Variant="Variant.Filled" Color="Color.Primary" Class="ml-auto" StartIcon="@Icons.Material.Sharp.Save">
+                         <MudButton ButtonType="ButtonType.Submit" Variant="Variant.Filled" Color="Color.Primary"
+                                    Class="ml-auto" StartIcon="@Icons.Material.Sharp.Save">
                              @(logExists ? "Save" : "Punchout")
                          </MudButton>
                      </MudCardActions>
                  </MudCard>
              </EditForm>
          </MudTabPanel>
-         <MudTabPanel Text="Attedance History" Icon="@Icons.Material.Filled.History" OnClick="LoadAttendances">
-             <MudTable Items="@allAttendances" Hover="true" Breakpoint="Breakpoint.Sm" Loading="@loading" LoadingProgressColor="Color.Secondary">
+         <MudTabPanel Text="Attendance History" Icon="@Icons.Material.Filled.History" OnClick="LoadAttendances">
+             <MudTable Items="@allAttendances" Hover="true" Breakpoint="Breakpoint.Sm" Loading="@loading"
+                       LoadingProgressColor="Color.Secondary">
                  <HeaderContent>
                      <MudTh>Date</MudTh>
                      <MudTh>PunchIn</MudTh>
@@ -70,18 +66,19 @@ else
                      <MudTh>Task Done</MudTh>
                  </HeaderContent>
                  <RowTemplate>
-                     <MudTd DataLabel="Nr">@context.Date</MudTd>
-                     <MudTd DataLabel="Sign">@context.PunchIn</MudTd>
-                     <MudTd DataLabel="Name">@context.PunchOut</MudTd>
-                     <MudTd DataLabel="Molar mass">@context.WorkLog</MudTd>
-                 </RowTemplate>
-             </MudTable>
-         </MudTabPanel>
-    </MudTabs>
+                     <MudTd DataLabel="Date">@context.Date</MudTd>
+                        <MudTd DataLabel="PunchIn">@context.PunchIn</MudTd>
+                        <MudTd DataLabel="PunchOut">@context.PunchOut</MudTd>
+                        <MudTd DataLabel="WorkLog">@context.WorkLog</MudTd>
+                    </RowTemplate>
+                </MudTable>
+            </MudTabPanel>
+        </MudTabs>
 }
 
 @code {
 
+    MudTabs tabs;
     private AttendanceViewModel viewModel = null!;
     private Student studentModel = null!;
     bool logExists = false;
@@ -104,37 +101,40 @@ else
 
         studentModel = await Db.Students.FirstOrDefaultAsync(x => x.ApplicationUserId == loggedInUserId) ?? new();
 
-        viewModel = new()
-            {
-                StudentId = studentModel!.Id,
-                Date = DateTime.Today,
-                PunchIn = DateTime.Now.TimeOfDay,
-                PunchOut = DateTime.Now.TimeOfDay
-            };
+        if (studentModel == null)
+            return;
 
-        (logExists, viewModel) = await FetchLog(viewModel.Date);
+        (logExists, viewModel) = await FetchLog(studentModel.Id, DateTime.Today);
     }
 
     private async Task SelectionDateChanged(DateTime? selectedDate)
     {
         viewModel.Date = selectedDate;
-        (logExists, viewModel) = await FetchLog(selectedDate);
+        (logExists, viewModel) = await FetchLog(viewModel.StudentId, selectedDate);
     }
 
-    private async Task<(bool, AttendanceViewModel)> FetchLog(DateTime? dateTime)
+    private async Task<(bool, AttendanceViewModel)> FetchLog(string studentId, DateTime? dateTime)
     {
         if (dateTime is null || dateTime == default)
-            return (false, viewModel);            
+            return (false, viewModel);
 
         var date = DateOnly.FromDateTime(dateTime.Value);
-        var m = await Db.Attendances.AsNoTracking().FirstOrDefaultAsync(x => x.Date == date);
+        var m = await Db.Attendances.AsNoTracking().FirstOrDefaultAsync(x => x.StudentId == studentId && x.Date == date);
         if (m is null)
-            return (false, viewModel);
+            return (false, ViewModelEmpty());
 
         // Mutate viewmodel
         viewModel = m.ToViewModel();
         return (true, viewModel);
     }
+
+    private AttendanceViewModel ViewModelEmpty() => new()
+        {
+            StudentId = studentModel!.Id,
+            Date = DateTime.Today,
+            PunchIn = DateTime.Now.TimeOfDay,
+            PunchOut = DateTime.Now.TimeOfDay
+        };
 
     private async Task OnValidSubmit(EditContext context)
     {
@@ -153,6 +153,7 @@ else
         if (rowsAffected > 0)
         {
             SnackBar.Add($"Your worklog added for {model.Date}", Severity.Success);
+            tabs.ActivatePanel(1);
         }
         else
         {
@@ -168,8 +169,8 @@ else
     }
 
     private bool ShouldDisableDates(DateTime dt) =>
-        dt > DateTime.Today         // Future dates
-        || (DateTime.Today >= dt.AddDays(3).Date)  // Last 3 days including today
-        || (int)dt.DayOfWeek == 0   // Sunday
-        || (int)dt.DayOfWeek == 6;  // Saturday
+    dt > DateTime.Today // Future dates
+    || (DateTime.Today >= dt.AddDays(3).Date) // Last 3 days including today
+    || (int)dt.DayOfWeek == 0 // Sunday
+    || (int)dt.DayOfWeek == 6; // Saturday
 }

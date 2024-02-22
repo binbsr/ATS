@@ -41,15 +41,18 @@ else
                 <MudText Typo="Typo.h6" Class="mb-2">@((MarkupString)$"Agile Team: <strong>{loggedInUserTeamName}</strong>")</MudText>
                 <MudGrid>
                     <MudItem md="1" xs="12" Class="d-flex">
-                        <MudTooltip Text="@($"Team {loggedInUserTeamName} ({teamMembers.Count} members)")">
-                            <MudAvatar Style="height:120px; width:120px; font-size:2.5rem;" Rounded>
-                             <MudImage Src="@loggedInUserTeamAvatar" />
-                         </MudAvatar>
-                     </MudTooltip>
-                 </MudItem>
-                 <MudItem md="11" xs="12">
-                     <MudContainer Class="d-flex align-start gap-4 ml-0">
-                         @foreach (var member in teamMembers)
+                        @if (teamMembers.Count > 0)
+                        {
+                            <MudTooltip Text="@($"Team {loggedInUserTeamName} ({teamMembers.Count} members)")">
+                                <MudAvatar Style="height:120px; width:120px; font-size:2.5rem;" Rounded>
+                                    <MudImage Src="@loggedInUserTeamAvatar" />
+                                </MudAvatar>
+                            </MudTooltip>
+                        }
+                    </MudItem>
+                    <MudItem md="11" xs="12">
+                        <MudContainer Class="d-flex align-start gap-4 ml-0">
+                            @foreach (var member in teamMembers)
                             {
                                 var user = loggedInUserId == member.UserId ? $"{member.Name} (You)" : member.Name;
                                 <MudStack AlignItems="AlignItems.Center">

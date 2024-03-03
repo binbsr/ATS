@@ -8,10 +8,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <None Remove="readme.md" />
-  </ItemGroup>
- 
-  <ItemGroup>
     <PackageReference Include="Humanizer" Version="2.14.1" />
     <PackageReference Include="Markdig" Version="0.35.0" />
     <PackageReference Include="Microsoft.AspNetCore.Authentication.Google" Version="8.0.0" />
@@ -21,10 +17,6 @@
     <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="8.0.0" />
     <PackageReference Include="MudBlazor" Version="6.12.0" />
     <PackageReference Include="PSC.Blazor.Components.MarkdownEditor" Version="2.0.19" />
-  </ItemGroup>
- 
-  <ItemGroup>
-    <Folder Include="Helpers\" />
   </ItemGroup>
 
 </Project>

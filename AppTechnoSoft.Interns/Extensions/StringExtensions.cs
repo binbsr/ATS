@@ -1,4 +1,7 @@
-﻿namespace AppTechnoSoft.Interns.Extensions;
+﻿using Markdig;
+using Microsoft.AspNetCore.Components;
+
+namespace AppTechnoSoft.Interns.Extensions;
 public static class StringExtensions
 {
     public static string MakeUnique(this string value)
@@ -9,5 +12,14 @@ public static class StringExtensions
             .Replace('/', '_');
         var output = $"{value} ({identifier})";
         return output;
+    }
+
+    public static string GetHtmlString(this string mdValue)
+    {
+        var pipeline = new MarkdownPipelineBuilder()
+               .UseAdvancedExtensions()
+               .Build();
+        var htmlMarkup = Markdown.ToHtml(mdValue, pipeline);
+        return htmlMarkup;
     }
 }

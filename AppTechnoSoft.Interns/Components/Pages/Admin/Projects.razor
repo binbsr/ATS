@@ -64,7 +64,7 @@
                                 </CardHeaderContent>
                              </MudCardHeader>
                              <MudCardContent>
-                                @((MarkupString)context.Requirements)
+                                @((MarkupString)context.Requirements.GetHtmlString())
                              </MudCardContent>
                         </MudCard>
                     </td>

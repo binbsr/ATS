@@ -1,0 +1,27 @@
+﻿<MudGrid>
+    <MudItem xs="12" md="6">
+        <MarkdownEditor @bind-Value="@MarkdownValue" LineNumbers="true" Placeholder="Enter Widget Details" ValueHTMLChanged="OnMarkdownValueHTMLChanged" />
+    </MudItem>
+    <MudItem xs="12" md="6">
+        <MudPaper Class="p-4">
+            @((MarkupString)markdownHtml)
+        </MudPaper>
+    </MudItem>
+</MudGrid>
+
+@code
+{
+    [Parameter]
+    public string MarkdownValue { get; set; } = "";
+
+    [Parameter]
+    public EventCallback<string> EditorValueChanged { get; set; }
+
+    string markdownHtml = "";
+
+    async Task OnMarkdownValueHTMLChanged(string value)
+    {
+        markdownHtml = value;
+        await EditorValueChanged.InvokeAsync(MarkdownValue);
+    }
+}

@@ -6,79 +6,30 @@
 
 <PageTitle>@pageTitle</PageTitle>
 
-    <MudContainer>
-        <EditForm Model="@model" OnValidSubmit="OnValidSubmit">
-            <DataAnnotationsValidator />
-            <MudTextField Label="Title" @bind-Value="model.Title" For="@(() => model.Title)" />
-            <MudTextField Label="Description" Class="mt-3" @bind-Value="model.Description" For="@(() => model.Description)" />
+    <EditForm Model="@model" OnValidSubmit="OnValidSubmit">
+        <DataAnnotationsValidator />
+        <MudTextField Label="Title" @bind-Value="model.Title" For="@(() => model.Title)" />
+        <MudTextField Label="Description" Class="mt-3" @bind-Value="model.Description" For="@(() => model.Description)" />
 
-            <MudSelect T="Tag"
-                       Label="Tags"
-                       Dense="true"
-                       HelperText="Check all tags that apply for this widget"
-                       MultiSelection="true"
-                       @bind-SelectedValues="@tagsSelected"
-                       Class="mb-3"
-                       MultiSelectionTextFunc="@(new Func<List<string>, string>(GetMultiSelectionText))"
-                       AnchorOrigin="Origin.BottomCenter">
-                @foreach (var tag in tags)
-            {
-                <MudSelectItem Value="@tag">@tag.Name</MudSelectItem>
-            }
-        </MudSelect>
+        <MudSelect T="Tag"
+                   Label="Tags"
+                   Dense="true"
+                   HelperText="Check all tags that apply to this widget"
+                   MultiSelection="true"
+                   @bind-SelectedValues="@tagsSelected"
+                   Class="mb-3"
+                   MultiSelectionTextFunc="@(new Func<List<string>, string>(GetMultiSelectionText))"
+                   AnchorOrigin="Origin.BottomCenter">
+            @foreach (var tag in tags)
+        {
+            <MudSelectItem Value="@tag">@tag.Name</MudSelectItem>
+        }
+    </MudSelect>
+        
+    <RichTextEditor MarkdownValue="@model.HtmlContent" EditorValueChanged="OnMarkdownValueChanged"/> 
 
-        <BlazoredTextEditor @ref="@QuillHtml" EditorCssStyle="height:350px;font-size:16px;" Placeholder="Content for this widget...">
-            <ToolbarContent>
-                <span class="ql-formats">
-                    <select class="ql-font">
-                        <option selected=""></option>
-                        <option value="serif"></option>
-                        <option value="monospace"></option>
-                    </select>
-                    <select class="ql-header">
-                        <option value="1"></option>
-                        <option selected value="2"></option>
-                        <option value="3"></option>
-                        <option value="4"></option>
-                        <option value="5"></option>
-                    </select>
-                    <select class="ql-size">
-                        <option value="small"></option>
-                        <option selected></option>
-                        <option value="large"></option>
-                        <option value="huge"></option>
-                    </select>
-                </span>
-                <span class="ql-formats">
-                    <button class="ql-bold"></button>
-                    <button class="ql-italic"></button>
-                    <button class="ql-underline"></button>
-                    <button class="ql-strike"></button>
-                </span>
-                <span class="ql-formats">
-                    <select class="ql-color"></select>
-                    <select class="ql-background"></select>
-                </span>
-                <span class="ql-formats">
-                    <button class="ql-list" value="ordered"></button>
-                    <button class="ql-list" value="bullet"></button>
-                    <button class="ql-indent" value="+1"></button>
-                    <button class="ql-indent" value="-1"></button>
-                </span>
-                <span class="ql-formats">
-                    <button class="ql-blockquote"></button>
-                    <button class="ql-code-block"></button>
-                    <button class="ql-script" value="sub"></button>
-                    <button class="ql-script" value="super"></button>
-                    <button class="ql-link"></button>
-                </span>
-            </ToolbarContent>
-            <EditorContent>@((MarkupString)model.HtmlContent)</EditorContent>
-        </BlazoredTextEditor>
-
-        <MudButton ButtonType="ButtonType.Submit" Variant="Variant.Filled" Color="Color.Primary" Class="mt-3" StartIcon="@Icons.Material.Filled.Save">Save Widget</MudButton>
-    </EditForm>
-</MudContainer>
+    <MudButton ButtonType="ButtonType.Submit" Variant="Variant.Filled" Color="Color.Primary" Class="mt-3" StartIcon="@Icons.Material.Filled.Save">Save Widget</MudButton>
+</EditForm>
 @code {
 
     [Parameter]
@@ -87,7 +38,6 @@
     [CascadingParameter]
     private Task<AuthenticationState> AuthTask { get; set; } = null!;
 
-    BlazoredTextEditor QuillHtml = null!;
     Widget model = new Widget();
     List<Tag> tags = new();
     IEnumerable<Tag> tagsSelected = [];
@@ -112,9 +62,7 @@
 
     private async Task OnValidSubmit(EditContext context)
     {
-        var widgetContent = await this.QuillHtml.GetHTML();
-
-        if (widgetContent is null or "")
+        if (model.HtmlContent is null or "")
         {
             return;
         }
@@ -122,7 +70,6 @@
         var state = await AuthTask;
         var userName = state.User.Identity?.Name;
 
-        model.HtmlContent = widgetContent;
         model.Tags = tagsSelected.ToList();
 
         if (IsAdd)
@@ -152,5 +99,10 @@
     private string GetMultiSelectionText(List<string> selectedValues)
     {
         return $"{selectedValues.Count} tag{(selectedValues.Count > 1 ? "s have" : " has")} been selected";
+    }
+
+    void OnMarkdownValueChanged(string value)
+    {
+        model.HtmlContent = value;
     }
 }

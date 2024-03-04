@@ -1,0 +1,33 @@
+﻿@if (Widgets.Any())
+{
+    <div class="border-b-2 border-solid mud-border-info mt-4 mb-2 pb-1">
+        <MudText Typo="Typo.h6">@SectionTitle</MudText>
+    </div>
+    <MudExpansionPanels Elevation="5" MultiExpansion="true" Class="mt-3">
+        <MudGrid Spacing="1">
+            @foreach (var widget in Widgets)
+            {
+                <MudItem md="6" xs="12">
+                    <Module Widget="@widget" DeleteCallBack="DeleteInitiated" />
+                </MudItem>
+            }
+        </MudGrid>
+    </MudExpansionPanels>
+}
+
+@code {
+
+    [Parameter]
+    public string SectionTitle { get; set; } = "Section";
+
+    [Parameter]
+    public IEnumerable<Widget> Widgets { get; set; } = [];
+
+    [Parameter]
+    public EventCallback<Widget> DeleteCallBack { get; set; }
+
+    private async Task DeleteInitiated(Widget widget)
+    {
+        await DeleteCallBack.InvokeAsync(widget);
+    }
+}

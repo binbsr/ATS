@@ -78,8 +78,9 @@ else
 
 @code {
 
-    MudTabs tabs;
+    MudTabs tabs = default!;
     private AttendanceViewModel viewModel = null!;
+    private Attendance model = null!;
     private Student studentModel = null!;
     bool logExists = false;
     List<Attendance> allAttendances = new();
@@ -110,7 +111,7 @@ else
     private async Task SelectionDateChanged(DateTime? selectedDate)
     {
         viewModel.Date = selectedDate;
-        (logExists, viewModel) = await FetchLog(viewModel.StudentId, selectedDate);
+        (logExists, viewModel) = await FetchLog(studentModel.Id, selectedDate);
     }
 
     private async Task<(bool, AttendanceViewModel)> FetchLog(string studentId, DateTime? dateTime)
@@ -119,18 +120,19 @@ else
             return (false, viewModel);
 
         var date = DateOnly.FromDateTime(dateTime.Value);
-        var m = await Db.Attendances.AsNoTracking().FirstOrDefaultAsync(x => x.StudentId == studentId && x.Date == date);
-        if (m is null)
-            return (false, ViewModelEmpty());
+        model = await Db.Attendances.FirstOrDefaultAsync(x => x.StudentId == studentId && x.Date == date) ?? default!;
+
+        if (model is null)
+            return (false, ViewModelEmpty(studentId));
 
         // Mutate viewmodel
-        viewModel = m.ToViewModel();
+        viewModel = model.ToViewModel();
         return (true, viewModel);
     }
 
-    private AttendanceViewModel ViewModelEmpty() => new()
+    private AttendanceViewModel ViewModelEmpty(string sId) => new()
         {
-            StudentId = studentModel!.Id,
+            StudentId = sId,
             Date = DateTime.Today,
             PunchIn = DateTime.Now.TimeOfDay,
             PunchOut = DateTime.Now.TimeOfDay
@@ -141,12 +143,15 @@ else
         if (viewModel.StudentId is null || viewModel.Date == default)
             return;
 
-        var model = viewModel.ToModel();
-
         if (logExists)
-            Db.Attendances.Update(model);
+        {            
+            viewModel.ToModel(model);
+        }
         else
+        {
+            var model = viewModel.ToModel();
             Db.Attendances.Add(model);
+        }
 
         var rowsAffected = await Db.SaveChangesAsync();
 

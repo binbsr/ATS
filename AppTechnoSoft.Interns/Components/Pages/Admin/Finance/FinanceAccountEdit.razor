@@ -54,7 +54,7 @@
     {
         if (!students.Any())
         {
-            students = await Db.Students.Include(x => x.FinAccount).Select(x => new StudentSelectListItem(x.Id, x.Name, x.Email, x.FinAccount.Id)).ToListAsync();            
+            students = await Db.Students.Include(x => x.FinAccount).Select(x => new StudentSelectListItem(x.Id, x.Name, x.Email, x.FinAccount!.Id)).ToListAsync();            
         }
 
         if (value is null or "")

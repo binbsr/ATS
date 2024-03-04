@@ -7,7 +7,7 @@ public static class AttendanceMapper
     public static Attendance ToModel(this AttendanceViewModel viewModel)
     {
         var model = new Attendance
-        {           
+        {
             Id = viewModel.Id,
             Date = DateOnly.FromDateTime(viewModel.Date!.Value),
             PunchIn = TimeOnly.FromTimeSpan(viewModel.PunchIn!.Value),
@@ -15,6 +15,17 @@ public static class AttendanceMapper
             WorkLog = viewModel.Task,
             StudentId = viewModel.StudentId
         };
+
+        return model;
+    }
+
+    public static Attendance ToModel(this AttendanceViewModel viewModel, Attendance model)
+    {
+        model.Id = viewModel.Id;
+        model.Date = DateOnly.FromDateTime(viewModel.Date!.Value);
+        model.PunchIn = TimeOnly.FromTimeSpan(viewModel.PunchIn!.Value);
+        model.PunchOut = TimeOnly.FromTimeSpan(viewModel.PunchOut!.Value);
+        model.WorkLog = viewModel.Task;
 
         return model;
     }
@@ -34,6 +45,6 @@ public static class AttendanceMapper
         return viewModel;
     }
 
-    public static List<AttendanceViewModel> ToViewModel(this List<Attendance> models) 
+    public static List<AttendanceViewModel> ToViewModel(this List<Attendance> models)
         => models.Select(x => x.ToViewModel()).ToList();
 }

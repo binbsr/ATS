@@ -5,7 +5,7 @@
 @inject IDbContextFactory<ApplicationDbContext> DbFactory
 @inject ISnackbar SnackBar
 
-<TagFilter TagDescription="module" FilterTriggered="FilterChanged" />
+<TagFilter TagDescription="module" RootFilterTriggered="RootFilterChanged" FilterTriggered="FilterTagsChanged" />
 @if (loadingData)
 {
     <MudSkeleton SkeletonType="SkeletonType.Rectangle" Height="100px" Class="mb-3" />
@@ -13,29 +13,51 @@
 }
 else
 {
-    <MudExpansionPanels Elevation="5" MultiExpansion="true" Class="mt-3">
-        <MudGrid>
-            @foreach (var widget in widgetFiltered)
-            {
-                <MudItem md="6" xs="12">
-                    <Module Widget="@widget" DeleteCallBack="DeleteInitiated"/>
-                </MudItem>
-            }
-        </MudGrid>
-    </MudExpansionPanels>
+    <ModulesSection SectionTitle="Common Tech Patterns" Widgets="commonTechWidgets" />
+    <ModulesSection SectionTitle="Use Case Assessments" Widgets="useCaseWidgets" />
+    <ModulesSection SectionTitle="Language and SDKs" Widgets="sdkAndLangWidgets" />
+    <ModulesSection SectionTitle="Database Access" Widgets="dataAccessWidgets" />
+    <ModulesSection SectionTitle="Web Development" Widgets="webWidgets" />
+    <ModulesSection SectionTitle="Security" Widgets="securityWidgets" />
+    <ModulesSection SectionTitle="DevOps" Widgets="devOpsgWidgets" />
+    <ModulesSection SectionTitle="Networking" Widgets="networkingWidgets" />
+    <ModulesSection SectionTitle="Machine Learning" Widgets="mlWidgets" />
+    <ModulesSection SectionTitle="Data Science" Widgets="dataScienceWidgets" />
+    <ModulesSection SectionTitle="Other Modules" Widgets="OtherWidgets" />
 }
 
 @code {
 
     List<Widget> widgets = [];
     List<Widget> widgetFiltered = [];
-    private List<Tag> tags = [];
+    IEnumerable<Widget> commonTechWidgets => widgetFiltered.Where(x => x.Tags!.Any(y => y.Name == ModuleSection.Common));
+    IEnumerable<Widget> sdkAndLangWidgets => widgetFiltered.Where(x => x.Tags!.Any(y => y.Name == ModuleSection.Sdk));
+    IEnumerable<Widget> dataAccessWidgets => widgetFiltered.Where(x => x.Tags!.Any(y => y.Name == ModuleSection.DataAccess));
+    IEnumerable<Widget> webWidgets => widgetFiltered.Where(x => x.Tags!.Any(y => y.Name == ModuleSection.Web));
+    IEnumerable<Widget> securityWidgets => widgetFiltered.Where(x => x.Tags!.Any(y => y.Name == ModuleSection.Security));
+    IEnumerable<Widget> networkingWidgets => widgetFiltered.Where(x => x.Tags!.Any(y => y.Name == ModuleSection.Networking));
+    IEnumerable<Widget> devOpsgWidgets => widgetFiltered.Where(x => x.Tags!.Any(y => y.Name == ModuleSection.Devops));
+    IEnumerable<Widget> mlWidgets => widgetFiltered.Where(x => x.Tags!.Any(y => y.Name == ModuleSection.Ml));
+    IEnumerable<Widget> dataScienceWidgets => widgetFiltered.Where(x => x.Tags!.Any(y => y.Name == ModuleSection.DataScience));
+    IEnumerable<Widget> useCaseWidgets => widgetFiltered.Where(x => x.Tags!.Any(y => y.Name == RootFilter.Corporate));
+    IEnumerable<Widget> OtherWidgets => widgetFiltered
+        .Except(commonTechWidgets)
+        .Except(useCaseWidgets)
+        .Except(sdkAndLangWidgets)
+        .Except(dataAccessWidgets)
+        .Except(webWidgets)
+        .Except(securityWidgets)
+        .Except(networkingWidgets)
+        .Except(devOpsgWidgets)
+        .Except(mlWidgets)
+        .Except(dataScienceWidgets);
 
+    private List<Tag> tags = [];
     bool loadingData;
 
     protected override async Task OnInitializedAsync()
     {
-        loadingData = true;        
+        loadingData = true;
 
         using var Db = DbFactory.CreateDbContext();
         widgets = await Db.Widgets.Where(x => x.Title == "Module").Include(x => x.Tags).OrderBy(x => x.Description).ToListAsync();
@@ -48,15 +70,20 @@ else
         loadingData = false;
     }
 
-    private void FilterChanged(string filterText)
+    private void RootFilterChanged(string filterText)
     {
-        if (filterText is null or "")
+        widgetFiltered = widgets.Where(x => x.Tags!.Any(y => y.Name == filterText)).ToList();
+    }
+
+    private void FilterTagsChanged(string[] filterTexts)
+    {
+        if (filterTexts.Any())
         {
-            widgetFiltered = widgets;
+            widgetFiltered = widgets.Where(x => x.Tags!.Any(y => filterTexts.Contains(y.Name))).ToList();
         }
         else
         {
-            widgetFiltered = widgets.Where(x => x.Tags!.Any(y => y.Name == filterText)).ToList();
+            widgetFiltered = widgets;
         }
     }
 

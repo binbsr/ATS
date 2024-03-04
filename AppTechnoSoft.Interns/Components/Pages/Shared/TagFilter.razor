@@ -1,16 +1,29 @@
 ﻿@inject IDbContextFactory<ApplicationDbContext> DbFactory
 
-<MudPaper Class="p-3 mb-2 border-double border-4 mud-border-warning" Elevation="15">
+<MudPaper Class="p-3 mb-2 border-solid border-2 mud-border-success" Elevation="5">
     @if (tags is null || tags.Count == 0)
     {
         <MudProgressCircular Size="Size.Large" />
     }
     else
     {
-        <MudChipSet SelectedChipChanged="FilterChanged" Filter="true">
-            @foreach (var tag in tags)
+        if (ShowRootFilters)
+        {
+            <div class="border-b-2 border-solid mud-border-success mb-3 pb-3 d-flex justify-center">
+                <MudText Typo="Typo.h6" Class="mt-3 mr-3">Select your preference</MudText>
+                <MudChipSet SelectedChipChanged="RootFilterChanged" Filter Mandatory>
+                    @foreach (var tag in roottags)
+                    {
+                        <MudChip Variant="Variant.Text" Color="Color.Default" SelectedColor="Color.Error" Style="font-size:1.3rem;font-weight:500" Class="p-4" Text="@tag" />
+                    }
+                </MudChipSet>
+            </div>
+        }
+
+        <MudChipSet Filter MultiSelection SelectedChipsChanged="FilterChanged">
+             @foreach (var tag in tags)
             {
-                <MudChip SelectedColor="Color.Success" Size="Size.Large" Text="@tag.Name" Style="@("background:" + tag.ColorCode ?? "")" Class="text-white"></MudChip>
+                <MudChip SelectedColor="Color.Success" Text="@tag.Name" Style="@("background:" + tag.ColorCode ?? "")" Class="text-white"></MudChip>
             }
         </MudChipSet>
     }
@@ -19,12 +32,19 @@
 @code {
 
     [Parameter]
+    public bool ShowRootFilters { get; set; } = true;
+
+    [Parameter]
     public required string TagDescription { get; set; }
 
     [Parameter]
-    public EventCallback<string> FilterTriggered { get; set; }
+    public EventCallback<string> RootFilterTriggered { get; set; }
+
+    [Parameter]
+    public EventCallback<string[]> FilterTriggered { get; set; }
 
     public List<Tag> tags = [];
+    public List<string> roottags = [RootFilter.Internship, RootFilter.Professional, RootFilter.Corporate];
 
     protected override async Task OnInitializedAsync()
     {
@@ -35,8 +55,14 @@
         tags = await Db.Tags.Where(x => x.Description!.Contains(TagDescription)).ToListAsync();
     }
 
-    private async Task FilterChanged(MudChip chip)
+    private async Task RootFilterChanged(MudChip chip)
     {
-        await FilterTriggered.InvokeAsync(chip?.Text ?? string.Empty);
+        await RootFilterTriggered.InvokeAsync(chip.Text);
+    }
+
+    private async Task FilterChanged(MudChip[] chips)
+    {
+        var filters = chips.Select(x => x.Text).ToArray() ?? [];
+        await FilterTriggered.InvokeAsync(filters);
     }
 }

@@ -14,6 +14,7 @@
 else
 {
     <ModulesSection SectionTitle="Common Tech Patterns" Widgets="commonTechWidgets" />
+    <ModulesSection SectionTitle="Use Case Assessments" Widgets="useCaseWidgets" />
     <ModulesSection SectionTitle="Language and SDKs" Widgets="sdkAndLangWidgets" />
     <ModulesSection SectionTitle="Database Access" Widgets="dataAccessWidgets" />
     <ModulesSection SectionTitle="Web Development" Widgets="webWidgets" />
@@ -21,6 +22,7 @@ else
     <ModulesSection SectionTitle="DevOps" Widgets="devOpsgWidgets" />
     <ModulesSection SectionTitle="Networking" Widgets="networkingWidgets" />
     <ModulesSection SectionTitle="Machine Learning" Widgets="mlWidgets" />
+    <ModulesSection SectionTitle="Data Science" Widgets="dataScienceWidgets" />
     <ModulesSection SectionTitle="Other Modules" Widgets="OtherWidgets" />
 }
 
@@ -35,16 +37,20 @@ else
     IEnumerable<Widget> securityWidgets => widgetFiltered.Where(x => x.Tags!.Any(y => y.Name == ModuleSection.Security));
     IEnumerable<Widget> networkingWidgets => widgetFiltered.Where(x => x.Tags!.Any(y => y.Name == ModuleSection.Networking));
     IEnumerable<Widget> devOpsgWidgets => widgetFiltered.Where(x => x.Tags!.Any(y => y.Name == ModuleSection.Devops));
-    IEnumerable<Widget> mlWidgets => widgetFiltered.Where(x => x.Tags!.Any(y => y.Name == ModuleSection.Ml));        
+    IEnumerable<Widget> mlWidgets => widgetFiltered.Where(x => x.Tags!.Any(y => y.Name == ModuleSection.Ml));
+    IEnumerable<Widget> dataScienceWidgets => widgetFiltered.Where(x => x.Tags!.Any(y => y.Name == ModuleSection.DataScience));
+    IEnumerable<Widget> useCaseWidgets => widgetFiltered.Where(x => x.Tags!.Any(y => y.Name == RootFilter.Corporate));
     IEnumerable<Widget> OtherWidgets => widgetFiltered
         .Except(commonTechWidgets)
+        .Except(useCaseWidgets)
         .Except(sdkAndLangWidgets)
         .Except(dataAccessWidgets)
         .Except(webWidgets)
         .Except(securityWidgets)
         .Except(networkingWidgets)
         .Except(devOpsgWidgets)
-        .Except(mlWidgets);
+        .Except(mlWidgets)
+        .Except(dataScienceWidgets);
 
     private List<Tag> tags = [];
     bool loadingData;

@@ -9,8 +9,7 @@ public static class ModuleSection
     public const string Devops = "DevOps";
     public const string Networking = "Networking";
     public const string Ml = "ML";
+    public const string DataScience = "Data Science";
     public const string Infra = "Infra";
-    public const string Requirements = "Requirements";
-    public const string TechStack = "Tech Stack";
-    public const string TechRefresh = "Tech Refresh";
+    public const string Corporate = "Corporate";
 }

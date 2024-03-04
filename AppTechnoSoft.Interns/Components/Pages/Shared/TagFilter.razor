@@ -9,12 +9,15 @@
     {
         if (ShowRootFilters)
         {
-            <MudChipSet SelectedChipChanged="RootFilterChanged" Filter Class="border-b-2 border-solid mud-border-success mb-3 pb-3 d-flex justify-center" Mandatory>
-             @foreach (var tag in roottags)
-                {
-                    <MudChip Default="@(tag == RootFilter.Internship)" Variant="Variant.Text" Color="Color.Default" SelectedColor="Color.Error" Style="font-size:1.3rem;font-weight:500" Class="p-4" Text="@tag" />
-                }
-            </MudChipSet>
+            <div class="border-b-2 border-solid mud-border-success mb-3 pb-3 d-flex justify-center">
+                <MudText Typo="Typo.h6" Class="mt-3 mr-3">Select your preference</MudText>
+                <MudChipSet SelectedChipChanged="RootFilterChanged" Filter Mandatory>
+                    @foreach (var tag in roottags)
+                    {
+                        <MudChip Variant="Variant.Text" Color="Color.Default" SelectedColor="Color.Error" Style="font-size:1.3rem;font-weight:500" Class="p-4" Text="@tag" />
+                    }
+                </MudChipSet>
+            </div>
         }
 
         <MudChipSet Filter MultiSelection SelectedChipsChanged="FilterChanged">

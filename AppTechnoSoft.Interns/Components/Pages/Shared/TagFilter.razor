@@ -7,15 +7,18 @@
     }
     else
     {
-        <MudChipSet SelectedChipChanged="RootFilterChanged" Filter Class="border-b-2 border-solid mud-border-success mb-3 pb-3 d-flex justify-center" Mandatory>
-            @foreach (var tag in roottags)
-            {
-                <MudChip Default="@(tag == RootFilter.Internship)" Variant="Variant.Text" Color="Color.Default" SelectedColor="Color.Error" Style="font-size:1.3rem;font-weight:500" Class="p-4" Text="@tag" />
-            }
-        </MudChipSet>
+        if (ShowRootFilters)
+        {
+            <MudChipSet SelectedChipChanged="RootFilterChanged" Filter Class="border-b-2 border-solid mud-border-success mb-3 pb-3 d-flex justify-center" Mandatory>
+             @foreach (var tag in roottags)
+                {
+                    <MudChip Default="@(tag == RootFilter.Internship)" Variant="Variant.Text" Color="Color.Default" SelectedColor="Color.Error" Style="font-size:1.3rem;font-weight:500" Class="p-4" Text="@tag" />
+                }
+            </MudChipSet>
+        }
 
         <MudChipSet Filter MultiSelection SelectedChipsChanged="FilterChanged">
-            @foreach (var tag in tags)
+             @foreach (var tag in tags)
             {
                 <MudChip SelectedColor="Color.Success" Text="@tag.Name" Style="@("background:" + tag.ColorCode ?? "")" Class="text-white"></MudChip>
             }
@@ -24,6 +27,9 @@
 </MudPaper>
 
 @code {
+
+    [Parameter]
+    public bool ShowRootFilters { get; set; } = true;
 
     [Parameter]
     public required string TagDescription { get; set; }
@@ -55,5 +61,5 @@
     {
         var filters = chips.Select(x => x.Text).ToArray() ?? [];
         await FilterTriggered.InvokeAsync(filters);
-    }   
+    }
 }

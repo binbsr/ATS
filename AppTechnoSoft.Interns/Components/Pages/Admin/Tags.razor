@@ -25,7 +25,7 @@
     </HeaderContent>
     <RowTemplate>
         <MudTd DataLabel="#">@(tags.IndexOf(context) + 1)</MudTd>
-        <MudTd DataLabel="Name"><MudChip Style="@("background:" + context.ColorCode ?? "")" Class="text-white">@context.Name</MudChip></MudTd>
+        <MudTd DataLabel="Name"><MudChip Style="@("background:" + context.ColorCode ?? "")" Class="text-white" Size="Size.Small">@context.Name</MudChip></MudTd>
             <MudTd DataLabel="Description">@context.Description</MudTd>
             <MudTd DataLabel="ColorCode">@context.ColorCode</MudTd>
             <MudTd>
@@ -42,7 +42,7 @@
             </MudTd>
         </RowTemplate>
         <PagerContent>
-            <MudTablePager />
+            <MudTablePager PageSizeOptions="@([20, 50, 100])" />
         </PagerContent>
     </MudTable>
 

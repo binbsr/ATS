@@ -10,6 +10,6 @@ public static class ModuleSection
     public const string Networking = "Networking";
     public const string Ml = "ML";
     public const string DataScience = "Data Science";
-    public const string Infra = "Infra";
-    public const string Corporate = "Corporate";
+    public const string UseCase = "Use Case";
+    public const string ProjectWork = "Project Work";
 }

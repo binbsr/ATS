@@ -8,23 +8,34 @@
 <TagFilter TagDescription="module" RootFilterTriggered="RootFilterChanged" FilterTriggered="FilterTagsChanged" />
 @if (loadingData)
 {
-    <MudSkeleton SkeletonType="SkeletonType.Rectangle" Height="100px" Class="mb-3" />
-    <MudSkeleton SkeletonType="SkeletonType.Rectangle" Height="100px" Class="mb-3" />
+        <MudGrid>
+            <MudItem>
+                <MudSkeleton SkeletonType="SkeletonType.Rectangle" Height="100px" Class="mb-3" />
+                <MudSkeleton SkeletonType="SkeletonType.Rectangle" Height="100px" Class="mb-3" />
+                <MudSkeleton SkeletonType="SkeletonType.Rectangle" Height="100px" Class="mb-3" />
+            </MudItem>
+            <MudItem>
+                <MudSkeleton SkeletonType="SkeletonType.Rectangle" Height="100px" Class="mb-3" />
+                    <MudSkeleton SkeletonType="SkeletonType.Rectangle" Height="100px" Class="mb-3" />
+                    <MudSkeleton SkeletonType="SkeletonType.Rectangle" Height="100px" Class="mb-3" />
+            </MudItem>
+        </MudGrid>
+
 }
 else
 {
-    <ModulesSection SectionTitle="Use Case Assessments" Widgets="useCaseWidgets" />
-    <ModulesSection SectionTitle="Common Tech Patterns" Widgets="commonTechWidgets" />
-    <ModulesSection SectionTitle="Language and SDKs" Widgets="sdkAndLangWidgets" />
-    <ModulesSection SectionTitle="Database Access" Widgets="dataAccessWidgets" />
-    <ModulesSection SectionTitle="Web Development" Widgets="webWidgets" />
-    <ModulesSection SectionTitle="Security" Widgets="securityWidgets" />
-    <ModulesSection SectionTitle="DevOps" Widgets="devOpsgWidgets" />
-    <ModulesSection SectionTitle="Networking" Widgets="networkingWidgets" />
-    <ModulesSection SectionTitle="Machine Learning" Widgets="mlWidgets" />
-    <ModulesSection SectionTitle="Data Science" Widgets="dataScienceWidgets" />
-    <ModulesSection SectionTitle="Interns Special" Widgets="projectWorkeWidgets" />
-    <ModulesSection SectionTitle="Other Modules" Widgets="OtherWidgets" />
+        <ModulesSection SectionTitle="Use Case Assessments" Widgets="useCaseWidgets" />
+        <ModulesSection SectionTitle="Common Tech Patterns" Widgets="commonTechWidgets" />
+        <ModulesSection SectionTitle="Language and SDKs" Widgets="sdkAndLangWidgets" />
+        <ModulesSection SectionTitle="Database Access" Widgets="dataAccessWidgets" />
+        <ModulesSection SectionTitle="Web Development" Widgets="webWidgets" />
+        <ModulesSection SectionTitle="Security" Widgets="securityWidgets" />
+        <ModulesSection SectionTitle="DevOps" Widgets="devOpsgWidgets" />
+        <ModulesSection SectionTitle="Networking" Widgets="networkingWidgets" />
+        <ModulesSection SectionTitle="Machine Learning" Widgets="mlWidgets" />
+        <ModulesSection SectionTitle="Data Science" Widgets="dataScienceWidgets" />
+        <ModulesSection SectionTitle="Interns Special" Widgets="projectWorkeWidgets" />
+        <ModulesSection SectionTitle="Other Modules" Widgets="OtherWidgets" />
 }
 
 @code {
@@ -57,6 +68,8 @@ else
         .Except(projectWorkeWidgets);
 
     private List<Tag> tags = [];
+    private string selectedRootFilter = RootFilter.All;
+    private List<string> selectedSecondaryFilters = [];
     bool loadingData;
 
     protected override async Task OnInitializedAsync()
@@ -76,18 +89,26 @@ else
 
     private void RootFilterChanged(string filterText)
     {
-        widgetFiltered = widgets.Where(x => x.Tags!.Any(y => y.Name == filterText)).ToList();
+        selectedRootFilter = filterText;
+        GetFilteredModules(filterText, selectedSecondaryFilters);
     }
 
-    private void FilterTagsChanged(string[] filterTexts)
+    private void FilterTagsChanged(List<string> filterTexts)
     {
-        if (filterTexts.Any())
-        {
-            widgetFiltered = widgets.Where(x => x.Tags!.Any(y => filterTexts.Contains(y.Name))).ToList();
-        }
+        selectedSecondaryFilters = filterTexts;
+        GetFilteredModules(selectedRootFilter, filterTexts);        
+    }
+
+    private void GetFilteredModules(string rootFolder, List<string> secondaryTags)
+    {
+        if (rootFolder != RootFilter.All)
+            widgetFiltered = widgets.Where(x => x.Tags!.Any(y => y.Name == selectedRootFilter)).ToList();
         else
-        {
             widgetFiltered = widgets;
+
+        if (secondaryTags.Any())
+        {            
+            widgetFiltered = widgetFiltered.Where(x => x.Tags!.Any(y => secondaryTags.Contains(y.Name))).ToList();            
         }
     }
 

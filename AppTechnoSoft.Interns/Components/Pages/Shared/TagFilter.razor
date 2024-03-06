@@ -10,11 +10,11 @@
         if (ShowRootFilters)
         {
             <div class="border-b-2 border-solid mud-border-success mb-3 pb-3 d-flex justify-center">
-                <MudText Typo="Typo.h6" Class="mt-3 mr-3">Select your preference</MudText>
+                <MudText Typo="Typo.h6" Class="mt-3 mr-3">Select Learning Path</MudText>
                 <MudChipSet SelectedChipChanged="RootFilterChanged" Filter Mandatory>
                     @foreach (var tag in roottags)
                     {
-                        <MudChip Variant="Variant.Text" Color="Color.Default" SelectedColor="Color.Error" Style="font-size:1.3rem;font-weight:500" Class="p-4" Text="@tag" />
+                        <MudChip Default="@(tag == RootFilter.All)" Variant="Variant.Outlined" Color="Color.Default" SelectedColor="Color.Success" Style="font-size:1.3rem;font-weight:500" Class="p-4" Text="@tag" />
                     }
                 </MudChipSet>
             </div>
@@ -41,10 +41,10 @@
     public EventCallback<string> RootFilterTriggered { get; set; }
 
     [Parameter]
-    public EventCallback<string[]> FilterTriggered { get; set; }
+    public EventCallback<List<string>> FilterTriggered { get; set; }
 
     public List<Tag> tags = [];
-    public List<string> roottags = [RootFilter.Internship, RootFilter.Professional, RootFilter.Corporate];
+    public List<string> roottags = [RootFilter.All, RootFilter.Internship, RootFilter.Professional, RootFilter.Corporate];
 
     protected override async Task OnInitializedAsync()
     {
@@ -62,7 +62,7 @@
 
     private async Task FilterChanged(MudChip[] chips)
     {
-        var filters = chips.Select(x => x.Text).ToArray() ?? [];
+        var filters = chips.Select(x => x.Text).ToList() ?? [];
         await FilterTriggered.InvokeAsync(filters);
     }
 }

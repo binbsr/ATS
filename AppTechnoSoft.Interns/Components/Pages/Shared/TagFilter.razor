@@ -1,6 +1,6 @@
 ﻿@inject IDbContextFactory<ApplicationDbContext> DbFactory
 
-<MudPaper Class="p-3 mb-2 border-solid border-2 mud-border-success" Elevation="5">
+<MudPaper Class="p-3 border-solid border-2 mud-border-success" Elevation="5">
     @if (tags is null || tags.Count == 0)
     {
         <MudProgressCircular Size="Size.Large" />

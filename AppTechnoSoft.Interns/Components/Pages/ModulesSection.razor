@@ -1,9 +1,9 @@
 ﻿@if (Widgets.Any())
 {
-    <div class="border-b-2 border-solid mud-border-info mt-4 mb-2 pb-1">
+    <div class="border-b-2 border-solid mud-border-info mt-3 mb-2">
         <MudText Typo="Typo.h6">@SectionTitle</MudText>
     </div>
-    <MudExpansionPanels Elevation="5" MultiExpansion="true" Class="mt-3">
+        <MudExpansionPanels Elevation="5" MultiExpansion="true" DisableBorders>
         <MudGrid Spacing="1">
             @foreach (var widget in Widgets)
             {

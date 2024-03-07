@@ -3,6 +3,44 @@
 1. Text **HomeIntro** will be used render items on home page (bottom part)
 1. Text **CarouselItem** will be used render carouselitems on home page (top part)
 
+```csharp
+public class WidgetFilter
+{
+    public const string Module = "Course Module";
+    public const string CarouselItem = "Home Carousel Item";
+    public const string HomeIntro = "Home Card";
+}
+
+Note: nameof(Module) etc.
+```
+
+## Tag Filters on modules/instructors page
+```csharp
+public static class RootFilter
+{
+    public const string All = "All Modules";
+    public const string Internship = "Internship";
+    public const string Professional = "Professional Training";
+    public const string Corporate = "Corporate Training";
+}
+
+public static class ModuleSection
+{
+    public const string Common = "Common";
+    public const string Sdk = "SDK";
+    public const string DataAccess = "Data Access";
+    public const string Web = "Web";
+    public const string Security = "Security";
+    public const string Devops = "DevOps";
+    public const string Networking = "Networking";
+    public const string Ml = "ML";
+    public const string DataScience = "Data Science";
+    public const string UseCase = "Use Case";
+    public const string ProjectWork = "Project Work";
+}
+
+```
+
 ## HTML Content parts
 > Example on text editor:
 We guide you on software R&D and SDLC to kickstart your career! (Will be used as text title, can be any number of lines withour line breaks)

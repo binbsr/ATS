@@ -17,7 +17,7 @@ else
                      ShowBullets="@true"
                      EnableSwipeGesture="@true"
                      TData="object">
-            @foreach (var item in homeItems.Where(x => x.Title == "CarouselItem"))
+            @foreach (var item in homeItems.Where(x => x.Title == nameof(WidgetFilter.CarouselItem)))
             {
                 var parts = item.HtmlContent.Split(["<p>", "</p>"], StringSplitOptions.RemoveEmptyEntries);
 
@@ -38,7 +38,7 @@ else
     </MudPaper>
     
     <MudGrid>
-        @foreach (var item in homeItems.Where(x => x.Title == "HomeIntro"))
+        @foreach (var item in homeItems.Where(x => x.Title == nameof(WidgetFilter.HomeIntro)))
         {
             var parts = item.HtmlContent.Split(["<p>", "</p>"], StringSplitOptions.RemoveEmptyEntries);
             var titleParts = item.Description.Split(["(", ")"], StringSplitOptions.RemoveEmptyEntries);
@@ -91,7 +91,7 @@ else
 
     protected override async Task OnInitializedAsync()
     {
-        homeItems = await db.Widgets.Where(x => x.Title == "CarouselItem" || x.Title == "HomeIntro").ToListAsync();
+        homeItems = await db.Widgets.Where(x => x.Title == nameof(WidgetFilter.CarouselItem) || x.Title == nameof(WidgetFilter.HomeIntro)).ToListAsync();
 
         // Get all home images for reference
         var state = await AuthTask;

@@ -1,6 +1,6 @@
 ﻿@inject IDbContextFactory<ApplicationDbContext> DbFactory
 
-<MudPaper Class="p-3 border-solid border-2 mud-border-success" Elevation="5">
+<MudPaper Class="p-3" Elevation="10">
     @if (tags is null || tags.Count == 0)
     {
         <MudProgressCircular Size="Size.Large" />
@@ -9,18 +9,23 @@
     {
         if (ShowRootFilters)
         {
-            <div class="border-b-2 border-solid mud-border-success mb-3 pb-3 d-flex justify-center">
-                <MudText Typo="Typo.h6" Class="mt-3 mr-3">Select Learning Path</MudText>
-                <MudChipSet SelectedChipChanged="RootFilterChanged" Filter Mandatory>
-                    @foreach (var tag in roottags)
-                    {
-                        <MudChip Default="@(tag == RootFilter.All)" Variant="Variant.Outlined" Color="Color.Default" SelectedColor="Color.Success" Style="font-size:1.3rem;font-weight:500" Class="p-4" Text="@tag" />
-                    }
-                </MudChipSet>
-            </div>
+            <MudToggleGroup Class="mud-width-full" T="string" Color="Color.Info" ValueChanged="RootFilterChanged" Value="@RootFilter.All" SelectedClass="custom-gradient">
+                @foreach (var tag in roottags)
+                {
+                    <MudToggleItem Value="@tag.Title">
+                        <div class="mud-width-full mud-height-full">
+                            <div class="d-flex align-center justify-space-between flex-wrap">
+                                <MudText Class="ellipsis" Typo="Typo.h6">@tag.Title</MudText>
+                                    <MudChip Class="text-white" Style=@(context ? "background:#1976D2": "background:#6D4C41") Icon="@(context ? Icons.Material.Filled.Check : "")">@tag.TagValue</MudChip>
+                                </div>
+                                <MudText Typo="Typo.subtitle2">@tag.Description</MudText>
+                            </div>
+                        </MudToggleItem>
+                }
+            </MudToggleGroup>
         }
 
-        <MudChipSet Filter MultiSelection SelectedChipsChanged="FilterChanged">
+        <MudChipSet Filter MultiSelection SelectedChipsChanged="FilterChanged" Class="mt-3">
              @foreach (var tag in tags)
             {
                 <MudChip SelectedColor="Color.Success" Text="@tag.Name" Style="@("background:" + tag.ColorCode ?? "")" Class="text-white"></MudChip>
@@ -28,6 +33,14 @@
         </MudChipSet>
     }
 </MudPaper>
+
+
+<style>
+    .custom-gradient {
+        background-image: linear-gradient(to right top, #0D47A1, #1565C0, #6D4C41, #E53935, #C62828);
+        color: white !important;
+    }
+</style>
 
 @code {
 
@@ -44,7 +57,11 @@
     public EventCallback<List<string>> FilterTriggered { get; set; }
 
     public List<Tag> tags = [];
-    public List<string> roottags = [RootFilter.All, RootFilter.Internship, RootFilter.Professional, RootFilter.Corporate];
+    public List<(string Title, string Description, string TagValue)> roottags = [(RootFilter.All, "All Course Modules", "All"),
+        (RootFilter.Internship, "Modules for Interns", "Interns"),
+        (RootFilter.Professional, "Modules for Specialized Professionals", "Professional"),
+        (RootFilter.Corporate, "Modules for Corporate Employees", "Corporate")
+    ];
 
     protected override async Task OnInitializedAsync()
     {
@@ -55,9 +72,9 @@
         tags = await Db.Tags.Where(x => x.Description!.Contains(TagDescription)).ToListAsync();
     }
 
-    private async Task RootFilterChanged(MudChip chip)
+    private async Task RootFilterChanged(string rootTag)
     {
-        await RootFilterTriggered.InvokeAsync(chip.Text);
+        await RootFilterTriggered.InvokeAsync(rootTag);
     }
 
     private async Task FilterChanged(MudChip[] chips)

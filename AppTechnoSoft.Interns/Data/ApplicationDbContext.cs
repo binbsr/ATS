@@ -1,3 +1,4 @@
+using AppTechnoSoft.Interns.Data.Constants;
 using AppTechnoSoft.Interns.Data.Models;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
@@ -152,21 +153,21 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
             .HasData([
                 new IdentityRole
                 {
-                    Name = "SuperAdmin",
+                    Name = Role.SuperAdmin,
                     NormalizedName = "SUPERADMIN",
                     Id = superAdminRoleId,
                     ConcurrencyStamp = superAdminRoleId
                 },
                 new IdentityRole
                 {
-                    Name = "Admin",
+                    Name = Role.Admin,
                     NormalizedName = "ADMIN",
                     Id = adminRoleId,
                     ConcurrencyStamp = adminRoleId
                 },
                 new IdentityRole
                 {
-                    Name = "Trainee",
+                    Name = Role.Trainee,
                     NormalizedName = "TRAINEE",
                     Id = traineeRoleId,
                     ConcurrencyStamp = traineeRoleId

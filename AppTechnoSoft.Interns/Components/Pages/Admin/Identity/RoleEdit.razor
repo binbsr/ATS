@@ -1,6 +1,8 @@
 ﻿@page "/add-role"
 @page "/edit-role/{Id}"
 
+@attribute [Authorize(Roles = Role.SuperAdmin)]
+
 @inject RoleManager<IdentityRole> RoleManager
 @inject ISnackbar SnackBar
 @inject NavigationManager Navigation

@@ -1,5 +1,5 @@
 ﻿@page "/applications"
-@attribute [Authorize(Roles = "Admin")]
+@attribute [Authorize(Roles = Role.Admin)]
 @inject ApplicationDbContext db
 
 <PageTitle>Applications</PageTitle>

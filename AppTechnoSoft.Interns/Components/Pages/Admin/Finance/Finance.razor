@@ -1,6 +1,6 @@
 ﻿@page "/finance"
 @using System.Globalization
-@attribute [Authorize(Roles = "SuperAdmin")]
+@attribute [Authorize(Roles = Role.SuperAdmin)]
 @inject ApplicationDbContext db
 @inject ISnackbar SnackBar
 

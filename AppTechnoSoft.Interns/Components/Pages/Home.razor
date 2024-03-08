@@ -29,14 +29,14 @@ else
                         }
                     </MudHidden>
                     <MudText Typo="Typo.h3" Align="Align.Center">@((MarkupString)parts[0])</MudText>
-                    <AuthorizeView Roles="Admin,SuperAdmin">
+                    <AuthorizeView Roles="@($"{Role.Admin},{Role.SuperAdmin}")">
                         <MudIconButton Icon="@Icons.Material.Filled.Edit" Color="Color.Warning" Size="Size.Small" Class="ml-auto" Href="@("/edit-widget/" + item.Id)" />
                     </AuthorizeView>
                 </MudCarouselItem>
             }
         </MudCarousel>
     </MudPaper>
-    
+
     <MudGrid>
         @foreach (var item in homeItems.Where(x => x.Title == nameof(WidgetFilter.HomeIntro)))
         {
@@ -48,16 +48,16 @@ else
                     <MudCardHeader>
                         <CardHeaderAvatar>
                             <MudAvatar Color="Color.Error">@titleParts[0][0]</MudAvatar>
-                        </CardHeaderAvatar>
-                        <CardHeaderContent>
-                            <MudText Typo="Typo.h6">@titleParts[0]</MudText>
-                            <MudText Typo="Typo.subtitle2">@(titleParts.Length > 1 ? titleParts[1] : "We are here for you!")</MudText>
-                        </CardHeaderContent>
-                        <CardHeaderActions>
-                            <AuthorizeView Roles="Admin,SuperAdmin">
-                                <MudIconButton Icon="@Icons.Material.Filled.Edit" Color="Color.Warning" Size="Size.Small" Class="ml-auto" Href="@("/edit-widget/" + item.Id)" />
-                            </AuthorizeView>
-                        </CardHeaderActions>
+                            </CardHeaderAvatar>
+                            <CardHeaderContent>
+                                <MudText Typo="Typo.h6">@titleParts[0]</MudText>
+                                <MudText Typo="Typo.subtitle2">@(titleParts.Length > 1 ? titleParts[1] : "We are here for you!")</MudText>
+                            </CardHeaderContent>
+                            <CardHeaderActions>
+                                <AuthorizeView Roles="@($"{Role.Admin},{Role.SuperAdmin}")">
+                                    <MudIconButton Icon="@Icons.Material.Filled.Edit" Color="Color.Warning" Size="Size.Small" Class="ml-auto" Href="@("/edit-widget/" + item.Id)" />
+                                </AuthorizeView>
+                            </CardHeaderActions>
                         </MudCardHeader>
                         <MudCardMedia Image="@((parts.Length > 1) ? parts[1] : "homeitems/learncode.jpg")" Height="250" />
                         <MudCardContent>
@@ -73,7 +73,7 @@ else
     </MudGrid>
 }
 
-<AuthorizeView Roles="Admin,SuperAdmin">
+<AuthorizeView Roles="@($"{Role.Admin},{Role.SuperAdmin}")">
     <MudText Typo="Typo.h6" Class="mt-6">Home Page Image References (Shown just to admins)</MudText>
     @foreach (var image in images)
     {
@@ -95,7 +95,7 @@ else
 
         // Get all home images for reference
         var state = await AuthTask;
-        if (state.User.IsInRole("Admin") || state.User.IsInRole("SuperAdmin"))
+        if (state.User.IsInRole(Role.Admin) || state.User.IsInRole(Role.SuperAdmin))
         {
             var relativeAssetPath = $"homeitems";
             var currentAppPath = Environment.CurrentDirectory;

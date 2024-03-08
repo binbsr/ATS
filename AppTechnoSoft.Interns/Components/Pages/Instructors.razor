@@ -5,7 +5,7 @@
 <PageTitle>Our Instructors</PageTitle>
 
 <TagFilter TagDescription="tech" RootFilterTriggered="FilterChanged" ShowRootFilters="false"/>
-<MudGrid>
+<MudGrid Class="pt-3">
     @foreach (var instructor in instructorFiltered)
     {
         <MudItem xl="3" lg="4" md="6" sm="6" xs="12">
@@ -19,7 +19,7 @@
                         </MudContainer>
                     </CardHeaderContent>
                     <CardHeaderActions>
-                        <AuthorizeView Roles="Admin,SuperAdmin">
+                        <AuthorizeView Roles="@($"{Role.Admin},{Role.SuperAdmin}")">
                             <MudIconButton Icon="@Icons.Material.Filled.Edit" Color="Color.Warning" Size="Size.Small" Class="ml-auto" Href="@("/edit-instructor/"+instructor.Id)" />
                         </AuthorizeView>
                     </CardHeaderActions>
@@ -31,9 +31,9 @@
                     </MudCardContent>
                     <MudCardActions>
                         @foreach (var tag in instructor.Tags!)
-                    {
-                        <MudChip Style="@("color:" + tag.ColorCode)">@tag.Name</MudChip>
-                    }
+                        {
+                        <MudChip Style="@("background:" + tag.ColorCode)" Class="text-white">@tag.Name</MudChip>
+                        }
                 </MudCardActions>
             </MudCard>
         </MudItem>
@@ -53,7 +53,7 @@
         var state = await AuthTask;
         using var Db = DbFactory.CreateDbContext();
 
-        if (state?.User is not null && (state.User.IsInRole("Admin") || state.User.IsInRole("SuperAdmin")))
+        if (state?.User is not null && (state.User.IsInRole(Role.Admin) || state.User.IsInRole(Role.SuperAdmin)))
         {
             instructors = await Db.Instructors.Include(x => x.Tags).ToListAsync();
         }

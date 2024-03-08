@@ -1,5 +1,7 @@
 ﻿@page "/edit-user/{Id}"
 
+@attribute [Authorize(Roles = Role.SuperAdmin)]
+
 @inject UserManager<ApplicationUser> UserManager
 @inject RoleManager<IdentityRole> RoleManager
 @inject ISnackbar SnackBar

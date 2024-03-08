@@ -4,7 +4,7 @@
             <MudIcon Icon="@(isOpen ? Icons.Material.Sharp.HorizontalRule : Icons.Material.Sharp.Add)" Class="mr-2"></MudIcon>
             <MudText Style="font-size:1.1rem;font-weight:500;">@Widget.Description</MudText>
                 @* <MudText Class="ml-auto mt-2" Typo="Typo.body2">Updated @((Widget.LastUpdated ?? Widget.Created).Humanize())</MudText> *@
-                <AuthorizeView Roles="Admin,SuperAdmin">
+                <AuthorizeView Roles="@($"{Role.Admin},{Role.SuperAdmin}")">
                     <MudIconButton Icon="@Icons.Material.Filled.Edit" Color="Color.Warning" Size="Size.Small" Href="@EditUrl" />
                     <MudIconButton Icon="@Icons.Material.Sharp.Delete" Size="Size.Small" Color="Color.Error" OnClick="() => ConfirmDelete()" />
                     <MudMessageBox @ref="mbox" Title="Warning" CancelText="Cancel">

@@ -1,6 +1,6 @@
 ﻿@page "/add-fee-account"
 
-@attribute [Authorize(Roles = "SuperAdmin")]
+@attribute [Authorize(Roles = Role.SuperAdmin)]
 
 @inject ApplicationDbContext Db
 @inject ISnackbar SnackBar

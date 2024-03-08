@@ -1,5 +1,5 @@
 ﻿@page "/colleges"
-@attribute [Authorize(Roles = "Admin")]
+@attribute [Authorize(Roles = Role.Admin)]
 @inject ApplicationDbContext db
 @inject ISnackbar SnackBar
 

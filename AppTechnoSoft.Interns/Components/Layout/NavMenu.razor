@@ -13,7 +13,7 @@
                 <MudNavLink Href="/logwork" Icon="@Icons.Material.Sharp.ListAlt" IconColor="Color.Secondary">Worklog</MudNavLink>
             </AuthorizeView>
 
-            <AuthorizeView Roles="Admin">
+            <AuthorizeView Roles=@(Role.Admin)>
                 <MudDivider Class="my-2" />
                 <MudNavGroup Title="Admin Panel" Icon="@Icons.Material.Filled.VerifiedUser" IconColor="Color.Info">
                     <MudNavLink Href="/attendance" Icon="@Icons.Material.Filled.Checklist" IconColor="Color.Info">Attendance</MudNavLink>
@@ -29,7 +29,7 @@
                 </MudNavGroup>
             </AuthorizeView>
 
-            <AuthorizeView Roles="SuperAdmin">
+            <AuthorizeView Roles=@(Role.SuperAdmin)>
                 <MudDivider Class="my-2" />
                 <MudNavGroup Title="User Accounts" Icon="@Icons.Material.Filled.AdminPanelSettings" IconColor="Color.Warning">
                     <MudNavLink Href="/identity/roles" Icon="@Icons.Material.Filled.Security" IconColor="Color.Warning">Roles</MudNavLink>

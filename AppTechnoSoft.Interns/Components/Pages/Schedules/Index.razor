@@ -1,0 +1,104 @@
+﻿@page "/schedules"
+
+@inject ApplicationDbContext Db
+@inject ISnackbar SnackBar
+@inject NavigationManager Navigation
+
+<MudTable Items="@schedules" Dense="true" Hover="true" Filter="new Func<ClassSchedule,bool>(FilterFunc1)" @bind-SelectedItem="selectedSchedule" Loading="@loadingData">
+    <ToolBarContent>
+        <MudFab Href="/schedule/add" StartIcon="@Icons.Material.Filled.Add" Title="New Class" Size="Size.Small" Color="Color.Tertiary"></MudFab>
+        <MudSpacer />
+        <MudTextField @bind-Value="searchString" Placeholder="Search"
+                      Adornment="Adornment.Start"
+                      AdornmentIcon="@Icons.Material.Filled.Search"
+                      IconSize="Size.Medium"
+                      Class="mt-0">
+        </MudTextField>
+    </ToolBarContent>
+    <HeaderContent>
+        <MudTh>#</MudTh>
+        <MudTh>Module</MudTh>
+        <MudTh>Instructor</MudTh>
+        <MudTh>Class Timing</MudTh>
+        <MudTh>Batch</MudTh>
+        <MudTh>Batch Start</MudTh>
+        <MudTh>Batch End</MudTh>
+        <MudTh></MudTh>
+    </HeaderContent>
+    <RowTemplate>
+        <MudTd DataLabel="#">@(schedules.IndexOf(context) + 1)</MudTd>
+        <MudTd DataLabel="Module">@(context.Module?.Description ?? "N/A")</MudTd>
+        <MudTd DataLabel="Description">@(context.Instructor?.Name ?? "N/A")</MudTd>
+        <MudTd DataLabel="Description">@(context.ClassStart.Humanize() ?? "N/A")</MudTd>
+        <MudTd DataLabel="Batch">@(context.Batch?.Name ?? "N/A")</MudTd>
+        <MudTd DataLabel="BatchStart">@(context.Batch?.Start.Humanize() ?? "N/A")</MudTd>
+        <MudTd DataLabel="BatchEnd">@(context.Batch?.End.Humanize() ?? "N/A")</MudTd>
+        <MudTd>
+            <MudIconButton Icon="@Icons.Material.Filled.Edit" Size="Size.Small" Color="Color.Warning" Href="@("/edit/" + context.Id)" />
+            <MudIconButton Icon="@Icons.Material.Sharp.Delete" Size="Size.Small" Color="Color.Error" OnClick="() => ConfirmDelete(context)" />
+            <MudMessageBox @ref="mbox" Title="Warning" CancelText="Cancel">
+                <MessageContent>
+                    Are you sure to delete this class? It can't be undone.
+                </MessageContent>
+                <YesButton>
+                    <MudButton Variant="Variant.Filled" Color="Color.Error" Class="ml-2 mb-2 mr-3" StartIcon="@Icons.Material.Filled.DeleteForever">Delete</MudButton>
+                </YesButton>
+            </MudMessageBox>
+        </MudTd>
+    </RowTemplate>
+    <PagerContent>
+        <MudTablePager PageSizeOptions="@([20, 50, 100])" />
+    </PagerContent>
+</MudTable>
+
+@code {
+
+    List<ClassSchedule> schedules = [];
+    private ClassSchedule selectedSchedule = new();
+    private bool loadingData;
+    private string searchString = "";
+    MudMessageBox mbox { get; set; } = null!;
+
+    protected override async Task OnInitializedAsync()
+    {
+        loadingData = true;
+        schedules = await Db.ClassSchedules.Include(x => x.Instructor).Include(x => x.Batch).Include(x => x.Module).ToListAsync();
+        loadingData = false;
+    }
+
+    private bool FilterFunc1(ClassSchedule classSchedule) => FilterFunc(classSchedule, searchString);
+
+    private bool FilterFunc(ClassSchedule classSchedule, string searchString)
+    {
+        if (string.IsNullOrWhiteSpace(searchString))
+            return true;
+
+        if (classSchedule.Module!.Title.Contains(searchString, StringComparison.OrdinalIgnoreCase))
+            return true;
+        if (classSchedule.Instructor!.Name.Contains(searchString, StringComparison.OrdinalIgnoreCase))
+            return true;
+
+        return false;
+    }
+
+    private async Task ConfirmDelete(ClassSchedule schedule)
+    {
+        bool? result = await mbox.Show();
+        if (result == null)
+            return;
+
+        Db.ClassSchedules.Remove(schedule);
+
+        var rowsAffected = await Db.SaveChangesAsync();
+
+        if (rowsAffected > 0)
+        {
+            SnackBar.Add("Schedule Deleted successfully", Severity.Success);
+            schedules.Remove(schedule);
+        }
+        else
+        {
+            SnackBar.Add("Schedule Delete failed", Severity.Error);
+        }
+    }
+}

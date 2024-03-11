@@ -1,5 +1,171 @@
-﻿<h3>Edit</h3>
+﻿@page "/schedule/edit/{Id:int}"
 
-@code {
+@attribute [Authorize(Roles = Role.Admins)]
 
+@inject ApplicationDbContext Db
+@inject ISnackbar SnackBar
+@inject NavigationManager Navigation
+
+<EditForm Model="@model" OnValidSubmit="OnValidSubmit">
+    <MudCard>
+        <MudCardContent>
+            <MudAutocomplete T="Widget" Dense
+                              Label="Class Module"
+                              @bind-Value="@model.Module"
+                              SearchFunc="@SearchModules"
+                              ToStringFunc="@(e=> e?.Description)"
+                              ShowProgressIndicator="true"
+                              ProgressIndicatorColor="Color.Default"
+                              MaxItems="null"
+                              Variant="Variant.Outlined" />
+             <MudAutocomplete T="Instructor" Dense
+                              Label="Instructor"
+                              @bind-Value="@model.Instructor"
+                              SearchFunc="@SearchInstructors"
+                              ToStringFunc="@(e=> e==null ? null : $"{e.Name} ({e.Role})")"
+                              ShowProgressIndicator="true"
+                              ProgressIndicatorColor="Color.Default"
+                              MaxItems="null"
+                              Variant="Variant.Outlined"
+                              Class="mt-4" />
+             <MudAutocomplete T="Batch" Dense
+                              Label="Batch"
+                              @bind-Value="@model.Batch"
+                              SearchFunc="@SearchBatches"
+                              ToStringFunc="@(e => e?.Name)"
+                              ShowProgressIndicator="true"
+                              ProgressIndicatorColor="Color.Default"
+                              MaxItems="null"
+                              Variant="Variant.Outlined"
+                              Class="mt-4" />
+             <MudTextField Class="mt-4" Lines="2"
+                           @bind-Value="model.MeetingDetails"
+                           Variant="Variant.Outlined"
+                           Label="Meeting Link"
+                           Placeholder="Teams/Zoom/GoogleMeet Meeting Urls" />
+             <MudGrid Spacing="1" Class="d-flex align-center">
+                 <MudItem md="4" xs="12">
+                     <MudText Align="Align.Center" Class="mt-4" Typo="Typo.body1">Choose a date</MudText>
+                     <MudDatePicker PickerVariant="PickerVariant.Static"
+                                    IsDateDisabledFunc="date => date.Date < DateTime.Today"
+                                    Color="Color.Secondary"
+                                    @bind-Date="classStartDay" />
+                 </MudItem>
+                 <MudItem md="4" xs="12">
+                     <MudText Align="Align.Center" Class="mt-4" Typo="Typo.body1">Time of Day</MudText>
+                     <MudTimePicker PickerVariant="PickerVariant.Static" Color="Color.Secondary" @bind-Time="classStartTimeSpan" AmPm />
+                 </MudItem>
+                 <MudItem md="4" xs="12">
+                     <MudText Align="Align.Center" Class="mt-4" Typo="Typo.body1">Meeting Duration - hh:mm</MudText>
+                     <MudTimePicker PickerVariant="PickerVariant.Static"
+                                    Color="Color.Secondary"
+                                    @bind-Time="@meetingDurationTimeSpan" />
+                 </MudItem>
+             </MudGrid>
+         </MudCardContent>
+         <MudCardActions>
+             <MudButton ButtonType="ButtonType.Submit" Variant="Variant.Filled" StartIcon="@Icons.Material.Sharp.Save" Color="Color.Primary" Class="ml-auto">Save Schedule</MudButton>
+         </MudCardActions>
+     </MudCard>
+ </EditForm>
+
+ @code {
+
+    [Parameter]
+    public int? Id { get; set; }
+
+    [CascadingParameter]
+    private Task<AuthenticationState> AuthTask { get; set; } = null!;
+
+    private ClassSchedule model = new();
+    private Widget[] trainingModules = [];
+    private Instructor[] instructors = [];
+    private Batch[] batches = [];
+
+    private DateTime? classStartDay;
+    private TimeSpan? classStartTimeSpan;
+    private TimeSpan? meetingDurationTimeSpan;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var modelFromDb = await Db.ClassSchedules
+            .Include(x => x.Instructor)
+            .Include(x => x.Batch)
+            .Include(x => x.Module)
+            .FirstOrDefaultAsync(x => x.Id == Id);
+
+        model = modelFromDb ?? new();
+
+        classStartDay = model.ClassStart;
+        classStartTimeSpan = model.ClassStart.TimeOfDay;
+        meetingDurationTimeSpan = TimeSpan.FromHours(model.DurationHours);
+    }
+
+    private async Task<IEnumerable<Widget>> SearchModules(string value)
+    {
+        if (!trainingModules.Any())
+        {
+            trainingModules = await Db.Widgets.Where(x => x.Title == nameof(WidgetFilter.Module)).ToArrayAsync();
+        }
+
+        if (value is null or "")
+        {
+            return trainingModules;
+        }
+
+        return trainingModules.Where(x => x.Description.Contains(value, StringComparison.OrdinalIgnoreCase));
+    }
+
+    private async Task<IEnumerable<Instructor>> SearchInstructors(string value)
+    {
+        if (!instructors.Any())
+        {
+            instructors = await Db.Instructors.ToArrayAsync();
+        }
+
+        if (value is null or "")
+        {
+            return instructors;
+        }
+
+        return instructors.Where(x => x.Name.Contains(value, StringComparison.OrdinalIgnoreCase));
+    }
+
+    private async Task<IEnumerable<Batch>> SearchBatches(string value)
+    {
+        if (!batches.Any())
+        {
+            batches = await Db.Batches.ToArrayAsync();
+        }
+
+        if (value is null or "")
+        {
+            return batches;
+        }
+
+        return batches.Where(x => x.Name.Contains(value, StringComparison.OrdinalIgnoreCase));
+    }
+
+    private async Task OnValidSubmit(EditContext context)
+    {
+        var state = await AuthTask;
+        var userName = state.User.Identity?.Name;
+        model.AddLastUpdatedStamps(userName);
+        model.ClassStart = classStartDay!.Value + classStartTimeSpan!.Value;
+        model.DurationHours = (float)meetingDurationTimeSpan!.Value!.TotalHours;
+
+        Db.ClassSchedules.Update(model);
+        var rowsAffected = await Db.SaveChangesAsync();
+
+        if (rowsAffected > 0)
+        {
+            SnackBar.Add("Schedule saved successfully", Severity.Success);
+        }
+        else
+        {
+            SnackBar.Add("Schedule save failed", Severity.Error);
+        }
+
+        Navigation.NavigateTo("/schedules");
+    }
 }

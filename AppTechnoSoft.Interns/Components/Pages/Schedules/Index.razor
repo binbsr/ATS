@@ -39,12 +39,12 @@
 
         <TemplateColumn Title="Meeting Link" Filterable="false" Groupable="false" Sortable="false">
             <CellTemplate>
-                <MudButton Size="@Size.Small" Variant="@Variant.Filled" Color="@Color.Tertiary" Href="@context.Item.MeetingDetails" Target="_blank">Join</MudButton>
+                <MudButton Size="@Size.Small" Variant="@Variant.Filled" Color="@Color.Tertiary" StartIcon="@Icons.Material.Sharp.VideoCall" Href="@context.Item.MeetingDetails" Target="_blank">Join</MudButton>
             </CellTemplate>
         </TemplateColumn>
         <TemplateColumn Filterable="false" Groupable="false" Sortable="false" CellClass="d-flex justify-end">
             <CellTemplate>
-                <MudIconButton Icon="@Icons.Material.Filled.Edit" Size="Size.Small" Color="Color.Warning" Href="@("/edit/" + context.Item.Id)" />
+                <MudIconButton Icon="@Icons.Material.Filled.Edit" Size="Size.Small" Color="Color.Warning" Href="@("/schedule/edit/" + context.Item.Id)" />
                 <MudIconButton Icon="@Icons.Material.Sharp.Delete" Size="Size.Small" Color="Color.Error" OnClick="() => ConfirmDelete(context.Item)" />
                 <MudMessageBox @ref="mbox" Title="Warning" CancelText="Cancel">
                     <MessageContent>

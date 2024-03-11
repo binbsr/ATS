@@ -73,7 +73,7 @@
         if (string.IsNullOrWhiteSpace(searchString))
             return true;
 
-        if (classSchedule.Module!.Title.Contains(searchString, StringComparison.OrdinalIgnoreCase))
+        if (classSchedule.Module!.Description.Contains(searchString, StringComparison.OrdinalIgnoreCase))
             return true;
         if (classSchedule.Instructor!.Name.Contains(searchString, StringComparison.OrdinalIgnoreCase))
             return true;

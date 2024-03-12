@@ -1,5 +1,4 @@
 ﻿using Markdig;
-using Microsoft.AspNetCore.Components;
 
 namespace AppTechnoSoft.Interns.Extensions;
 public static class StringExtensions
@@ -14,7 +13,7 @@ public static class StringExtensions
         return output;
     }
 
-    public static string GetHtmlString(this string mdValue)
+    public static string ToHtmlString(this string mdValue)
     {
         var pipeline = new MarkdownPipelineBuilder()
                .UseAdvancedExtensions()

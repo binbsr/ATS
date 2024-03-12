@@ -20,7 +20,7 @@
         </TitleContent>
         <ChildContent>
             <MudContainer Style="font-size: 1.3em">
-                @((MarkupString)Widget.HtmlContent.GetHtmlString())
+                @((MarkupString)Widget.HtmlContent.ToHtmlString())
             </MudContainer>
             <MudChipSet>
                 @foreach (var tag in Widget.Tags ?? [])

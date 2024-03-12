@@ -50,10 +50,10 @@
                                     IsDateDisabledFunc="date => date.Date < DateTime.Today"
                                     Color="Color.Secondary"
                                     @bind-Date="classStartDay" />
-                 </MudItem>
-                 <MudItem md="4" xs="12">
-                     <MudText Align="Align.Center" Class="mt-4" Typo="Typo.body1">Time of Day</MudText>
-                     <MudTimePicker PickerVariant="PickerVariant.Static" Color="Color.Secondary" @bind-Time="classStartTimeSpan" AmPm />
+                </MudItem>
+                <MudItem md="4" xs="12">
+                    <MudText Align="Align.Center" Class="mt-4" Typo="Typo.body1">Time of Day</MudText>
+                    <MudTimePicker PickerVariant="PickerVariant.Static" Color="Color.Secondary" @bind-Time="classStartTimeSpan" AmPm />
                  </MudItem>
                  <MudItem md="4" xs="12">
                      <MudText Align="Align.Center" Class="mt-4" Typo="Typo.body1">Meeting Duration - hh:mm</MudText>
@@ -71,11 +71,11 @@
 
  @code {
 
-    [Parameter]
-    public int? Id { get; set; }
+        [Parameter]
+        public int? Id { get; set; }
 
-    [CascadingParameter]
-    private Task<AuthenticationState> AuthTask { get; set; } = null!;
+        [CascadingParameter]
+        private Task<AuthenticationState> AuthTask { get; set; } = null!;
 
     private ClassSchedule model = new();
     private Widget[] trainingModules = [];
@@ -151,7 +151,10 @@
         var state = await AuthTask;
         var userName = state.User.Identity?.Name;
         model.AddLastUpdatedStamps(userName);
-        model.ClassStart = classStartDay!.Value + classStartTimeSpan!.Value;
+        var date = classStartDay!.Value;
+
+        var dateNormalized = new DateTime(date.Year, date.Month, date.Day, 0, 0, 0);
+        model.ClassStart = dateNormalized + classStartTimeSpan!.Value;
         model.DurationHours = (float)meetingDurationTimeSpan!.Value!.TotalHours;
 
         Db.ClassSchedules.Update(model);

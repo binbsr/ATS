@@ -12,20 +12,29 @@ else
 {
     <MudPaper Elevation="3" Class="mb-3">
         <MudCarousel Class="border border-solid mud-border-tertiary"
-                     Style="height:450px;"                     
+                     Style="height:500px;"
                      ShowArrows="@false"
                      ShowBullets="@true"
                      EnableSwipeGesture="@true"
                      TData="object">
-            @foreach (var item in homeItems.Where(x => x.Title == nameof(WidgetFilter.CarouselItem)))
-            {
-                <MudCarouselItem Transition="Transition.Slide" Class="px-15 d-flex align-center">
-                    @((MarkupString)item.HtmlContent.ToHtmlString())
-                    <AuthorizeView Roles="@($"{Role.Admin},{Role.SuperAdmin}")">
-                        <MudIconButton Icon="@Icons.Material.Filled.Edit" Color="Color.Warning" Size="Size.Small" Class="ml-auto" Href="@("/edit-widget/" + item.Id)" />
-                    </AuthorizeView>
-                </MudCarouselItem>
-            }
+            <BulletTemplate Context="selected">
+                <div Class="mud-button-root mud-icon-button mud-icon-button-color-inherit mud-ripple mud-ripple-icon">
+                    <span class="mud-icon-button-label">
+                        <MudIcon Icon="@(selected ? Icons.Material.Filled.CheckCircle : Icons.Material.Filled.Circle)" Color="@Color.Tertiary" />
+                    </span>
+                </div>
+            </BulletTemplate>
+            <ChildContent>
+                @foreach (var item in homeItems.Where(x => x.Title == nameof(WidgetFilter.CarouselItem)))
+                {
+                    <MudCarouselItem Transition="Transition.Slide" Class="d-flex align-center px-10">
+                        @((MarkupString)item.HtmlContent.ToHtmlString())
+                        <AuthorizeView Roles="@Role.Admins">
+                            <MudIconButton Icon="@Icons.Material.Filled.Edit" Color="Color.Warning" Size="Size.Small" Class="ml-auto" Href="@("/edit-widget/" + item.Id)" />
+                        </AuthorizeView>
+                    </MudCarouselItem>
+                }
+            </ChildContent>
         </MudCarousel>
     </MudPaper>
 
@@ -43,9 +52,9 @@ else
                             <CardHeaderContent>
                                 <MudText Typo="Typo.h6">@titleParts[0]</MudText>
                                 @if (titleParts.Length > 1)
-                                {
-                                    <MudText Typo="Typo.subtitle2">@titleParts[1]</MudText>
-                                }
+                            {
+                                <MudText Typo="Typo.subtitle2">@titleParts[1]</MudText>
+                            }
                         </CardHeaderContent>
                         <CardHeaderActions>
                             <AuthorizeView Roles="@($"{Role.Admin},{Role.SuperAdmin}")">

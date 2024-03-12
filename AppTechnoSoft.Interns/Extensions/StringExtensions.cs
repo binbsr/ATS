@@ -1,4 +1,5 @@
 ﻿using Markdig;
+using Markdig.Extensions.MediaLinks;
 
 namespace AppTechnoSoft.Interns.Extensions;
 public static class StringExtensions
@@ -16,8 +17,9 @@ public static class StringExtensions
     public static string ToHtmlString(this string mdValue)
     {
         var pipeline = new MarkdownPipelineBuilder()
-               .UseAdvancedExtensions()
-               .Build();
+            .UseBootstrap()
+            .UsePipeTables()
+            .Build();
         var htmlMarkup = Markdown.ToHtml(mdValue, pipeline);
         return htmlMarkup;
     }

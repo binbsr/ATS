@@ -1,0 +1,187 @@
+﻿@page "/schedule/add"
+
+@attribute [Authorize(Roles = Role.Admins)]
+
+@inject ApplicationDbContext Db
+@inject ISnackbar SnackBar
+@inject NavigationManager Navigation
+
+<EditForm Model="@model" OnValidSubmit="OnValidSubmit">
+    <MudCard>
+        <MudCardContent>
+            <MudAutocomplete T="Widget" Dense
+                              Label="Class Module"
+                              @bind-Value="@model.Module"
+                              SearchFunc="@SearchModules"
+                              ToStringFunc="@(e=> e?.Description)"
+                              ShowProgressIndicator="true"
+                              ProgressIndicatorColor="Color.Default"
+                              MaxItems="null"
+                              Variant="Variant.Outlined" />
+             <MudAutocomplete T="Instructor" Dense
+                              Label="Instructor"
+                              @bind-Value="@model.Instructor"
+                              SearchFunc="@SearchInstructors"
+                              ToStringFunc="@(e=> e==null ? null : $"{e.Name} ({e.Role})")"
+                              ShowProgressIndicator="true"
+                              ProgressIndicatorColor="Color.Default"
+                              MaxItems="null"
+                              Variant="Variant.Outlined"
+                              Class="mt-4" />
+             <MudAutocomplete T="Batch" Dense
+                              Label="Batch"
+                              @bind-Value="@model.Batch"
+                              SearchFunc="@SearchBatches"
+                              ToStringFunc="@(e => e?.Name)"
+                              ShowProgressIndicator="true"
+                              ProgressIndicatorColor="Color.Default"
+                              MaxItems="null"
+                              Variant="Variant.Outlined"
+                              Class="mt-4" />
+             <MudTextField Class="mt-4" Lines="2"
+                           @bind-Value="model.MeetingDetails"
+                           Variant="Variant.Outlined"
+                           Label="Meeting Link"
+                           Placeholder="Teams/Zoom/GoogleMeet Meeting Urls" />
+             <MudGrid Spacing="1" Class="d-flex align-center">
+                 <MudItem md="6" xs="12">
+                     <MudText Align="Align.Center" Class="mt-4" Typo="Typo.body1">Choose a date or multiple dates - <b>@selectedDayCount @(selectedDayCount == 1 ? $"day" : "days") selected</b></MudText>
+                    <MudDateRangePicker PickerVariant="PickerVariant.Static"
+                                        Color="Color.Secondary"
+                                        IsDateDisabledFunc="@(date => date.Date < DateTime.Today)"
+                                        @bind-DateRange="@dateRange" />
+                </MudItem>
+                <MudItem md="3" xs="12">
+                    <MudText Align="Align.Center" Class="mt-4" Typo="Typo.body1">Time of Day</MudText>
+                    <MudTimePicker PickerVariant="PickerVariant.Static" Color="Color.Secondary" @bind-Time="@classStartTime" AmPm />
+                 </MudItem>
+                 <MudItem md="3" xs="12">
+                     <MudText Align="Align.Center" Class="mt-4" Typo="Typo.body1">Meeting Duration - hh:mm</MudText>
+                     <MudTimePicker PickerVariant="PickerVariant.Static"
+                                    Color="Color.Secondary"
+                                    @bind-Time="@meetingDurationTimeSpan" />
+                 </MudItem>
+                 <MudItem md="12">
+                     <MudText Align="Align.Center" Typo="Typo.body1">Days of Week</MudText>
+                     <MudToggleGroup T="DayOfWeek" SelectionMode="SelectionMode.MultiSelection" @bind-Values="selectedDaysOfWeek" Color="Color.Secondary" CheckMark>
+                        @foreach (var day in selectedRangeWeekDays)
+                        {
+                            <MudToggleItem Value="@day" UnselectedIcon="@Icons.Material.Filled.CheckBoxOutlineBlank" SelectedIcon="@Icons.Material.Filled.CheckBox" />
+                        }
+                    </MudToggleGroup>                   
+                </MudItem>
+            </MudGrid>
+        </MudCardContent>
+        <MudCardActions>
+            <MudButton ButtonType="ButtonType.Submit" Variant="Variant.Filled" StartIcon="@Icons.Material.Sharp.Save" Color="Color.Primary" Class="ml-auto">Save Schedules</MudButton>
+        </MudCardActions>
+    </MudCard>
+</EditForm>
+
+@code {
+
+    [CascadingParameter]
+    private Task<AuthenticationState> AuthTask { get; set; } = null!;
+
+    private ClassSchedule model = new();
+    private Widget[] trainingModules = [];
+    private Instructor[] instructors = [];
+    private Batch[] batches = [];
+    private DateRange dateRange = new DateRange(DateTime.Today, DateTime.Today);
+    private TimeSpan? classStartTime = DateTime.Now.TimeOfDay;
+    private TimeSpan? meetingDurationTimeSpan = new TimeSpan(1, 0, 0);
+    private IEnumerable<DayOfWeek> selectedRangeWeekDays = Enum.GetValues<DayOfWeek>();
+    private int selectedDayCount => (dateRange.End - dateRange.Start)!.Value.Days + 1;
+    private IEnumerable<DayOfWeek> selectedDaysOfWeek = [DateTime.Now.DayOfWeek];
+
+    private async Task<IEnumerable<Widget>> SearchModules(string value)
+    {
+        if (!trainingModules.Any())
+        {
+            trainingModules = await Db.Widgets.Where(x => x.Title == nameof(WidgetFilter.Module)).ToArrayAsync();
+        }
+
+        if (value is null or "")
+        {
+            return trainingModules;
+        }
+
+        return trainingModules.Where(x => x.Description.Contains(value, StringComparison.OrdinalIgnoreCase));
+    }
+
+    private async Task<IEnumerable<Instructor>> SearchInstructors(string value)
+    {
+        if (!instructors.Any())
+        {
+            instructors = await Db.Instructors.ToArrayAsync();
+        }
+
+        if (value is null or "")
+        {
+            return instructors;
+        }
+
+        return instructors.Where(x => x.Name.Contains(value, StringComparison.OrdinalIgnoreCase));
+    }
+
+    private async Task<IEnumerable<Batch>> SearchBatches(string value)
+    {
+        if (!batches.Any())
+        {
+            batches = await Db.Batches.ToArrayAsync();
+        }
+
+        if (value is null or "")
+        {
+            return batches;
+        }
+
+        return batches.Where(x => x.Name.Contains(value, StringComparison.OrdinalIgnoreCase));
+    }
+
+    private async Task OnValidSubmit(EditContext context)
+    {
+        List<ClassSchedule> classSchedules = [];
+        var state = await AuthTask;
+        var userName = state.User.Identity?.Name;
+        model.AddCreatedStamps(userName);
+        model.DurationHours = (float)meetingDurationTimeSpan!.Value!.TotalHours;
+
+        // Loop through selected dates
+        for (var day = dateRange.Start!.Value; day <= dateRange.End!.Value; day = day.AddDays(1))
+        {
+            // Only week days selected
+            if (!selectedDaysOfWeek.Contains(day.DayOfWeek))
+                continue;
+
+            var dayModel = new ClassSchedule()
+                {
+                    Batch = model.Batch,
+                    Module = model.Module,
+                    Instructor = model.Instructor,
+                    DurationHours = model.DurationHours,
+                    ClassStart = day + classStartTime!.Value,
+                    MeetingDetails = model.MeetingDetails,
+                    Created = model.Created,
+                    CreatedBy = model.CreatedBy
+                };
+
+            classSchedules.Add(dayModel);
+        }
+
+        Db.ClassSchedules.AddRange(classSchedules);
+
+        var rowsAffected = await Db.SaveChangesAsync();
+
+        if (rowsAffected > 0)
+        {
+            SnackBar.Add("Module schedules saved successfully", Severity.Success);
+        }
+        else
+        {
+            SnackBar.Add("Module schedules save failed", Severity.Error);
+        }
+
+        Navigation.NavigateTo("/schedules");
+    }
+}

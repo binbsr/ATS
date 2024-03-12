@@ -1,0 +1,115 @@
+﻿@page "/schedules"
+
+@inject ApplicationDbContext Db
+@inject ISnackbar SnackBar
+@inject NavigationManager Navigation
+
+<MudDataGrid T="ClassSchedule" Items="@schedules" Filterable="true" Hideable="true" Groupable="true" GroupExpanded="true" Loading="@loadingData" Dense>
+    <ToolBarContent>
+        <MudFab Href="/schedule/add" StartIcon="@Icons.Material.Filled.Add" Title="New Class" Size="Size.Small" Color="Color.Tertiary"></MudFab>
+        <MudSpacer />
+        <MudTextField @bind-Value="searchString" Placeholder="Search modules or instructors"
+                      Adornment="Adornment.Start"
+                      AdornmentIcon="@Icons.Material.Filled.Search"
+                      IconSize="Size.Medium"
+                      Class="mt-0">
+        </MudTextField>
+    </ToolBarContent>
+    <Columns>
+        <PropertyColumn Property="x => x.Batch!.Name" Title="Batch" Grouping Filterable="false" Sortable="false">
+             <GroupTemplate>
+                 <span style="font-weight:bold">Training Group: @context.Grouping.Key <MudChip Variant="Variant.Outlined" Color="Color.Tertiary">@context.Grouping.Count() Meetings</MudChip></span>
+            </GroupTemplate>
+        </PropertyColumn>
+        <PropertyColumn Property="x => x.Module!.Description" Title="Module" />
+        <PropertyColumn Property="x => x.Instructor!.Name" Title="Instructor" />
+        <TemplateColumn Title="Class Timing" SortBy="(e) => e.ClassStart">
+            <CellTemplate>
+                <MudTooltip Text="@context.Item.ClassStart.ToString()">
+                    @context.Item.ClassStart.Humanize()
+                </MudTooltip>
+            </CellTemplate>
+        </TemplateColumn>
+        
+        <TemplateColumn Title="Duration" SortBy="(e) => e.DurationHours">
+            <CellTemplate>
+                @(TimeSpan.FromHours(context.Item.DurationHours).Humanize(2))
+            </CellTemplate>
+        </TemplateColumn>
+
+        <TemplateColumn Title="Meeting Link" Filterable="false" Groupable="false" Sortable="false">
+            <CellTemplate>
+                <MudButton Size="@Size.Small" Variant="@Variant.Filled" Color="@Color.Tertiary" StartIcon="@Icons.Material.Sharp.VideoCall" Href="@context.Item.MeetingDetails" Target="_blank">Join</MudButton>
+            </CellTemplate>
+        </TemplateColumn>
+        <TemplateColumn Filterable="false" Groupable="false" Sortable="false" CellClass="d-flex justify-end">
+            <CellTemplate>
+                <MudIconButton Icon="@Icons.Material.Filled.Edit" Size="Size.Small" Color="Color.Warning" Href="@("/schedule/edit/" + context.Item.Id)" />
+                <MudIconButton Icon="@Icons.Material.Sharp.Delete" Size="Size.Small" Color="Color.Error" OnClick="() => ConfirmDelete(context.Item)" />
+                <MudMessageBox @ref="mbox" Title="Warning" CancelText="Cancel">
+                    <MessageContent>
+                        Are you sure to delete this meeting? It can't be undone.
+                    </MessageContent>
+                    <YesButton>
+                        <MudButton Variant="Variant.Filled" Color="Color.Error" Class="ml-2 mb-2 mr-3" StartIcon="@Icons.Material.Filled.DeleteForever">Delete</MudButton>
+                    </YesButton>
+                </MudMessageBox>
+            </CellTemplate>
+        </TemplateColumn>
+    </Columns>
+    <PagerContent>
+        <MudDataGridPager T="ClassSchedule" PageSizeOptions="@([20, 50, 100])" />
+    </PagerContent>
+</MudDataGrid>
+
+@code {
+
+    List<ClassSchedule> schedules = [];
+    private ClassSchedule selectedSchedule = new();
+    private bool loadingData;
+    private string searchString = "";
+    MudMessageBox mbox { get; set; } = null!;
+
+    protected override async Task OnInitializedAsync()
+    {
+        loadingData = true;
+        schedules = await Db.ClassSchedules.Include(x => x.Instructor).Include(x => x.Batch).Include(x => x.Module).ToListAsync();
+        loadingData = false;
+    }
+
+    private bool FilterFunc1(ClassSchedule classSchedule) => FilterFunc(classSchedule, searchString);
+
+    private bool FilterFunc(ClassSchedule classSchedule, string searchString)
+    {
+        if (string.IsNullOrWhiteSpace(searchString))
+            return true;
+
+        if (classSchedule.Module!.Description.Contains(searchString, StringComparison.OrdinalIgnoreCase))
+            return true;
+        if (classSchedule.Instructor!.Name.Contains(searchString, StringComparison.OrdinalIgnoreCase))
+            return true;
+
+        return false;
+    }
+
+    private async Task ConfirmDelete(ClassSchedule schedule)
+    {
+        bool? result = await mbox.Show();
+        if (result == null)
+            return;
+
+        Db.ClassSchedules.Remove(schedule);
+
+        var rowsAffected = await Db.SaveChangesAsync();
+
+        if (rowsAffected > 0)
+        {
+            SnackBar.Add("Schedule Deleted successfully", Severity.Success);
+            schedules.Remove(schedule);
+        }
+        else
+        {
+            SnackBar.Add("Schedule Delete failed", Severity.Error);
+        }
+    }
+}

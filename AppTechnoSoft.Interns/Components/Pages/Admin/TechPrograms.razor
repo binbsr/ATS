@@ -1,39 +1,51 @@
 ﻿@page "/programs"
 @attribute [Authorize(Roles = Role.Admin)]
-@inject ApplicationDbContext db
+@inject ApplicationDbContext Db
+@inject ISnackbar SnackBar
 
 <PageTitle>Tech Programs</PageTitle>
 
-<MudDataGrid T="TechProgram"
-    MultiSelection="true" 
-    Items="@programs" 
-    SortMode="SortMode.Multiple" 
-    Filterable="true" 
-    Hover="true"
-    QuickFilter="@_quickFilter"
-    Loading="loadingData"
-    Hideable="true">
-    
+<MudTable Items="@programs" Hover="true" Loading="loadingData">
+
     <ToolBarContent>
-        <MudText Typo="Typo.h6">All Tech Degrees & Programs</MudText>
+        <MudFab Href="/add-program" StartIcon="@Icons.Material.Filled.Add" Title="Add New Tech Program" Size="Size.Small" Color="Color.Tertiary"></MudFab>
         <MudSpacer />
         <MudTextField @bind-Value="_searchString" Placeholder="Search" Adornment="Adornment.Start" Immediate="true"
-            AdornmentIcon="@Icons.Material.Filled.Search" IconSize="Size.Medium" Class="mt-0"></MudTextField>
+                      AdornmentIcon="@Icons.Material.Filled.Search" IconSize="Size.Medium" Class="mt-0"></MudTextField>
     </ToolBarContent>
-    <Columns>
-        <PropertyColumn Property="x => programs.IndexOf(x) + 1" Title="#" Filterable="false"/>
-        <PropertyColumn Property="x => x.Name" />
-        <PropertyColumn Property="x => x.Affliation" />
-    </Columns>
-    <PagerContent>
-        <MudDataGridPager T="TechProgram" PageSizeOptions="[15, 30, 50, 100, 200]"/>
-    </PagerContent>
-</MudDataGrid>
+    <HeaderContent>
+        <MudTh>#</MudTh>
+        <MudTh>Name</MudTh>
+        <MudTh>Affliation</MudTh>
+        <MudTh></MudTh>
+    </HeaderContent>
+    <RowTemplate>
+        <MudTd DataLabel="#">@(programs.IndexOf(context) + 1)</MudTd>
+        <MudTd DataLabel="Program">@context.Name</MudTd>
+            <MudTd DataLabel="Affliation">@context.Affliation</MudTd>
+            <MudTd>
+                <MudIconButton Icon="@Icons.Material.Filled.Edit" Size="Size.Small" Color="Color.Warning" Href="@("/edit-program/" + context.Id)" />
+                <MudIconButton Icon="@Icons.Material.Sharp.Delete" Size="Size.Small" Color="Color.Error" OnClick="() => ConfirmDelete(context)" />
+                <MudMessageBox @ref="mbox" Title="Warning" CancelText="Cancel">
+                    <MessageContent>
+                        Are you sure to delete this program? It can't be undone.
+                    </MessageContent>
+                    <YesButton>
+                        <MudButton Variant="Variant.Filled" Color="Color.Error" Class="ml-2 mb-2 mr-3" StartIcon="@Icons.Material.Filled.DeleteForever">Delete</MudButton>
+                    </YesButton>
+                </MudMessageBox>
+            </MudTd>
+        </RowTemplate>
+        <PagerContent>
+            <MudTablePager PageSizeOptions="[15, 30, 50, 100, 200]" />
+        </PagerContent>
+    </MudTable>
 
-@code {
+    @code {
     private List<TechProgram> programs = new();
     private string _searchString = string.Empty;
-    private bool loadingData = false;    
+    private bool loadingData = false;
+    MudMessageBox mbox { get; set; } = null!;
 
     private Func<TechProgram, bool> _quickFilter => x =>
     {
@@ -52,7 +64,28 @@
     protected override async Task OnInitializedAsync()
     {
         loadingData = true;
-        programs = await db.TechPrograms.ToListAsync();
+        programs = await Db.TechPrograms.ToListAsync();
         loadingData = false;
+    }
+
+    private async Task ConfirmDelete(TechProgram program)
+    {
+        bool? result = await mbox.Show();
+        if (result == null)
+            return;
+
+        Db.TechPrograms.Remove(program);
+
+        var rowsAffected = await Db.SaveChangesAsync();
+
+        if (rowsAffected > 0)
+        {
+            SnackBar.Add("Program Deleted successfully", Severity.Success);
+            programs.Remove(program);
+        }
+        else
+        {
+            SnackBar.Add("Program Delete failed", Severity.Error);
+        }
     }
 }

@@ -17,12 +17,24 @@
         <MudTh>#</MudTh>
         <MudTh>Name</MudTh>
         <MudTh>Affliation</MudTh>
+        <MudTh>Created By</MudTh>
+        <MudTh>Last Updated By</MudTh>
         <MudTh></MudTh>
     </HeaderContent>
     <RowTemplate>
         <MudTd DataLabel="#">@(programs.IndexOf(context) + 1)</MudTd>
         <MudTd DataLabel="Program">@context.Name</MudTd>
             <MudTd DataLabel="Affliation">@context.Affliation</MudTd>
+            <MudTd DataLabel="Created By">
+                <MudTooltip Text="@($"On {context.Created}")">
+                    @context.CreatedBy
+                </MudTooltip>
+            </MudTd>
+        <MudTd DataLabel="LastUpdated By">
+            <MudTooltip Text="@($"On {context.LastUpdated}")">
+                @context.LastUpdatedBy
+            </MudTooltip>
+        </MudTd>
             <MudTd>
                 <MudIconButton Icon="@Icons.Material.Filled.Edit" Size="Size.Small" Color="Color.Warning" Href="@("/edit-program/" + context.Id)" />
                 <MudIconButton Icon="@Icons.Material.Sharp.Delete" Size="Size.Small" Color="Color.Error" OnClick="() => ConfirmDelete(context)" />

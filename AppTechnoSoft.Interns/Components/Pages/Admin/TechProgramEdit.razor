@@ -28,6 +28,9 @@
     [Parameter]
     public int? Id { get; set; }
 
+    [CascadingParameter]
+    private Task<AuthenticationState> AuthTask { get; set; } = null!;
+
     TechProgram model = new();
     string pageTitle = string.Empty;
     bool IsAdd => Id is null or 0;
@@ -47,13 +50,18 @@
 
     private async Task OnValidSubmit(EditContext context)
     {
+        var state = await AuthTask;
+        var userName = state.User.Identity?.Name;
+
         if (IsAdd)
         {
+            model.AddCreatedStamps(userName);
             Db.TechPrograms.Add(model);
         }
         else
         {
             model.Id = Id!.Value;
+            model.AddLastUpdatedStamps(userName);
             Db.TechPrograms.Update(model);
         }
 

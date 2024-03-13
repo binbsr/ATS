@@ -5,50 +5,57 @@
 
 <PageTitle>Colleges</PageTitle>
 
-<MudDataGrid T="College"
-             MultiSelection="true"
-             Items="@CollegeList"
-             SortMode="SortMode.Multiple"
-             Filterable="true"
-             Hover="true"
-             QuickFilter="@_quickFilter"
-             Loading="loadingData"
-             Hideable="true"
-             Dense="true">
+<MudTable Items="@CollegeList"
+          Hover="true"
+          Loading="loadingData"
+          Dense="true">
 
     <ToolBarContent>
         <MudFab Href="/add-college" StartIcon="@Icons.Material.Filled.Add" Title="Add New College" Size="Size.Small" Color="Color.Tertiary"></MudFab>
         <MudSpacer />
-        <MudTextField @bind-Value="_searchString" Placeholder="Search" Adornment="Adornment.Start" Immediate="true"
+        <MudTextField @bind-Value="_searchString" Placeholder="Search by college name and location" Adornment="Adornment.Start" Immediate="true"
                       AdornmentIcon="@Icons.Material.Filled.Search" IconSize="Size.Medium" Class="mt-0"></MudTextField>
     </ToolBarContent>
-    <Columns>
-        <PropertyColumn Property="x => CollegeList.IndexOf(x) + 1" Title="#" Filterable="false" />
-        <PropertyColumn Property="x => x.Name" />
-        <PropertyColumn Property="x => x.Location" />
-        <TemplateColumn Title="Created" Filterable="false">
-            <CellTemplate>@context.Item.Created.Humanize()</CellTemplate>
-        </TemplateColumn>
-        <PropertyColumn Property="x => x.CreatedBy" />
-        <TemplateColumn Filterable="false" CellClass="d-flex justify-end">
-            <CellTemplate>
-                <MudIconButton Icon="@Icons.Material.Filled.Edit" Size="Size.Small" Color="Color.Warning" Href="@("/edit-college/" + context.Item.Id)" />
-                <MudIconButton Icon="@Icons.Material.Sharp.Delete" Size="Size.Small" Color="Color.Error" OnClick="() => ConfirmDelete(context.Item)" />
-                <MudMessageBox @ref="mbox" Title="Warning" CancelText="Cancel">
-                    <MessageContent>
-                        Are you sure to delete this college? It can't be undone!
-                    </MessageContent>
-                    <YesButton>
-                        <MudButton Variant="Variant.Filled" Color="Color.Error" StartIcon="@Icons.Material.Filled.DeleteForever">Delete!</MudButton>
-                    </YesButton>
-                </MudMessageBox>
-            </CellTemplate>
-        </TemplateColumn>
-    </Columns>
+    <HeaderContent>
+        <MudTh>#</MudTh>
+        <MudTh>Name</MudTh>
+        <MudTh>Location</MudTh>
+        <MudTh>Created</MudTh>
+        <MudTh>Created By</MudTh>
+        <MudTh></MudTh>
+    </HeaderContent>
+    <RowTemplate>
+        <MudTd DataLabel="#">@(CollegeList.IndexOf(context) + 1)</MudTd>
+        <MudTd DataLabel="Name">@context.Name</MudTd>
+            <MudTd DataLabel="Location">@context.Location</MudTd>
+            <MudTd DataLabel="Created By">
+                <MudTooltip Text="@($"On {context.Created}")">
+                    @context.CreatedBy
+            </MudTooltip>
+        </MudTd>
+        <MudTd DataLabel="LastUpdated By">
+            <MudTooltip Text="@($"On {context.LastUpdated}")">
+                @context.LastUpdatedBy
+            </MudTooltip>
+        </MudTd>
+
+        <MudTd>
+            <MudIconButton Icon="@Icons.Material.Filled.Edit" Size="Size.Small" Color="Color.Warning" Href="@("/edit-college/" + context.Id)" />
+            <MudIconButton Icon="@Icons.Material.Sharp.Delete" Size="Size.Small" Color="Color.Error" OnClick="() => ConfirmDelete(context)" />
+            <MudMessageBox @ref="mbox" Title="Warning" CancelText="Cancel">
+                <MessageContent>
+                    Are you sure to delete this college? It can't be undone.
+                </MessageContent>
+                <YesButton>
+                    <MudButton Variant="Variant.Filled" Color="Color.Error" StartIcon="@Icons.Material.Filled.DeleteForever">Delete!</MudButton>
+                </YesButton>
+            </MudMessageBox>
+        </MudTd>
+    </RowTemplate>
     <PagerContent>
-        <MudDataGridPager T="College" PageSizeOptions="[15, 30, 50, 100, 200]" />
+        <MudTablePager PageSizeOptions="[30, 50, 100, 200]" />
     </PagerContent>
-</MudDataGrid>
+</MudTable>
 
 @code {
     private List<College> CollegeList = new List<College>();

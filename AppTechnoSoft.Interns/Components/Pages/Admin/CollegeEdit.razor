@@ -8,11 +8,9 @@
 <PageTitle>@pageTitle</PageTitle>
 
     <MudContainer>
-        <EditForm Model="@model"
-                  OnValidSubmit="OnValidSubmit">
-            <DataAnnotationsValidator />
-            <MudTextField Label="Title" @bind-Value="model.Name" For="@(() => model.Name)" />
-            <MudTextField Label="Location" Class="mt-3" @bind-Value="model.Location" For="@(() => model.Location)" />
+        <EditForm Model="@model" OnValidSubmit="OnValidSubmit">
+            <MudTextField Label="Title" @bind-Value="model.Name" Variant="Variant.Outlined" />
+            <MudTextField Label="Location" Class="mt-3" @bind-Value="model.Location" Variant="Variant.Outlined" />
 
             <MudButton ButtonType="ButtonType.Submit"
                        Variant="Variant.Filled"
@@ -28,6 +26,9 @@
 
     [Parameter]
     public int? Id { get; set; }
+
+    [CascadingParameter]
+    private Task<AuthenticationState> AuthTask { get; set; } = null!;
 
     College model = new();
     string pageTitle = string.Empty;
@@ -48,13 +49,18 @@
 
     private async Task OnValidSubmit(EditContext context)
     {
+        var state = await AuthTask;
+        var userName = state.User.Identity?.Name;
+
         if (IsAdd)
         {
+            model.AddCreatedStamps(userName);
             Db.Colleges.Add(model);
         }
         else
         {
             model.Id = Id!.Value;
+            model.AddLastUpdatedStamps(userName);
             Db.Colleges.Update(model);
         }
 

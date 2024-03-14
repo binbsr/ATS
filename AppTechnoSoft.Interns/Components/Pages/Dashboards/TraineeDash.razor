@@ -1,6 +1,11 @@
 ﻿@inject ApplicationDbContext Db
 
-@if (Student is null)
+@if (loadingData)
+{
+    <MudProgressCircular />
+}
+
+@if (!loadingData && student is null)
 {
     <ApplicationAlert />
 }
@@ -54,11 +59,10 @@ else
 @code {
 
     [Parameter]
-    public Student? Student { get; set; }
-
-    [Parameter]
     public string LoggedInUserId { get; set; } = string.Empty;
 
+    bool loadingData = false;
+    private Student? student;
     string loggedInUserTeamName = "Not assigned to any team";
     string loggedInUserBatchName = "Not assigned to any batch";
     string loggedInUserTeamAvatar = "";
@@ -69,25 +73,38 @@ else
 
     protected override async Task OnInitializedAsync()
     {
-        if (Student is null || Student.BatchId is null)
+        loadingData = true;
+        student = await Db.Students
+            .Where(x => x.ApplicationUserId == LoggedInUserId)
+            .Include(b => b!.Batch)
+            .Include(t => t.Team)
+            .ThenInclude(b => b!.Project)
+            .FirstOrDefaultAsync();
+
+        if (student is null || student.BatchId is null)
+        {
+            loadingData = false;
             return;
+        }
 
-        loggedInUserBatchName = Student?.Batch?.Name ?? string.Empty;
-        loggedInUserTeamName = Student?.Team?.Name ?? string.Empty;
-        loggedInUserTeamAvatar = Student?.Team?.Avatar ?? string.Empty;
+        loggedInUserBatchName = student?.Batch?.Name ?? string.Empty;
+        loggedInUserTeamName = student?.Team?.Name ?? string.Empty;
+        loggedInUserTeamAvatar = student?.Team?.Avatar ?? string.Empty;
 
-        var title = Student?.Team?.Project?.Title;
+        var title = student?.Team?.Project?.Title;
 
         if (title is not null or "")
         {
             projectTitle = title;
-            projectDetails = Student!.Team!.Project!.Requirements;
+            projectDetails = student!.Team!.Project!.Requirements;
         }
 
         batchMembers = await Db.Students
-            .Where(x => x.BatchId == Student!.BatchId)
+            .Where(x => x.BatchId == student!.BatchId)
             .Select(x => new StudentViewModel(x.Name, x.ApplicationUserId!, x.ProfileImagePath!, x!.Team!.Name, x!.Batch!.Name))
             .ToListAsync();
         teamMembers = batchMembers.Where(x => x.TeamName == loggedInUserTeamName).ToList();
+
+        loadingData = false;
     }
 }

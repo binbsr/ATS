@@ -7,42 +7,36 @@
 
 <PageTitle>Your dashboard</PageTitle>
 
-@if (loadingData)
+@foreach (var role in loggedInUserRoles)
 {
-    <MudProgressCircular />
+    switch (role)
+    {
+        case Role.Trainee:
+            <TraineeDash LoggedInUserId="@loggedInUserId" />
+            break;
+        case Role.Instructor:
+            break;
+        case Role.Admin:
+            break;
+        case Role.SuperAdmin:
+            break;
+    }
 }
-else
-{
-    <TraineeDash Student="@student" LoggedInUserId="@loggedInUserId" />
-}
-
 
 @code {
 
-    bool loadingData = false;
     string loggedInUserId = string.Empty;
-    Student? student;      
 
     [CascadingParameter]
     private Task<AuthenticationState> AuthTask { get; set; } = null!;
 
+    private IEnumerable<string> loggedInUserRoles = [];
+
     protected override async Task OnInitializedAsync()
     {
-        loadingData = true;
         var userTask = await AuthTask;
         var loggedInUser = userTask.User;
-        loggedInUserId = loggedInUser?.FindFirst(u => u.Type.Contains("nameidentifier"))?.Value ?? string.Empty;
-
-        if (loggedInUserId == string.Empty)
-            return;
-
-        student = await Db.Students
-            .Where(x => x.ApplicationUserId == loggedInUserId)
-            .Include(b => b!.Batch)
-            .Include(t => t.Team)
-            .ThenInclude(b => b!.Project)
-            .FirstOrDefaultAsync();
-            
-        loadingData = false;
+        loggedInUserId = loggedInUser.GetUserId();
+        loggedInUserRoles = loggedInUser.GetRoles();
     }
 }

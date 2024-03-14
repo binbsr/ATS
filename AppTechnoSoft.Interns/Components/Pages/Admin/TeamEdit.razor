@@ -8,15 +8,15 @@
 <PageTitle>@pageTitle</PageTitle>
     <MudContainer>
         <EditForm Model="@model" OnValidSubmit="OnValidSubmit">
-            <DataAnnotationsValidator />
-            <MudTextField Label="Title" @bind-Value="model.Name" For="@(() => model.Name)" />
-            <MudTextField Label="Team Image URL" Class="mt-3" @bind-Value="model.Avatar" />
+            <MudTextField Label="Title" @bind-Value="model.Name" Variant="Variant.Outlined" />
+            <MudTextField Label="Team Image URL" Class="mt-3" @bind-Value="model.Avatar" Variant="Variant.Outlined" />
             <MudSelect Dense="true"
                        Label="Project"
                        @bind-Value="@model.Project"
                        ToStringFunc="b => b?.Title"
                        Class="my-3"
-                       AnchorOrigin="Origin.BottomCenter">
+                       AnchorOrigin="Origin.BottomCenter"
+                       Variant="Variant.Outlined">
                 @foreach (var project in projects)
             {
                 <MudSelectItem Value="@project" />
@@ -29,7 +29,8 @@
                    ValueChanged="BatchChanged"
                    ToStringFunc="b => b!.Name"
                    Class="my-3"
-                   AnchorOrigin="Origin.BottomCenter">
+                   AnchorOrigin="Origin.BottomCenter"
+                   Variant="Variant.Outlined">
             @foreach (var batch in batches)
             {
                 <MudSelectItem Value="@batch" />
@@ -39,11 +40,13 @@
         <MudSelect T="string"
                    Dense="true"
                    Label="Members"
+                   HelperText="Members will be fetched from batch selected"
                    MultiSelection="true"
                    @bind-SelectedValues="@studentsSelected"
                    Class="my-3"
                    MultiSelectionTextFunc="@(new Func<List<string>, string>(GetMultiSelectionText))"
-                   AnchorOrigin="Origin.BottomCenter">
+                   AnchorOrigin="Origin.BottomCenter"
+                   Variant="Variant.Outlined">
             @foreach (var student in students)
             {
                 <MudSelectItem Value="@student.Id">@student.Name</MudSelectItem>
@@ -89,7 +92,13 @@
         {
             pageTitle = "Edit Team";
             model = await Db.Teams.Include(x => x.Batch).Include(t => t.Project).FirstOrDefaultAsync(x => x.Id == Id) ?? new();
+            if (model.Batch == null)
+                return;
+
             students = await Db.Students.Where(x => x.BatchId == model.Batch!.Id).Select(x => new ListItem(x.Id, $"{x.Name} ({x.Email})", x.TeamId)).ToListAsync();
+            if (students is null)
+                return;
+
             studentsSelected = students.Where(x => x.TeamId == Id).Select(x => x.Id);
         }
     }
@@ -140,7 +149,6 @@
     {
         model.Batch = batch;
         students = await Db.Students.Where(x => x.BatchId == batch.Id).Select(x => new ListItem(x.Id, $"{x.Name} ({x.Email})", x.TeamId)).ToListAsync();
-        studentsSelected = students.Where(x => x.TeamId == Id).Select(x => x.Id);
     }
 
     private string GetMultiSelectionText(List<string> selectedValues)

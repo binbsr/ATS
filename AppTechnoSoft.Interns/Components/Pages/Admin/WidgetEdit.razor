@@ -7,32 +7,33 @@
 <PageTitle>@pageTitle</PageTitle>
 
     <EditForm Model="@model" OnValidSubmit="OnValidSubmit">
-        <DataAnnotationsValidator />
-        <MudSelect T="string" Label="Widget Type" @bind-Value="model.Title" AnchorOrigin="Origin.BottomCenter">
-            @foreach(var filter in widgetFilters)
-            {
-                <MudSelectItem Value="@filter.Key">@filter.Value</MudSelectItem>            
-            }          
-        </MudSelect>
+        <MudSelect T="string" Label="Widget Type" @bind-Value="model.Title" AnchorOrigin="Origin.BottomCenter" Variant="Variant.Outlined">
+            @foreach (var filter in widgetFilters)
+        {
+            <MudSelectItem Value="@filter.Key">@filter.Value</MudSelectItem>
+        }
+    </MudSelect>
 
-        <MudTextField Label="Description" Class="mt-3" @bind-Value="model.Description" For="@(() => model.Description)" />
+    <MudTextField Label="Description" Class="mt-3" @bind-Value="model.Description" Variant="Variant.Outlined" />
 
-        <MudSelect T="Tag"
-                   Label="Tags"
-                   Dense="true"
-                   HelperText="Check all tags that apply to this widget"
-                   MultiSelection="true"
-                   @bind-SelectedValues="@tagsSelected"
-                   Class="mb-3"
-                   MultiSelectionTextFunc="@(new Func<List<string>, string>(GetMultiSelectionText))"
-                   AnchorOrigin="Origin.BottomCenter">
-            @foreach (var tag in tags)
+    <MudSelect T="Tag"
+               Label="Tags"
+               Dense="true"
+               Variant="Variant.Outlined"
+               HelperText="Check all tags that apply to this widget"
+               MultiSelection="true"
+               @bind-SelectedValues="@tagsSelected"
+               Class="mb-3"
+               MultiSelectionTextFunc="@(new Func<List<string>, string>(GetMultiSelectionText))"
+               AnchorOrigin="Origin.BottomCenter">
+        @foreach (var tag in tags)
         {
             <MudSelectItem Value="@tag">@tag.Name</MudSelectItem>
         }
     </MudSelect>
-        
-    <RichTextEditor MarkdownValue="@model.HtmlContent" EditorValueChanged="OnMarkdownValueChanged"/> 
+
+    <MudText Style="font-weight:bold" Class="py-2">Content RichText (Markdown) and Live Preview on Right Panel</MudText>
+    <RichTextEditor MarkdownValue="@model.HtmlContent" EditorValueChanged="OnMarkdownValueChanged" />
 
     <MudButton ButtonType="ButtonType.Submit" Variant="Variant.Filled" Color="Color.Primary" Class="mt-3" StartIcon="@Icons.Material.Filled.Save">Save Widget</MudButton>
 </EditForm>
@@ -47,9 +48,9 @@
     Widget model = new Widget();
     List<Tag> tags = new();
     IEnumerable<Tag> tagsSelected = [];
-    List<(string Key, string Value)> widgetFilters = [(nameof(WidgetFilter.Module), WidgetFilter.Module), 
-        (nameof(WidgetFilter.HomeIntro), WidgetFilter.HomeIntro), 
-        (nameof(WidgetFilter.CarouselItem), WidgetFilter.CarouselItem) ];
+    List<(string Key, string Value)> widgetFilters = [(nameof(WidgetFilter.Module), WidgetFilter.Module),
+        (nameof(WidgetFilter.HomeIntro), WidgetFilter.HomeIntro),
+        (nameof(WidgetFilter.CarouselItem), WidgetFilter.CarouselItem)];
 
     string pageTitle = string.Empty;
     bool IsAdd => Id is null or 0;

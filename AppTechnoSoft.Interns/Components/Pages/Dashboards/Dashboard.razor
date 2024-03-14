@@ -1,0 +1,42 @@
+﻿@page "/dashboard"
+@using AppTechnoSoft.Interns.Components.Account
+@using Microsoft.AspNetCore.Identity
+
+@attribute [Authorize]
+@inject ApplicationDbContext Db
+
+<PageTitle>Your dashboard</PageTitle>
+
+@foreach (var role in loggedInUserRoles)
+{
+    switch (role)
+    {
+        case Role.Trainee:
+            <TraineeDash LoggedInUserId="@loggedInUserId" />
+            break;
+        case Role.Instructor:
+            break;
+        case Role.Admin:
+            break;
+        case Role.SuperAdmin:
+            break;
+    }
+}
+
+@code {
+
+    string loggedInUserId = string.Empty;
+
+    [CascadingParameter]
+    private Task<AuthenticationState> AuthTask { get; set; } = null!;
+
+    private IEnumerable<string> loggedInUserRoles = [];
+
+    protected override async Task OnInitializedAsync()
+    {
+        var userTask = await AuthTask;
+        var loggedInUser = userTask.User;
+        loggedInUserId = loggedInUser.GetUserId();
+        loggedInUserRoles = loggedInUser.GetRoles();
+    }
+}

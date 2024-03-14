@@ -1,0 +1,20 @@
+﻿@foreach (var member in Users)
+{
+    var user = LoggedInUserId == member.UserId ? $"{member.Name} (You)" : member.Name;
+    <MudStack AlignItems="AlignItems.Center">
+        <MudAvatar Style="height:80px; width:80px; font-size:2rem;">
+            <MudImage Src="@member.ProfilePath" />
+        </MudAvatar>
+        <MudText Typo="Typo.subtitle2">@user</MudText>
+    </MudStack>
+}
+
+
+@code {
+
+    [Parameter]
+    public List<StudentViewModel> Users { get; set; } = [];
+
+    [Parameter]
+    public string LoggedInUserId { get; set; } = string.Empty;
+}

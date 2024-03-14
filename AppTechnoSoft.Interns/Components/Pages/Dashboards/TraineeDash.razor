@@ -1,0 +1,93 @@
+﻿@inject ApplicationDbContext Db
+
+@if (Student is null)
+{
+    <ApplicationAlert />
+}
+else
+{
+    var panelClass = "pa-5 mb-5 border border-solid mud-border-tertiary";
+    <MudTabs Elevation="2" ApplyEffectsToContainer="true" PanelClass="pa-4" SliderColor="Color.Tertiary">
+        <MudTabPanel Text="Batch & Team" Icon="@Icons.Material.Filled.BatchPrediction">
+            <MudPaper Class="@panelClass" Elevation="0">
+                <MudText Typo="Typo.h6" Class="mb-5">Training Batch: <strong>@loggedInUserBatchName</strong></MudText>
+                <MudContainer Class="d-flex align-start gap-4 ml-0 px-0">
+                    <UserList Users="@batchMembers" LoggedInUserId="@LoggedInUserId"/>
+                </MudContainer>
+            </MudPaper>
+            <MudPaper Class="@panelClass" Elevation="0">
+                <MudText Typo="Typo.h6" Class="mb-5">Agile Team: <strong>@loggedInUserTeamName</strong></MudText>
+                <MudGrid>
+                    <MudItem md="1" xs="12" Class="d-flex">
+                        @if (teamMembers.Count > 0)
+                        {
+                            <MudTooltip Text="@($"Team {loggedInUserTeamName} ({teamMembers.Count} members)")">
+                                <MudAvatar Style="height:120px; width:120px; font-size:2.5rem;" Rounded>
+                                 <MudImage Src="@loggedInUserTeamAvatar" />
+                             </MudAvatar>
+                         </MudTooltip>
+                        }
+                    </MudItem>
+                    <MudItem md="11" xs="12">
+                        <MudContainer Class="d-flex align-start gap-4 ml-0">
+                            <UserList Users="@teamMembers" LoggedInUserId="@LoggedInUserId" />
+                        </MudContainer>
+                    </MudItem>
+                </MudGrid>
+            </MudPaper>
+        </MudTabPanel>
+        <MudTabPanel Text="Project Work" Icon="@Icons.Material.Filled.AppRegistration">
+            <MudPaper Class="@panelClass" Elevation="0">
+                <MudText Typo="Typo.h6" Class="mb-4" Align="Align.Center">Project Title: <strong>@projectTitle</strong></MudText>
+                <MudText Typo="Typo.subtitle2" Class="mb-2">@projectDetails</MudText>
+                </MudPaper>
+
+            </MudTabPanel>
+            <MudTabPanel Text="Your Accomplishments" Icon="@Icons.Material.Filled.DoneAll">
+                <MudPaper Class="@panelClass" Elevation="0">
+                    <MudText Typo="Typo.subtitle2">This section shows your module progress, completed assignments and shareable certificate.</MudText>
+                </MudPaper>
+            </MudTabPanel>
+        </MudTabs>
+}
+
+@code {
+
+    [Parameter]
+    public Student? Student { get; set; }
+
+    [Parameter]
+    public string LoggedInUserId { get; set; } = string.Empty;
+
+    string loggedInUserTeamName = "Not assigned to any team";
+    string loggedInUserBatchName = "Not assigned to any batch";
+    string loggedInUserTeamAvatar = "";
+    string projectTitle = "Project not assigned to your team";
+    string projectDetails = string.Empty;
+    List<StudentViewModel> teamMembers = new();
+    List<StudentViewModel> batchMembers = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (Student is null || Student.BatchId is null)
+            return;
+
+        loggedInUserBatchName = Student?.Batch?.Name ?? string.Empty;
+        loggedInUserTeamName = Student?.Team?.Name ?? string.Empty;
+        loggedInUserTeamAvatar = Student?.Team?.Avatar ?? string.Empty;
+
+        var title = Student?.Team?.Project?.Title;
+
+        if (title is not null or "")
+        {
+            projectTitle = title;
+            projectDetails = Student!.Team!.Project!.Requirements;
+        }
+
+        batchMembers = await Db.Students
+            .Where(x => x.BatchId == Student!.BatchId)
+            .Select(x => new StudentViewModel(x.Name, x.ApplicationUserId!, x.ProfileImagePath!, x!.Team!.Name, x!.Batch!.Name))
+            .ToListAsync();
+        teamMembers = batchMembers.Where(x => x.TeamName == loggedInUserTeamName).ToList();
+    }
+}

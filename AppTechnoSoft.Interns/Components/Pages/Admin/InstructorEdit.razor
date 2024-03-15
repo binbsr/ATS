@@ -2,32 +2,47 @@
 @page "/edit-instructor/{Id:int}"
 
 @inject ApplicationDbContext Db
+@inject UserManager<ApplicationUser> UserManager
 @inject ISnackbar SnackBar
 @inject NavigationManager Navigation
 
 <PageTitle>@pageTitle</PageTitle>
     <MudContainer>
         <EditForm Model="@model" OnValidSubmit="OnValidSubmit" Context="formContext">
-            <MudTextField Label="Name" @bind-Value="model.Name" Variant="Variant.Outlined"/>
-            <MudTextField Label="Resume Summary" Lines="10" Class="mt-3" @bind-Value="model.Resume" Variant="Variant.Outlined" />
-            <MudTextField Label="Professional Role" Class="mt-3 mb-5" @bind-Value="model.Role" Variant="Variant.Outlined" />
+            <MudTextField Label="Name" @bind-Value="model.Name" Variant="Variant.Outlined" />
+            <MudTextField Label="Phone" Class="mt-3" @bind-Value="model.Phone" Variant="Variant.Outlined" />
+            
+            <div class="d-flex mt-2">
+                <MudTextField Label="Email" InputType="InputType.Email" Class="mr-5" @bind-Value="model.Email" Variant="Variant.Outlined" />
+                <MudTextField Label="Password" @bind-Value="@password" 
+                    Variant="Variant.Outlined" 
+                    Adornment="Adornment.End" 
+                    AdornmentIcon="@Icons.Material.Sharp.Password"
+                    OnAdornmentClick="Generate" />
+            </div>
+
+            <div class="d-flex mt-2">
+                <MudTextField Label="Professional Role" Class="mr-5" @bind-Value="model.Role" Variant="Variant.Outlined" />
+                <MudTextField Label="Current Organization" @bind-Value="model.Role" Variant="Variant.Outlined" />
+            </div>
+            
+            <MudTextField Label="Resume Summary" Lines="10" Class="my-3" @bind-Value="model.Resume" Variant="Variant.Outlined" />
             <ImageUpload ExistingImagePath="@model.ProfilePath" ImageChanged="ProfileChanged" Label="Instructor Profile Image" />
             <MudSelect T="Tag"
                        Label="Tags"
                        MultiSelection="true"
                        @bind-SelectedValues="@tagsSelected"
-                       Class="mb-3 mt-5"
+                       Class="my-3"
                        MultiSelectionTextFunc="@(new Func<List<string>, string>(GetMultiSelectionText))"
                        AnchorOrigin="Origin.BottomCenter"
                        Variant="Variant.Outlined">
                 @foreach (var tag in tags)
-            {
-                <MudSelectItem Value="@tag">@tag.Name</MudSelectItem>
-            }
-        </MudSelect>
-        <MudSwitch @bind-Value="@model.Publish" Color="Color.Success" UnCheckedColor="Color.Error" Label="Show this profile publicly" />
-
-        <MudButton ButtonType="ButtonType.Submit" Variant="Variant.Filled" Color="Color.Primary" Class="mt-3" StartIcon="@Icons.Material.Filled.Save">Save Instructor</MudButton>
+                {
+                    <MudSelectItem Value="@tag">@tag.Name</MudSelectItem>
+                }
+            </MudSelect>
+            <MudSwitch @bind-Value="@model.Publish" Color="Color.Success" UnCheckedColor="Color.Error" Label="Show this profile publicly" />
+            <MudButton ButtonType="ButtonType.Submit" Variant="Variant.Filled" Color="Color.Primary" Class="mt-3" StartIcon="@Icons.Material.Filled.Save">Save Instructor</MudButton>
     </EditForm>
 </MudContainer>
 
@@ -41,6 +56,7 @@
     IEnumerable<Tag> tagsSelected = [];
     string pageTitle = string.Empty;
     bool IsAdd => Id is null or 0;
+    string password = string.Empty;
 
     protected override async Task OnInitializedAsync()
     {
@@ -60,7 +76,7 @@
 
     private async Task OnValidSubmit(EditContext context)
     {
-        // Save instructor profile image first if it's uploaded
+        // Save instructor profile image first if it's selected
         if (model.Profile is not null)
         {
             var file = model.Profile;
@@ -87,6 +103,9 @@
         if (IsAdd)
         {
             Db.Instructors.Add(model);
+            // Add Instructor role
+            // UserManager.Cre
+            // UserManager.AddToRoleAsync();
         }
         else
         {
@@ -115,5 +134,10 @@
     private void ProfileChanged(IBrowserFile file)
     {
         model.Profile = file;
+    }
+
+    private void Generate()
+    {
+        password = 8.CharactersPassword();
     }
 }

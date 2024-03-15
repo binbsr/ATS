@@ -1,0 +1,41 @@
+﻿@inject IDbContextFactory<ApplicationDbContext> DbFactory
+
+@if (loadingData)
+{
+    <MudProgressCircular />
+}
+else
+{
+    <MudText Align="Align.Center" Typo="Typo.h6" Class="border-double border-b-4 mud-border-tertiary my-3">Admin Profile</MudText>
+    <MudGrid>
+        <MudItem md="4">
+            <MudPaper Elevation="5" Class="py-3">
+                
+            </MudPaper>
+        </MudItem>
+    </MudGrid>
+}
+
+@code {
+
+    [Parameter]
+    public string LoggedInUserId { get; set; } = string.Empty;
+
+    bool loadingData = false;
+
+    protected override async Task OnInitializedAsync()
+    {
+        loadingData = true;
+
+        if (LoggedInUserId == string.Empty)
+            return;
+
+        using var Db = DbFactory.CreateDbContext();
+        var studentsByPrograms = await Db.Instructors.FindAsync(1);
+
+        if (studentsByPrograms is null)
+            return;
+
+        loadingData = false;
+    }
+}

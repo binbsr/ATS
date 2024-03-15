@@ -6,7 +6,7 @@
 @inject ApplicationDbContext Db
 
 <PageTitle>Your dashboard</PageTitle>
-@if(!loggedInUserRoles.Any())
+@if (!loggedInUserRoles.Any())
 {
     <ApplicationAlert Text="Your application verified, please wait till we enroll you to AppTechnoSoft or contact admins for quick turnaround." />
 }
@@ -20,9 +20,10 @@ else
                 <TraineeDash LoggedInUserId="@loggedInUserId" />
                 break;
             case Role.Instructor:
+                <InstructorDash LoggedInUserId="@loggedInUserId" />
                 break;
             case Role.Admin:
-                <AdminDash LoggedInUserId="@loggedInUserId" />
+                <AdminDash />
                 break;
         }
     }

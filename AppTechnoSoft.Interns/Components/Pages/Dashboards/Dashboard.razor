@@ -6,20 +6,25 @@
 @inject ApplicationDbContext Db
 
 <PageTitle>Your dashboard</PageTitle>
-
-@foreach (var role in loggedInUserRoles)
+@if(!loggedInUserRoles.Any())
 {
-    switch (role)
+    <ApplicationAlert Text="Your application verified, please wait till we enroll you to AppTechnoSoft or contact admins for quick turnaround." />
+}
+else
+{
+    @foreach (var role in loggedInUserRoles)
     {
-        case Role.Trainee:
-            <TraineeDash LoggedInUserId="@loggedInUserId" />
-            break;
-        case Role.Instructor:
-            break;
-        case Role.Admin:
-            break;
-        case Role.SuperAdmin:
-            break;
+        switch (role)
+        {
+            case Role.Trainee:
+                <TraineeDash LoggedInUserId="@loggedInUserId" />
+                break;
+            case Role.Instructor:
+                break;
+            case Role.Admin:
+                <AdminDash LoggedInUserId="@loggedInUserId" />
+                break;
+        }
     }
 }
 

@@ -41,10 +41,13 @@
 
         @if (password != string.Empty)
         {
-            <MudAlert Severity="Severity.Info" Style="font-size: 1.1rem">
-                Please copy login details in safe location and share with instructor (You are seeing it for last time). <br />
-                <code><b>Email:</b> @model.Email <b>Password:</b> @password</code>
-            </MudAlert>
+            <ApplicationAlert>
+                Please Keep it Safe (One time only)
+                <span class="border-2 border-dashed p-2" style="font-family:Courier New, Courier, monospace">
+                    <b>Email:</b> @model.Email
+                    <b>Password:</b> @password
+                </span>                
+            </ApplicationAlert> 
         }
         <MudDivider />
         <MudButton ButtonType="ButtonType.Submit" Variant="Variant.Filled" Color="Color.Tertiary" Class="mt-5" StartIcon="@Icons.Material.Filled.Save">Save Instructor</MudButton>

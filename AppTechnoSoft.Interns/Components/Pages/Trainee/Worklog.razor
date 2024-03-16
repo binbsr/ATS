@@ -8,7 +8,11 @@
 
 @if (studentModel is null)
 {
-    <ApplicationAlert />
+    <ApplicationAlert Text="Please complete your registration proces first." Navigation="/apply" />
+}
+else if(studentModel.Status != Status.Enrolled)
+{
+    <ApplicationAlert Text="You are not yet assiged to any batch. Please bear with us, we are regrouping you to appropriate training batch." />
 }
 else
 {
@@ -100,7 +104,7 @@ else
             Navigation.NavigateTo("/Account/Login");
         }
 
-        studentModel = await Db.Students.FirstOrDefaultAsync(x => x.ApplicationUserId == loggedInUserId) ?? new();
+        studentModel = await Db.Students.FirstOrDefaultAsync(x => x.ApplicationUserId == loggedInUserId);
 
         if (studentModel == null)
             return;

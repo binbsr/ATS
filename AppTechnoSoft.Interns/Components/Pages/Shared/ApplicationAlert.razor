@@ -1,9 +1,11 @@
-﻿<MudAlert Severity="Severity.Info" Elevation="1">
+﻿<MudAlert Severity="Severity.Info" Elevation="5" Style="font-size:1.2rem" NoIcon>    
+    <MudIcon Icon="@Icons.Material.Sharp.Info" Size="Size.Large" />
     @Text
     @if (Navigation is not "")
     {
-        <MudLink Typo="Typo.h5" Href="@Navigation">Click Here</MudLink>
+        <MudLink Href="@Navigation">Click here to register</MudLink>
     }
+    @ChildContent
 </MudAlert>
 
 @code {
@@ -13,4 +15,7 @@
 
     [Parameter]
     public string Navigation { get; set; } = "";
+
+    [Parameter]
+    public RenderFragment? ChildContent { get; set; }
 }

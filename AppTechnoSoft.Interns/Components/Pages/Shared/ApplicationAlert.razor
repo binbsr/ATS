@@ -1,4 +1,16 @@
-﻿<MudText Typo="Typo.h5">
-    Please complete your registration proces first.
-    <MudLink Typo="Typo.h5" Href="/apply">Click Here</MudLink>
-</MudText>
+﻿<MudAlert Severity="Severity.Info" Elevation="1">
+    @Text
+    @if (Navigation is not "")
+    {
+        <MudLink Typo="Typo.h5" Href="@Navigation">Click Here</MudLink>
+    }
+</MudAlert>
+
+@code {
+
+    [Parameter]
+    public required string Text { get; set; }
+
+    [Parameter]
+    public string Navigation { get; set; } = "";
+}

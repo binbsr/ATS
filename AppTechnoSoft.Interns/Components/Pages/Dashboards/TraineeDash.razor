@@ -1,4 +1,4 @@
-﻿@inject ApplicationDbContext Db
+﻿@inject IDbContextFactory<ApplicationDbContext> DbFactory
 
 @if (loadingData)
 {
@@ -7,11 +7,13 @@
 
 @if (!loadingData && student is null)
 {
-    <ApplicationAlert />
+    <ApplicationAlert Text="Please complete your registration proces first." Navigation="/apply" />
 }
 else
 {
     var panelClass = "pa-5 mb-5 border border-solid mud-border-tertiary";
+    <MudText Align="Align.Center" Typo="Typo.h6" Class="border-double border-b-4 mud-border-tertiary my-3">Trainee Profile</MudText>
+
     <MudTabs Elevation="2" ApplyEffectsToContainer="true" PanelClass="pa-4" SliderColor="Color.Tertiary">
         <MudTabPanel Text="Batch & Team" Icon="@Icons.Material.Filled.BatchPrediction">
             <MudPaper Class="@panelClass" Elevation="0">
@@ -74,6 +76,8 @@ else
     protected override async Task OnInitializedAsync()
     {
         loadingData = true;
+
+        using var Db = DbFactory.CreateDbContext();
         student = await Db.Students
             .Where(x => x.ApplicationUserId == LoggedInUserId)
             .Include(b => b!.Batch)

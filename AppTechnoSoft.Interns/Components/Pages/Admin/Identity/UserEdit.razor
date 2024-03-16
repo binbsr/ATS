@@ -6,18 +6,20 @@
 @inject RoleManager<IdentityRole> RoleManager
 @inject ISnackbar SnackBar
 @inject NavigationManager Navigation
+@inject ApplicationDbContext Db
 
 <PageTitle>User Management</PageTitle>
 
 <MudContainer>
     <EditForm Model="@model" OnValidSubmit="OnValidSubmit">
-        <MudTextField Label="Title" @bind-Value="model.UserName" Disabled />
-         <MudTextField Label="Email" @bind-Value="model.Email" Disabled />
-         <MudTextField Label="EmailConfirmed" @bind-Value="model.EmailConfirmed" Disabled />
-         <MudTextField Label="TwoFactorEnabled" @bind-Value="model.TwoFactorEnabled" Disabled />
-         <MudTextField Label="AccessFailedCount" @bind-Value="model.AccessFailedCount" Disabled />
+        <MudTextField Label="Title" @bind-Value="model.UserName" Disabled Variant="Variant.Outlined" />
+         <MudTextField Class="mt-3" Label="Email" @bind-Value="model.Email" Disabled Variant="Variant.Outlined" />
+         <MudTextField Class="mt-3" Label="EmailConfirmed" @bind-Value="model.EmailConfirmed" Disabled Variant="Variant.Outlined" />
+         <MudTextField Class="mt-3" Label="TwoFactorEnabled" @bind-Value="model.TwoFactorEnabled" Disabled Variant="Variant.Outlined" />
+         <MudTextField Class="mt-3" Label="AccessFailedCount" @bind-Value="model.AccessFailedCount" Disabled Variant="Variant.Outlined" />
          <MudSelect T="string"
                     Dense="true"
+                    Variant="Variant.Outlined"
                     Label="Roles assigned"
                     MultiSelection="true"
                     @bind-SelectedValues="@selectedRoles"
@@ -64,6 +66,14 @@
         if (rolesTobeAdded.Any())
         {
             var resultAdd = await UserManager.AddToRolesAsync(model, rolesTobeAdded);
+
+            if (rolesTobeAdded.Contains(Role.Instructor))
+            {
+                await Db.Instructors
+                    .Where(x => x.Email == model.Email)
+                    .ExecuteUpdateAsync(x => x.SetProperty(y => y.ApplicationUserId, Id));
+            }
+
             _ = resultAdd.Succeeded ?
             SnackBar.Add("User saved successfully", Severity.Success) :
             SnackBar.Add($"User save failed. {string.Join("\n\r", resultAdd.Errors.Select(x => x.Description))}", Severity.Error);

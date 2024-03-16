@@ -23,4 +23,31 @@ public static class StringExtensions
         var htmlMarkup = Markdown.ToHtml(mdValue, pipeline);
         return htmlMarkup;
     }
+
+    public static string ToEmail(this string userName)
+    {
+        if (userName is null or "")
+            return string.Empty;
+
+        var nameParts = userName.Split(" ", StringSplitOptions.RemoveEmptyEntries);
+        var partsLength = nameParts.Length;
+        var email = string.Empty;
+        var domain = "@technosoft.edu.np";
+
+        if (partsLength == 0)
+        {
+            email = string.Empty;
+        }
+
+        else if (partsLength == 1)
+        {
+            email = nameParts[0].ToLower() + domain;
+        }
+        else
+        {
+            email += $"{nameParts[0].ToLower()}.{nameParts[partsLength - 1].ToLower()}{domain}";
+        }
+
+        return email;
+    }
 }

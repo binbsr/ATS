@@ -3,46 +3,51 @@
 
 @inject ApplicationDbContext Db
 @inject UserManager<ApplicationUser> UserManager
+@inject IUserStore<ApplicationUser> UserStore
 @inject ISnackbar SnackBar
-@inject NavigationManager Navigation
 
 <PageTitle>@pageTitle</PageTitle>
     <MudContainer>
         <EditForm Model="@model" OnValidSubmit="OnValidSubmit" Context="formContext">
-            <MudTextField Label="Name" @bind-Value="model.Name" Variant="Variant.Outlined" />
-            <MudTextField Label="Phone" Class="mt-3" @bind-Value="model.Phone" Variant="Variant.Outlined" />
-            
-            <div class="d-flex mt-2">
-                <MudTextField Label="Email" InputType="InputType.Email" Class="mr-5" @bind-Value="model.Email" Variant="Variant.Outlined" />
-                <MudTextField Label="Password" @bind-Value="@password" 
-                    Variant="Variant.Outlined" 
-                    Adornment="Adornment.End" 
-                    AdornmentIcon="@Icons.Material.Sharp.Password"
-                    OnAdornmentClick="Generate" />
-            </div>
+            <MudTextField Label="Name" @bind-Value="model.Name" Variant="Variant.Outlined" TextChanged="UserNameChanged" />
+            <MudTextField Label="Email" Class="mt-3" @bind-Value="model.Email" Variant="Variant.Outlined" Disabled />
+         <MudTextField Label="Phone" Class="mt-3" @bind-Value="model.Phone" Variant="Variant.Outlined" />
 
-            <div class="d-flex mt-2">
-                <MudTextField Label="Professional Role" Class="mr-5" @bind-Value="model.Role" Variant="Variant.Outlined" />
-                <MudTextField Label="Current Organization" @bind-Value="model.Role" Variant="Variant.Outlined" />
-            </div>
-            
-            <MudTextField Label="Resume Summary" Lines="10" Class="my-3" @bind-Value="model.Resume" Variant="Variant.Outlined" />
-            <ImageUpload ExistingImagePath="@model.ProfilePath" ImageChanged="ProfileChanged" Label="Instructor Profile Image" />
-            <MudSelect T="Tag"
-                       Label="Tags"
-                       MultiSelection="true"
-                       @bind-SelectedValues="@tagsSelected"
-                       Class="my-3"
-                       MultiSelectionTextFunc="@(new Func<List<string>, string>(GetMultiSelectionText))"
-                       AnchorOrigin="Origin.BottomCenter"
-                       Variant="Variant.Outlined">
-                @foreach (var tag in tags)
-                {
-                    <MudSelectItem Value="@tag">@tag.Name</MudSelectItem>
-                }
-            </MudSelect>
-            <MudSwitch @bind-Value="@model.Publish" Color="Color.Success" UnCheckedColor="Color.Error" Label="Show this profile publicly" />
-            <MudButton ButtonType="ButtonType.Submit" Variant="Variant.Filled" Color="Color.Primary" Class="mt-3" StartIcon="@Icons.Material.Filled.Save">Save Instructor</MudButton>
+         <div class="d-flex mt-2">
+             <MudTextField Label="Professional Role" @bind-Value="model.Role" Class="mr-6" Variant="Variant.Outlined" />
+             <MudTextField Label="Current Organization" @bind-Value="model.Organization" Variant="Variant.Outlined" />
+         </div>
+
+         <MudTextField Label="Resume Summary" Lines="10" Class="my-3" @bind-Value="model.Resume" Variant="Variant.Outlined" />
+         <ImageUpload ExistingImagePath="@model.ProfilePath" ImageChanged="ProfileChanged" Label="Instructor Profile Image" />
+         <MudSelect T="Tag"
+                    Label="Tags"
+                    MultiSelection="true"
+                    @bind-SelectedValues="@tagsSelected"
+                    Class="mt-3"
+                    MultiSelectionTextFunc="@(new Func<List<string>, string>(GetMultiSelectionText))"
+                    AnchorOrigin="Origin.BottomCenter"
+                    Variant="Variant.Outlined">
+             @foreach (var tag in tags)
+            {
+                <MudSelectItem Value="@tag">@tag.Name</MudSelectItem>
+            }
+        </MudSelect>
+        <MudSwitch @bind-Value="@model.Publish" Class="mt-3" Color="Color.Success" UnCheckedColor="Color.Error" Label="Public Profile" />
+
+        <MudButton Variant="Variant.Outlined" Disabled="model.Email == string.Empty" Color="Color.Warning" Class="my-3" StartIcon="@Icons.Material.Filled.Security" OnClick="Generate">
+            Generate Login Details
+        </MudButton>
+
+        @if (password != string.Empty)
+        {
+            <MudAlert Severity="Severity.Info" Style="font-size: 1.1rem">
+                Please copy login details in safe location and share with instructor (You are seeing it for last time). <br />
+                <code><b>Email:</b> @model.Email <b>Password:</b> @password</code>
+            </MudAlert>
+        }
+        <MudDivider />
+        <MudButton ButtonType="ButtonType.Submit" Variant="Variant.Filled" Color="Color.Tertiary" Class="mt-5" StartIcon="@Icons.Material.Filled.Save">Save Instructor</MudButton>
     </EditForm>
 </MudContainer>
 
@@ -103,9 +108,6 @@
         if (IsAdd)
         {
             Db.Instructors.Add(model);
-            // Add Instructor role
-            // UserManager.Cre
-            // UserManager.AddToRoleAsync();
         }
         else
         {
@@ -118,11 +120,29 @@
         if (rowsAffected > 0)
         {
             SnackBar.Add("Instructor saved successfully", Severity.Success);
-            Navigation.NavigateTo("/instructors");
         }
         else
         {
             SnackBar.Add("Instructor save failed", Severity.Error);
+        }
+
+        if (password == string.Empty)
+            return;
+
+        // Create Instructor login and assign role
+        var user = Activator.CreateInstance<ApplicationUser>();
+        await UserStore.SetUserNameAsync(user, model.Email, CancellationToken.None);
+        var emailStore = (IUserEmailStore<ApplicationUser>)UserStore;
+        await emailStore.SetEmailAsync(user, model.Email, CancellationToken.None);
+        var result = await UserManager.CreateAsync(user, password);
+        _ = await UserManager.AddToRoleAsync(user, Role.Instructor);
+        if (result.Succeeded)
+        {
+            SnackBar.Add("And instructor user registered successfully for login details.", Severity.Success);
+        }
+        else
+        {
+            SnackBar.Add(string.Join(", ", result.Errors.Select(error => error.Description)), Severity.Error);
         }
     }
 
@@ -136,8 +156,13 @@
         model.Profile = file;
     }
 
+    private void UserNameChanged()
+    {
+        model.Email = model.Name.ToEmail();
+    }
+
     private void Generate()
     {
-        password = 8.CharactersPassword();
+        password = PwdGenerator.NewPassword(8);
     }
 }

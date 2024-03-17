@@ -68,7 +68,7 @@ else
         .Except(projectWorkeWidgets);
 
     private List<Tag> tags = [];
-    private string selectedRootFilter = RootFilter.All;
+    private string selectedRootFilter = RootFilter.Internship;
     private List<string> selectedSecondaryFilters = [];
     bool loadingData;
 
@@ -82,7 +82,7 @@ else
         if (widgets is null || widgets.Count == 0)
             return;
 
-        widgetFiltered = widgets;
+        GetFilteredModules(RootFilter.Internship, []);
 
         loadingData = false;
     }
@@ -99,9 +99,9 @@ else
         GetFilteredModules(selectedRootFilter, filterTexts);        
     }
 
-    private void GetFilteredModules(string rootFolder, List<string> secondaryTags)
+    private void GetFilteredModules(string rootFilter, List<string> secondaryTags)
     {
-        if (rootFolder != RootFilter.All)
+        if (rootFilter != RootFilter.All)
             widgetFiltered = widgets.Where(x => x.Tags!.Any(y => y.Name == selectedRootFilter)).ToList();
         else
             widgetFiltered = widgets;

@@ -9,7 +9,7 @@
     {
         if (ShowRootFilters)
         {
-            <MudToggleGroup Class="mud-width-full" T="string" Color="Color.Info" ValueChanged="RootFilterChanged" Value="@RootFilter.All" SelectedClass="custom-gradient">
+            <MudToggleGroup Class="mud-width-full" T="string" Color="Color.Info" ValueChanged="RootFilterChanged" Value="@RootFilter.Internship" SelectedClass="custom-gradient">
                 @foreach (var tag in roottags)
                 {
                     <MudToggleItem Value="@tag.Title">
@@ -57,10 +57,11 @@
     public EventCallback<List<string>> FilterTriggered { get; set; }
 
     public List<Tag> tags = [];
-    public List<(string Title, string Description, string TagValue)> roottags = [(RootFilter.All, "All Course Modules", "All"),
+    public List<(string Title, string Description, string TagValue)> roottags = [
         (RootFilter.Internship, "Modules for Interns", "Interns"),
         (RootFilter.Professional, "Modules for Specialized Professionals", "Professional"),
-        (RootFilter.Corporate, "Modules for Corporate Employees", "Corporate")
+        (RootFilter.Corporate, "Modules for Corporate Employees", "Corporate"),
+        (RootFilter.All, "All Course Modules", "All")
     ];
 
     protected override async Task OnInitializedAsync()

@@ -3,7 +3,7 @@
 namespace AppTechnoSoft.Interns.Extensions;
 public static class IdentityExtensions
 {
-    public static string GetUserId(this ClaimsPrincipal principal) =>
+    public static string GetUserId(this ClaimsPrincipal? principal) =>
         principal?.FindFirst(u => u.Type.Contains("nameidentifier"))?.Value ?? string.Empty;
 
     public static IEnumerable<string> GetRoles(this ClaimsPrincipal principal) =>

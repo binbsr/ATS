@@ -10,74 +10,72 @@
 {
     <ApplicationAlert Text="Please complete your registration proces first." Navigation="/apply" />
 }
-else if(studentModel.Status != Status.Enrolled)
+else if (studentModel.Status == Status.Applied)
 {
     <ApplicationAlert Text="You are not yet assiged to any batch. Please bear with us, we are regrouping you to appropriate training batch." />
 }
 else
 {
     <MudTabs Outlined @ref="tabs">
-         <MudTabPanel Text="Daily Tasks" Icon="@Icons.Material.Sharp.AddTask">
-             <EditForm Model="@viewModel" OnValidSubmit="OnValidSubmit">
-                 <DataAnnotationsValidator />
-                 <MudCard Class="p-2">
-                     <MudCardContent>
-                         <MudGrid>
-                             <MudItem md="4" xs="12">
-                                 <MudText Align="Align.Center" Typo="Typo.h6" Class="mb-2">Log Date</MudText>
-                                 <MudDatePicker Label="Date" Date="viewModel.Date" DateChanged="SelectionDateChanged"
-                                                PickerVariant="PickerVariant.Static" Color="Color.Secondary"
-                                                Orientation="Orientation.Landscape" IsDateDisabledFunc="ShouldDisableDates"
-                                                AdditionalDateClassesFunc="@((DateTime dt)=>((int)dt.DayOfWeek == 0 ? "red-text text-accent-4" : ""))" />
-                             </MudItem>
-                             <MudItem md="4" sm="12">
-                                 <MudText Align="Align.Center" Typo="Typo.h6" Class="mb-2">Punchin Time</MudText>
-                                 <MudTimePicker AmPm @bind-Time="viewModel.PunchIn" Color="Color.Secondary"
-                                                PickerVariant="PickerVariant.Static" />
-                             </MudItem>
-                             <MudItem md="4" sm="12">
-                                 <MudText Align="Align.Center" Typo="Typo.h6" Class="mb-2">Punchout Time</MudText>
-                                 <MudTimePicker AmPm @bind-Time="viewModel.PunchOut" Color="Color.Secondary"
-                                                PickerVariant="PickerVariant.Static" />
-                             </MudItem>
-                             <MudItem Class="pt-0">
-                                 <MudText Align="Align.Right" Color="Color.Info" Typo="Typo.h6">
-                                     Work Hours
-                                     (@viewModel.Date!.Value.ToShortDateString()) - @((viewModel!.PunchOut -
-                                viewModel!.PunchIn)!.Value.ToString(@"hh\:mm"))
+        <MudTabPanel Text="Daily Tasks" Icon="@Icons.Material.Sharp.AddTask">
+            <EditForm Model="@viewModel" OnValidSubmit="OnValidSubmit">
+                <DataAnnotationsValidator />
+                <MudCard Class="p-2">
+                    <MudCardContent>
+                        <MudGrid>
+                            <MudItem md="4" xs="12">
+                                <MudText Align="Align.Center" Typo="Typo.h6" Class="mb-2">Today</MudText>
+                                <MudText Align="Align.Center" Typo="Typo.h2" Class="mb-2">@DateTime.Now.ToLongDateString()</MudText>
+                            </MudItem>
+                            <MudItem md="4" sm="12">
+                                <MudText Align="Align.Center" Typo="Typo.h6" Class="mb-2">Punchin Time</MudText>
+                                <MudButton StartIcon="@Icons.Material.Sharp.PunchClock"
+                                           OnClick="PunchIn">Punch In</MudButton>
+                                <MudText Align="Align.Center" Typo="Typo.h2" Class="mb-2">@punchinTime</MudText>
+                            </MudItem>
+                            <MudItem md="4" sm="12">
+                                <MudText Align="Align.Center" Typo="Typo.h6" Class="mb-2">Punchout Time</MudText>
+                                <MudText Align="Align.Center" Typo="Typo.h2" Class="mb-2">@punchOutTime</MudText>
+                            </MudItem>
+                            <MudItem Class="pt-0">
+                                <MudText Align="Align.Right" Color="Color.Info" Typo="Typo.h6">
+                                    Work Hours - @((viewModel!.PunchOut - viewModel!.PunchIn)!.Value.ToString(@"hh\:mm"))
                                 </MudText>
                             </MudItem>
                         </MudGrid>
                         <MudTextField Variant="Variant.Outlined" Label="Add task summary" Lines="5" Class="mt-3"
                                       @bind-Value="viewModel.Task" For="@(() => viewModel.Task)" Immediate />
-                     </MudCardContent>
-                     <MudCardActions>
-                         <MudButton ButtonType="ButtonType.Submit" Variant="Variant.Filled" Color="Color.Primary"
-                                    Class="ml-auto" StartIcon="@Icons.Material.Sharp.Save">
-                             @(logExists ? "Save" : "Punchout")
-                         </MudButton>
-                     </MudCardActions>
-                 </MudCard>
-             </EditForm>
-         </MudTabPanel>
-         <MudTabPanel Text="Attendance History" Icon="@Icons.Material.Filled.History" OnClick="LoadAttendances">
-             <MudTable Items="@allAttendances" Hover="true" Breakpoint="Breakpoint.Sm" Loading="@loading"
-                       LoadingProgressColor="Color.Secondary">
-                 <HeaderContent>
-                     <MudTh>Date</MudTh>
-                     <MudTh>PunchIn</MudTh>
-                     <MudTh>PunchOut</MudTh>
-                     <MudTh>Task Done</MudTh>
-                 </HeaderContent>
-                 <RowTemplate>
-                     <MudTd DataLabel="Date">@context.Date</MudTd>
-                        <MudTd DataLabel="PunchIn">@context.PunchIn</MudTd>
-                        <MudTd DataLabel="PunchOut">@context.PunchOut</MudTd>
-                        <MudTd DataLabel="WorkLog">@context.WorkLog</MudTd>
-                    </RowTemplate>
-                </MudTable>
-            </MudTabPanel>
-        </MudTabs>
+                    </MudCardContent>
+                    <MudCardActions>
+                        <MudButton ButtonType="ButtonType.Submit"
+                                   Variant="Variant.Filled"
+                                   Color="Color.Primary"
+                                   Class="ml-auto"
+                                   StartIcon="@Icons.Material.Sharp.Save">
+                            Punchout
+                        </MudButton>
+                    </MudCardActions>
+                </MudCard>
+            </EditForm>
+        </MudTabPanel>
+        <MudTabPanel Text="Attendance History" Icon="@Icons.Material.Filled.History" OnClick="LoadAttendances">
+            <MudTable Items="@allAttendances" Hover="true" Breakpoint="Breakpoint.Sm" Loading="@loading"
+                      LoadingProgressColor="Color.Secondary">
+                <HeaderContent>
+                    <MudTh>Date</MudTh>
+                    <MudTh>PunchIn</MudTh>
+                    <MudTh>PunchOut</MudTh>
+                    <MudTh>Task Done</MudTh>
+                </HeaderContent>
+                <RowTemplate>
+                    <MudTd DataLabel="Date">@context.Date</MudTd>
+                    <MudTd DataLabel="PunchIn">@context.PunchIn</MudTd>
+                    <MudTd DataLabel="PunchOut">@context.PunchOut</MudTd>
+                    <MudTd DataLabel="WorkLog">@context.WorkLog</MudTd>
+                </RowTemplate>
+            </MudTable>
+        </MudTabPanel>
+    </MudTabs>
 }
 
 @code {
@@ -89,6 +87,8 @@ else
     bool logExists = false;
     List<Attendance> allAttendances = new();
     bool loading = false;
+    TimeOnly punchinTime;
+    TimeOnly punchOutTime;
 
     [CascadingParameter]
     private Task<AuthenticationState> AuthTask { get; set; } = null!;
@@ -148,7 +148,7 @@ else
             return;
 
         if (logExists)
-        {            
+        {
             viewModel.ToModel(model);
         }
         else
@@ -175,6 +175,11 @@ else
         loading = true;
         allAttendances = await Db.Attendances.Where(x => x.StudentId == viewModel.StudentId).ToListAsync();
         loading = false;
+    }
+
+    private void PunchIn()
+    {
+        punchinTime = TimeOnly.FromDateTime(DateTime.Now);
     }
 
     private bool ShouldDisableDates(DateTime dt) =>

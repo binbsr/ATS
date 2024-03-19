@@ -1,7 +1,10 @@
 ﻿@if (Widgets.Any())
 {
-    <div class="border-b-2 border-solid mud-border-info mt-3 mb-2">
-        <MudText Typo="Typo.h6">@SectionTitle</MudText>
+    <div class="border-b-2 border-solid mud-border-default mt-4 mb-2 py-1">
+        <MudAvatar Rounded>
+            <MudIcon Icon="@Icon" Color="Color.Dark" Size="Size.Small"/>
+        </MudAvatar>
+        <MudText Inline Typo="Typo.h6">@SectionTitle</MudText>
     </div>
         <MudExpansionPanels Elevation="5" MultiExpansion="true" DisableBorders>
         <MudGrid Spacing="1">
@@ -19,6 +22,9 @@
 
     [Parameter]
     public string SectionTitle { get; set; } = "Section";
+
+    [Parameter]
+    public string Icon { get; set; } = Icons.Material.Sharp.Pattern;
 
     [Parameter]
     public IEnumerable<Widget> Widgets { get; set; } = [];

@@ -14,7 +14,7 @@
 
         <AuthorizeView Roles=@(Role.Admin)>
             <MudDivider Class="my-2" />
-            <MudNavGroup Title="Admin Panel" Icon="@Icons.Material.Filled.VerifiedUser" IconColor="Color.Info">
+            <MudNavGroup Title="Admin" Icon="@Icons.Material.Filled.VerifiedUser" IconColor="Color.Info" Expanded>
                 <MudNavLink Href="/attendance" Icon="@Icons.Material.Filled.Checklist" IconColor="Color.Info">Attendance</MudNavLink>
                 <MudNavLink Href="/programs" Icon="@Icons.Material.Filled.Book" IconColor="Color.Info">Programs</MudNavLink>
                 <MudNavLink Href="/colleges" Icon="@Icons.Material.Filled.School" IconColor="Color.Info">Colleges</MudNavLink>
@@ -31,7 +31,7 @@
 
         <AuthorizeView Roles=@(Role.SuperAdmin)>
             <MudDivider Class="my-2" />
-            <MudNavGroup Title="User Accounts" Icon="@Icons.Material.Filled.AdminPanelSettings" IconColor="Color.Warning">
+            <MudNavGroup Title="User Accounts" Icon="@Icons.Material.Filled.AdminPanelSettings" IconColor="Color.Warning" Expanded>
                 <MudNavLink Href="/identity/roles" Icon="@Icons.Material.Filled.Security" IconColor="Color.Warning">Roles</MudNavLink>
                 <MudNavLink Href="/identity/users" Icon="@Icons.Material.Filled.PersonSearch" IconColor="Color.Warning">Users</MudNavLink>
                 <MudNavLink Href="/finance" Icon="@Icons.Material.Filled.CurrencyRupee" IconColor="Color.Warning">Finance</MudNavLink>

@@ -23,4 +23,8 @@
     <PackageReference Include="PSC.Blazor.Components.MarkdownEditor" Version="2.0.19" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="wwwroot\profile_uploads\" />
+  </ItemGroup>
+
 </Project>

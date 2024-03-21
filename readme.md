@@ -68,3 +68,10 @@ Tag description is used to fetch filters, so please describe your tag accordigly
 
 > Modules - **module**
 > Instrcutors - **tech**
+
+
+
+## Some todo features for this portal
+
+1. Automate punch in functionality and role based worklog views
+1. Configurable module sections (Hardcoded now)

@@ -16,19 +16,19 @@
                         <div class="mud-width-full mud-height-full">
                             <div class="d-flex align-center justify-space-between flex-wrap">
                                 <MudText Class="ellipsis" Typo="Typo.h6">@tag.Title</MudText>
-                                    <MudChip Class="text-white" Style=@(context ? "background:#1976D2": "background:#6D4C41") Icon="@(context ? Icons.Material.Filled.Check : "")">@tag.TagValue</MudChip>
-                                </div>
-                                <MudText Typo="Typo.subtitle2">@tag.Description</MudText>
+                                <MudChip Class="text-white" Style=@(context ? "background:#1976D2": "background:#6D4C41") Icon="@(context ? Icons.Material.Filled.Check : "")">@tag.TagValue</MudChip>
                             </div>
-                        </MudToggleItem>
+                            <MudText Typo="Typo.subtitle2">@tag.Description</MudText>
+                        </div>
+                    </MudToggleItem>
                 }
             </MudToggleGroup>
         }
 
         <MudChipSet Filter MultiSelection SelectedChipsChanged="FilterChanged" Class="mt-3">
-             @foreach (var tag in tags)
+            @foreach (var tag in tags)
             {
-                <MudChip SelectedColor="Color.Success" Text="@tag.Name" Style="@("background:" + tag.ColorCode ?? "")" Class="text-white"></MudChip>
+                <MudChip Text="@tag.Name" Style="@("background:" + tag.ColorCode ?? "")" Class="text-white"></MudChip>
             }
         </MudChipSet>
     }
@@ -59,9 +59,9 @@
     public List<Tag> tags = [];
     public List<(string Title, string Description, string TagValue)> roottags = [
         (RootFilter.Internship, "Modules for Interns", "Interns"),
-        (RootFilter.Professional, "Modules for Specialized Professionals", "Professional"),
-        (RootFilter.Corporate, "Modules for Corporate Employees", "Corporate"),
-        (RootFilter.All, "All Course Modules", "All")
+    (RootFilter.Professional, "Modules for Specialized Professionals", "Professional"),
+    (RootFilter.Corporate, "Modules for Corporate Employees", "Corporate"),
+    (RootFilter.All, "All Course Modules", "All")
     ];
 
     protected override async Task OnInitializedAsync()

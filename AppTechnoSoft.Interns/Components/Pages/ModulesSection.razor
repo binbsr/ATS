@@ -2,11 +2,21 @@
 {
     <div class="border-b-2 border-solid mud-border-default mt-4 mb-2 py-1 d-flex">
         <MudAvatar Rounded>
-            <MudIcon Icon="@Icon" Color="Color.Dark"/>
+            <MudIcon Icon="@Icon" Color="Color.Dark" />
         </MudAvatar>
         <MudText Typo="Typo.h6" Class="ml-2 mt-1">@SectionTitle</MudText>
+        @if (techSelectionSections.Any(x => x == SectionTagFilter))
+        {
+            <MudSpacer />
+            <MudToggleGroup T="string" CheckMark Color="Color.Dark" FixedContent>
+                @foreach(var tech in backendTechs)
+                {
+                    <MudToggleItem Value="@tech" Text="@tech" />
+                }
+            </MudToggleGroup>
+        }
     </div>
-        <MudExpansionPanels Elevation="5" MultiExpansion="true" DisableBorders>
+    <MudExpansionPanels Elevation="5" MultiExpansion="true" DisableBorders>
         <MudGrid Spacing="1">
             @foreach (var widget in Widgets)
             {
@@ -24,6 +34,9 @@
     public string SectionTitle { get; set; } = "Section";
 
     [Parameter]
+    public string SectionTagFilter { get; set; } = "";
+
+    [Parameter]
     public string Icon { get; set; } = Icons.Material.Sharp.Pattern;
 
     [Parameter]
@@ -31,6 +44,9 @@
 
     [Parameter]
     public EventCallback<Widget> DeleteCallBack { get; set; }
+
+    private string[] techSelectionSections = [ModuleSection.Sdk, ModuleSection.DataAccess, ModuleSection.Web];
+    private string[] backendTechs = [BackendTech.NET, BackendTech.Java, BackendTech.Python, BackendTech.Node];
 
     private async Task DeleteInitiated(Widget widget)
     {

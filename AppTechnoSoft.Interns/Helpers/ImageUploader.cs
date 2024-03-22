@@ -1,0 +1,37 @@
+﻿using Microsoft.AspNetCore.Components.Forms;
+
+namespace AppTechnoSoft.Interns.Helpers;
+public class ImageUploader
+{
+    public static async Task<(bool uploadSuccess, string Message)> Upload(IBrowserFile? file)
+    {
+        if (file is null)
+            return (false, "Emtpy upload");
+
+        try
+        {
+            var folderName = "profile_uploads";
+            var currentAppPath = Environment.CurrentDirectory;
+            var folderPath = Path.Combine(currentAppPath, "wwwroot", folderName);
+
+            if (!Directory.Exists(folderPath))
+            {
+                Directory.CreateDirectory(folderPath);
+            }
+
+            var uniqueName = Path.GetRandomFileName();
+            var fullFileName = $"{uniqueName}_{file.Name}";
+            var path = Path.Combine(folderPath, fullFileName);
+
+            await using FileStream fs = new(path, FileMode.Create);
+            await file.OpenReadStream().CopyToAsync(fs);
+
+            return (true, $"/{folderName}/{fullFileName}");
+        }
+        catch(Exception ex)
+        {
+            return (false, ex.Message ?? ex.InnerException!.Message);
+        }
+
+    }
+}

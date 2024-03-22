@@ -28,9 +28,9 @@ else
 {
     <ModulesSection SectionTitle="Use Case Assessments" Icon=@Icons.Material.Sharp.AppRegistration Widgets="useCaseWidgets" />
     <ModulesSection SectionTitle="Common Tech Patterns" Widgets="commonTechWidgets" />
-    <ModulesSection SectionTitle="Language and SDKs" SectionTagFilter="@ModuleSection.Sdk" Icon=@Icons.Material.Sharp.Code Widgets="sdkAndLangWidgets" />
-    <ModulesSection SectionTitle="Database Access" SectionTagFilter="@ModuleSection.DataAccess" Icon=@Icons.Material.Sharp.Dataset Widgets="dataAccessWidgets" />
-    <ModulesSection SectionTitle="Web Development" SectionTagFilter="@ModuleSection.Web" Icon=@Icons.Material.Sharp.Web Widgets="webWidgets" />
+    <ModulesSection SectionTitle="Language and SDKs" SectionTagFilter="@ModuleSection.Sdk" EnableSubFilter Icon=@Icons.Material.Sharp.Code Widgets="sdkAndLangWidgets" />
+    <ModulesSection SectionTitle="Database Access" SectionTagFilter="@ModuleSection.DataAccess" EnableSubFilter Icon=@Icons.Material.Sharp.Dataset Widgets="dataAccessWidgets" />
+    <ModulesSection SectionTitle="Web Development" SectionTagFilter="@ModuleSection.Web" EnableSubFilter Icon=@Icons.Material.Sharp.Web Widgets="webWidgets" />
     <ModulesSection SectionTitle="Security" Icon=@Icons.Material.Sharp.Security Widgets="securityWidgets" />
     <ModulesSection SectionTitle="DevOps" Icon=@Icons.Material.Sharp.DeveloperBoard Widgets="devOpsgWidgets" />
     <ModulesSection SectionTitle="Networking" Icon=@Icons.Material.Sharp.NetworkPing Widgets="networkingWidgets" />
@@ -44,18 +44,17 @@ else
 
     List<Widget> widgets = [];
     List<Widget> widgetFiltered = [];
-    IEnumerable<Widget> commonTechWidgets => widgetFiltered.Where(x => x.Tags!.Any(y => y.Name == ModuleSection.Common));
-    IEnumerable<Widget> sdkAndLangWidgets => widgetFiltered.Where(x => x.Tags!.Any(y => y.Name == ModuleSection.Sdk));
-    IEnumerable<Widget> dataAccessWidgets => widgetFiltered.Where(x => x.Tags!.Any(y => y.Name == ModuleSection.DataAccess));
-    IEnumerable<Widget> webWidgets => widgetFiltered.Where(x => x.Tags!.Any(y => y.Name == ModuleSection.Web));
-    IEnumerable<Widget> securityWidgets => widgetFiltered.Where(x => x.Tags!.Any(y => y.Name == ModuleSection.Security));
-    IEnumerable<Widget> networkingWidgets => widgetFiltered.Where(x => x.Tags!.Any(y => y.Name == ModuleSection.Networking));
-    IEnumerable<Widget> devOpsgWidgets => widgetFiltered.Where(x => x.Tags!.Any(y => y.Name == ModuleSection.Devops));
-    IEnumerable<Widget> mlWidgets => widgetFiltered.Where(x => x.Tags!.Any(y => y.Name == ModuleSection.Ml));
-    IEnumerable<Widget> dataScienceWidgets => widgetFiltered.Where(x => x.Tags!.Any(y => y.Name == ModuleSection.DataScience));
-    IEnumerable<Widget> useCaseWidgets => widgetFiltered.Where(x => x.Tags!.Any(y => y.Name == ModuleSection.UseCase));
-    IEnumerable<Widget> projectWorkeWidgets => widgetFiltered.Where(x => x.Tags!.Any(y => y.Name == ModuleSection.ProjectWork));
-
+    IEnumerable<Widget> commonTechWidgets => FilterWidgets(ModuleSection.Common);
+    IEnumerable<Widget> sdkAndLangWidgets => FilterWidgets(ModuleSection.Sdk);
+    IEnumerable<Widget> dataAccessWidgets => FilterWidgets(ModuleSection.DataAccess);
+    IEnumerable<Widget> webWidgets => FilterWidgets(ModuleSection.Web);
+    IEnumerable<Widget> securityWidgets => FilterWidgets(ModuleSection.Security);
+    IEnumerable<Widget> networkingWidgets => FilterWidgets(ModuleSection.Networking);
+    IEnumerable<Widget> devOpsgWidgets => FilterWidgets(ModuleSection.Devops);
+    IEnumerable<Widget> mlWidgets => FilterWidgets(ModuleSection.Ml);
+    IEnumerable<Widget> dataScienceWidgets => FilterWidgets(ModuleSection.DataScience);
+    IEnumerable<Widget> useCaseWidgets => FilterWidgets(ModuleSection.UseCase);
+    IEnumerable<Widget> projectWorkeWidgets => FilterWidgets(ModuleSection.ProjectWork);
     IEnumerable<Widget> OtherWidgets => widgetFiltered
         .Except(commonTechWidgets)
         .Except(sdkAndLangWidgets)
@@ -131,4 +130,7 @@ else
             SnackBar.Add("Module Delete failed", Severity.Error);
         }
     }
+
+    private IEnumerable<Widget> FilterWidgets(string tag) => 
+        widgetFiltered.Where(x => x.Tags!.Any(y => y.Name == tag));
 }

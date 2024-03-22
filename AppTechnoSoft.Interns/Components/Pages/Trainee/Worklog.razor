@@ -82,7 +82,7 @@ else
 @code {
    
     private Attendance model = new();
-    private Student studentModel = default!;
+    private Student? studentModel;
     bool logExists = false;
     List<Attendance> allAttendances = new();
     bool loading = false;
@@ -167,7 +167,7 @@ else
         if (logExists)
         {
             rowsUpdated = await Db.Attendances
-                .Where(x => x.StudentId == studentModel.Id && x.Date == dateToday)
+                .Where(x => x.StudentId == studentModel!.Id && x.Date == dateToday)
                 .ExecuteUpdateAsync(x => x.SetProperty(y => y.PunchIn, timeNow));
         }
         else
@@ -175,7 +175,7 @@ else
             model = new Attendance
                 {
                     Date = dateToday,
-                    StudentId = studentModel.Id,
+                    StudentId = studentModel!.Id,
                     PunchIn = timeNow
                 };
 

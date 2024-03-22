@@ -1,10 +1,10 @@
 ﻿@if (Widgets.Any())
 {
-    <div class="border-b-2 border-solid mud-border-default mt-4 mb-2 py-1">
+    <div class="border-b-2 border-solid mud-border-default mt-4 mb-2 py-1 d-flex">
         <MudAvatar Rounded>
-            <MudIcon Icon="@Icon" Color="Color.Dark" Size="Size.Small"/>
+            <MudIcon Icon="@Icon" Color="Color.Dark"/>
         </MudAvatar>
-        <MudText Inline Typo="Typo.h6">@SectionTitle</MudText>
+        <MudText Typo="Typo.h6" Class="ml-2 mt-1">@SectionTitle</MudText>
     </div>
         <MudExpansionPanels Elevation="5" MultiExpansion="true" DisableBorders>
         <MudGrid Spacing="1">

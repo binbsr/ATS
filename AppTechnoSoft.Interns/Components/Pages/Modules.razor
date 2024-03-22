@@ -5,7 +5,9 @@
 @inject IDbContextFactory<ApplicationDbContext> DbFactory
 @inject ISnackbar SnackBar
 
-<TagFilter TagDescription="module" RootFilterTriggered="RootFilterChanged" FilterTriggered="FilterTagsChanged" />
+<TagFilter TagDescription="@FIlterTagCategory.CourseModules"
+           RootFilterTriggered="RootFilterChanged"
+           FilterTriggered="FilterTagsChanged" />
 @if (loadingData)
 {
     <MudGrid>

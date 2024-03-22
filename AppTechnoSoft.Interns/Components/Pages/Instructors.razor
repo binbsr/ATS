@@ -26,15 +26,18 @@
                 </MudCardHeader>
                 <MudCardContent>
                     <MudText Typo="Typo.h5" Align="Align.Center">@instructor.Name</MudText>
-                        <MudText Typo="Typo.h6" Align="Align.Center" Color="Color.Secondary">@instructor.Role at @instructor.Organization</MudText>
-                        <MudText Typo="Typo.body2" Class="mt-4">@instructor.Resume</MudText>
-                        <AuthorizeView Roles="@Role.Admins">
-                            <MudText Typo="Typo.body2">Email: @instructor.Email</MudText>
-                            <MudText Typo="Typo.body2">Phone: @instructor.Phone</MudText>
-                        </AuthorizeView>
-                    </MudCardContent>
-                    <MudCardActions>
-                        @foreach (var tag in instructor.Tags!)
+                    <MudText Typo="Typo.h6" Align="Align.Center" Color="Color.Secondary">@instructor.Role at @instructor.Organization</MudText>
+                    <MudText Typo="Typo.body1" Class="mt-4" Style="text-align:justify">@instructor.Resume</MudText>
+                    <AuthorizeView Roles="@Role.Admins">
+                        <MudList DisableGutters Dense>
+                            <MudListItem Icon="@Icons.Material.Sharp.Email">@(instructor.Email ?? "None")</MudListItem>
+                            <MudListItem Icon="@Icons.Material.Sharp.Phone">@(instructor.Phone ?? "None")</MudListItem>
+                            <MudListItem title="Other details" Icon="@Icons.Material.Sharp.Details">@(instructor.OtherDetails ?? "None")</MudListItem>
+                        </MudList>
+                    </AuthorizeView>
+                </MudCardContent>
+                <MudCardActions>
+                    @foreach (var tag in instructor.Tags!)
                     {
                         <MudChip Style="@("background:" + tag.ColorCode)" Class="text-white">@tag.Name</MudChip>
                     }

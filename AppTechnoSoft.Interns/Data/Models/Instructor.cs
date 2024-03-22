@@ -13,6 +13,7 @@ public class Instructor
     public string Resume { get; set; } = string.Empty;
     public string? ProfilePath { get; set; }
     public bool Publish { get; set; } = true;
+    public string? OtherDetails { get; set; }
 
     [NotMapped]
     public IBrowserFile? Profile { get; set; }

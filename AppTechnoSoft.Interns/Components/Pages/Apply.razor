@@ -148,25 +148,14 @@
     private async Task OnValidSubmit(EditContext editContext)
     {
         // Save profile image first if it's uploaded
-        if (model.ProfileImage is not null)
+        var (success, message) = await ImageUploader.Upload(model.ProfileImage);
+        if (success)
         {
-            var file = model.ProfileImage;
-            try
-            {
-                var fileName = Path.GetRandomFileName();
-                var relativeAssetPath = $"profile_uploads/{fileName}_{file.Name}";
-                var currentAppPath = Environment.CurrentDirectory;
-                var path = Path.Combine(currentAppPath, "wwwroot", relativeAssetPath);
-
-                await using FileStream fs = new(path, FileMode.Create);
-                await file.OpenReadStream().CopyToAsync(fs);
-                model.ProfileImagePath = relativeAssetPath;
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine("File: {Filename} Error: {Error}",
-                    file.Name, ex.Message);
-            }
+            model.ProfileImagePath = message;
+        }
+        else
+        {
+            Console.WriteLine($"Error: {message}");
         }
 
         if (alreadyApplied)

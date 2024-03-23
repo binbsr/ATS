@@ -38,38 +38,34 @@ else
         </MudCarousel>
     </MudPaper>
 
-    <MudGrid>
+    <MudText Typo="Typo.h4" Align="Align.Center" Class="mt-10" Color="Color.Warning">{ LET'S CODE TOGETHER }</MudText>
+    <MudGrid Spacing="1">
         @foreach (var item in homeItems.Where(x => x.Title == nameof(WidgetFilter.HomeIntro)))
         {
             var titleParts = item.Description.Split(["(", ")"], StringSplitOptions.RemoveEmptyEntries);
 
-            <MudItem lg="4" md="6" sm="6" xs="12">
-                <MudCard Elevation="3" Class="border border-solid mud-border-tertiary">
-                    <MudCardHeader>
-                        <CardHeaderAvatar>
-                            <MudAvatar Color="Color.Error">@titleParts[0][0]</MudAvatar>
-                            </CardHeaderAvatar>
-                            <CardHeaderContent>
-                                <MudText Typo="Typo.h6">@titleParts[0]</MudText>
-                                @if (titleParts.Length > 1)
-                                {
-                                    <MudText Typo="Typo.subtitle2">@titleParts[1]</MudText>
-                                }
-                        </CardHeaderContent>
-                        <CardHeaderActions>
-                            <AuthorizeView Roles="@Role.Admins">
-                                <MudIconButton Icon="@Icons.Material.Filled.Edit" Color="Color.Warning" Size="Size.Small" Class="ml-auto" Href="@("/edit-widget/" + item.Id)" />
-                            </AuthorizeView>
-                        </CardHeaderActions>
-                    </MudCardHeader>
-                    <MudCardContent Style="text-align:center" Class="border-y border-solid mud-border-tertiary pa-4">
-                        @((MarkupString)item.HtmlContent.ToHtmlString())
-                    </MudCardContent>
-                    <MudCardActions Class="d-flex justify-end">
+            <MudItem md="12">
+                <MudPaper Elevation="3" Class="border border-solid mud-border-info">
+                    <MudToolBar>
+                        <MudAvatar Color="Color.Tertiary">@titleParts[0][0]</MudAvatar>
+                        <span class="ml-3">
+                            <MudText Typo="Typo.h6">@titleParts[0]</MudText>
+                            @if (titleParts.Length > 1)
+                            {
+                                <MudText Typo="Typo.subtitle2">@titleParts[1]</MudText>
+                            }
+                        </span>
+                        <MudSpacer />
                         <MudButton Href="/apply" Color="Color.Tertiary" StartIcon="@Icons.Material.Sharp.PersonAddAlt1">Apply Internship</MudButton>
                         <MudButton Href="/modules" Color="Color.Tertiary" StartIcon="@Icons.Material.Sharp.ViewModule">Training Modules</MudButton>
-                    </MudCardActions>
-                </MudCard>
+                        <AuthorizeView Roles="@Role.Admins">
+                            <MudIconButton Icon="@Icons.Material.Filled.Edit" Color="Color.Warning" Size="Size.Small" Class="ml-auto" Href="@("/edit-widget/" + item.Id)" />
+                        </AuthorizeView>
+                    </MudToolBar>
+                    <div style="text-align:justify">
+                        @((MarkupString)item.HtmlContent.ToHtmlString())
+                    </div>
+                </MudPaper>
             </MudItem>
         }
     </MudGrid>

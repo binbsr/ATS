@@ -5,7 +5,6 @@
 @attribute [Authorize]
 @inject ApplicationDbContext Db
 @inject ISnackbar SnackBar
-@inject NavigationManager Navigation
 
 <EditForm Model="@model" OnValidSubmit="OnValidSubmit" Context="applicationForm">
     <MudPaper Class="pa-5 mb-4" Elevation="5">
@@ -27,6 +26,10 @@
             </MudItem>
             <MudItem md="6" xs="12" Class="pb-0">
                 <ImageUpload ExistingImagePath="@model.ProfileImagePath" ImageChanged="ProfileChanged" Label="Your Profile Image" />
+                @if (!profileSuccess)
+                {
+                    <MudText Color="Color.Warning">@message</MudText>
+                }
             </MudItem>
             <MudItem md="6" xs="12">
                 <MudTextField @bind-Value="model.Email"
@@ -106,7 +109,8 @@
                    Variant="Variant.Filled"
                    Color="Color.Primary"
                    Class="ml-auto"
-                   StartIcon="@Icons.Material.Sharp.HowToReg">
+                   StartIcon="@Icons.Material.Sharp.HowToReg"
+                   Disabled="isSaveDisabled">
             @(alreadyApplied ? "Update Details" : "Apply for Traineeship")
         </MudButton>
     </MudItem>
@@ -118,6 +122,14 @@
     bool alreadyApplied = false;
     List<College> colleges = [];
     List<TechProgram> techPrograms = [];
+    private bool profileSuccess = false;
+    private string message = "";
+
+    private bool isSaveDisabled => model.Name is ""
+        || model.Phone is ""
+        || model.Email is ""
+        || model.College is null
+        || model.TechProgram is null;
 
     [CascadingParameter]
     private Task<AuthenticationState> authenticationStateTask { get; set; } = null!;
@@ -148,14 +160,10 @@
     private async Task OnValidSubmit(EditContext editContext)
     {
         // Save profile image first if it's uploaded
-        var (success, message) = await ImageUploader.Upload(model.ProfileImage);
-        if (success)
+        (profileSuccess, message) = await ImageUploader.Upload(model.ProfileImage);
+        if (profileSuccess)
         {
             model.ProfileImagePath = message;
-        }
-        else
-        {
-            Console.WriteLine($"Error: {message}");
         }
 
         if (alreadyApplied)
@@ -173,7 +181,7 @@
         if (rowsAffected > 0)
         {
             SnackBar.Add("Applicaion details received successfully", Severity.Success);
-            Navigation.NavigateTo("/dashboard");
+            alreadyApplied = true;
         }
         else
         {

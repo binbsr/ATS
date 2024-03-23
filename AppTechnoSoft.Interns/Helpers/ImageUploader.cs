@@ -6,7 +6,10 @@ public class ImageUploader
     public static async Task<(bool uploadSuccess, string Message)> Upload(IBrowserFile? file)
     {
         if (file is null)
-            return (false, "Emtpy upload");
+            return (false, "No iamge selected, please update clear face shot later on.");
+
+        if (file.Size > 100000) // image greater than 100kb
+            return (false, "Image should be less than 100KB. Please crop/resize clear face photo and reselect.");
 
         try
         {

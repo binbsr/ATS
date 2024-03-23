@@ -1,38 +1,50 @@
 ﻿@inject IDbContextFactory<ApplicationDbContext> DbFactory
 
-<MudPaper Class="p-3" Elevation="10">
-    @if (tags is null || tags.Count == 0)
-    {
-        <MudProgressCircular Size="Size.Large" />
-    }
-    else
-    {
-        if (ShowRootFilters)
-        {
-            <MudToggleGroup Class="mud-width-full" T="string" Color="Color.Info" ValueChanged="RootFilterChanged" Value="@RootFilter.Internship" SelectedClass="custom-gradient">
-                @foreach (var tag in roottags)
-                {
-                    <MudToggleItem Value="@tag.Title">
-                        <div class="mud-width-full mud-height-full">
-                            <div class="d-flex align-center justify-space-between flex-wrap">
-                                <MudText Class="ellipsis" Typo="Typo.h6">@tag.Title</MudText>
-                                <MudChip Class="text-white" Style=@(context ? "background:#1976D2": "background:#6D4C41") Icon="@(context ? Icons.Material.Filled.Check : "")">@tag.TagValue</MudChip>
-                            </div>
-                            <MudText Typo="Typo.subtitle2">@tag.Description</MudText>
-                        </div>
-                    </MudToggleItem>
-                }
-            </MudToggleGroup>
-        }
 
-        <MudChipSet Filter MultiSelection SelectedChipsChanged="FilterChanged" Class="mt-3">
-            @foreach (var tag in tags)
+@if (tags is null || tags.Count == 0)
+{
+    <MudProgressCircular Size="Size.Large" />
+}
+else
+{
+    if (ShowRootFilters)
+    {
+        <MudToggleGroup Class="mud-width-full" T="string" Color="Color.Info" ValueChanged="RootFilterChanged" Value="@RootFilter.Internship" SelectedClass="custom-gradient">
+            @foreach (var tag in roottags)
             {
-                <MudChip Text="@tag.Name" Style="@("background:" + tag.ColorCode ?? "")" Class="text-white"></MudChip>
+                <MudToggleItem Value="@tag.Title">
+                    <div class="mud-width-full mud-height-full">
+                        <div class="d-flex align-center justify-space-between flex-wrap">
+                            <MudText Class="ellipsis" Typo="Typo.h6">@tag.Title</MudText>
+                            <MudChip Class="text-white" Style=@(context ? "background:#1976D2": "background:#6D4C41") Icon="@(context ? Icons.Material.Filled.Check : "")">@tag.TagValue</MudChip>
+                        </div>
+                        <MudText Typo="Typo.subtitle2">@tag.Description</MudText>
+                    </div>
+                </MudToggleItem>
             }
-        </MudChipSet>
+        </MudToggleGroup>
     }
-</MudPaper>
+
+    if (ShowSecondaryFilters)
+    {
+
+        <MudPaper Class="border border-solid mud-border-tertiary pa-2" Elevation="5">
+            @if(showFilterInfo)
+            {
+                <MudAlert Dense Severity="Severity.Info" ContentAlignment="HorizontalAlignment.Center" ShowCloseIcon="true" CloseIconClicked="(() => showFilterInfo = false)">
+                    Click on bubbles below to filter instructors and trainers by their expertise.
+                </MudAlert>
+            }            
+            <MudChipSet Filter MultiSelection SelectedChipsChanged="FilterChanged">
+                @foreach (var tag in tags)
+                {
+                    <MudChip Text="@tag.Name" Style="@("background:" + tag.ColorCode ?? "")" Class="text-white"></MudChip>
+                }
+            </MudChipSet>
+        </MudPaper>
+    }
+}
+
 
 
 <style>
@@ -48,6 +60,9 @@
     public bool ShowRootFilters { get; set; } = true;
 
     [Parameter]
+    public bool ShowSecondaryFilters { get; set; } = true;
+
+    [Parameter]
     public required string TagDescription { get; set; }
 
     [Parameter]
@@ -56,6 +71,7 @@
     [Parameter]
     public EventCallback<List<string>> FilterTriggered { get; set; }
 
+    private bool showFilterInfo = true;
     public List<Tag> tags = [];
     public List<(string Title, string Description, string TagValue)> roottags = [
         (RootFilter.Internship, "Modules for Interns", "Interns"),

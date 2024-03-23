@@ -19,6 +19,7 @@
         </div>
 
         <MudTextField Label="Resume Summary" Lines="10" Class="my-3" @bind-Value="model.Resume" Variant="Variant.Outlined" />
+        <MudTextField Label="Other Details" Lines="2" Class="my-3" @bind-Value="model.OtherDetails" Variant="Variant.Outlined" Placeholder="Bank account details etc."/>
         <ImageUpload ExistingImagePath="@model.ProfilePath" ImageChanged="ProfileChanged" Label="Instructor Profile Image" />
         <MudSelect T="Tag"
                    Label="Tags"

@@ -4,6 +4,8 @@
 @inject ISnackbar SnackBar
 @inject NavigationManager Navigation
 
+<PageTitle>Class Schedules</PageTitle>
+
 <MudDataGrid T="ClassSchedule" Items="@schedules" Filterable="true" Hideable="true" Groupable="true" GroupExpanded="true" Loading="@loadingData" Dense>
     <ToolBarContent>
         <MudFab Href="/schedule/add" StartIcon="@Icons.Material.Filled.Add" Title="New Class" Size="Size.Small" Color="Color.Tertiary"></MudFab>
@@ -16,21 +18,30 @@
         </MudTextField>
     </ToolBarContent>
     <Columns>
-        <PropertyColumn Property="x => x.Batch!.Name" Title="Batch" Grouping Filterable="false" Sortable="false">
-             <GroupTemplate>
-                 <span style="font-weight:bold">Training Group: @context.Grouping.Key <MudChip Variant="Variant.Outlined" Color="Color.Tertiary">@context.Grouping.Count() Meetings</MudChip></span>
+        <PropertyColumn Title="Batch" Property="x => x.Batch!.Name" Sortable="false" Grouping Filterable="false">            
+            <GroupTemplate>
+                <span style="font-weight:bold">Training Group: @context.Grouping.Key <MudChip Variant="Variant.Outlined" Color="Color.Tertiary">@context.Grouping.Count() Meetings</MudChip></span>
             </GroupTemplate>
         </PropertyColumn>
-        <PropertyColumn Property="x => x.Module!.Description" Title="Module" />
-        <PropertyColumn Property="x => x.Instructor!.Name" Title="Instructor" />
+
+        <TemplateColumn Title="Module" SortBy="(e) => e.Module!.Description">
+            <CellTemplate>
+                @(context.Item.Module?.Description ?? "N/A")
+            </CellTemplate>
+        </TemplateColumn>
+        <TemplateColumn Title="Instructor" Sortable="false">
+            <CellTemplate>
+                @(context.Item.Instructor?.Name ?? "N/A")
+            </CellTemplate>
+        </TemplateColumn>
         <TemplateColumn Title="Class Timing" SortBy="(e) => e.ClassStart">
             <CellTemplate>
-                <MudTooltip Text="@context.Item.ClassStart.ToString()">
+                <MudTooltip Text="@context.Item.ClassStart.ToLongDateString()">
                     @context.Item.ClassStart.Humanize()
                 </MudTooltip>
             </CellTemplate>
         </TemplateColumn>
-        
+
         <TemplateColumn Title="Duration" SortBy="(e) => e.DurationHours">
             <CellTemplate>
                 @(TimeSpan.FromHours(context.Item.DurationHours).Humanize(2))
@@ -73,7 +84,7 @@
     protected override async Task OnInitializedAsync()
     {
         loadingData = true;
-        schedules = await Db.ClassSchedules.Include(x => x.Instructor).Include(x => x.Batch).Include(x => x.Module).ToListAsync();
+        schedules = await Db.ClassSchedules.Include(x => x.Batch).Include(x => x.Module).Include(x => x.Instructor).ToListAsync();
         loadingData = false;
     }
 

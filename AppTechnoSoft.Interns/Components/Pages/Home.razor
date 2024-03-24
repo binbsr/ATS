@@ -38,7 +38,25 @@ else
         </MudCarousel>
     </MudPaper>
 
-    <MudText Typo="Typo.h4" Align="Align.Center" Class="mt-10" Color="Color.Warning">{ LET'S CODE TOGETHER }</MudText>
+    <MudContainer Class="pa-5 my-4">
+        <MudText Align="Align.Center">
+            @for (var i = 0; i < 6; i++)
+            {
+                @if (i <= 2)
+                {
+                    <MudIcon Icon="@Icons.Material.Sharp.Girl" Style="font-size:3rem" />
+
+                }
+                else
+                {
+                    <MudIcon Icon="@Icons.Material.Sharp.Boy" Style="font-size:3rem" />
+                }
+            }
+        </MudText>
+        <MudText Typo="Typo.h4" Align="Align.Center" Color="Color.Warning">
+            LET'S LEARN & CODE TOGETHER
+        </MudText>
+    </MudContainer>
     <MudGrid Spacing="1">
         @foreach (var item in homeItems.Where(x => x.Title == nameof(WidgetFilter.HomeIntro)))
         {

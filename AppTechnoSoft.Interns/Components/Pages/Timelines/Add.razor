@@ -1,0 +1,45 @@
+﻿@page "/timelineitem/add"
+
+@inject IDbContextFactory<ApplicationDbContext> DbFactory
+@inject ISnackbar SnackBar
+
+<PageTitle>New TimelineItem</PageTitle>
+
+<MudContainer>
+    <EditForm Model="@model" OnValidSubmit="OnValidSubmit">
+        <MudTextField Label="Stage" @bind-Value="model.Stage" Variant="Variant.Outlined"/>
+        <MudTextField Label="Temporal Value" @bind-Value="model.Date" Class="mt-3" Variant="Variant.Outlined" />
+        <MudTextField Label="Title" @bind-Value="model.Title" Class="mt-3" Variant="Variant.Outlined" />
+        <MudTextField Label="Details" @bind-Value="model.Details" Class="mt-3" Variant="Variant.Outlined" />
+        <MudTextField Label="Order" @bind-Value="model.Order" Class="mt-3" Variant="Variant.Outlined" />
+
+        <MudButton ButtonType="ButtonType.Submit"
+                   Variant="Variant.Filled"
+                   Color="Color.Tertiary"
+                   Class="mt-3"
+                   StartIcon="@Icons.Material.Filled.Save">
+            Add Timeline Item
+        </MudButton>
+    </EditForm>
+</MudContainer>
+
+@code {
+
+    TraineeTimeline model = new();
+
+    private async Task OnValidSubmit(EditContext context)
+    {
+        using var Db = DbFactory.CreateDbContext();
+        Db.TraineeTimelines.Add(model);
+        var rowsAffected = await Db.SaveChangesAsync();
+
+        if (rowsAffected > 0)
+        {
+            SnackBar.Add("Timeline added successfully", Severity.Success);
+        }
+        else
+        {
+            SnackBar.Add("Timeline save failed", Severity.Error);
+        }
+    }
+}

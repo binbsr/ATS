@@ -1,0 +1,92 @@
+﻿@page "/timeline"
+
+@inject ApplicationDbContext Db
+
+<PageTitle>Our Approach</PageTitle>
+
+<MudText Typo="Typo.h5" Align="Align.Center" Class="my-5">Start</MudText>
+
+@if (!traineeTimeLines.Any())
+{
+    <MudText Align="Align.Center">
+        <MudProgressCircular Color="Color.Tertiary" Size="Size.Large" Indeterminate="true" />
+    </MudText>
+}
+else
+{
+    <MudTimeline Class="px-16">
+        @foreach (var timeline in traineeTimeLines)
+        {
+            var color = timeline.Stage switch
+            {
+                TraineeStage.Batching => Color.Error,
+                TraineeStage.Training => Color.Primary,
+                TraineeStage.Project => Color.Tertiary,
+                TraineeStage.Placement => Color.Success,
+                _ => Color.Secondary
+            };
+            var icon = timeline.Stage switch
+            {
+                TraineeStage.Batching => Icons.Material.Sharp.BatchPrediction,
+                TraineeStage.Training => Icons.Material.Sharp.ModelTraining,
+                TraineeStage.Project => Icons.Material.Sharp.Web,
+                TraineeStage.Placement => Icons.Material.Sharp.VerifiedUser,
+                _ => Icons.Material.Sharp.Settings
+            };
+            <MudTimelineItem Size="Size.Large" Variant="Variant.Outlined" Elevation="10" Color="@color">
+                <ItemDot>
+                    <MudIcon Size="Size.Large" Icon="@icon" />
+                </ItemDot>
+                <ItemOpposite>
+                    <MudText Color="Color.Warning" Typo="Typo.h5">@timeline.Date</MudText>
+                </ItemOpposite>
+                <ItemContent>
+                    <MudCard Outlined="true">
+                        <MudCardHeader Class="py-2">
+                            <CardHeaderContent>
+                                <MudText Color="Color.Info" Typo=" Typo.h6">@timeline.Title</MudText>
+                            </CardHeaderContent>
+                            <CardHeaderActions>
+                                <AuthorizeView Roles="@Role.Admins">
+                                    <MudIconButton Icon="@Icons.Material.Filled.Edit" Color="Color.Warning" Size="Size.Small" Class="ml-auto" Href="@("/timeline/edit/"+timeline.Id)" />
+                                    <MudIconButton Icon="@Icons.Material.Sharp.Delete" Size="Size.Small" Color="Color.Error" OnClick="() => ConfirmDelete(timeline)" />
+                                    <MudMessageBox @ref="mbox" Title="Warning" CancelText="Cancel">
+                                        <MessageContent>
+                                            Are you sure to delete this timeline item? It can't be undone!
+                                        </MessageContent>
+                                        <YesButton>
+                                            <MudButton Variant="Variant.Filled" Color="Color.Error" Class="ml-2 mb-2 mr-3" StartIcon="@Icons.Material.Filled.DeleteForever">Delete</MudButton>
+                                        </YesButton>
+                                    </MudMessageBox>
+                                </AuthorizeView>
+                            </CardHeaderActions>
+                        </MudCardHeader>
+                        <MudCardContent Class="pt-0 pb-2">
+                            <MudText Typo="Typo.body1">@timeline.Details</MudText>
+                        </MudCardContent>
+                    </MudCard>
+                </ItemContent>
+            </MudTimelineItem>
+        }
+    </MudTimeline>
+}
+<MudText Typo="Typo.h5" Align="Align.Center" Class="my-5">End</MudText>
+
+@code {
+
+    TraineeTimeline[] traineeTimeLines = [];
+    MudMessageBox mbox { get; set; } = null!;
+
+
+    protected override async Task OnInitializedAsync()
+    {
+        traineeTimeLines = await Db.TraineeTimelines.OrderBy(x => x.Order).ToArrayAsync();
+    }
+
+    private async Task ConfirmDelete(TraineeTimeline timeline)
+    {
+        bool? result = await mbox.Show();
+        if (result == null)
+            return;        
+    }
+}

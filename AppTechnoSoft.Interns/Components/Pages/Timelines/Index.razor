@@ -1,6 +1,7 @@
 ﻿@page "/timeline"
 
 @inject ApplicationDbContext Db
+@inject ISnackbar SnackBar
 
 <PageTitle>Our Approach</PageTitle>
 
@@ -74,19 +75,32 @@ else
 
 @code {
 
-    TraineeTimeline[] traineeTimeLines = [];
+    List<TraineeTimeline> traineeTimeLines = [];
     MudMessageBox mbox { get; set; } = null!;
 
 
     protected override async Task OnInitializedAsync()
     {
-        traineeTimeLines = await Db.TraineeTimelines.OrderBy(x => x.Order).ToArrayAsync();
+        traineeTimeLines = await Db.TraineeTimelines.OrderBy(x => x.Order).ToListAsync();
     }
 
     private async Task ConfirmDelete(TraineeTimeline timeline)
     {
         bool? result = await mbox.Show();
         if (result == null)
-            return;        
+            return;
+
+        Db.TraineeTimelines.Remove(timeline);
+        var rowsAffected = await Db.SaveChangesAsync();
+
+        if (rowsAffected > 0)
+        {
+            SnackBar.Add("Timeline Deleted successfully", Severity.Success);
+            traineeTimeLines.Remove(timeline);
+        }
+        else
+        {
+            SnackBar.Add("Timeline Delete failed", Severity.Error);
+        }
     }
 }

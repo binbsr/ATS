@@ -1,0 +1,53 @@
+﻿@page "/timeline/edit/{Id:int}"
+@inject ApplicationDbContext Db
+@inject ISnackbar SnackBar
+@inject NavigationManager Navigation
+
+<PageTitle>Edit TimelineItem</PageTitle>
+
+<MudContainer>
+    <EditForm Model="@model" OnValidSubmit="OnValidSubmit">
+        <MudTextField Label="Stage" @bind-Value="model.Stage" Variant="Variant.Outlined" />
+        <MudTextField Label="Temporal Value" @bind-Value="model.Date" Class="mt-3" Variant="Variant.Outlined" />
+        <MudTextField Label="Title" @bind-Value="model.Title" Class="mt-3" Variant="Variant.Outlined" />
+        <MudTextField Label="Details" @bind-Value="model.Details" Class="mt-3" Variant="Variant.Outlined" />
+        <MudTextField Label="Order" @bind-Value="model.Order" Class="mt-3" Variant="Variant.Outlined" />
+
+        <MudButton ButtonType="ButtonType.Submit"
+                   Variant="Variant.Filled"
+                   Color="Color.Tertiary"
+                   Class="mt-3"
+                   StartIcon="@Icons.Material.Filled.Save">
+            Update Timeline Item
+        </MudButton>
+    </EditForm>
+</MudContainer>
+
+@code {
+
+    [Parameter]
+    public int Id { get; set; }
+
+    TraineeTimeline model = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        model = await Db.TraineeTimelines.FindAsync(Id) ?? new();
+    }
+
+    private async Task OnValidSubmit(EditContext context)
+    {  
+        Db.TraineeTimelines.Update(model);
+        var rowsAffected = await Db.SaveChangesAsync();
+
+        if (rowsAffected > 0)
+        {
+            SnackBar.Add("Timeline Updated successfully", Severity.Success);
+            Navigation.NavigateTo("/timeline");
+        }
+        else
+        {
+            SnackBar.Add("Timeline Update failed", Severity.Error);
+        }
+    }
+}

@@ -19,7 +19,6 @@ else
     <MudTabs Outlined>
         <MudTabPanel Text="Daily Tasks" Icon="@Icons.Material.Sharp.AddTask">
             <EditForm Model="@model" OnValidSubmit="OnValidSubmit">
-                <DataAnnotationsValidator />
                 <MudCard Class="p-2">
                     <MudCardContent>
                         <MudGrid>
@@ -30,7 +29,7 @@ else
                             <MudItem md="4" sm="12" Style="text-align:center">
                                 <MudText Align="Align.Center" Typo="Typo.h6" Class="mb-2">Punchin Time</MudText>
                                 <MudText Align="Align.Center" Typo="Typo.h2" Class="mb-2">
-                                    @(model.PunchIn == default ? "00:00" : model.PunchIn)
+                                    @(PunchInEmpty ? "00:00" : PunchInNepalTime)
                                 </MudText>
                                 <MudButton StartIcon="@Icons.Material.Sharp.PunchClock" OnClick="PunchIn"
                                            Variant="Variant.Filled" Color="Color.Tertiary" Disabled="@logExists">
@@ -40,19 +39,20 @@ else
                             <MudItem md="4" sm="12">
                                 <MudText Align="Align.Center" Typo="Typo.h6" Class="mb-2">Punchout Time</MudText>
                                 <MudText Align="Align.Center" Typo="Typo.h2" Class="mb-2">
-                                    @(model.PunchOut == default ? "00:00" : model.PunchOut)
+                                    @(PunchOutEmpty ? "00:00" : PunchOutNepalTime)
                                 </MudText>
                             </MudItem>                           
                         </MudGrid>
                         <MudTextField Variant="Variant.Outlined" Label="Add task summary" Lines="5" Class="mt-6"
-                                      @bind-Value="@model.WorkLog" For="@(() => model.WorkLog)" Immediate />
+                                      @bind-Value="@model.WorkLog" Immediate />
                     </MudCardContent>
                     <MudCardActions>
                         <MudText Typo="Typo.h6" Class="ml-auto">
-                            Work Hours - @((model!.PunchOut - model!.PunchIn)!.Value.Humanize(2))
+                            Work Hours - @WorkHours
                         </MudText>
                         <MudButton ButtonType="ButtonType.Submit" Variant="Variant.Filled" Color="Color.Tertiary"
-                                   Class="ml-auto" StartIcon="@Icons.Material.Sharp.DoneOutline">
+                                   Class="ml-auto" StartIcon="@Icons.Material.Sharp.DoneOutline" 
+                                   Disabled="@(model.WorkLog is null or "")">
                             Punchout
                         </MudButton>
                     </MudCardActions>
@@ -80,12 +80,17 @@ else
 }
 
 @code {
-   
+
     private Attendance model = new();
     private Student? studentModel;
     bool logExists = false;
     List<Attendance> allAttendances = new();
     bool loading = false;
+    private TimeOnly PunchInNepalTime => model.PunchIn.ToNepalTime(model.Date);
+    private TimeOnly PunchOutNepalTime => model.PunchOut.ToNepalTime(model.Date);
+    private bool PunchInEmpty => model.PunchIn == null || model.PunchIn == TimeOnly.MinValue;
+    private bool PunchOutEmpty => model.PunchOut == null || model.PunchOut == TimeOnly.MinValue;
+    private string WorkHours => PunchOutEmpty ? "No Punch Out Yet" : (model!.PunchOut - model!.PunchIn)!.Value.Humanize(2);
 
     [CascadingParameter]
     private Task<AuthenticationState> AuthTask { get; set; } = null!;
@@ -106,7 +111,7 @@ else
         if (studentModel == null)
             return;
 
-        (logExists, model) = await FetchLog(studentModel.Id, DateTime.Today);
+        (logExists, model) = await FetchLog(studentModel.Id, DateTime.UtcNow);
     }
 
     private async Task<(bool, Attendance)> FetchLog(string studentId, DateTime? dateTime)
@@ -128,7 +133,7 @@ else
         if (model.StudentId is null || model.Date == default)
             return;
 
-        model.PunchOut = TimeOnly.FromDateTime(DateTime.Now);
+        model.PunchOut = TimeOnly.FromDateTime(DateTime.UtcNow);
 
         if (logExists)
         {
@@ -160,8 +165,9 @@ else
 
     private async Task PunchIn()
     {
-        var timeNow = TimeOnly.FromDateTime(DateTime.Now);
-        var dateToday = DateOnly.FromDateTime(DateTime.Now);
+        var utcNow = DateTime.UtcNow;
+        var timeNow = TimeOnly.FromDateTime(utcNow);
+        var dateToday = DateOnly.FromDateTime(utcNow);
 
         var rowsUpdated = 0;
         if (logExists)
@@ -186,6 +192,7 @@ else
         if (rowsUpdated > 0)
         {
             SnackBar.Add($"Punchin successful for {model.Date}", Severity.Success);
+            logExists = true;
         }
         else
         {

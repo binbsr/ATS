@@ -1,5 +1,6 @@
 ﻿@page "/schedules"
 
+@attribute [Authorize]
 @inject ApplicationDbContext Db
 @inject ISnackbar SnackBar
 @inject NavigationManager Navigation

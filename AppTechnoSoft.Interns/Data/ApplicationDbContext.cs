@@ -21,6 +21,8 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
     public DbSet<Attendance> Attendances { get; set; }
     public DbSet<ClassSchedule> ClassSchedules { get; set; }
     public DbSet<TraineeTimeline> TraineeTimelines { get; set; }
+    public DbSet<Assignment> Assignments { get; set; }
+    public DbSet<StudentAssignment> StudentAssignments { get; set; }
 
     protected override void OnModelCreating(ModelBuilder builder)
     {

@@ -10,4 +10,6 @@ public class Team : BaseEntity
 
     public int? ProjectId { get; set; }
     public Project? Project { get; set; }
+
+    public List<Student>? Students { get; set; }
 }

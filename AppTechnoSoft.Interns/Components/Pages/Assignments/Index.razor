@@ -1,0 +1,105 @@
+﻿@page "/assignments"
+@attribute [Authorize(Roles = Role.AdminsAndInstructor)]
+@inject ApplicationDbContext Db
+@inject ISnackbar SnackBar
+
+<PageTitle>Assignments for Trainees</PageTitle>
+
+<MudTable Items="@assignments" Hover="true"
+          Loading="@loadingData"
+          Dense="true"
+          Filter="new Func<Assignment,bool>(FilterFunc1)">
+    <ToolBarContent>
+        <MudFab Href="/assignments/add" StartIcon="@Icons.Material.Filled.Add" Title="New Assignment" Size="Size.Small" Color="Color.Tertiary"></MudFab>
+        <MudSpacer />
+        <MudTextField @bind-Value="searchString" Placeholder="Search Assignments"
+                      Adornment="Adornment.Start"
+                      AdornmentIcon="@Icons.Material.Filled.Search"
+                      IconSize="Size.Medium"
+                      Class="mt-0">
+        </MudTextField>
+    </ToolBarContent>
+    <HeaderContent>
+        <MudTh>#</MudTh>
+        <MudTh>Title</MudTh>
+        <MudTh>Module</MudTh>
+        <MudTh>Created</MudTh>
+        <MudTh>CreatedBy</MudTh>
+        <MudTh></MudTh>
+    </HeaderContent>
+    <RowTemplate>
+        <MudTd DataLabel="#">@(assignments.IndexOf(context) + 1)</MudTd>
+        <MudTd DataLabel="Title">@context.Title</MudTd>
+        <MudTd DataLabel="Module">@context.Module!.Title</MudTd>
+        <MudTd DataLabel="Created">@context.Created!.Value.ToNepalTime().Humanize(false)</MudTd>
+        <MudTd DataLabel="CreatedBy">@context.CreatedBy</MudTd>
+        <MudTd>
+            <MudIconButton Icon="@Icons.Material.Filled.Edit" Size="Size.Small" Color="Color.Warning" Href="@("/assignment/edit/" + context.Id)" />
+            <MudIconButton Icon="@Icons.Material.Sharp.Delete" Size="Size.Small" Color="Color.Error" OnClick="() => ConfirmDelete(context)" />
+            <MudMessageBox @ref="mbox" Title="Warning" CancelText="Cancel">
+                <MessageContent>
+                    Are you sure to delete this assignment? It can't be undone!
+                </MessageContent>
+                <YesButton>
+                    <MudButton Variant="Variant.Filled" Color="Color.Error" Class="ml-2 mb-2 mr-3" StartIcon="@Icons.Material.Filled.DeleteForever">Delete</MudButton>
+                </YesButton>
+            </MudMessageBox>
+        </MudTd>
+    </RowTemplate>
+    <PagerContent>
+        <MudTablePager PageSizeOptions="[15, 30, 50, 100, 200]" />
+    </PagerContent>
+</MudTable>
+
+
+    @code {
+
+    List<Assignment> assignments = new();
+    bool loadingData = false;
+    string searchString = string.Empty;
+    MudMessageBox mbox { get; set; } = null!;
+
+    protected override async Task OnInitializedAsync()
+    {
+        loadingData = true;
+        assignments = await Db.Assignments
+            .Include(x => x.Module)
+            .ToListAsync();
+        loadingData = false;
+    }
+
+    private async Task ConfirmDelete(Assignment assignment)
+    {
+        bool? result = await mbox.Show();
+        if (result == null)
+            return;
+
+        Db.Assignments.Remove(assignment);
+        var rowsAffected = await Db.SaveChangesAsync();
+
+        if (rowsAffected > 0)
+        {
+            SnackBar.Add("Assignment deleted successfully", Severity.Success);
+        }
+        else
+        {
+            SnackBar.Add("Assignment deletion failed", Severity.Error);
+        }
+    }
+
+    private bool FilterFunc1(Assignment assignment) => FilterFunc(assignment, searchString);
+
+    private bool FilterFunc(Assignment assignment, string searchString)
+    {
+        if (string.IsNullOrWhiteSpace(searchString))
+            return true;
+        if (assignment.Title!.Contains(searchString, StringComparison.OrdinalIgnoreCase))
+            return true;
+        if (assignment.Module!.Description.Contains(searchString, StringComparison.OrdinalIgnoreCase))
+            return true;
+        if (assignment.CreatedBy!.Contains(searchString, StringComparison.OrdinalIgnoreCase))
+            return true;
+
+        return false;
+    }
+}

@@ -7,4 +7,5 @@ public class Batch: BaseEntity
     public string Name { get; set; } = string.Empty;
 
     public List<Team>? Teams { get; set; }
+    public List<Student>? Students { get; set; }
 }

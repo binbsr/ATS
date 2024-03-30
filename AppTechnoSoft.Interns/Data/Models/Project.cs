@@ -1,5 +1,5 @@
 ﻿namespace AppTechnoSoft.Interns.Data.Models;
-public class Project
+public class Project: BaseEntity
 {
     public int Id { get; set; }
     public string Title { get; set; } = string.Empty;

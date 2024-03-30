@@ -1,6 +1,7 @@
 ﻿@page "/add-team"
 @page "/edit-team/{Id:int}"
 
+@attribute [Authorize(Roles = Role.Admins)]
 @inject ApplicationDbContext Db
 @inject ISnackbar SnackBar
 @inject NavigationManager Navigation

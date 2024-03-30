@@ -88,11 +88,11 @@
     private Instructor[] instructors = [];
     private Batch[] batches = [];
     private DateRange dateRange = new DateRange(DateTime.Today, DateTime.Today);
-    private TimeSpan? classStartTime = DateTime.Now.TimeOfDay;
+    private TimeSpan? classStartTime = DateTime.UtcNow.ToNepalTime().TimeOfDay;
     private TimeSpan? meetingDurationTimeSpan = new TimeSpan(1, 0, 0);
     private IEnumerable<DayOfWeek> selectedRangeWeekDays = Enum.GetValues<DayOfWeek>();
     private int selectedDayCount => (dateRange.End - dateRange.Start)!.Value.Days + 1;
-    private IEnumerable<DayOfWeek> selectedDaysOfWeek = [DateTime.Now.DayOfWeek];
+    private IEnumerable<DayOfWeek> selectedDaysOfWeek = [DateTime.UtcNow.ToNepalTime().DayOfWeek];
 
     private async Task<IEnumerable<Widget>> SearchModules(string value)
     {
@@ -160,7 +160,7 @@
                     Module = model.Module,
                     Instructor = model.Instructor,
                     DurationHours = model.DurationHours,
-                    ClassStart = day + classStartTime!.Value,
+                    ClassStart = (day + classStartTime!.Value).ToUniversalTime(),
                     MeetingDetails = model.MeetingDetails,
                     Created = model.Created,
                     CreatedBy = model.CreatedBy

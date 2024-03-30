@@ -1,14 +1,15 @@
 ﻿@page "/assignments"
+
 @attribute [Authorize(Roles = Role.AdminsAndInstructor)]
 @inject ApplicationDbContext Db
 @inject ISnackbar SnackBar
 
-<PageTitle>Assignments for Trainees</PageTitle>
+<PageTitle>Assignments</PageTitle>
 
 <MudTable Items="@assignments" Hover="true"
           Loading="@loadingData"
           Dense="true"
-          Filter="new Func<Assignment,bool>(FilterFunc1)">
+          Filter="new Func<AssignmentViewModel,bool>(FilterFunc1)">
     <ToolBarContent>
         <MudFab Href="/assignments/add" StartIcon="@Icons.Material.Filled.Add" Title="New Assignment" Size="Size.Small" Color="Color.Tertiary"></MudFab>
         <MudSpacer />
@@ -30,11 +31,19 @@
     <RowTemplate>
         <MudTd DataLabel="#">@(assignments.IndexOf(context) + 1)</MudTd>
         <MudTd DataLabel="Title">@context.Title</MudTd>
-        <MudTd DataLabel="Module">@context.Module!.Title</MudTd>
-        <MudTd DataLabel="Created">@context.Created!.Value.ToNepalTime().Humanize(false)</MudTd>
+        <MudTd DataLabel="Module">@context.ModuleName</MudTd>
+        <MudTd DataLabel="Created">@context.Created</MudTd>
         <MudTd DataLabel="CreatedBy">@context.CreatedBy</MudTd>
         <MudTd>
-            <MudIconButton Icon="@Icons.Material.Filled.Edit" Size="Size.Small" Color="Color.Warning" Href="@("/assignment/edit/" + context.Id)" />
+            <MudButton Variant="Variant.Outlined" Size="Size.Small"
+                Color="@(context.ShowDetails ? Color.Warning : Color.Success)" 
+                StartIcon="@Icons.Material.Sharp.RemoveRedEye" 
+                OnClick="@(() => ShowBtnPress(context))">
+                    @((context.ShowDetails == true) ? "Hide" : "Show") Details
+            </MudButton>
+        </MudTd>
+        <MudTd>
+            <MudIconButton Icon="@Icons.Material.Filled.Edit" Size="Size.Small" Color="Color.Warning" Href="@("/assignments/edit/" + context.Id)" />
             <MudIconButton Icon="@Icons.Material.Sharp.Delete" Size="Size.Small" Color="Color.Error" OnClick="() => ConfirmDelete(context)" />
             <MudMessageBox @ref="mbox" Title="Warning" CancelText="Cancel">
                 <MessageContent>
@@ -46,15 +55,35 @@
             </MudMessageBox>
         </MudTd>
     </RowTemplate>
+    <ChildRowContent>
+        @if (context.ShowDetails)
+        {
+            <MudTr>
+                <td colspan="7">
+                    <MudCard Elevation="5" Class="mx-10 my-5">
+                        <MudCardHeader>
+                            <CardHeaderContent>
+                                <MudText Align="Align.Center" Typo="Typo.h6">@context.Title</MudText>
+                            </CardHeaderContent>
+                        </MudCardHeader>
+                        <MudCardContent>
+                            @((MarkupString)(context.Details?.ToHtmlString() ?? ""))
+                        </MudCardContent>
+                    </MudCard>
+                </td>
+            </MudTr>
+        }
+    </ChildRowContent>
     <PagerContent>
         <MudTablePager PageSizeOptions="[15, 30, 50, 100, 200]" />
     </PagerContent>
 </MudTable>
 
 
-    @code {
+@code {
 
-    List<Assignment> assignments = new();
+    List<Assignment> assignmentModels = new();
+    List<AssignmentViewModel> assignments = new();
     bool loadingData = false;
     string searchString = string.Empty;
     MudMessageBox mbox { get; set; } = null!;
@@ -62,24 +91,36 @@
     protected override async Task OnInitializedAsync()
     {
         loadingData = true;
-        assignments = await Db.Assignments
+        assignmentModels = await Db.Assignments
             .Include(x => x.Module)
             .ToListAsync();
+
+        assignments = assignmentModels.ToViewModel();
         loadingData = false;
     }
 
-    private async Task ConfirmDelete(Assignment assignment)
+    private void ShowBtnPress(AssignmentViewModel assignmentViewModel)
+    {
+        assignmentViewModel.ShowDetails = !assignmentViewModel.ShowDetails;
+    }
+
+    private async Task ConfirmDelete(AssignmentViewModel assignment)
     {
         bool? result = await mbox.Show();
         if (result == null)
             return;
 
-        Db.Assignments.Remove(assignment);
+        var model = assignmentModels.Find(x => x.Id == assignment.Id);
+        if (model is null)
+            return;
+
+        Db.Assignments.Remove(model);
         var rowsAffected = await Db.SaveChangesAsync();
 
         if (rowsAffected > 0)
         {
             SnackBar.Add("Assignment deleted successfully", Severity.Success);
+            assignments.Remove(assignment);
         }
         else
         {
@@ -87,15 +128,15 @@
         }
     }
 
-    private bool FilterFunc1(Assignment assignment) => FilterFunc(assignment, searchString);
+    private bool FilterFunc1(AssignmentViewModel assignment) => FilterFunc(assignment, searchString);
 
-    private bool FilterFunc(Assignment assignment, string searchString)
+    private bool FilterFunc(AssignmentViewModel assignment, string searchString)
     {
         if (string.IsNullOrWhiteSpace(searchString))
             return true;
         if (assignment.Title!.Contains(searchString, StringComparison.OrdinalIgnoreCase))
             return true;
-        if (assignment.Module!.Description.Contains(searchString, StringComparison.OrdinalIgnoreCase))
+        if (assignment.ModuleName.Contains(searchString, StringComparison.OrdinalIgnoreCase))
             return true;
         if (assignment.CreatedBy!.Contains(searchString, StringComparison.OrdinalIgnoreCase))
             return true;

@@ -1,6 +1,8 @@
 ﻿@page "/add-instructor"
 @page "/edit-instructor/{Id:int}"
 
+@attribute [Authorize(Roles=Role.Admins)]
+
 @inject ApplicationDbContext Db
 @inject UserManager<ApplicationUser> UserManager
 @inject IUserStore<ApplicationUser> UserStore

@@ -37,8 +37,8 @@
         </TemplateColumn>
         <TemplateColumn Title="Class Timing" SortBy="(e) => e.ClassStart">
             <CellTemplate>
-                <MudTooltip Text="@context.Item.ClassStart.ToLongDateString()">
-                    @context.Item.ClassStart.Humanize()
+                <MudTooltip Text="@context.Item.ClassStart.ToNepalTime().ToString("f")">
+                    @context.Item.ClassStart.ToNepalTime().Humanize(false)
                 </MudTooltip>
             </CellTemplate>
         </TemplateColumn>

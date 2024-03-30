@@ -9,21 +9,25 @@
 
 <PageTitle>@pageTitle</PageTitle>
 
-    <EditForm Model="@model" OnValidSubmit="OnValidSubmit">
-        <MudTextField Label="Title" @bind-Value="model.Title" />
-        <MudTextField Label="RepoUrl" Class="mt-3" @bind-Value="model.RepoUrl" />
-        <MudTextField Label="BoardUrl" Class="mt-3 mb-5" @bind-Value="model.BoardUrl" />
-        <MudText Class="mb-1" Typo="Typo.body1">Project Requirements</MudText>
-        <RichTextEditor MarkdownValue="@model.Requirements" EditorValueChanged="OnMarkdownValueChanged" PlaceHolder="Very detailed description of project"/>
+<EditForm Model="@model" OnValidSubmit="OnValidSubmit">
+    <MudTextField Label="Title" @bind-Value="model.Title" />
+    <MudTextField Label="RepoUrl" Class="mt-3" @bind-Value="model.RepoUrl" />
+    <MudTextField Label="BoardUrl" Class="mt-3 mb-5" @bind-Value="model.BoardUrl" />
+    <MudText Class="mb-1" Typo="Typo.body1">Project Requirements</MudText>
+    <RichTextEditor MarkdownValue="@model.Requirements" EditorValueChanged="OnMarkdownValueChanged" PlaceHolder="Very detailed description of project" />
 
-        <MudButton ButtonType="ButtonType.Submit" Variant="Variant.Filled" Color="Color.Primary" Class="mt-3" StartIcon="@Icons.Material.Filled.Save">
-            Save Project
-        </MudButton>
-    </EditForm>
+    <MudButton ButtonType="ButtonType.Submit" Variant="Variant.Filled" Color="Color.Primary" Class="mt-3" StartIcon="@Icons.Material.Filled.Save">
+        Save Project
+    </MudButton>
+</EditForm>
+
     @code {
 
     [Parameter]
     public int? Id { get; set; }
+
+    [CascadingParameter]
+    private Task<AuthenticationState> AuthTask { get; set; } = null!;
 
     Project model = new();
     string pageTitle = string.Empty;
@@ -38,24 +42,29 @@
         else
         {
             pageTitle = "Edit Project";
-            model = await Db.Projects.FirstAsync(x => x.Id == Id);
+            model = await Db.Projects.FindAsync(Id) ?? new();
         }
     }
 
     private async Task OnValidSubmit(EditContext context)
-    {
+    {     
         if (model.Requirements is null or "")
         {
             return;
         }
 
+        var state = await AuthTask;
+        var userName = state.User.Identity?.Name;
+
         if (IsAdd)
         {
+            model.AddCreatedStamps(userName);
             Db.Projects.Add(model);
         }
         else
         {
             model.Id = Id!.Value;
+            model.AddLastUpdatedStamps(userName);
             Db.Projects.Update(model);
         }
 

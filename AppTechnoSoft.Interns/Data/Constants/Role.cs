@@ -7,4 +7,5 @@ public class Role
     public const string Trainee = nameof(Trainee);
     public const string Employee = nameof(Employee);
     public const string Admins = $"{Admin},{SuperAdmin}";
+    public const string AdminsAndInstructor = $"{Admin},{SuperAdmin},{Instructor}";
 }

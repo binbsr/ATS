@@ -1,0 +1,140 @@
+﻿@inject IDbContextFactory<ApplicationDbContext> DbFactory
+@inject ISnackbar SnackBar
+
+<MudGrid>
+    <MudItem md="6" sm="12">
+        <MudAutocomplete T="Batch"
+                         Variant="Variant.Outlined"
+                         Dense
+                         Margin="Margin.Dense"
+                         Label="To Training Batch"
+                         @bind-Value="batchToAssign"
+                         SearchFunc="@SearchItems"
+                         ToStringFunc="@(e=> e==null ? null : e.Name)"
+                         ShowProgressIndicator="true"
+                         ProgressIndicatorColor="Color.Tertiary"
+                         MaxItems="null" />
+    </MudItem>
+    <MudItem md="6" sm="12">
+        <MudAutocomplete T="Instructor"
+                         Variant="Variant.Outlined"
+                         Dense
+                         Margin="Margin.Dense"
+                         Label="As Instructor"
+                         @bind-Value="onBehalfOfInstructor"
+                         SearchFunc="@SearchInstructors"
+                         ToStringFunc="@(e=> e==null ? null : e.Name)"
+                         ShowProgressIndicator="true"
+                         ProgressIndicatorColor="Color.Tertiary"
+                         MaxItems="null" />
+    </MudItem>
+    <MudItem md="6" sm="12">
+        <MudDatePicker Label="Deadline" @bind-Date="deadlineDate" Color="Color.Secondary"/>
+    </MudItem>
+    <MudItem md="6" sm="12">
+        <MudTimePicker Label="Time of Day" @bind-Time="deadlineTime" AmPm Color="Color.Secondary" />
+    </MudItem>
+    <MudItem Class="ml-auto">
+        <MudButton Variant="Variant.Outlined"
+                   StartIcon="@Icons.Material.Outlined.AssignmentTurnedIn"
+                   Disabled="@SaveDisabled"
+                   Class="ml-3"
+                   OnClick="TurnInAssignments">
+            Assign
+        </MudButton>
+    </MudItem>
+</MudGrid>
+
+@code {
+
+    [Parameter]
+    public AssignmentViewModel Assignment { get; set; } = null!;
+
+    [CascadingParameter]
+    private Task<AuthenticationState> AuthTask { get; set; } = null!;
+
+    private IEnumerable<Batch> batches = [];
+    private IEnumerable<Instructor> instructors = [];
+    private Batch batchToAssign = null!;
+    private Instructor onBehalfOfInstructor = null!;
+    private DateTime? deadlineDate;
+    private TimeSpan? deadlineTime;
+    private bool SaveDisabled => Assignment is null 
+        || batchToAssign is null 
+        || onBehalfOfInstructor is null
+        || deadlineDate is null;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var userTask = await AuthTask;
+        var loggedInUser = userTask.User;
+        var loggedInUserId = loggedInUser.GetUserId();
+
+        using var Db = DbFactory.CreateDbContext();
+        onBehalfOfInstructor = await Db.Instructors.FirstAsync(x => x.ApplicationUserId == loggedInUserId);
+    }
+
+    private async Task<IEnumerable<Batch>> SearchItems(string value)
+    {
+        if (!batches.Any())
+        {
+            using var Db = DbFactory.CreateDbContext();
+            batches = await Db.Batches.ToListAsync();
+        }
+
+        if (value is null or "")
+        {
+            return batches;
+        }
+
+        return batches.Where(x => x.Name.Contains(value, StringComparison.OrdinalIgnoreCase));
+    }
+
+    private async Task<IEnumerable<Instructor>> SearchInstructors(string value)
+    {
+        if (!instructors.Any())
+        {
+            using var Db = DbFactory.CreateDbContext();
+            var instructorModels = await Db.Instructors.Select(x => new { Id = x.Id, AppUserId = x.ApplicationUserId, Name = x.Name }).ToListAsync();
+            instructors = instructorModels.Select(x => new Instructor { Id = x.Id, ApplicationUserId = x.AppUserId, Name = x.Name });
+        }
+
+        if (value is null or "")
+        {
+            return instructors;
+        }
+
+        return instructors.Where(x => x.Name.Contains(value, StringComparison.OrdinalIgnoreCase));
+    }
+
+    private async Task TurnInAssignments()
+    {
+        using var Db = DbFactory.CreateDbContext();
+
+        var batchStudents = await Db.Students.Where(x => x.BatchId == batchToAssign.Id).ToListAsync();
+
+        var studemtsAssigment = batchStudents.Select(x => new StudentAssignment
+            {
+                AssignmentId = Assignment.Id,
+                StudentId = x.Id,
+                Status = AssignmentStatus.Assigned,
+                InstructorId = onBehalfOfInstructor.Id,
+                Deadline = deadlineDate + deadlineTime,
+                Comment = $"{DateTime.UtcNow.ToNepalTime()}: {Assignment.Title} assigned to you."
+            });
+
+        Db.StudentAssignments.AddRange(studemtsAssigment);
+
+
+        var rowsAffected = await Db.SaveChangesAsync();
+
+        if (rowsAffected > 0)
+        {
+            SnackBar.Add($"'{Assignment.Title}' turned in for selected batch students", Severity.Success);
+        }
+        else
+        {
+            SnackBar.Add("Turning in assignment to batch students failed", Severity.Error);
+        }
+    }
+}

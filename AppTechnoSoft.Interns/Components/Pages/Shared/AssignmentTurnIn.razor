@@ -29,16 +29,23 @@
                          MaxItems="null" />
     </MudItem>
     <MudItem md="6" sm="12">
-        <MudDatePicker Label="Deadline" @bind-Date="deadlineDate" Color="Color.Secondary"/>
+        <MudDatePicker Label="Deadline" @bind-Date="deadlineDate" Color="Color.Secondary" />
     </MudItem>
     <MudItem md="6" sm="12">
         <MudTimePicker Label="Time of Day" @bind-Time="deadlineTime" AmPm Color="Color.Secondary" />
     </MudItem>
-    <MudItem Class="ml-auto">
+    <MudItem md="10" sm="12">
+        @if (errorMessage is not "")
+        {
+            <MudText Color="Color.Error" Typo="Typo.body1" Align="Align.Right">@errorMessage</MudText>
+        }
+    </MudItem>
+    <MudItem md="2" sm="12" Class="ml-auto">
+
         <MudButton Variant="Variant.Outlined"
+                   FullWidth
                    StartIcon="@Icons.Material.Outlined.AssignmentTurnedIn"
                    Disabled="@SaveDisabled"
-                   Class="ml-3"
                    OnClick="TurnInAssignments">
             Assign
         </MudButton>
@@ -59,8 +66,9 @@
     private Instructor onBehalfOfInstructor = null!;
     private DateTime? deadlineDate;
     private TimeSpan? deadlineTime;
-    private bool SaveDisabled => Assignment is null 
-        || batchToAssign is null 
+    private string errorMessage = "";
+    private bool SaveDisabled => Assignment is null
+        || batchToAssign is null
         || onBehalfOfInstructor is null
         || deadlineDate is null;
 
@@ -109,9 +117,26 @@
 
     private async Task TurnInAssignments()
     {
+        errorMessage = "";
+
         using var Db = DbFactory.CreateDbContext();
 
         var batchStudents = await Db.Students.Where(x => x.BatchId == batchToAssign.Id).ToListAsync();
+
+        if (!batchStudents.Any())
+        {
+            errorMessage = "No students on this batch";
+        }
+
+        var oneStudent = batchStudents[0];
+        // Sanity check if this assignment already assigned to this batch
+        var alreadyAssinedStudent = await Db.StudentAssignments.FirstOrDefaultAsync(x => x.StudentId == oneStudent.Id && x.AssignmentId == Assignment.Id);
+
+        if (alreadyAssinedStudent is not null)
+        {
+            errorMessage = "This assignment already been turned in for this batch";
+            return;
+        }
 
         var studemtsAssigment = batchStudents.Select(x => new StudentAssignment
             {
@@ -124,7 +149,6 @@
             });
 
         Db.StudentAssignments.AddRange(studemtsAssigment);
-
 
         var rowsAffected = await Db.SaveChangesAsync();
 

@@ -28,7 +28,7 @@
         <MudTd DataLabel="#">@(CollegeList.IndexOf(context) + 1)</MudTd>
         <MudTd DataLabel="Name">@context.Name</MudTd>
         <MudTd DataLabel="Location">@context.Location</MudTd>
-        <MudTd DataLabel="Added">@context.Created?.ToNepalTime().Humanize(false)</MudTd>
+        <MudTd DataLabel="Added">@context.Created?.Humanize()</MudTd>
         <MudTd DataLabel="Added By">
             <MudTooltip Text="@($"On {context.Created}")">
                 @context.CreatedBy

@@ -36,7 +36,7 @@
          <MudTd DataLabel="Name">@context.Name</MudTd>
             <MudTd DataLabel="Batch">@(context?.Batch?.Name ?? "N/A")</MudTd>
             <MudTd DataLabel="Project Title">@(context?.Project?.Title ?? "N/A")</MudTd>
-            <MudTd DataLabel="Created">@context.Created?.ToNepalTime().Humanize(false)</MudTd>
+            <MudTd DataLabel="Created">@context.Created.Humanize()</MudTd>
             <MudTd DataLabel="Created">@context.CreatedBy</MudTd>
             <MudTd>
                 <MudIconButton Icon="@Icons.Material.Filled.Edit" Size="Size.Small" Color="Color.Warning" Href="@("/edit-team/" + context.Id)" />

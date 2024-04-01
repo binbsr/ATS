@@ -26,7 +26,7 @@
         <MudTd DataLabel="Program">@context.Name</MudTd>
             <MudTd DataLabel="Affliation">@context.Affliation</MudTd>
             <MudTd DataLabel="Created By">
-                <MudTooltip Text="@($"On {context.Created}")">
+                <MudTooltip Text="@($"On {context.Created?.ToNepalTime()}")">
                     @context.CreatedBy
                 </MudTooltip>
             </MudTd>

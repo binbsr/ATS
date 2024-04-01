@@ -29,10 +29,10 @@
                          MaxItems="null" />
     </MudItem>
     <MudItem md="6" sm="12">
-        <MudDatePicker Label="Deadline" @bind-Date="deadlineDate" Color="Color.Secondary" />
+        <MudDatePicker Label="Deadline date" @bind-Date="deadlineDate" Color="Color.Secondary" />
     </MudItem>
     <MudItem md="6" sm="12">
-        <MudTimePicker Label="Time of Day" @bind-Time="deadlineTime" AmPm Color="Color.Secondary" />
+        <MudTimePicker Label="Deadline day time" @bind-Time="deadlineTime" AmPm Color="Color.Secondary" />
     </MudItem>
     <MudItem md="10" sm="12">
         @if (errorMessage is not "")
@@ -40,8 +40,7 @@
             <MudText Color="Color.Error" Typo="Typo.body1" Align="Align.Right">@errorMessage</MudText>
         }
     </MudItem>
-    <MudItem md="2" sm="12" Class="ml-auto">
-
+    <MudItem md="2" sm="12">
         <MudButton Variant="Variant.Outlined"
                    FullWidth
                    StartIcon="@Icons.Material.Outlined.AssignmentTurnedIn"

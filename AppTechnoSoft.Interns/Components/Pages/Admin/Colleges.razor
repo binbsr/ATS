@@ -20,17 +20,18 @@
         <MudTh>#</MudTh>
         <MudTh>Name</MudTh>
         <MudTh>Location</MudTh>
-        <MudTh>Created</MudTh>
-        <MudTh>Created By</MudTh>
+        <MudTh>Added</MudTh>
+        <MudTh>Added By</MudTh>
         <MudTh></MudTh>
     </HeaderContent>
     <RowTemplate>
         <MudTd DataLabel="#">@(CollegeList.IndexOf(context) + 1)</MudTd>
         <MudTd DataLabel="Name">@context.Name</MudTd>
-            <MudTd DataLabel="Location">@context.Location</MudTd>
-            <MudTd DataLabel="Created By">
-                <MudTooltip Text="@($"On {context.Created}")">
-                    @context.CreatedBy
+        <MudTd DataLabel="Location">@context.Location</MudTd>
+        <MudTd DataLabel="Added">@context.Created?.ToNepalTime().Humanize(false)</MudTd>
+        <MudTd DataLabel="Added By">
+            <MudTooltip Text="@($"On {context.Created}")">
+                @context.CreatedBy
             </MudTooltip>
         </MudTd>
         <MudTd DataLabel="LastUpdated By">
@@ -80,7 +81,7 @@
     protected override async Task OnInitializedAsync()
     {
         loadingData = true;
-        CollegeList = await db.Colleges.ToListAsync();
+        CollegeList = await db.Colleges.OrderByDescending(x => x.Created).ToListAsync();
         loadingData = false;
     }
 

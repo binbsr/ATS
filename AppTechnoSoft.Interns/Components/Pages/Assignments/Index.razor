@@ -60,7 +60,7 @@
         @if (context.ShowDetails)
         {
             <td colspan="7">
-                <MudTabs Class="border border-solid mud-border-tertiary" ApplyEffectsToContainer="true" PanelClass="pa-6">
+                <MudTabs ApplyEffectsToContainer="true" PanelClass="pa-6" Outlined SliderColor="Color.Tertiary">
                     <MudTabPanel Text="Assignmet Ask">
                         @((MarkupString)(context.Details?.ToHtmlString() ?? ""))
                     </MudTabPanel>

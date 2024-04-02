@@ -75,3 +75,8 @@ Tag description is used to fetch filters, so please describe your tag accordigly
 
 1. Automate punch in functionality and role based worklog views
 1. Configurable module sections (Hardcoded now)
+
+
+
+## Trainee Status
+Appllied => Enrolled (Assigned to Batch) => 

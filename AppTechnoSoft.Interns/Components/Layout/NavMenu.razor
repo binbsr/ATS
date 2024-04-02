@@ -10,8 +10,9 @@
 
         <AuthorizeView Roles="Trainee">
             <MudDivider Class="my-2" />
-            <MudNavLink Href="/logwork" Icon="@Icons.Material.Sharp.ListAlt" IconColor="Color.Secondary">Worklog</MudNavLink>
+            <MudNavLink Href="/logwork" Icon="@Icons.Material.Sharp.AddTask" IconColor="Color.Secondary">Your Timesheet</MudNavLink>
             <MudNavLink Href="/yourassignments" Icon="@Icons.Material.Sharp.Assignment" IconColor="Color.Secondary">Your Assignments</MudNavLink>
+            <MudNavLink Href="/yourclasses" Icon="@Icons.Material.Sharp.Class" IconColor="Color.Secondary">Your Classes</MudNavLink>
         </AuthorizeView>
 
         <AuthorizeView Roles=@(Role.AdminsAndInstructor)>

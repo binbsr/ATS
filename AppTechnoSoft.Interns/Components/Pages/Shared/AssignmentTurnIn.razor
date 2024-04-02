@@ -78,7 +78,12 @@
         var loggedInUserId = loggedInUser.GetUserId();
 
         using var Db = DbFactory.CreateDbContext();
-        onBehalfOfInstructor = await Db.Instructors.FirstAsync(x => x.ApplicationUserId == loggedInUserId);
+        var instructor = await Db.Instructors.FirstOrDefaultAsync(x => x.ApplicationUserId == loggedInUserId);
+
+        if (instructor is null)
+            return;
+
+        onBehalfOfInstructor = instructor;
     }
 
     private async Task<IEnumerable<Batch>> SearchItems(string value)

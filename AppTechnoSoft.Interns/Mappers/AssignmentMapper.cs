@@ -14,7 +14,7 @@ public static class AssignmentMapper
             Title = model.Title,
             Details = model.Details,
             ModuleName = model.Module?.Description ?? "N/A",
-            Created = model?.Created?.ToNepalTime().Humanize(false) ?? "N/A",
+            Created = model?.Created?.Humanize() ?? "N/A",
             CreatedBy = model?.CreatedBy ?? "N/A"
         };
 

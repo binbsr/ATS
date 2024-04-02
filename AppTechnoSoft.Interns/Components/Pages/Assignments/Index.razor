@@ -12,7 +12,7 @@
           Loading="@loadingData"
           Filter="new Func<AssignmentViewModel,bool>(FilterFunc1)">
     <ToolBarContent>
-        <MudButton Variant="Variant.Outlined" Class="rounded" StartIcon="@Icons.Material.Outlined.Add" Href="/assignments/add" Color="Color.Tertiary">New</MudButton>
+        <MudButton Variant="Variant.Outlined" Class="rounded" StartIcon="@Icons.Material.Outlined.Create" Href="/assignments/add" Color="Color.Tertiary">New Assignment</MudButton>
 
         <MudSpacer />
         <MudTextField @bind-Value="searchString" Placeholder="Search assignments by title, module and created by..."
@@ -25,8 +25,8 @@
         <MudTh>#</MudTh>
         <MudTh>Title</MudTh>
         <MudTh>Module</MudTh>
-        <MudTh>Created</MudTh>
-        <MudTh>CreatedBy</MudTh>
+        <MudTh>Added</MudTh>
+        <MudTh>AddedBy</MudTh>
         <MudTh></MudTh>
     </HeaderContent>
     <RowTemplate>

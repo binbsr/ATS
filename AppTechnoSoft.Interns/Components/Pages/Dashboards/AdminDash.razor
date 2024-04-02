@@ -43,21 +43,25 @@ else
 
         <MudItem md="12">
             <MudPaper Elevation="5" Class="p-4">
-                <MudText Typo="Typo.h6" Class="mb-2">Students grouped by their competency</MudText>
-                <MudExpansionPanels MultiExpansion="true">
+                <MudList Clickable>
+                    <MudListSubheader>
+                        <MudText Typo="Typo.h6">Applied students list by their competency</MudText>
+                    </MudListSubheader>
                     @foreach (var group in appliedStudentsGroups)
                     {
-                        var groupName = $"{group.GroupName} - {group.StudentNames.Length} people";
-                        <MudExpansionPanel Text="@groupName">
-                            <MudList Clickable Dense>
-                                @foreach (var name in group.StudentNames)
+                        var groupName = $"{group.GroupName} - {group.Students.Length} people";
+                        <MudListItem Text="@groupName">
+                            <NestedList>
+                                @foreach (var student in group.Students)
                                 {
-                                    <MudListItem Text="@name" Avatar="@Icons.Material.Filled.Person" />
+                                    <MudListItem>
+                                        <MudImage Src="@student.ImgPath" Class="mr-2 rounded-circle" Height="36" />@student.Name
+                                    </MudListItem>
                                 }
-                            </MudList>
-                        </MudExpansionPanel>
+                            </NestedList>
+                        </MudListItem>
                     }
-                </MudExpansionPanels>
+                </MudList>
             </MudPaper>
         </MudItem>
     </MudGrid>
@@ -69,7 +73,7 @@ else
 
     public double[] studentsByProgramsData = [];
     public string[] studentsByProgramsLabels = [];
-    public List<(string GroupName, string[] StudentNames)> appliedStudentsGroups = [];
+    public List<(string GroupName, (string Name, string ImgPath)[] Students)> appliedStudentsGroups = [];
 
     public double[] studentStatusesData = [];
     public string[] studentStatuses = Enum.GetNames<Status>();
@@ -96,7 +100,7 @@ else
             appliedStudentsGroups.Add(
                 (
                     $"{group.Key.GeneralProgramming}, {group.Key.WebExperience}, {group.Key.DbExperience}",
-                    group.Select(y => $"{y.Name} ({y.TechProgram!.Name}, {y.College!.Name})").ToArray()
+                    group.Select(y => ($"{y.Name} ({y.TechProgram!.Name}, {y.College!.Name})", y.ProfileImagePath)).ToArray()
                 ));
         }
 

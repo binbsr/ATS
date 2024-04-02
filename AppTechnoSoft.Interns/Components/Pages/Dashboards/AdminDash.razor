@@ -2,7 +2,9 @@
 
 @if (loadingData)
 {
-    <MudProgressCircular />
+    <MudText Align="Align.Center">
+        <MudProgressCircular Indeterminate Color="Color.Tertiary" Size="Size.Medium" />
+    </MudText>
 }
 else
 {
@@ -10,34 +12,96 @@ else
     <MudGrid>
         <MudItem md="6">
             <MudPaper Elevation="5" Class="py-3">
-                <MudChart ChartType="ChartType.Donut" Width="350px" Height="350px" InputData="@data" InputLabels="@labels" LegendPosition="Position.Right">
+                <MudChart ChartType="ChartType.Donut" Width="100%" Height="350px"
+                          InputData="@studentsByProgramsData"
+                          InputLabels="@studentsByProgramsLabels"
+                          LegendPosition="Position.Bottom">
                     <CustomGraphics>
                         <text class="donut-inner-text" x="49%" y="42%" dominant-baseline="middle" text-anchor="middle" fill="black" font-family="Helvetica" font-size="2">Total</text>
-                        <text class="donut-inner-text" x="47%" y="55%" dominant-baseline="middle" text-anchor="middle" fill="black" font-family="Helvetica" font-size="5">@data.Sum().ToString()</text>
+                        <text class="donut-inner-text" x="47%" y="55%" dominant-baseline="middle" text-anchor="middle" fill="black" font-family="Helvetica" font-size="5">@studentsByProgramsData.Sum().ToString()</text>
                     </CustomGraphics>
                 </MudChart>
-                <MudText Class="my-3" Typo="Typo.h6" Align="Align.Center">Total Students By Programs</MudText>
-            </MudPaper>            
+                <MudText Class="my-3" Typo="Typo.h6" Align="Align.Center">Total students by programs</MudText>
+            </MudPaper>
         </MudItem>
-    </MudGrid>    
+
+        <MudItem md="6">
+            <MudPaper Elevation="5" Class="py-3">
+                <MudChart ChartType="ChartType.Donut"
+                          InputLabels="@studentStatuses"
+                          InputData="@studentStatusesData"
+                          Width="100%" Height="350px"
+                          LegendPosition="Position.Bottom">
+                    <CustomGraphics>
+                        <text class="donut-inner-text" x="49%" y="42%" dominant-baseline="middle" text-anchor="middle" fill="black" font-family="Helvetica" font-size="2">Total</text>
+                        <text class="donut-inner-text" x="47%" y="55%" dominant-baseline="middle" text-anchor="middle" fill="black" font-family="Helvetica" font-size="5">@studentStatusesData.Sum().ToString()</text>
+                    </CustomGraphics>
+                </MudChart>
+                <MudText Class="my-3" Typo="Typo.h6" Align="Align.Center">Total students by their status</MudText>
+            </MudPaper>
+        </MudItem>
+
+        <MudItem md="12">
+            <MudPaper Elevation="5" Class="p-4">
+                <MudText Typo="Typo.h6" Class="mb-2">Students grouped by their competency</MudText>
+                <MudExpansionPanels MultiExpansion="true">
+                    @foreach (var group in appliedStudentsGroups)
+                    {
+                        var groupName = $"{group.GroupName} - {group.StudentNames.Length} people";
+                        <MudExpansionPanel Text="@groupName">
+                            <MudList Clickable Dense>
+                                @foreach (var name in group.StudentNames)
+                                {
+                                    <MudListItem Text="@name" Avatar="@Icons.Material.Filled.Person" />
+                                }
+                            </MudList>
+                        </MudExpansionPanel>
+                    }
+                </MudExpansionPanels>
+            </MudPaper>
+        </MudItem>
+    </MudGrid>
 }
 
 @code {
 
     bool loadingData = false;
 
-    public double[] data = [];
-    public string[] labels = [];
+    public double[] studentsByProgramsData = [];
+    public string[] studentsByProgramsLabels = [];
+    public List<(string GroupName, string[] StudentNames)> appliedStudentsGroups = [];
+
+    public double[] studentStatusesData = [];
+    public string[] studentStatuses = Enum.GetNames<Status>();
 
     protected override async Task OnInitializedAsync()
     {
         using var Db = DbFactory.CreateDbContext();
-        var studentsByPrograms = await Db.Students.GroupBy(x => new { x.TechProgram!.Name, x.TechProgram.Affliation }).ToListAsync();
+        var allStudents = await Db.Students.Include(x => x.TechProgram).Include(y => y.College).ToListAsync();
 
-        if (studentsByPrograms is null)
+        if (allStudents is null || !allStudents.Any())
             return;
 
-        data = studentsByPrograms.Select(x => (double)x.Count()).ToArray();
-        labels = studentsByPrograms.Select(x => $"{x.Key.Name} ({x.Key.Affliation})").ToArray();
+        // Group by programs
+        var studentsByPrograms = allStudents.GroupBy(x => new { x.TechProgram!.Name, x.TechProgram.Affliation });
+        studentsByProgramsData = studentsByPrograms.Select(x => (double)x.Count()).ToArray();
+        studentsByProgramsLabels = studentsByPrograms.Select(x => $"{x.Key.Name} ({x.Key.Affliation})").ToArray();
+
+        // Group by compentences
+        var appliedGroups = allStudents
+            .Where(x => x.Status == Status.Applied)
+            .GroupBy(x => new { x.GeneralProgramming, x.WebExperience, x.DbExperience });
+        foreach (var group in appliedGroups)
+        {
+            appliedStudentsGroups.Add(
+                (
+                    $"{group.Key.GeneralProgramming}, {group.Key.WebExperience}, {group.Key.DbExperience}",
+                    group.Select(y => $"{y.Name} ({y.TechProgram!.Name}, {y.College!.Name})").ToArray()
+                ));
+        }
+
+        // Group students by stage
+        var studentsByStage = allStudents.GroupBy(x => x.Status);
+        studentStatusesData = studentsByStage.Select(x => (double)x.Count()).ToArray();
     }
 }

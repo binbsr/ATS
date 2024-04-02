@@ -1,0 +1,81 @@
+﻿@page "/yourclasses"
+
+@attribute [Authorize(Roles = Role.Trainee)]
+
+@inject ApplicationDbContext Db
+
+@if (classSchedules is null || !classSchedules.Any())
+{
+    <ApplicationAlert Text="You are not part of any training batch yet, we are enrolling you." />
+}
+else
+{
+    <MudTable Items="@classSchedules" Hover="true" Loading="@loading" LoadingProgressColor="Color.Tertiary" Dense>
+        <ToolBarContent>
+            <MudText Typo="Typo.h6">Your traineeship timings</MudText>
+        </ToolBarContent>
+        <HeaderContent>
+            <MudTh>#</MudTh>
+            <MudTh>Module</MudTh>
+            <MudTh>Instructor</MudTh>
+            <MudTh>Time</MudTh>
+            <MudTh>Duration</MudTh>
+            <MudTh>Meeting</MudTh>
+        </HeaderContent>
+        <RowTemplate>
+            <MudTd DataLabel="#">@(Array.IndexOf(classSchedules, context) + 1)</MudTd>
+            <MudTd DataLabel="Module">@context.Module!.Description</MudTd>
+            <MudTd DataLabel="Instructor">@(context.Instructor?.Name ?? "N/A")</MudTd>
+            <MudTd DataLabel="Time">
+                <MudTooltip Text="@context.ClassStart.ToNepalTime().ToString("f")">
+                    @context.ClassStart.Humanize()
+                </MudTooltip>
+            </MudTd>
+            <MudTd DataLabel="Duration">@TimeSpan.FromHours(context.DurationHours).Humanize(2)</MudTd>
+            <MudTd DataLabel="Meeting">
+                <MudButton Size="@Size.Small"
+                           Disabled="context.ClassStart < DateTime.UtcNow"
+                           Variant="@Variant.Filled"
+                           Color="@Color.Tertiary"
+                           StartIcon="@Icons.Material.Sharp.VideoCall"
+                           Href="@context.MeetingDetails"
+                           Target="_blank">
+                    Join
+                </MudButton>
+
+            </MudTd>
+        </RowTemplate>
+    </MudTable>
+}
+
+@code {
+
+    [CascadingParameter]
+    private Task<AuthenticationState> AuthTask { get; set; } = null!;
+
+    private ClassSchedule[] classSchedules = [];
+    bool loading = false;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var userTask = await AuthTask;
+        var loggedInUser = userTask.User;
+        var loggedInUserId = loggedInUser.GetUserId();
+
+        var trainee = await Db.Students.FirstOrDefaultAsync(x => x.ApplicationUserId == loggedInUserId && x.BatchId != null);
+
+        if (trainee == null)
+            return;
+
+        loading = true;
+
+        classSchedules = await Db.ClassSchedules
+            .Include(x => x.Instructor)
+            .Include(y => y.Module)
+            .Where(x => x.BatchId == trainee.BatchId)
+            .OrderBy(x => x.ClassStart)
+            .ToArrayAsync();
+        loading = false;
+    }
+
+}

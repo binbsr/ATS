@@ -4,13 +4,15 @@
 
 @inject ApplicationDbContext Db
 
+<PageTitle>Timesheet Details</PageTitle>
+
 <MudDataGrid T="Attendance"
              MultiSelection="true"
              Items="@attendances"
              SortMode="SortMode.Multiple"
              Filterable="true"
-             Hover="true"             
-             Groupable="true"               
+             Hover="true"
+             Groupable="true"
              QuickFilter="@_quickFilter"
              Loading="loadingData"
              Hideable="true"
@@ -22,12 +24,12 @@
         <MudTextField @bind-Value="_searchString" Placeholder="Search" Adornment="Adornment.Start" Immediate="true"
                       AdornmentIcon="@Icons.Material.Filled.Search" IconSize="Size.Medium" Class="mt-0"></MudTextField>
     </ToolBarContent>
-    <Columns>         
-        <PropertyColumn Property="x => x.Date" Grouping/>
-        <PropertyColumn Property="x => x.PunchIn" />
-        <PropertyColumn Property="x => x.PunchOut" />
+    <Columns>
+        <PropertyColumn Property="x => x.Date" Grouping />
+        <PropertyColumn Property="x => x.PunchIn.ToNepalTime(x.Date)" />
+        <PropertyColumn Property="x => x.PunchOut.ToNepalTime(x.Date)" />
         <PropertyColumn Property="x => x.WorkLog" Title="Task" />
-        <PropertyColumn Property="x => x.Student.Name" Title="Name" /> 
+        <PropertyColumn Property="x => x.Student.Name" Title="Name" />
         <TemplateColumn Title="Team">
             <CellTemplate>
                 @(context.Item.Student?.Team?.Name ?? "Not Assigned")
@@ -35,7 +37,7 @@
         </TemplateColumn>
     </Columns>
     <PagerContent>
-        <MudDataGridPager T="Attendance" PageSizeOptions="[15, 30, 50, 100, 200]" />
+        <MudDataGridPager T="Attendance" PageSizeOptions="[20, 50, 100, 200]" />
     </PagerContent>
 </MudDataGrid>
 
@@ -49,7 +51,13 @@
     protected override async Task OnInitializedAsync()
     {
         loadingData = true;
-        attendances = await Db.Attendances.Include(x => x.Student).ThenInclude(x => x.Team).OrderByDescending(x => x.Date).ToListAsync();
+
+        attendances = await Db.Attendances
+            .Include(x => x.Student)
+            .ThenInclude(x => x.Team)
+            .OrderByDescending(x => x.Date)
+            .ToListAsync();
+
         loadingData = false;
     }
 

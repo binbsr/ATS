@@ -81,11 +81,15 @@ else
 
     protected override async Task OnInitializedAsync()
     {
+        loadingData = true;
         using var Db = DbFactory.CreateDbContext();
         var allStudents = await Db.Students.Include(x => x.TechProgram).Include(y => y.College).ToListAsync();
 
         if (allStudents is null || !allStudents.Any())
+        {
+            loadingData = false;
             return;
+        }
 
         // Group by programs
         var studentsByPrograms = allStudents.GroupBy(x => new { x.TechProgram!.Name, x.TechProgram.Affliation });
@@ -95,6 +99,7 @@ else
         // Group by compentences
         var appliedGroups = allStudents
             .GroupBy(x => new { x.GeneralProgramming, x.WebExperience, x.DbExperience });
+
         foreach (var group in appliedGroups)
         {
             appliedStudentsGroups.Add(
@@ -108,5 +113,7 @@ else
         var studentsByStage = allStudents.GroupBy(x => x.Status).OrderBy(x => x.Key);
         studentStatuses = studentsByStage.Select(x => x.Key.ToString()).ToArray();
         studentStatusesData = studentsByStage.Select(x => (double)x.Count()).ToArray();
+
+        loadingData = false;
     }
 }

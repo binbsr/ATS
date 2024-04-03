@@ -70,8 +70,8 @@ else
                 </HeaderContent>
                 <RowTemplate>
                     <MudTd DataLabel="Date">@attendance.Date</MudTd>
-                    <MudTd DataLabel="PunchIn">@attendance.PunchIn</MudTd>
-                    <MudTd DataLabel="PunchOut">@attendance.PunchOut</MudTd>
+                    <MudTd DataLabel="PunchIn">@attendance.PunchIn.ToNepalTime(attendance.Date)</MudTd>
+                    <MudTd DataLabel="PunchOut">@attendance.PunchOut.ToNepalTime(attendance.Date)</MudTd>
                     <MudTd DataLabel="WorkLog">@attendance.WorkLog</MudTd>
                 </RowTemplate>
             </MudTable>

@@ -55,7 +55,8 @@ else
                                 @foreach (var student in group.Students)
                                 {
                                     <MudListItem>
-                                        <MudImage Src="@student.ImgPath" Class="mr-2 rounded-circle" Height="36" />@student.Name
+                                        <MudImage Src="@(student.ImgPath is null or "" ? "favicon.png" : student.ImgPath)" Class="mr-3 rounded" Height="36" />
+                                        @student.Name
                                     </MudListItem>
                                 }
                             </NestedList>
@@ -76,7 +77,7 @@ else
     public List<(string GroupName, (string Name, string ImgPath)[] Students)> appliedStudentsGroups = [];
 
     public double[] studentStatusesData = [];
-    public string[] studentStatuses = Enum.GetNames<Status>();
+    public string[] studentStatuses = [];
 
     protected override async Task OnInitializedAsync()
     {
@@ -93,7 +94,6 @@ else
 
         // Group by compentences
         var appliedGroups = allStudents
-            .Where(x => x.Status == Status.Applied)
             .GroupBy(x => new { x.GeneralProgramming, x.WebExperience, x.DbExperience });
         foreach (var group in appliedGroups)
         {
@@ -105,7 +105,8 @@ else
         }
 
         // Group students by stage
-        var studentsByStage = allStudents.GroupBy(x => x.Status);
+        var studentsByStage = allStudents.GroupBy(x => x.Status).OrderBy(x => x.Key);
+        studentStatuses = studentsByStage.Select(x => x.Key.ToString()).ToArray();
         studentStatusesData = studentsByStage.Select(x => (double)x.Count()).ToArray();
     }
 }

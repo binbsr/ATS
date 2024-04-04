@@ -61,17 +61,29 @@ else
         </MudTabPanel>
         <MudTabPanel Text="Attendance History" Icon="@Icons.Material.Filled.History" OnClick="LoadAttendances">
             <MudTable Items="@allAttendances" Hover="true" Breakpoint="Breakpoint.Sm" Loading="@loading"
-                      LoadingProgressColor="Color.Secondary" Context="attendance">
+                      LoadingProgressColor="Color.Secondary" Context="attendance" Dense>
+                <ColGroup>
+                    <col />
+                    <col />
+                    <col style="width: 110px;" />
+                    <col style="width: 130px;" />
+                    <col style="width: 220px;" />
+                    <col />
+                </ColGroup>
                 <HeaderContent>
+                    <MudTh>#</MudTh>
                     <MudTh>Date</MudTh>
                     <MudTh>PunchIn</MudTh>
                     <MudTh>PunchOut</MudTh>
+                    <MudTh>Work Hours</MudTh>
                     <MudTh>Task Done</MudTh>
                 </HeaderContent>
                 <RowTemplate>
+                    <MudTd DataLabel="#">@(allAttendances.IndexOf(attendance) + 1)</MudTd>
                     <MudTd DataLabel="Date">@attendance.Date</MudTd>
-                    <MudTd DataLabel="PunchIn">@attendance.PunchIn.ToNepalTime(attendance.Date)</MudTd>
-                    <MudTd DataLabel="PunchOut">@attendance.PunchOut.ToNepalTime(attendance.Date)</MudTd>
+                    <MudTd DataLabel="PunchIn" >@attendance.PunchIn.ToNepalTime(attendance.Date)</MudTd>
+                    <MudTd DataLabel="PunchOut">@(IsPunchOutEmpty(attendance.PunchOut) ? "No PunchOut" : attendance.PunchOut.ToNepalTime(attendance.Date))</MudTd>
+                    <MudTd DataLabel="Work Hours">@(IsPunchOutEmpty(attendance.PunchOut) ? "N/A" : (attendance.PunchOut - attendance.PunchIn)!.Value.Humanize(2))</MudTd>
                     <MudTd DataLabel="WorkLog">@attendance.WorkLog</MudTd>
                 </RowTemplate>
             </MudTable>
@@ -162,6 +174,8 @@ else
         allAttendances = await Db.Attendances.Where(x => x.StudentId == model.StudentId).ToListAsync();
         loading = false;
     }
+
+    private bool IsPunchOutEmpty(TimeOnly? time) => time == null || time == TimeOnly.MinValue;
 
     private async Task PunchIn()
     {

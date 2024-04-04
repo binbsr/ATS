@@ -90,7 +90,7 @@ else
     private TimeOnly PunchOutNepalTime => model.PunchOut.ToNepalTime(model.Date);
     private bool PunchInEmpty => model.PunchIn == null || model.PunchIn == TimeOnly.MinValue;
     private bool PunchOutEmpty => model.PunchOut == null || model.PunchOut == TimeOnly.MinValue;
-    private string WorkHours => PunchOutEmpty ? "No Punch Out Yet" : (model!.PunchOut - model!.PunchIn)!.Value.Humanize(2);
+    private string WorkHours => PunchOutEmpty ? "Click punch out" : (model!.PunchOut - model!.PunchIn)!.Value.Humanize(2);
 
     [CascadingParameter]
     private Task<AuthenticationState> AuthTask { get; set; } = null!;

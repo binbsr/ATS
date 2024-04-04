@@ -32,14 +32,14 @@
         </TemplateColumn>
         <PropertyColumn Property="x => x.Date" Grouping />
         <PropertyColumn Property="x => x.PunchIn.ToNepalTime(x.Date)" />
-        <PropertyColumn Property="x => x.PunchOut.ToNepalTime(x.Date)" />
-        <TemplateColumn Title="Hours">
-            <CellTemplate>
-                @{
-                    var punchoutEmpty = context.Item.PunchOut == null
-                    || context.Item.PunchOut.ToNepalTime(context.Item.Date) == TimeOnly.MinValue;
-                }
-                @(punchoutEmpty ? "No punch out" : (context.Item!.PunchOut - context.Item!.PunchIn)!.Value.Humanize(2))
+        <TemplateColumn Title="Punchout">
+            <CellTemplate>                
+                @(IsPunchOutEmpty(context.Item.PunchOut) ? "No Punch Out" : context.Item.PunchOut.ToNepalTime(context.Item.Date))
+            </CellTemplate>   
+        </TemplateColumn>
+        <TemplateColumn Title="Duration">
+            <CellTemplate>                
+                @(IsPunchOutEmpty(context.Item.PunchOut) ? "N/A" : (context.Item!.PunchOut - context.Item!.PunchIn)!.Value.Humanize(2))
             </CellTemplate>
         </TemplateColumn>
         <PropertyColumn Property="x => x.WorkLog" Title="Task" />
@@ -74,6 +74,8 @@
 
         loadingData = false;
     }
+
+    private bool IsPunchOutEmpty(TimeOnly? time) => time == null || time == TimeOnly.MinValue;
 
     private Func<Attendance, bool> _quickFilter => x =>
     {

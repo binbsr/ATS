@@ -25,9 +25,23 @@
                       AdornmentIcon="@Icons.Material.Filled.Search" IconSize="Size.Medium" Class="mt-0"></MudTextField>
     </ToolBarContent>
     <Columns>
+        <TemplateColumn Title="#">
+            <CellTemplate>
+                @(attendances.IndexOf(context.Item) + 1)
+            </CellTemplate>
+        </TemplateColumn>
         <PropertyColumn Property="x => x.Date" Grouping />
         <PropertyColumn Property="x => x.PunchIn.ToNepalTime(x.Date)" />
         <PropertyColumn Property="x => x.PunchOut.ToNepalTime(x.Date)" />
+        <TemplateColumn Title="Hours">
+            <CellTemplate>
+                @{
+                    var punchoutEmpty = context.Item.PunchOut == null
+                    || context.Item.PunchOut.ToNepalTime(context.Item.Date) == TimeOnly.MinValue;
+                }
+                @(punchoutEmpty ? "No punch out" : (context.Item!.PunchOut - context.Item!.PunchIn)!.Value.Humanize(2))
+            </CellTemplate>
+        </TemplateColumn>
         <PropertyColumn Property="x => x.WorkLog" Title="Task" />
         <PropertyColumn Property="x => x.Student.Name" Title="Name" />
         <TemplateColumn Title="Team">

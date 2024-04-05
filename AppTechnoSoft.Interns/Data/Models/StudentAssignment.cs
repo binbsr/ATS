@@ -5,6 +5,7 @@ public class StudentAssignment  //join table with payload
 {
     public int Id { get; set; }
     public AssignmentStatus Status { get; set; }
+    public string? SolutionUrl { get; set; }
     public string? Comment { get; set; }
     public DateTime? Deadline { get; set; }
     public byte Evaluation { get; set; } = 0;  //Out of 100

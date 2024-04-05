@@ -7,12 +7,10 @@
 <PageTitle>Timesheet Details</PageTitle>
 
 <MudDataGrid T="Attendance"
-             MultiSelection="true"
              Items="@attendances"
              SortMode="SortMode.Multiple"
              Filterable="true"
              Hover="true"
-             Groupable="true"
              QuickFilter="@_quickFilter"
              Loading="loadingData"
              Hideable="true"
@@ -25,33 +23,35 @@
                       AdornmentIcon="@Icons.Material.Filled.Search" IconSize="Size.Medium" Class="mt-0"></MudTextField>
     </ToolBarContent>
     <Columns>
-        <TemplateColumn Title="#">
+        <PropertyColumn Property="x => x.Date" Grouping Groupable="true">
+            <GroupTemplate>
+                <span style="font-weight:bold">
+                    Attendance Date: @context.Grouping.Key
+                    <MudChip Variant="Variant.Outlined" Color="Color.Tertiary">@context.Grouping.Count() Entries</MudChip>
+                </span>
+            </GroupTemplate>
+        </PropertyColumn>
+        <PropertyColumn Property="x => x.PunchIn.ToNepalTime(x.Date)" Filterable="false"/>
+        <TemplateColumn Title="Punchout" Filterable="false">
             <CellTemplate>
-                @(attendances.IndexOf(context.Item) + 1)
+                @(IsPunchOutEmpty(context.Item.PunchOut) ? "No Punch Out" : context.Item.PunchOut.ToNepalTime(context.Item.Date))
             </CellTemplate>
         </TemplateColumn>
-        <PropertyColumn Property="x => x.Date" Grouping />
-        <PropertyColumn Property="x => x.PunchIn.ToNepalTime(x.Date)" />
-        <TemplateColumn Title="Punchout">
-            <CellTemplate>                
-                @(IsPunchOutEmpty(context.Item.PunchOut) ? "No Punch Out" : context.Item.PunchOut.ToNepalTime(context.Item.Date))
-            </CellTemplate>   
-        </TemplateColumn>
-        <TemplateColumn Title="Duration">
-            <CellTemplate>                
+        <TemplateColumn Title="Duration" Filterable="false">
+            <CellTemplate>
                 @(IsPunchOutEmpty(context.Item.PunchOut) ? "N/A" : (context.Item!.PunchOut - context.Item!.PunchIn)!.Value.Humanize(2))
             </CellTemplate>
         </TemplateColumn>
-        <PropertyColumn Property="x => x.WorkLog" Title="Task" />
-        <PropertyColumn Property="x => x.Student.Name" Title="Name" />
-        <TemplateColumn Title="Team">
+        <PropertyColumn Property="x => x.WorkLog" Title="Task" Filterable="false"/>
+        <PropertyColumn Property="x => x.Student.Name" Title="Name" Groupable="true"/>
+        <TemplateColumn Title="Team" Groupable="true">
             <CellTemplate>
                 @(context.Item.Student?.Team?.Name ?? "Not Assigned")
             </CellTemplate>
         </TemplateColumn>
     </Columns>
     <PagerContent>
-        <MudDataGridPager T="Attendance" PageSizeOptions="[20, 50, 100, 200]" />
+        <MudDataGridPager T="Attendance" PageSizeOptions="[200, 500, 1000]" />
     </PagerContent>
 </MudDataGrid>
 

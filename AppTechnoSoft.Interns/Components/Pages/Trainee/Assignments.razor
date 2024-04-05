@@ -22,9 +22,9 @@
     </HeaderContent>
     <RowTemplate>
         <MudTd DataLabel="#">@(assignments.IndexOf(context) + 1)</MudTd>
-        <MudTd DataLabel="Title">@context.Assignment?.Title</MudTd>
-        <MudTd DataLabel="Deadline">@context.Deadline?.ToString("f")</MudTd>
-        <MudTd DataLabel="Instructor">@context.Instructor?.Name</MudTd>
+        <MudTd DataLabel="Title">@context.AssignmentTitle</MudTd>
+        <MudTd DataLabel="Deadline">@context.Deadline</MudTd>
+        <MudTd DataLabel="Instructor">@context.InstructorName</MudTd>
         <MudTd DataLabel="Status">@context.Status</MudTd>
         <MudTd>
             <MudButton Variant="Variant.Outlined" Size="Size.Small"
@@ -35,16 +35,7 @@
             </MudButton>
         </MudTd>
         <MudTd>
-            <MudIconButton Icon="@Icons.Material.Filled.Edit" Size="Size.Small" Color="Color.Warning" Href="@("/assignments/edit/" + context.Id)" />
-            <MudIconButton Icon="@Icons.Material.Sharp.Delete" Size="Size.Small" Color="Color.Error" OnClick="() => ConfirmDelete(context)" />
-            <MudMessageBox @ref="mbox" Title="Warning" CancelText="Cancel">
-                <MessageContent>
-                    Are you sure to delete this assignment? It can't be undone!
-                </MessageContent>
-                <YesButton>
-                    <MudButton Variant="Variant.Filled" Color="Color.Error" Class="ml-2 mb-2 mr-3" StartIcon="@Icons.Material.Filled.DeleteForever">Delete</MudButton>
-                </YesButton>
-            </MudMessageBox>
+            <MudIconButton Icon="@Icons.Material.Filled.Edit" Size="Size.Small" Color="Color.Warning" Href="@("/assignments/edit/" + context.Id)" />            
         </MudTd>
     </RowTemplate>
     <ChildRowContent>
@@ -53,10 +44,9 @@
             <td colspan="7">
                 <MudTabs ApplyEffectsToContainer="true" PanelClass="pa-6" Outlined SliderColor="Color.Tertiary">
                     <MudTabPanel Text="Assignmet Ask">
-                        @((MarkupString)(context.Details?.ToHtmlString() ?? ""))
+                        @((MarkupString)(context.AssignmentBody?.ToHtmlString() ?? ""))
                     </MudTabPanel>
-                    <MudTabPanel Text="Turn in this assignment">
-                        <AssignmentTurnIn Assignment="@context" />
+                    <MudTabPanel Text="Solution Details">
                     </MudTabPanel>
                 </MudTabs>
             </td>
@@ -72,7 +62,7 @@
     [CascadingParameter]
     private Task<AuthenticationState> AuthTask { get; set; } = null!;
 
-    private List<StudentAssignment> assignments = new();
+    private List<StudentAssignmentViewModel> assignments = new();
 
     private bool loadingData = false;
     private string searchString = string.Empty;
@@ -86,17 +76,19 @@
         var loggedInUser = userTask.User;
         var loggedInUserId = loggedInUser.GetUserId();
 
-        assignments = await Db.StudentAssignments
+        var assignmentModels = await Db.StudentAssignments
             .Include(x => x.Assignment)
             .Include(x => x.Instructor)
             .Where(x => x.Student!.ApplicationUserId == loggedInUserId)
         .ToListAsync();
 
+        assignments = assignmentModels.ToViewModel();
+
         loadingData = false;
     }
 
-    private void ShowBtnPress(AssignmentViewModel assignmentViewModel)
+    private void ShowBtnPress(StudentAssignmentViewModel studentAssignmentViewModel)
     {
-        assignmentViewModel.ShowDetails = !assignmentViewModel.ShowDetails;
+        studentAssignmentViewModel.ShowDetails = !studentAssignmentViewModel.ShowDetails;
     }
 }

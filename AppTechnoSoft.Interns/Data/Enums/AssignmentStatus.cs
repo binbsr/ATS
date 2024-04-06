@@ -2,8 +2,9 @@
 public enum AssignmentStatus
 {
     Assigned = 1,
+    Returned,
     NeedWork,
-    InComplete,
     Complete,
-    CompleteButMissedDeadline
+    CompleteButMissedDeadline,
+    InComplete
 }

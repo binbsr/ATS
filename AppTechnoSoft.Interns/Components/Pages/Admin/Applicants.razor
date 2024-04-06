@@ -1,9 +1,9 @@
-﻿@page "/applications"
+﻿@page "/applicants"
 
 @attribute [Authorize(Roles = Role.Admins)]
 @inject ApplicationDbContext db
 
-<PageTitle>Applications</PageTitle>
+<PageTitle>Applicants</PageTitle>
 
 <MudDataGrid T="Student"
              MultiSelection="true"
@@ -18,7 +18,7 @@
              Dense="true">
 
     <ToolBarContent>
-        <MudText Typo="Typo.h6">All Applications</MudText>
+        <MudText Typo="Typo.h6">@studentList.Count Applicants</MudText>
         <MudSpacer />
         <MudTextField @bind-Value="_searchString" Placeholder="Search" Adornment="Adornment.Start" Immediate="true"
                       AdornmentIcon="@Icons.Material.Filled.Search" IconSize="Size.Medium" Class="mt-0"></MudTextField>

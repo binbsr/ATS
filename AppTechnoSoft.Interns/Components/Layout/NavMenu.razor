@@ -10,9 +10,14 @@
 
         <AuthorizeView Roles="Trainee">
             <MudDivider Class="my-2" />
-            <MudNavLink Href="/logwork" Icon="@Icons.Material.Sharp.AddTask" IconColor="Color.Secondary">Your Timesheet</MudNavLink>
-            <MudNavLink Href="/yourassignments" Icon="@Icons.Material.Sharp.Assignment" IconColor="Color.Secondary">Your Assignments</MudNavLink>
-            <MudNavLink Href="/yourclasses" Icon="@Icons.Material.Sharp.Class" IconColor="Color.Secondary">Your Classes</MudNavLink>
+            <MudNavLink Href="/timesheet" Icon="@Icons.Material.Sharp.AddTask" IconColor="Color.Secondary">My Timesheet</MudNavLink>
+            <MudNavLink Href="/classes/me" Icon="@Icons.Material.Sharp.Class" IconColor="Color.Secondary">My Classes</MudNavLink>
+            <MudNavLink Href="/assignments/me" Icon="@Icons.Material.Sharp.Assignment" IconColor="Color.Secondary">My Assignments</MudNavLink>
+            
+            <MudNavLink Href="/members" Icon="@Icons.Material.Sharp.Groups3" IconColor="Color.Secondary">My Batch and Team</MudNavLink>
+            <MudNavLink Href="/project" Icon="@Icons.Material.Sharp.AppRegistration" IconColor="Color.Secondary">My Project</MudNavLink>
+            <MudNavLink Href="/accomplishments" Icon="@Icons.Material.Sharp.CardMembership" IconColor="Color.Secondary">My Accomplishments</MudNavLink>
+
         </AuthorizeView>
 
         <AuthorizeView Roles=@(Role.AdminsAndInstructor)>
@@ -20,7 +25,7 @@
             <MudNavGroup Title="Assignments" Icon="@Icons.Material.Filled.Assessment" IconColor="Color.Tertiary" Expanded>
                 <MudNavLink Href="/assignments/add" Icon="@Icons.Material.Sharp.Create" IconColor="Color.Tertiary">Create</MudNavLink>
                 <MudNavLink Href="/assignments" Match="NavLinkMatch.All" Icon="@Icons.Material.Sharp.AssignmentTurnedIn" IconColor="Color.Tertiary">Assign</MudNavLink>
-                <MudNavLink Href="/examineassignments" Icon="@Icons.Material.Sharp.Check" IconColor="Color.Tertiary">Examine</MudNavLink>
+                <MudNavLink Href="/assignments/verify" Icon="@Icons.Material.Sharp.Check" IconColor="Color.Tertiary">Verify</MudNavLink>
             </MudNavGroup>
         </AuthorizeView>
 

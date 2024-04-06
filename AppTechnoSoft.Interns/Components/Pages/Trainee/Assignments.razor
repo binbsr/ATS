@@ -1,0 +1,163 @@
+﻿@page "/assignments/me"
+
+@attribute [Authorize(Roles = Role.Trainee)]
+@inject ApplicationDbContext Db
+@inject ISnackbar SnackBar
+
+<PageTitle>My Assignments</PageTitle>
+
+@if (PendingAssignments.Any())
+{
+    <MudAlert Class="mb-2" Elevation="2" Severity="Severity.Warning" Icon="@Icons.Material.Sharp.Assignment">
+        @($"You have {"pending assignments".ToQuantity(PendingAssignments.Count(), ShowQuantityAs.Words)}, please complete it by deadline.")
+    </MudAlert>
+}
+else
+{
+    <MudAlert Class="mb-2" Elevation="2" Severity="Severity.Success" Icon="@Icons.Material.Sharp.Assignment">
+        @($"You have no pending assignments, keep up your great work.")
+    </MudAlert>
+}
+
+<MudTable Items="@assignments"
+          Hover="true"
+          Outlined
+          Loading="@loadingData">
+    <HeaderContent>
+        <MudTh></MudTh>
+        <MudTh>Title</MudTh>
+        <MudTh>Deadline</MudTh>
+        <MudTh>Instructor</MudTh>
+        <MudTh>Status</MudTh>
+    </HeaderContent>
+    <RowTemplate>
+        <MudTd>
+            <MudToggleIconButton @bind-Toggled="@context.ShowDetails"
+                                 Icon="@Icons.Material.Filled.KeyboardDoubleArrowDown"
+                                 Color="@Color.Success"
+                                 ToggledIcon="@Icons.Material.Filled.KeyboardDoubleArrowUp"
+                                 ToggledColor="@Color.Warning" />
+            <span>@(context.ShowDetails ? "Hide" : "Show")</span>
+
+        </MudTd>
+        <MudTd DataLabel="Title">@context.AssignmentTitle</MudTd>
+        <MudTd DataLabel="Deadline">@context.Deadline</MudTd>
+        <MudTd DataLabel="Instructor">@context.InstructorName</MudTd>
+        <MudTd DataLabel="Status">@context.Status</MudTd>
+    </RowTemplate>
+    <ChildRowContent>
+        @if (context.ShowDetails)
+        {
+            <td colspan="7">
+                <MudTabs ApplyEffectsToContainer="true" PanelClass="pa-6" Outlined SliderColor="Color.Tertiary">
+                    <MudTabPanel Text="Assignmet Ask">
+                        @((MarkupString)(context.AssignmentBody?.ToHtmlString() ?? ""))
+                    </MudTabPanel>
+                    <MudTabPanel Text="My Solution">
+                        <MudTextField AutoFocus Clearable @bind-Value="@context.SolutionUrl" Label="Github Url" Variant="Variant.Outlined" />
+                        <MudTextField Class="mt-3" Lines="5" @bind-Value="@context.Comment" Label="Notes on assignment and solution" Variant="Variant.Outlined" />
+                        <MudButton Class="mt-3"
+                                   StartIcon="@Icons.Material.Sharp.AssignmentReturn"
+                                   Variant="Variant.Filled"
+                                   Color="Color.Tertiary"
+                                   OnClick="() => SaveAssignment(context)"
+                                   Disabled="@(context.SolutionUrl == null || context.SolutionUrl == "")">
+                            Return Assignment
+                        </MudButton>
+                    </MudTabPanel>
+                </MudTabs>
+            </td>
+        }
+    </ChildRowContent>
+    <PagerContent>
+        <MudTablePager PageSizeOptions="[10, 30, 50, 100]" />
+    </PagerContent>
+    <NoRecordsContent>
+        <MudText Typo="Typo.h6" Color="Color.Success">No assignments so far</MudText>
+    </NoRecordsContent>
+</MudTable>
+
+
+@code {
+    [CascadingParameter]
+    private Task<AuthenticationState> AuthTask { get; set; } = null!;
+
+    private List<StudentAssignmentViewModel> assignments = new();
+    private IEnumerable<StudentAssignmentViewModel> PendingAssignments => assignments?.Where(x => x.Status == AssignmentStatus.Assigned || x.Status == AssignmentStatus.NeedWork) ?? [];
+
+    private bool loadingData = false;
+    private string searchString = string.Empty;
+    private string loggedInUserId = string.Empty;
+    private MudMessageBox mbox { get; set; } = null!;
+
+    protected override async Task OnInitializedAsync()
+    {
+        loadingData = true;
+
+        var userTask = await AuthTask;
+        var loggedInUser = userTask.User;
+        loggedInUserId = loggedInUser.GetUserId();
+
+        await LoadAssignmnentsForStudent();
+
+        loadingData = false;
+    }
+
+    public async Task LoadAssignmnentsForStudent()
+    {
+        var assignmentModels = await Db.StudentAssignments
+            .Include(x => x.Assignment)
+            .Include(x => x.Instructor)
+            .Where(x => x.Student!.ApplicationUserId == loggedInUserId)
+            .Select(x => new
+            {
+                Id = x.Id,
+                Title = x.Assignment!.Title,
+                Content = x.Assignment.Details,
+                Instructor = x.Instructor!.Name,
+                Deadline = x.Deadline,
+                Status = x.Status,
+                SolutionUrl = x.SolutionUrl,
+                Comment = x.Comment
+            })
+        .ToListAsync();
+
+        assignments = assignmentModels.Select(x => new StudentAssignmentViewModel
+            {
+                Id = x.Id,
+                AssignmentTitle = x.Title,
+                AssignmentBody = x.Content ?? "N/A",
+                InstructorName = x.Instructor,
+                Deadline = x.Deadline.Humanize(),
+                Status = x.Status,
+                SolutionUrl = x.SolutionUrl,
+                Comment = x.Comment
+            }).ToList();
+    }
+
+    public async Task SaveAssignment(StudentAssignmentViewModel studentAssignmentViewModel)
+    {
+        var rowsUpdated = await Db.StudentAssignments
+                    .Where(x => x.Id == studentAssignmentViewModel.Id)
+                    .ExecuteUpdateAsync(x => x
+                        .SetProperty(y => y.SolutionUrl, studentAssignmentViewModel.SolutionUrl)
+                        .SetProperty(y => y.Comment, studentAssignmentViewModel.Comment)
+                        .SetProperty(y => y.Status, AssignmentStatus.Returned)
+                    );
+
+        if (rowsUpdated > 0)
+        {
+            SnackBar.Add($"Assignment returned to {studentAssignmentViewModel.InstructorName} successfully", Severity.Success);
+            await LoadAssignmnentsForStudent();
+        }
+        else
+        {
+            SnackBar.Add("Error returning assignment to instructor", Severity.Error);
+        }
+    }
+
+    private void ShowBtnPress(StudentAssignmentViewModel studentAssignmentViewModel)
+    {
+        studentAssignmentViewModel.ShowDetails = !studentAssignmentViewModel.ShowDetails;
+    }
+}

@@ -1,12 +1,21 @@
 ﻿@page "/identity/users"
 @attribute [Authorize(Roles = Role.SuperAdmin)]
 @inject UserManager<ApplicationUser> UserManager
+@inject RoleManager<IdentityRole> RoleManager
 @inject ISnackbar SnackBar
+@inject ApplicationDbContext Db
 
 <PageTitle>All Users</PageTitle>
 
-<MudTable Items="@users" Hover="true" Loading="@loadingData" Dense="true" Filter="new Func<ApplicationUser,bool>(FilterFunc1)">
+<MudTable Items="@users" @bind-SelectedItems="selectedUsers" Hover="true" Loading="@loadingData" Dense="true" Filter="new Func<ApplicationUser,bool>(FilterFunc1)" MultiSelection>
     <ToolBarContent>
+        <MudSelect AnchorOrigin="Origin.BottomCenter" @bind-Value="selectedRole" Label="Select a role for users" AdornmentColor="Color.Tertiary">
+            @foreach(var role in roles)
+            {
+                <MudSelectItem Value="role.Name" />
+            }            
+        </MudSelect>
+        <MudButton Disabled="@(!selectedUsers.Any())" StartIcon="@Icons.Material.Sharp.Save" OnClick="SaveRoles" Class="ml-2 mt-5" Variant="Variant.Filled" Color="Color.Tertiary">Assign</MudButton>
         <MudSpacer />
         <MudTextField @bind-Value="searchString" Placeholder="Search"
                       Adornment="Adornment.Start"
@@ -49,18 +58,21 @@
         </PagerContent>
     </MudTable>
 
+@code {
 
-    @code {
-
-    List<ApplicationUser> users = new();
+    List<ApplicationUser> users = [];
+    HashSet<ApplicationUser> selectedUsers = [];
+    List<IdentityRole> roles = [];
     bool loadingData = false;
     string searchString = string.Empty;
+    string selectedRole = string.Empty;
     MudMessageBox mbox { get; set; } = null!;
 
     protected override async Task OnInitializedAsync()
     {
         loadingData = true;
         users = await UserManager.Users.ToListAsync();
+        roles = RoleManager.Roles.ToList();
         loadingData = false;
     }
 
@@ -94,5 +106,28 @@
         if (user!.Email!.Contains(searchString, StringComparison.OrdinalIgnoreCase))
             return true;
         return false;
+    }
+
+    private async Task SaveRoles()
+    {
+        foreach(var user in selectedUsers)
+        {
+            var resultAdd = await UserManager.AddToRoleAsync(user, selectedRole);
+
+            if (resultAdd.Succeeded)
+            {
+                if (selectedRole == Role.Instructor)
+                {
+                    await Db.Instructors
+                        .Where(x => x.Email == user.Email)
+                        .ExecuteUpdateAsync(x => x.SetProperty(y => y.ApplicationUserId, user.Id));
+                }
+                SnackBar.Add($"{user.UserName} saved successfully", Severity.Success);
+            }
+            else
+            {
+                SnackBar.Add($"{user.UserName} save failed. {string.Join("\n\r", resultAdd.Errors.Select(x => x.Description))}", Severity.Error);
+            }
+        }
     }
 }

@@ -32,7 +32,7 @@ public static class StringExtensions
         var nameParts = userName.Split(" ", StringSplitOptions.RemoveEmptyEntries);
         var partsLength = nameParts.Length;
         var email = string.Empty;
-        var domain = "@technosoft.edu.np";
+        var domain = "@appsoft.edu.np";
 
         if (partsLength == 0)
         {

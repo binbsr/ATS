@@ -15,10 +15,7 @@ else
     @foreach (var role in loggedInUserRoles)
     {
         switch (role)
-        {
-            case Role.Trainee:
-                <TraineeDash LoggedInUserId="@loggedInUserId" />
-                break;
+        {            
             case Role.Instructor:
                 <InstructorDash LoggedInUserId="@loggedInUserId" />
                 break;

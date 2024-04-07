@@ -34,7 +34,7 @@ else
             <MudTd DataLabel="Duration">@TimeSpan.FromHours(context.DurationHours).Humanize(2)</MudTd>
             <MudTd DataLabel="Meeting">
                 <MudButton Size="@Size.Small"
-                           Disabled="context.ClassStart < DateTime.UtcNow"
+                           Disabled="context.ClassStart.AddMinutes(10) < DateTime.UtcNow"
                            Variant="@Variant.Filled"
                            Color="@Color.Tertiary"
                            StartIcon="@Icons.Material.Sharp.VideoCall"

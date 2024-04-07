@@ -1,0 +1,52 @@
+﻿@page "/project/me"
+
+@inject IDbContextFactory<ApplicationDbContext> DbFactory
+
+@{
+    var panelClass = "pa-5 mb-5 border border-solid mud-border-tertiary";
+}
+
+<MudPaper Class="@panelClass" Elevation="0">
+    <MudText Typo="Typo.h6" Class="mb-4" Align="Align.Center">Project Title: <strong>@projectTitle</strong></MudText>
+    <MudText Typo="Typo.subtitle2" Class="mb-2">@projectDetails</MudText>
+</MudPaper>
+
+@code {
+
+    bool loadingData = false;
+    public string loggedInUserId { get; set; } = string.Empty;
+    string projectTitle = "Project not assigned to your team";
+    string projectDetails = string.Empty;
+    string trainee = string.Empty;
+    string teamName = string.Empty;
+
+    protected override async Task OnInitializedAsync()
+    {
+        loadingData = true;
+
+        using var Db = DbFactory.CreateDbContext();
+        var studentModel = await Db.Students
+            .Where(x => x.ApplicationUserId == loggedInUserId)
+            .Select(x => new 
+            { 
+                Trainee = x.Name, 
+                TeamName = x.Team.Name, 
+                ProjectName = x.Team.Project.Title,
+                ProjectDetails = x.Team.Project.Requirements
+            })
+                .FirstOrDefaultAsync();
+
+        if (studentModel is null || studentModel.TeamName is null or "")
+        {
+            loadingData = false;
+            return;
+        }
+
+        projectTitle = studentModel.ProjectName;
+        projectDetails = studentModel.ProjectDetails;
+        teamName = studentModel.TeamName;
+        trainee = studentModel.Trainee;
+
+        loadingData = false;
+    }
+}

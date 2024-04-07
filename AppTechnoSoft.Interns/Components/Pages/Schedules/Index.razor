@@ -51,7 +51,7 @@
 
         <TemplateColumn Title="Meeting Link" Filterable="false" Groupable="false" Sortable="false">
             <CellTemplate>
-                <MudButton Disabled="context.Item.ClassStart < DateTime.UtcNow" Size="@Size.Small" Variant="@Variant.Filled" Color="@Color.Tertiary" StartIcon="@Icons.Material.Sharp.VideoCall" Href="@context.Item.MeetingDetails" Target="_blank">Join</MudButton>
+                <MudButton Disabled="context.Item.ClassStart.AddMinutes(10) < DateTime.UtcNow" Size="@Size.Small" Variant="@Variant.Filled" Color="@Color.Tertiary" StartIcon="@Icons.Material.Sharp.VideoCall" Href="@context.Item.MeetingDetails" Target="_blank">Join</MudButton>
             </CellTemplate>
         </TemplateColumn>
 

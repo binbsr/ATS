@@ -1,0 +1,88 @@
+﻿@page "/members"
+
+@inject IDbContextFactory<ApplicationDbContext> DbFactory
+
+@{
+    var panelClass = "pa-5 mb-5 border border-solid mud-border-tertiary";
+}
+
+@if (loadingData)
+{
+    <MudText Align="Align.Center">
+        <MudProgressCircular Indeterminate Color="Color.Tertiary" Size="Size.Medium" />
+    </MudText>
+}
+else
+{
+    <MudPaper Class="@panelClass" Elevation="0">
+        <MudText Typo="Typo.h6" Class="mb-5">Training Batch: <strong>@loggedInUserBatchName</strong></MudText>
+        <UserList Users="@batchMembers" LoggedInUserId="@loggedInUserId" />
+    </MudPaper>
+    <MudPaper Class="@panelClass" Elevation="0">
+        <MudText Typo="Typo.h6" Class="mb-5">Agile Team: <strong>@loggedInUserTeamName</strong></MudText>
+        <MudGrid>
+            <MudItem md="1" xs="12" Class="d-flex">
+                @if (teamMembers.Count > 0)
+                {
+                    <MudTooltip Text="@($"Team {loggedInUserTeamName} ({teamMembers.Count} members)")">
+                        <MudAvatar Style="height:120px; width:120px; font-size:2.5rem;" Rounded>
+                            <MudImage Src="@loggedInUserTeamAvatar" />
+                        </MudAvatar>
+                    </MudTooltip>
+                }
+            </MudItem>
+            <MudItem md="11" xs="12">
+                <UserList Users="@teamMembers" LoggedInUserId="@loggedInUserId" />
+            </MudItem>
+        </MudGrid>
+    </MudPaper>
+}
+
+@code
+{
+    [CascadingParameter]
+    private Task<AuthenticationState> AuthTask { get; set; } = null!;
+
+    bool loadingData = false;
+    private Student? student;
+    string loggedInUserTeamName = "Not assigned to any team";
+    string loggedInUserBatchName = "Not assigned to any batch";
+    string loggedInUserTeamAvatar = "";
+    List<StudentViewModel> teamMembers = [];
+    List<StudentViewModel> batchMembers = [];
+    public string loggedInUserId = string.Empty;
+
+    protected override async Task OnInitializedAsync()
+    {
+        loadingData = true;
+
+        var state = await AuthTask;
+        loggedInUserId = state.User.GetUserId();
+
+        using var Db = DbFactory.CreateDbContext();
+        student = await Db.Students
+            .Where(x => x.ApplicationUserId == loggedInUserId)
+            .Include(b => b!.Batch)
+            .Include(t => t.Team)
+            .ThenInclude(b => b!.Project)
+            .FirstOrDefaultAsync();
+
+        if (student is null || student.BatchId is null)
+        {
+            loadingData = false;
+            return;
+        }
+
+        loggedInUserBatchName = student?.Batch?.Name ?? string.Empty;
+        loggedInUserTeamName = student?.Team?.Name ?? string.Empty;
+        loggedInUserTeamAvatar = student?.Team?.Avatar ?? string.Empty;
+
+        batchMembers = await Db.Students
+            .Where(x => x.BatchId == student!.BatchId)
+            .Select(x => new StudentViewModel(x.Name, x.ApplicationUserId!, x.ProfileImagePath!, x!.Team!.Name, x!.Batch!.Name))
+            .ToListAsync();
+        teamMembers = batchMembers.Where(x => x.TeamName == loggedInUserTeamName).ToList();
+
+        loadingData = false;
+    }
+}

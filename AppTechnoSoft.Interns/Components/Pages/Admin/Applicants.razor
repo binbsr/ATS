@@ -121,6 +121,7 @@
                 .Where(s => selectedApplicants.Select(z => z.Id).Contains(s.Id))
                 .ExecuteUpdate(x => x
                     .SetProperty(y => y.BatchId, null as int?)
+                    .SetProperty(y => y.ApplicationUserId, null as string)
                     .SetProperty(y => y.Status, Status.Applied)
                 );
 

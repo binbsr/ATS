@@ -1,13 +1,15 @@
 ﻿@page "/applicants"
 
 @attribute [Authorize(Roles = Role.Admins)]
-@inject ApplicationDbContext db
+@inject ApplicationDbContext Db
+@inject ISnackbar SnackBar
 
 <PageTitle>Applicants</PageTitle>
 
 <MudDataGrid T="Student"
              MultiSelection="true"
              Items="@studentList"
+             @bind-SelectedItems="selectedApplicants"
              SortMode="SortMode.Multiple"
              Filterable="true"
              Hover="true"
@@ -18,12 +20,13 @@
              Dense="true">
 
     <ToolBarContent>
-        <MudText Typo="Typo.h6">@studentList.Count Applicants</MudText>
+        <MudButton Disabled="@(!selectedApplicants.Any())" StartIcon="@Icons.Material.Sharp.AutoDelete" OnClick="RemoveFromBatch" Class="ml-2 mt-5" Variant="Variant.Filled" Color="Color.Tertiary">De-Batch</MudButton>
         <MudSpacer />
-        <MudTextField @bind-Value="_searchString" Placeholder="Search" Adornment="Adornment.Start" Immediate="true"
+        <MudTextField @bind-Value="_searchString" Placeholder="@($"Search {studentList.Count} applicants by name, email, status or phone...")" Adornment="Adornment.Start" Immediate="true"
                       AdornmentIcon="@Icons.Material.Filled.Search" IconSize="Size.Medium" Class="mt-0"></MudTextField>
     </ToolBarContent>
     <Columns>
+        <SelectColumn ShowInFooter="false" ShowInHeader="false" />
         <HierarchyColumn T="Student" />
         <TemplateColumn Filterable="false">
             <CellTemplate>
@@ -48,37 +51,38 @@
         <MudGrid Class="p-2">
             <MudItem md="3" sm="4" Class="p-2">
                 <b>Name</b><MudText Typo="Typo.body1">@context.Item.Name</MudText>
-                </MudItem>
-                <MudItem md="3" sm="4" Class="p-2">
-                    <b>College</b><MudText Typo="Typo.body1">@context.Item.College!.Name</MudText>
-                </MudItem>
-                <MudItem md="3" sm="4" Class="p-2">
-                    <b>Team</b><MudText Typo="Typo.body1">@(context.Item.Team?.Name ?? "Not Assigned")</MudText>
-                </MudItem>
-                <MudItem md="3" sm="4" Class="p-2">
-                    <b>Program</b><MudText Typo="Typo.body1">@context.Item.TechProgram!.Name</MudText>
-                </MudItem>
-                <MudItem md="3" sm="4" Class="p-2">
-                    <b>Applied</b><MudText Typo="Typo.body1">@context.Item.FormSubmitted.Humanize()</MudText>
-                </MudItem>
-                <MudItem md="3" sm="4" Class="p-2">
-                    <b>General Programming</b><MudText Typo="Typo.body1">@context.Item.GeneralProgramming.GetGeneralProgText()</MudText>
-                </MudItem>
-                <MudItem md="3" sm="4" Class="p-2">
-                    <b>Web Development Experience</b><MudText Typo="Typo.body1">@context.Item.WebExperience.GetWebExperienceText()</MudText>
-                </MudItem>
-                <MudItem md="3" sm="4" Class="p-2">
-                    <b>Database Development Experience</b><MudText Typo="Typo.body1">@context.Item.DbExperience.GetDbExperienceText()</MudText>
-                </MudItem>
-            </MudGrid>
-        </ChildRowContent>
-        <PagerContent>
-            <MudDataGridPager T="Student" PageSizeOptions="[15, 30, 50, 100, 200]" />
-        </PagerContent>
-    </MudDataGrid>
+            </MudItem>
+            <MudItem md="3" sm="4" Class="p-2">
+                <b>College</b><MudText Typo="Typo.body1">@context.Item.College!.Name</MudText>
+            </MudItem>
+            <MudItem md="3" sm="4" Class="p-2">
+                <b>Team</b><MudText Typo="Typo.body1">@(context.Item.Team?.Name ?? "Not Assigned")</MudText>
+            </MudItem>
+            <MudItem md="3" sm="4" Class="p-2">
+                <b>Program</b><MudText Typo="Typo.body1">@context.Item.TechProgram!.Name</MudText>
+            </MudItem>
+            <MudItem md="3" sm="4" Class="p-2">
+                <b>Applied</b><MudText Typo="Typo.body1">@context.Item.FormSubmitted.Humanize()</MudText>
+            </MudItem>
+            <MudItem md="3" sm="4" Class="p-2">
+                <b>General Programming</b><MudText Typo="Typo.body1">@context.Item.GeneralProgramming.GetGeneralProgText()</MudText>
+            </MudItem>
+            <MudItem md="3" sm="4" Class="p-2">
+                <b>Web Development Experience</b><MudText Typo="Typo.body1">@context.Item.WebExperience.GetWebExperienceText()</MudText>
+            </MudItem>
+            <MudItem md="3" sm="4" Class="p-2">
+                <b>Database Development Experience</b><MudText Typo="Typo.body1">@context.Item.DbExperience.GetDbExperienceText()</MudText>
+            </MudItem>
+        </MudGrid>
+    </ChildRowContent>
+    <PagerContent>
+        <MudDataGridPager T="Student" PageSizeOptions="[15, 30, 50, 100, 200]" />
+    </PagerContent>
+</MudDataGrid>
 
-    @code {
+@code {
     private List<Student> studentList = new();
+    private HashSet<Student> selectedApplicants = [];
     private string _searchString = string.Empty;
     private bool loadingData = false;
 
@@ -105,7 +109,29 @@
     protected override async Task OnInitializedAsync()
     {
         loadingData = true;
-        studentList = await db.Students.Include(s => s.College).Include(t => t.TechProgram).Include(t => t.Team).ToListAsync();
+        studentList = await Db.Students.Include(s => s.College).Include(t => t.TechProgram).Include(t => t.Team).ToListAsync();
         loadingData = false;
+    }
+
+    private async Task RemoveFromBatch()
+    {
+        if (selectedApplicants.Any())
+        {
+            var rowsAffected = Db.Students
+                .Where(s => selectedApplicants.Select(z => z.Id).Contains(s.Id))
+                .ExecuteUpdate(x => x
+                    .SetProperty(y => y.BatchId, null as int?)
+                    .SetProperty(y => y.Status, Status.Applied)
+                );
+
+            if (rowsAffected > 0)
+            {
+                SnackBar.Add("Selectedt trainees debatched", Severity.Success);
+            }
+            else
+            {
+                SnackBar.Add("Debatching failed", Severity.Error);
+            }
+        }
     }
 }

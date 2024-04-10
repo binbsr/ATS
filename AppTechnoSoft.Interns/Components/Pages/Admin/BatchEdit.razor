@@ -5,24 +5,25 @@
 @inject ApplicationDbContext Db
 @inject ISnackbar SnackBar
 @inject NavigationManager Navigation
+@inject UserManager<ApplicationUser> UserManager
 
 <PageTitle>@pageTitle</PageTitle>
 
-    <MudContainer>
-        <EditForm Model="@model" OnValidSubmit="OnValidSubmit">
-            <DataAnnotationsValidator />
-            <MudTextField Label="Name" Value="@model.Name" Disabled />
-         <MudDateRangePicker Label="Batch Duration" DateRange="@(new DateRange(model.Start, model.End))" DateRangeChanged="DatesChanged" />
+<MudContainer>
+    <EditForm Model="@model" OnValidSubmit="OnValidSubmit">
+        <DataAnnotationsValidator />
+        <MudTextField Label="Name" Value="@model.Name" Disabled />
+        <MudDateRangePicker Label="Batch Duration" DateRange="@(new DateRange(model.Start, model.End))" DateRangeChanged="DatesChanged" />
 
-         <MudSelect T="string"
-                    Dense="true"
-                    Label="Batch Members"
-                    MultiSelection="true"
-                    @bind-SelectedValues="@studentsSelected"
-                    Class="my-3"
-                    MultiSelectionTextFunc="@(new Func<List<string>, string>(GetMultiSelectionText))"
-                    AnchorOrigin="Origin.BottomCenter">
-             @foreach (var student in students)
+        <MudSelect T="string"
+                   Dense="true"
+                   Label="Batch Members"
+                   MultiSelection="true"
+                   @bind-SelectedValues="@studentsSelected"
+                   Class="my-3"
+                   MultiSelectionTextFunc="@(new Func<List<string>, string>(GetMultiSelectionText))"
+                   AnchorOrigin="Origin.BottomCenter">
+            @foreach (var student in students)
             {
                 <MudSelectItem Value="@student.Id">@student.Name</MudSelectItem>
             }
@@ -78,7 +79,8 @@
     private async Task OnValidSubmit(EditContext context)
     {
         var state = await AuthTask;
-        var userName = state.User.Identity?.Name;
+        var userPrincipal = state.User;
+        var userName = userPrincipal.Identity?.Name;
 
         if (IsAdd)
         {
@@ -94,6 +96,15 @@
 
         var rowsAffected = await Db.SaveChangesAsync();
 
+        if (rowsAffected > 0)
+        {
+            SnackBar.Add("Batch saved successfully", Severity.Success);
+        }
+        else
+        {
+            SnackBar.Add("Batch save failed", Severity.Error);
+        }
+
         if (studentsSelected.Any())
         {
             rowsAffected = Db.Students
@@ -102,15 +113,31 @@
                     .SetProperty(y => y.BatchId, model.Id)
                     .SetProperty(y => y.Status, Status.Enrolled)
                 );
-        }
 
-        if (rowsAffected > 0)
-        {
-            SnackBar.Add("Batch saved successfully", Severity.Success);
-        }
-        else
-        {
-            SnackBar.Add("Batch save failed", Severity.Error);
+            _ = (rowsAffected > 0)
+                ? SnackBar.Add($"Trainees added to {model.Name} successfully", Severity.Success)
+                : SnackBar.Add("Couldn't add trainees to just created batch", Severity.Error);
+
+
+            // Get all students applicationUserids
+            var appUserIds = await Db.Students.Where(x => studentsSelected.Contains(x.Id)).Select(y => y.ApplicationUserId).ToListAsync();
+
+            if (appUserIds is null || !appUserIds.Any())
+                return;
+
+            foreach(var userId in appUserIds)
+            {
+                var appUser = await UserManager.FindByIdAsync(userId!);
+                if (appUser is null)
+                    continue;
+
+                var resultAdd = await UserManager.AddToRoleAsync(appUser, Role.Trainee);
+
+                _ = resultAdd.Succeeded ?
+                SnackBar.Add($"{appUser.UserName} assinged trainee role", Severity.Success) :
+                SnackBar.Add($"{appUser.UserName} role assignment failed. {string.Join("\n\r", resultAdd.Errors.Select(x => x.Description))}", Severity.Error);
+            }           
+
         }
 
         Navigation.NavigateTo("/batches");

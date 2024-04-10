@@ -137,7 +137,7 @@
     protected override async Task OnInitializedAsync()
     {
         var userState = await authenticationStateTask;
-        var userId = userState.User.FindFirst(u => u.Type.Contains("nameidentifier"))?.Value;
+        var userId = userState.User.GetUserId();
         var user = await Db.Users.FindAsync(userId);
 
         if (user is null)

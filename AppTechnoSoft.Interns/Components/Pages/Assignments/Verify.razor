@@ -1,5 +1,88 @@
 ﻿@page "/assignments/verify"
 
+@inject ApplicationDbContext Db
 
 <PageTitle>Verify Assignments</PageTitle>
 
+<MudTable Items="@studentAssignments" Hover CanCancelEdit IsEditRowSwitchingBlocked
+          @bind-SelectedItem="selectedStudentAssignment" CommitEditTooltip="Save Edit"
+          RowEditPreview="BackupItem" RowEditCancel="ResetItemToOriginalValues"
+          RowEditCommit="SaveChanges">
+    <ToolBarContent>
+        <MudText Typo="Typo.h6">Assignments returned from students</MudText>
+    </ToolBarContent>
+
+    <HeaderContent>
+        <MudTh>Assignment</MudTh>
+        <MudTh>Student</MudTh>
+        <MudTh>Solution Url</MudTh>
+        <MudTh><MudTableSortLabel InitialDirection="SortDirection.Descending" SortBy="new Func<StudentAssignment, object>(x=>x.Deadline)">Deadline</MudTableSortLabel></MudTh>
+        <MudTh><MudTableSortLabel SortBy="new Func<StudentAssignment, object>(x=>x.Status)">Status</MudTableSortLabel></MudTh>
+        <MudTh>Comment</MudTh>
+    </HeaderContent>
+    <RowTemplate>
+        <MudTd DataLabel="Assignment">@context.Assignment.Title</MudTd>
+        <MudTd DataLabel="Student">@context.Student.Name</MudTd>
+        <MudTd DataLabel="SolutionUrl">@context.SolutionUrl</MudTd>
+        <MudTd DataLabel="Deadline">@context.Deadline.Humanize()</MudTd>
+        <MudTd DataLabel="Status">@context.Status</MudTd>
+        <MudTd DataLabel="Comment">@context.Comment</MudTd>
+    </RowTemplate>
+    <RowEditingTemplate>        
+        <MudTd DataLabel="Evaluation">
+            <MudTextField @bind-Value="@context.Evaluation" Required />
+        </MudTd>
+    </RowEditingTemplate>
+    <PagerContent>
+        <MudTablePager />
+    </PagerContent>
+    <EditButtonContent Context="button">
+        <MudIconButton Size="@Size.Small" Icon="@Icons.Material.Outlined.Edit" Class="pa-0" OnClick="@button.ButtonAction" Disabled="@button.ButtonDisabled" />
+    </EditButtonContent>
+</MudTable>
+
+@code {
+
+    private bool loading = false;
+    private string searchString = string.Empty;
+    private List<StudentAssignment> studentAssignments = [];
+    private StudentAssignment selectedStudentAssignment = null!;
+    private StudentAssignment assignmentBeforeEdit = null!;
+
+    protected override async Task OnInitializedAsync()
+    {
+        loading = true;
+
+        studentAssignments = await Db.StudentAssignments
+            .Include(a => a.Assignment)
+            .Where(x => x.Status == AssignmentStatus.Returned && x.InstructorId == 1)
+            .ToListAsync();
+
+        loading = false;
+    }
+
+    private void BackupItem(object assignment)
+    {
+        assignmentBeforeEdit = new()
+            {
+                Evaluation = ((StudentAssignment)assignment).Evaluation,
+                Assignment = ((StudentAssignment)assignment).Assignment,
+                Instructor = ((StudentAssignment)assignment).Instructor,
+                Comment = ((StudentAssignment)assignment).Comment,
+                Student = ((StudentAssignment)assignment).Student,
+                SolutionUrl = ((StudentAssignment)assignment).SolutionUrl,
+                Deadline = ((StudentAssignment)assignment).Deadline,
+            };
+    }
+
+    private void SaveChanges(object assignment)
+    {
+        var studentAssignment = assignment as StudentAssignment;
+        //Save
+    }
+
+    private void ResetItemToOriginalValues(object element)
+    {
+
+    }
+}

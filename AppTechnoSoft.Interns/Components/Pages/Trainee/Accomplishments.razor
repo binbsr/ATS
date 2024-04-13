@@ -14,8 +14,21 @@
 }
 else
 {
+    <MudStack Row Justify="Justify.Center" AlignItems="AlignItems.Center" Spacing="16" Class="mb-4">
+        <MudText Typo="Typo.h5" Color="Color.Secondary">@trainee.Name</MudText>
+        <MudAvatar Style="height:128px; width:128px;">
+            <MudImage Src="@trainee.AvatarPath" />
+        </MudAvatar>
+        <MudText Typo="Typo.h5">
+            Student of @trainee.Program
+            <MudText Typo="Typo.body1">
+                From @trainee.College
+            </MudText>
+        </MudText>
+    </MudStack>
+
     <MudPaper Class="@panelClass" Elevation="0">
-        <MudText Align="Align.Center" Typo="Typo.h6" Class="mb-2">Progress with AppSoft - <strong>@trainee.Name</strong></MudText>
+        <MudText Typo="Typo.h6" Class="mb-2">Progress with AppSoft</MudText>
         @{
             bool applied = false, enrolled = false, learning = false, contribution = false, evaluated = false, docs = false, completed = false;
             switch (trainee.Status)
@@ -69,7 +82,7 @@ else
 
             <MudTimelineItem Color="@(applied ? Color.Success : Color.Default)" Size="Size.Large" Variant="Variant.Outlined" Elevation="5">
                 <ItemDot>
-                    <MudIcon Size="Size.Large" Icon="@Icons.Material.Sharp.AppRegistration" />
+                    <MudIcon Size="Size.Large" Icon="@Icons.Material.Sharp.PersonAddAlt1" />
                 </ItemDot>
                 <ItemContent>
                     <MudText Align="Align.Center">Applied</MudText>
@@ -107,7 +120,7 @@ else
 
             <MudTimelineItem Color="@(evaluated ? Color.Success : Color.Default)" Size="Size.Large" Variant="Variant.Outlined" Elevation="5">
                 <ItemDot>
-                    <MudIcon Size="Size.Large" Icon="@Icons.Material.Sharp.Score" />
+                    <MudIcon Size="Size.Large" Icon="@Icons.Material.Sharp.CreditScore" />
                 </ItemDot>
                 <ItemContent>
                     <MudText Align="Align.Center">Evaluation</MudText>
@@ -134,6 +147,24 @@ else
         </MudTimeline>
 
     </MudPaper>
+
+    <MudPaper Class="@panelClass" Elevation="0">
+        <MudText Typo="Typo.h6" Class="mb-3">@attendances.Count.ToWords().Pascalize() completed tasks (Training + Project)</MudText>
+
+        <MudTimeline TimelinePosition="TimelinePosition.Start">
+            @foreach (var attendance in attendances)
+            {
+                <MudTimelineItem Color="Color.Info" Elevation="0" TimelineAlign="TimelineAlign.End" Class="pb-2">
+                    <MudCard Outlined>
+                        <MudCardContent Class="py-2">
+                            <MudText Typo="Typo.button">@attendance.Date.ToLongDateString()</MudText>
+                            <MudText Typo="Typo.body2">@attendance.WorkLog</MudText>
+                        </MudCardContent>
+                    </MudCard>
+                </MudTimelineItem>
+            }
+        </MudTimeline>
+    </MudPaper>
 }
 
 @code {
@@ -141,12 +172,13 @@ else
     [CascadingParameter]
     private Task<AuthenticationState> AuthTask { get; set; } = null!;
 
-    private record TraineeViewModel(string Name)
+    private record TraineeViewModel(string Name, string AvatarPath, string Program, string College)
     {
         public Status Status { get; set; }
     }
 
     private TraineeViewModel trainee = null!;
+    private List<Attendance> attendances = [];
 
     protected override async Task OnInitializedAsync()
     {
@@ -155,18 +187,29 @@ else
 
         var student = await Db.Students
             .Where(y => y.ApplicationUserId == loggedInUserId)
-            .Select(x => new { Id = x.Id, Name = x.Name, Status = x.Status })
+            .Select(x => new
+            {
+                Id = x.Id,
+                Name = x.Name,
+                Status = x.Status,
+                AvatarPath = x.ProfileImagePath,
+                Program = $"{x.TechProgram.Name} ({x.TechProgram.Affliation})",
+                College = $"{x.College.Name}, {x.College.Location}"
+            })
             .FirstOrDefaultAsync();
 
         if (student is null)
             return;
 
-        trainee = new TraineeViewModel(student.Name) { Status = student.Status };
+        trainee = new TraineeViewModel(student.Name, student.AvatarPath ?? "/favicon.png", student.Program, student.College) { Status = student.Status };
 
         // See if student is learning, if he/she has at least 5 entries for worklogs, treat it as learning
-        var workLogCount = await Db.Attendances.Where(x => x.StudentId == student.Id && x.WorkLog != null).CountAsync();
+        attendances = await Db.Attendances.Where(x => x.StudentId == student.Id && x.WorkLog != null).ToListAsync();
 
-        if (workLogCount > 4)   // 5 or more tasks logged
+        if (attendances is null || !attendances.Any())
+            return;
+
+        if (attendances.Count > 4)   // 5 or more tasks logged
         {
             trainee.Status = Status.Learning;
         }

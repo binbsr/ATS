@@ -1,5 +1,165 @@
 ﻿@page "/assignments/verify"
 
+@inject ApplicationDbContext Db
+@inject ISnackbar SnackBar
 
 <PageTitle>Verify Assignments</PageTitle>
 
+@if (instructor is null)
+{
+    <ApplicationAlert Text="Looks like you are not yet assigned 'Instructor' role, please let admin know about it." />
+}
+else
+{
+    <MudTable Items="@studentAssignments" Hover CanCancelEdit IsEditRowSwitchingBlocked
+              @bind-SelectedItem="selectedStudentAssignment" CommitEditTooltip="Save Edit"
+              RowEditPreview="BackupItem" RowEditCancel="ResetItemToOriginalValues"
+              RowEditCommit="async (obj) => await SaveChanges(obj)">
+        <ToolBarContent>
+            <MudText Typo="Typo.h6">Assignments returned from students (Click on row to edit evaluation score)</MudText>
+        </ToolBarContent>
+
+        <HeaderContent>
+            <MudTh>Assignment</MudTh>
+            <MudTh>Student</MudTh>
+            <MudTh>Solution</MudTh>
+            <MudTh>Evaluation</MudTh>
+            <MudTh><MudTableSortLabel InitialDirection="SortDirection.Descending" SortBy="new Func<StudentAssignmentViewModel, object>(x=>x.Deadline)">Deadline</MudTableSortLabel></MudTh>
+            <MudTh><MudTableSortLabel SortBy="new Func<StudentAssignmentViewModel, object>(x=>x.Status.ToString())">Status</MudTableSortLabel></MudTh>
+            <MudTh>Comment</MudTh>
+        </HeaderContent>
+        <RowTemplate>
+            <MudTd DataLabel="Assignment">@context.AssignmentTitle</MudTd>
+            <MudTd DataLabel="Student">@context.StudentName</MudTd>
+            <MudTd DataLabel="Solution"><MudLink Target="_blank" Href="@context.SolutionUrl">Solution</MudLink></MudTd>
+            <MudTd DataLabel="Evaluation">@((context.Evaluation / (double)100 ).ToString("P"))</MudTd>
+            <MudTd DataLabel="Deadline">@context.Deadline</MudTd>
+            <MudTd DataLabel="Status">@context.Status</MudTd>
+            <MudTd DataLabel="Comment">@context.Comment</MudTd>
+        </RowTemplate>
+        <RowEditingTemplate>
+            <MudTd DataLabel="Assignment">
+                <MudTextField Value="@context.AssignmentTitle" Disabled />
+            </MudTd>
+            <MudTd DataLabel="Student">
+                <MudTextField Value="@context.StudentName" Disabled />
+            </MudTd>
+            <MudTd DataLabel="SolutionUrl">
+                <MudLink Target="_blank" Href="@context.SolutionUrl">Solution</MudLink>
+            </MudTd>
+            <MudTd DataLabel="Evaluation">
+                <MudTextField @bind-Value="@context.Evaluation" Required Label="Marks out of 100" />
+            </MudTd>
+            <MudTd DataLabel="Deadline">
+                <MudTextField Value="@context.Deadline" Disabled />
+            </MudTd>
+            <MudTd DataLabel="Status">
+                <MudTextField Value="@context.Status" Disabled />
+            </MudTd>
+            <MudTd DataLabel="Comment">
+                <MudTextField Lines="3" Value="@context.Comment" />
+            </MudTd>
+        </RowEditingTemplate>
+        <PagerContent>
+            <MudTablePager />
+        </PagerContent>
+        <EditButtonContent Context="button">
+            <MudIconButton Size="@Size.Small" Icon="@Icons.Material.Outlined.Edit" Class="pa-0" OnClick="@button.ButtonAction" Disabled="@button.ButtonDisabled" />
+        </EditButtonContent>
+    </MudTable>
+}
+
+@code {
+
+    [CascadingParameter]
+    private Task<AuthenticationState> AuthTask { get; set; } = null!;
+
+    private bool loading = false;
+    private string searchString = string.Empty;
+    private Instructor instructor = null!;
+    private List<StudentAssignmentViewModel> studentAssignments = [];
+    private StudentAssignmentViewModel selectedStudentAssignment = null!;
+    private StudentAssignmentViewModel assignmentBeforeEdit = null!;
+
+    protected override async Task OnInitializedAsync()
+    {
+        loading = true;
+
+        var userTask = await AuthTask;
+        var loggedInUser = userTask.User;
+        var loggedInUserId = loggedInUser.GetUserId();
+
+        // Get instructor from loggedin app user id
+        instructor = await Db.Instructors.FirstOrDefaultAsync(x => x.ApplicationUserId == loggedInUserId);
+
+        if (instructor is null)
+            return;
+
+        var studentAssignmentsModels = await Db.StudentAssignments
+            .Where(x => x.InstructorId == instructor.Id)
+            .Select(y => new
+            {
+                Id = y.Id,
+                AssignmentTitle = y.Assignment!.Title,
+                StudentName = y.Student!.Name,
+                SolutionUrl = y.SolutionUrl,
+                Evaluation = y.Evaluation,
+                Deadline = y.Deadline,
+                Status = y.Status,
+                Comment = y.Comment
+            })
+            .ToListAsync();
+
+        studentAssignments = studentAssignmentsModels.Select(x =>
+            new StudentAssignmentViewModel
+                {
+                    Id = x.Id,
+                    AssignmentTitle = x.AssignmentTitle,
+                    StudentName = x.StudentName,
+                    SolutionUrl = x.SolutionUrl,
+                    Evaluation = x.Evaluation,
+                    Deadline = x.Deadline.Humanize(),
+                    Status = x.Status,
+                    Comment = x.Comment
+                }).ToList();
+
+        loading = false;
+    }
+
+    private void BackupItem(object assignment)
+    {
+        assignmentBeforeEdit = new()
+            {
+                Evaluation = ((StudentAssignmentViewModel)assignment).Evaluation,
+                Comment = ((StudentAssignmentViewModel)assignment).Comment
+            };
+    }
+
+    private async Task SaveChanges(object assignment)
+    {
+        var studentAssignment = assignment as StudentAssignmentViewModel;
+
+        var rowsUpdated = await Db.StudentAssignments
+                .Where(x => x.Id == studentAssignment.Id)
+                .ExecuteUpdateAsync(x => x
+                    .SetProperty(y => y.Evaluation, studentAssignment.Evaluation)
+                    .SetProperty(y => y.Comment, studentAssignment.Comment)
+                    .SetProperty(y => y.Status, AssignmentStatus.Complete)
+                );
+
+        if (rowsUpdated > 0)
+        {
+            SnackBar.Add($"Assignment details updated for {studentAssignment.StudentName} successfully", Severity.Success);
+        }
+        else
+        {
+            SnackBar.Add($"Error updating assignment for {studentAssignment.StudentName}", Severity.Error);
+        }
+    }
+
+    private void ResetItemToOriginalValues(object element)
+    {
+        ((StudentAssignmentViewModel)element).Evaluation = assignmentBeforeEdit.Evaluation;
+        ((StudentAssignmentViewModel)element).Comment = assignmentBeforeEdit.Comment;
+    }
+}

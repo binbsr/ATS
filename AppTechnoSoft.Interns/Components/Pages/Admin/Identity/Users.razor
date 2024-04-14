@@ -10,12 +10,27 @@
 <MudTable Items="@users" @bind-SelectedItems="selectedUsers" Hover="true" Loading="@loadingData" Dense="true" Filter="new Func<ApplicationUser,bool>(FilterFunc1)" MultiSelection>
     <ToolBarContent>
         <MudSelect AnchorOrigin="Origin.BottomCenter" @bind-Value="selectedRole" Label="Select a role for users" AdornmentColor="Color.Tertiary">
-            @foreach(var role in roles)
+            @foreach (var role in roles)
             {
                 <MudSelectItem Value="role.Name" />
-            }            
+            }
         </MudSelect>
-        <MudButton Disabled="@(!selectedUsers.Any())" StartIcon="@Icons.Material.Sharp.Save" OnClick="SaveRoles" Class="ml-2 mt-5" Variant="Variant.Filled" Color="Color.Tertiary">Assign</MudButton>
+        <MudButton Disabled="@(!selectedUsers.Any())"
+                   StartIcon="@Icons.Material.Sharp.Add"
+                   OnClick="AddRole"
+                   Class="ml-2 mt-5"
+                   Variant="Variant.Filled"
+                   Color="Color.Tertiary">
+            Add Role
+        </MudButton>
+        <MudButton Disabled="@(!selectedUsers.Any())"
+                   StartIcon="@Icons.Material.Sharp.Remove"
+                   OnClick="RemoveRole"
+                   Class="ml-2 mt-5"
+                   Variant="Variant.Filled"
+                   Color="Color.Error">
+            Remove Role
+        </MudButton>
         <MudSpacer />
         <MudTextField @bind-Value="searchString" Placeholder="Search"
                       Adornment="Adornment.Start"
@@ -36,27 +51,27 @@
     <RowTemplate>
         <MudTd DataLabel="#">@(users.IndexOf(context) + 1)</MudTd>
         <MudTd DataLabel="UserName">@context.UserName</MudTd>
-            <MudTd DataLabel="Email">@context.Email</MudTd>
-            <MudTd DataLabel="EmailConfirmed">@context.EmailConfirmed</MudTd>
-            <MudTd DataLabel="TwoFactorEnabled">@context.TwoFactorEnabled</MudTd>
-            <MudTd DataLabel="AccessFailedCount">@context.AccessFailedCount</MudTd>
-            <MudTd>
-                <MudIconButton Icon="@Icons.Material.Filled.Edit" Size="Size.Small" Color="Color.Warning" Href="@("/edit-user/" + context.Id)" />
-                <MudIconButton Icon="@Icons.Material.Sharp.Delete" Size="Size.Small" Color="Color.Error" OnClick="() => ConfirmDelete(context)" />
-                <MudMessageBox @ref="mbox" Title="Warning" CancelText="Cancel">
-                    <MessageContent>
-                        Are you sure to delete this user? It can't be undone!
-                    </MessageContent>
-                    <YesButton>
-                        <MudButton Variant="Variant.Filled" Color="Color.Error" Class="ml-2 mb-2 mr-3" StartIcon="@Icons.Material.Filled.DeleteForever">Delete</MudButton>
-                    </YesButton>
-                </MudMessageBox>
-            </MudTd>
-        </RowTemplate>
-        <PagerContent>
-            <MudTablePager />
-        </PagerContent>
-    </MudTable>
+        <MudTd DataLabel="Email">@context.Email</MudTd>
+        <MudTd DataLabel="EmailConfirmed">@context.EmailConfirmed</MudTd>
+        <MudTd DataLabel="TwoFactorEnabled">@context.TwoFactorEnabled</MudTd>
+        <MudTd DataLabel="AccessFailedCount">@context.AccessFailedCount</MudTd>
+        <MudTd>
+            <MudIconButton Icon="@Icons.Material.Filled.Edit" Size="Size.Small" Color="Color.Warning" Href="@("/edit-user/" + context.Id)" />
+            <MudIconButton Icon="@Icons.Material.Sharp.Delete" Size="Size.Small" Color="Color.Error" OnClick="() => ConfirmDelete(context)" />
+            <MudMessageBox @ref="mbox" Title="Warning" CancelText="Cancel">
+                <MessageContent>
+                    Are you sure to delete this user? It can't be undone!
+                </MessageContent>
+                <YesButton>
+                    <MudButton Variant="Variant.Filled" Color="Color.Error" Class="ml-2 mb-2 mr-3" StartIcon="@Icons.Material.Filled.DeleteForever">Delete</MudButton>
+                </YesButton>
+            </MudMessageBox>
+        </MudTd>
+    </RowTemplate>
+    <PagerContent>
+        <MudTablePager PageSizeOptions="[30, 50, 100, 200]" />
+    </PagerContent>
+</MudTable>
 
 @code {
 
@@ -108,9 +123,9 @@
         return false;
     }
 
-    private async Task SaveRoles()
+    private async Task AddRole()
     {
-        foreach(var user in selectedUsers)
+        foreach (var user in selectedUsers)
         {
             var resultAdd = await UserManager.AddToRoleAsync(user, selectedRole);
 
@@ -122,6 +137,40 @@
                         .Where(x => x.Email == user.Email)
                         .ExecuteUpdateAsync(x => x.SetProperty(y => y.ApplicationUserId, user.Id));
                 }
+                SnackBar.Add($"{user.UserName} saved successfully", Severity.Success);
+            }
+            else
+            {
+                SnackBar.Add($"{user.UserName} save failed. {string.Join("\n\r", resultAdd.Errors.Select(x => x.Description))}", Severity.Error);
+            }
+        }
+    }
+
+    private async Task RemoveRole()
+    {
+        foreach (var user in selectedUsers)
+        {
+            var resultAdd = await UserManager.RemoveFromRoleAsync(user, selectedRole);
+
+            if (resultAdd.Succeeded)
+            {
+                if (selectedRole == Role.Instructor)
+                {
+                    await Db.Instructors
+                        .Where(x => x.Email == user.Email)
+                        .ExecuteUpdateAsync(x => x.SetProperty(y => y.ApplicationUserId, null as string));
+                }
+                else if (selectedRole == Role.Trainee)
+                {
+                    Db.Students
+                        .Where(x => x.Email == user.Email)
+                        .ExecuteUpdate(x => x
+                            .SetProperty(y => y.BatchId, null as int?)
+                            .SetProperty(y => y.ApplicationUserId, null as string)
+                            .SetProperty(y => y.Status, Status.Applied)
+                        );
+                }
+
                 SnackBar.Add($"{user.UserName} saved successfully", Severity.Success);
             }
             else

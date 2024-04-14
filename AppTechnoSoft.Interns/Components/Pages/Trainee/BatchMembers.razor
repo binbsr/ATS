@@ -75,8 +75,8 @@ else
             return;
         }
 
-        loggedInUserBatchName = student?.Batch?.Name ?? string.Empty;
-        loggedInUserTeamName = student?.Team?.Name ?? string.Empty;
+        loggedInUserBatchName = student?.Batch?.Name ?? "None";
+        loggedInUserTeamName = student?.Team?.Name ?? "None";
         loggedInUserTeamAvatar = student?.Team?.Avatar ?? string.Empty;
 
         batchMembers = await Db.Students

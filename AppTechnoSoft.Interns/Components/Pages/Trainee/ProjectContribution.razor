@@ -1,5 +1,7 @@
 ﻿@page "/project/me"
 
+@attribute [Authorize(Roles = Role.Trainee)]
+
 @inject IDbContextFactory<ApplicationDbContext> DbFactory
 
 <PageTitle>Project Contribution</PageTitle>
@@ -8,47 +10,73 @@
     var panelClass = "pa-5 mb-5 border border-solid mud-border-tertiary";
 }
 
-<MudPaper Class="@panelClass" Elevation="0">
-    <MudText Typo="Typo.h6" Class="mb-4" Align="Align.Center">Project Title: <strong>@projectTitle</strong></MudText>
-    <MudText Typo="Typo.subtitle2" Class="mb-2">@projectDetails</MudText>
-</MudPaper>
+@if (project.Title == "None")
+{
+    <ApplicationAlert Text="You are not part of any team or project not assinged to your team yet." />
+}
+else
+{
+    <MudPaper Class="@panelClass" Elevation="0">
+        <MudStack Row Justify="Justify.Center" AlignItems="AlignItems.Center" Spacing="16" Class="mb-6 pb-3 border-b-2">
+            <MudTooltip Text="@($"Team {teamName}")" Placement="Placement.Left">
+                <MudAvatar Style="height:128px; width:128px;">
+                    <MudImage Src="@teamAvatar" />
+                </MudAvatar>
+            </MudTooltip>            
+            <MudText Typo="Typo.h4" Align="Align.Center">@project.Title</MudText>
+            <MudText>
+                <MudLink Href="@project.RepoUrl" Target="_blank" Style="font-size:1.5rem">Github repository <MudIcon Icon="@Icons.Material.Sharp.OpenInNew" /></MudLink>
+                <MudDivider Class="my-2" />
+                <MudLink Href="@project.BoardUrl" Target="_blank" Style="font-size:1.5rem">Github agile board <MudIcon Icon="@Icons.Material.Sharp.OpenInNew" /></MudLink>
+            </MudText>
+        </MudStack>
+        <MudText Typo="Typo.body1" Class="my-4">@((MarkupString)project.Requirements.ToHtmlString())</MudText>
+    </MudPaper>
+}
 
 @code {
 
-    bool loadingData = false;
-    public string loggedInUserId { get; set; } = string.Empty;
-    string projectTitle = "Project not assigned to your team";
-    string projectDetails = string.Empty;
-    string trainee = string.Empty;
-    string teamName = string.Empty;
+    [CascadingParameter]
+    private Task<AuthenticationState> AuthTask { get; set; } = null!;
+
+    string teamName = "";
+    string teamAvatar = "";
+    ProjectViewModel project = new() { Title = "None" };
+
 
     protected override async Task OnInitializedAsync()
     {
-        loadingData = true;
+        var userTask = await AuthTask;
+        var loggedInUser = userTask.User;
+        var loggedInUserId = loggedInUser.GetUserId();
 
         using var Db = DbFactory.CreateDbContext();
         var studentModel = await Db.Students
             .Where(x => x.ApplicationUserId == loggedInUserId)
-            .Select(x => new 
-            { 
-                Trainee = x.Name, 
-                TeamName = x.Team.Name, 
+            .Select(x => new
+            {
+                Trainee = x.Name,
+                TeamName = x.Team.Name,
+                TeamAvatar = x.Team.Avatar,
                 ProjectName = x.Team.Project.Title,
-                ProjectDetails = x.Team.Project.Requirements
+                ProjectDetails = x.Team.Project.Requirements,
+                ProjectBoard = x.Team.Project.BoardUrl,
+                ProjectRepo = x.Team.Project.RepoUrl
             })
-                .FirstOrDefaultAsync();
+            .FirstOrDefaultAsync();
 
         if (studentModel is null || studentModel.TeamName is null or "")
-        {
-            loadingData = false;
             return;
-        }
 
-        projectTitle = studentModel.ProjectName;
-        projectDetails = studentModel.ProjectDetails;
+        project = new ProjectViewModel
+            {
+                Title = studentModel.ProjectName,
+                Requirements = studentModel.ProjectDetails,
+                RepoUrl = studentModel.ProjectRepo,
+                BoardUrl = studentModel.ProjectBoard
+            };
+
         teamName = studentModel.TeamName;
-        trainee = studentModel.Trainee;
-
-        loadingData = false;
+        teamAvatar = studentModel.TeamAvatar ?? "/favicon.png";
     }
 }

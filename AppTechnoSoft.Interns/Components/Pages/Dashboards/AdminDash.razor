@@ -1,68 +1,71 @@
-﻿@inject IDbContextFactory<ApplicationDbContext> DbFactory
+﻿@using ApexCharts
+
+@inject IDbContextFactory<ApplicationDbContext> DbFactory
 
 @if (loadingData)
 {
-    <MudText Align="Align.Center">
-        <MudProgressCircular Indeterminate Color="Color.Tertiary" Size="Size.Medium" />
+    <MudText Align="MudBlazor.Align.Center">
+        <MudProgressCircular Indeterminate Color="MudBlazor.Color.Tertiary" Size="MudBlazor.Size.Medium" />
     </MudText>
 }
 else
 {
-    <MudText Align="Align.Center" Typo="Typo.h6" Class="border-double border-b-4 mud-border-tertiary my-3 mb-5">Admin Profile</MudText>
+    <MudText Align="MudBlazor.Align.Center" Typo="Typo.h6" Class="border-double border-b-4 mud-border-tertiary my-3 mb-5">Admin Profile</MudText>
     <MudGrid>
-        <MudItem md="6">
-            <MudPaper Elevation="5" Class="py-3">
-                <MudChart ChartType="ChartType.Donut" Width="100%" Height="350px"
-                          InputData="@studentsByProgramsData"
-                          InputLabels="@studentsByProgramsLabels"
-                          LegendPosition="Position.Bottom">
-                    <CustomGraphics>
-                        <text class="donut-inner-text" x="49%" y="42%" dominant-baseline="middle" text-anchor="middle" fill="black" font-family="Helvetica" font-size="2">Total</text>
-                        <text class="donut-inner-text" x="47%" y="55%" dominant-baseline="middle" text-anchor="middle" fill="black" font-family="Helvetica" font-size="5">@studentsByProgramsData.Sum().ToString()</text>
-                    </CustomGraphics>
-                </MudChart>
-                <MudText Class="my-3" Typo="Typo.h6" Align="Align.Center">Total students by programs</MudText>
+        <MudItem md="4">
+            <MudPaper Elevation="5" Class="pa-5">
+                <ApexChart TItem="StudentByProgramAggregate"
+                           Title="Trainees by programs"
+                           Options="options">
+
+                    <ApexPointSeries TItem="StudentByProgramAggregate"
+                                     Items="studentsByPrograms"
+                                     SeriesType="SeriesType.Donut"
+                                     Name="Tech Program"
+                                     XValue="@(e => e.Program)"
+                                     YAggregate="@(e => e.Sum(d => d.Students.Count))"
+                                     OrderByDescending="e=>e.Y" />
+                </ApexChart>
             </MudPaper>
         </MudItem>
 
-        <MudItem md="6">
-            <MudPaper Elevation="5" Class="py-3">
-                <MudChart ChartType="ChartType.Donut"
-                          InputLabels="@studentStatuses"
-                          InputData="@studentStatusesData"
-                          Width="100%" Height="350px"
-                          LegendPosition="Position.Bottom">
-                    <CustomGraphics>
-                        <text class="donut-inner-text" x="49%" y="42%" dominant-baseline="middle" text-anchor="middle" fill="black" font-family="Helvetica" font-size="2">Total</text>
-                        <text class="donut-inner-text" x="47%" y="55%" dominant-baseline="middle" text-anchor="middle" fill="black" font-family="Helvetica" font-size="5">@studentStatusesData.Sum().ToString()</text>
-                    </CustomGraphics>
-                </MudChart>
-                <MudText Class="my-3" Typo="Typo.h6" Align="Align.Center">Total students by their status</MudText>
+        <MudItem md="4">
+            <MudPaper Elevation="5" Class="pa-5">
+                <ApexChart TItem="StudentByStatusAggregate"
+                           Title="Trainees by status"
+                           Options="optionsStatus">
+
+                    <ApexPointSeries TItem="StudentByStatusAggregate"
+                                     Items="studentsByStatus"
+                                     SeriesType="SeriesType.Donut"
+                                     Name="Tech Program"
+                                     XValue="@(e => e.Status)"
+                                     YAggregate="@(e => e.Sum(d => d.Students.Count))"
+                                     OrderByDescending="e=>e.Y" />
+                </ApexChart>
             </MudPaper>
         </MudItem>
 
         <MudItem md="12">
-            <MudPaper Elevation="5" Class="p-4">
-                <MudList Clickable>
-                    <MudListSubheader>
-                        <MudText Typo="Typo.h6">Applied students list by their competency</MudText>
-                    </MudListSubheader>
-                    @foreach (var group in appliedStudentsGroups)
+            <MudPaper Elevation="5" Class="pa-5">
+                <MudText Typo="Typo.h6" Align="MudBlazor.Align.Center" Class="mb-5">Applied students list by their competency levels</MudText>
+                <MudExpansionPanels MultiExpansion>
+                    @foreach (var group in appliedStudentsByCompentencies)
                     {
-                        var groupName = $"{group.GroupName} - {group.Students.Length} people";
-                        <MudListItem Text="@groupName">
-                            <NestedList>
+                        <MudExpansionPanel Style="font-weight:bold;"
+                                           Text="@($"{group.Competency} - {group.Students.Count} people")">
+                            <MudList>
                                 @foreach (var student in group.Students)
                                 {
-                                    <MudListItem>
-                                        <MudImage Src="@(student.ImgPath is null or "" ? "favicon.png" : student.ImgPath)" Class="mr-3 rounded" Height="36" />
-                                        @student.Name
+                                    <MudListItem Dense="true">
+                                        <MudImage Src="@(student.ProfileImagePath is null or "" ? "favicon.png" : student.ProfileImagePath)" Class="mr-3 rounded" Height="36" />
+                                        @($"{student.Name} ({student.TechProgram!.Name}, {student.College!.Name})")
                                     </MudListItem>
                                 }
-                            </NestedList>
-                        </MudListItem>
+                            </MudList>
+                        </MudExpansionPanel>
                     }
-                </MudList>
+                </MudExpansionPanels>
             </MudPaper>
         </MudItem>
     </MudGrid>
@@ -72,16 +75,37 @@ else
 
     bool loadingData = false;
 
-    public double[] studentsByProgramsData = [];
-    public string[] studentsByProgramsLabels = [];
-    public List<(string GroupName, (string Name, string ImgPath)[] Students)> appliedStudentsGroups = [];
+    private record StudentByProgramAggregate(string Program, List<Student> Students);
+    private record StudentByStatusAggregate(string Status, List<Student> Students);
+    private record StudentByCompetencyAggregate(string Competency, List<Student> Students);
 
-    public double[] studentStatusesData = [];
-    public string[] studentStatuses = [];
+    private IEnumerable<StudentByProgramAggregate> studentsByPrograms = [];
+    private IEnumerable<StudentByStatusAggregate> studentsByStatus = [];
+    private ApexChartOptions<StudentByProgramAggregate> options { get; set; } = new();
+    private ApexChartOptions<StudentByStatusAggregate> optionsStatus { get; set; } = new();
+
+    private IEnumerable<StudentByCompetencyAggregate> appliedStudentsByCompentencies = [];
 
     protected override async Task OnInitializedAsync()
     {
         loadingData = true;
+        var plotOptions = new PlotOptions
+            {
+                Pie = new PlotOptionsPie
+                {
+                    Donut = new PlotOptionsDonut
+                    {
+                        Labels = new DonutLabels
+                        {
+                            Total = new DonutLabelTotal { FontSize = "24px", Color = "#D807B8", Formatter = @"function (w) {return w.globals.seriesTotals.reduce((a, b) => { return (a + b) }, 0)}" }
+                        }
+                    }
+                }
+            };
+
+        options.PlotOptions = plotOptions;
+        optionsStatus.PlotOptions = plotOptions;
+
         using var Db = DbFactory.CreateDbContext();
         var allStudents = await Db.Students.Include(x => x.TechProgram).Include(y => y.College).ToListAsync();
 
@@ -92,27 +116,21 @@ else
         }
 
         // Group by programs
-        var studentsByPrograms = allStudents.GroupBy(x => new { x.TechProgram!.Name, x.TechProgram.Affliation });
-        studentsByProgramsData = studentsByPrograms.Select(x => (double)x.Count()).ToArray();
-        studentsByProgramsLabels = studentsByPrograms.Select(x => $"{x.Key.Name} ({x.Key.Affliation})").ToArray();
+        studentsByPrograms = allStudents
+           .GroupBy(x => new { x.TechProgram!.Name, x.TechProgram.Affliation })
+           .Select(y => new StudentByProgramAggregate($"{y.Key.Name}({y.Key.Affliation})", y.ToList()));
+
+        // Group students by stage
+        studentsByStatus = allStudents
+            .GroupBy(x => x.Status)
+            .Select(y => new StudentByStatusAggregate(y.Key.ToString(), y.ToList()));
 
         // Group by compentences
         var appliedGroups = allStudents
             .GroupBy(x => new { x.GeneralProgramming, x.WebExperience, x.DbExperience });
 
-        foreach (var group in appliedGroups)
-        {
-            appliedStudentsGroups.Add(
-                (
-                    $"{group.Key.GeneralProgramming}, {group.Key.WebExperience}, {group.Key.DbExperience}",
-                    group.Select(y => ($"{y.Name} ({y.TechProgram!.Name}, {y.College!.Name})", y.ProfileImagePath)).ToArray()
-                ));
-        }
-
-        // Group students by stage
-        var studentsByStage = allStudents.GroupBy(x => x.Status).OrderBy(x => x.Key);
-        studentStatuses = studentsByStage.Select(x => x.Key.ToString()).ToArray();
-        studentStatusesData = studentsByStage.Select(x => (double)x.Count()).ToArray();
+        appliedStudentsByCompentencies = appliedGroups
+            .Select(x => new StudentByCompetencyAggregate($"{x.Key.GeneralProgramming}, {x.Key.WebExperience}, {x.Key.DbExperience}", x.ToList()));
 
         loadingData = false;
     }

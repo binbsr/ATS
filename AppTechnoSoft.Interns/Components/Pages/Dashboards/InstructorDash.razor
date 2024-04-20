@@ -15,7 +15,7 @@ else
         <MudChipSet Filter SelectedChipChanged="BatchChanged">
             @foreach (var group in classesByBatch)
             {
-                <MudChip Variant="Variant.Text" Class="p-4" Style="font-size:1.2rem" Color="Color.Tertiary" Value="group.Key">@group.Key.Name</MudChip>
+                <MudChip Variant="Variant.Text" Size="Size.Large" Color="Color.Tertiary" Value="group.Key">@group.Key.Name</MudChip>
             }
         </MudChipSet>
     </MudPaper>
@@ -54,9 +54,20 @@ else
                             <td>
                                 @if (date.Date.ToShortDateString() == row.Date.ToShortDateString())
                                 {
-                                    <MudTooltip Text="@($"Punchin - {row.PunchIn} Punchout - {row.PunchOut}")">
-                                        <MudAvatar Color="Color.Tertiary">P</MudAvatar>
-                                    </MudTooltip>
+                                    if (row.PunchOut == null || row.PunchOut == TimeOnly.MinValue)
+                                    {
+                                        <MudBadge Color="Color.Error" Content="@("M")" Overlap Bordered>
+                                            <MudTooltip Text="@($"Punchin - {row.PunchIn}")">
+                                                <MudAvatar Color="Color.Tertiary">P</MudAvatar>
+                                            </MudTooltip>
+                                        </MudBadge>
+                                    }
+                                    else
+                                    {
+                                        <MudTooltip Text="@($"Punchin - {row.PunchIn} Punchout - {row.PunchOut}")">
+                                            <MudAvatar Color="Color.Tertiary">P</MudAvatar>
+                                        </MudTooltip>
+                                    }                                    
                                 }
                                 else
                                 {

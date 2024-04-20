@@ -5,26 +5,23 @@
 @attribute [Authorize]
 @inject ApplicationDbContext Db
 
-<PageTitle>Your dashboard</PageTitle>
-@if (!loggedInUserRoles.Any())
-{
-    <ApplicationAlert Text="Your application verified, please wait till we enroll you to AppTechnoSoft or contact admins for quick turnaround." />
-}
-else
-{
-    @foreach (var role in loggedInUserRoles)
+<PageTitle>Dashboards</PageTitle>
+
+<MudTabs Outlined>
+    @if (loggedInUserRoles.Contains(Role.Instructor))
     {
-        switch (role)
-        {            
-            case Role.Instructor:
-                <InstructorDash LoggedInUserId="@loggedInUserId" />
-                break;
-            case Role.Admin:
-                <AdminDash />
-                break;
-        }
+        <MudTabPanel Text="Instructor Dashboard" Icon="@Icons.Material.Filled.PersonPin">
+            <InstructorDash LoggedInUserId="@loggedInUserId" />
+        </MudTabPanel>
     }
-}
+
+    @if (loggedInUserRoles.Contains(Role.Admin) || loggedInUserRoles.Contains(Role.SuperAdmin))
+    {
+        <MudTabPanel Text="Admin Dashboard" Icon="@Icons.Material.Filled.DisplaySettings">
+            <AdminDash />
+        </MudTabPanel>
+    }
+</MudTabs>
 
 @code {
 

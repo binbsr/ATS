@@ -11,7 +11,6 @@ else if (instructor is null)
 else
 {
     <MudPaper Class="p-2 my-2">
-        <MudText Typo="Typo.h6" Align="Align.Center">Batch attendance details (Click on batch)</MudText>
         <MudChipSet Filter SelectedChipChanged="BatchChanged">
             @foreach (var group in classesByBatch)
             {
@@ -20,13 +19,13 @@ else
         </MudChipSet>
     </MudPaper>
 
-    <MudSimpleTable Style="overflow-x: auto;" Dense>
+    <MudSimpleTable Style="overflow-x: auto;" Dense Outlined>        
         <thead>
             <tr>
                 <th></th>
                 @foreach (var h in headings)
                 {
-                    <th style="@(!h.IsOfficeDay() ? $"background: {Colors.Grey.Lighten1}" : "")">@h.ToString("dddd, MMM dd yyyy")</th>
+                    <th style="@(!h.IsOfficeDay() ? $"background: {Colors.Grey.Lighten1}" : "")">@h.ToString("dddd, MMM d")</th>
                 }
             </tr>
         </thead>
@@ -37,41 +36,43 @@ else
                     <td>
                         <MudStack Row>
                             <MudAvatar>
-                                <MudImage Src="@row.Profile" />
+                                <MudImage Src="@row.Key.Profile" />
                             </MudAvatar>
-                            <MudText>@row.Name</MudText>
+                            <MudText>@row.Key.Name</MudText>
                         </MudStack>
 
                     </td>
                     @foreach (var date in headings)
                     {
-                        if (!date.IsOfficeDay() || date > DateTime.Today)
+                        if (!date.IsOfficeDay() || date > DateTime.Today)   // Weekends and future dates
                         {
                             <td style="@($"background: {Colors.Grey.Lighten1}")"></td>
                         }
                         else
                         {
-                            <td>
-                                @if (date.Date.ToShortDateString() == row.Date.ToShortDateString())
+                            var attendance = row.Value.FirstOrDefault(x => x.Date.ToShortDateString() == date.ToShortDateString());
+
+                            <td style="text-align:center">
+                                @if (attendance is null)
                                 {
-                                    if (row.PunchOut == null || row.PunchOut == TimeOnly.MinValue)
+                                    <MudAvatar Color="Color.Error">A</MudAvatar>
+                                }
+                                else
+                                {
+                                    @if (attendance.PunchOut == null || attendance.PunchOut == TimeOnly.MinValue)
                                     {
-                                        <MudBadge Color="Color.Error" Content="@("M")" Overlap Bordered>
-                                            <MudTooltip Text="@($"Punchin - {row.PunchIn}")">
+                                        <MudBadge Color="Color.Error" Icon="@Icons.Material.Sharp.CallMissed" Overlap Bordered>
+                                            <MudTooltip Text="@($"Punchin - {attendance.PunchIn}")">
                                                 <MudAvatar Color="Color.Tertiary">P</MudAvatar>
                                             </MudTooltip>
                                         </MudBadge>
                                     }
                                     else
                                     {
-                                        <MudTooltip Text="@($"Punchin - {row.PunchIn} Punchout - {row.PunchOut}")">
+                                        <MudTooltip Text="@($"Punchin - {attendance.PunchIn} Punchout - {attendance.PunchOut}")">
                                             <MudAvatar Color="Color.Tertiary">P</MudAvatar>
                                         </MudTooltip>
-                                    }                                    
-                                }
-                                else
-                                {
-                                    <MudAvatar Color="Color.Error">A</MudAvatar>
+                                    }
                                 }
                             </td>
                         }
@@ -87,9 +88,9 @@ else
     [Parameter]
     public string LoggedInUserId { get; set; } = string.Empty;
 
-    private record StudentAttedance(string Name, string? Profile, DateOnly Date, TimeOnly? PunchIn, TimeOnly? PunchOut);
+    private record StudentAttedance(DateOnly Date, TimeOnly? PunchIn, TimeOnly? PunchOut);
 
-    IEnumerable<StudentAttedance> studentAttendances = [];
+    Dictionary<(string Name, string? Profile), IEnumerable<StudentAttedance>> studentAttendances = [];
     bool loadingData = false;
     Instructor instructor = null!;
     DateTime[] headings = [];
@@ -130,6 +131,7 @@ else
         var batchId = batch.Id;
         headings = batch.Start.Until(batch.End);
 
+        loadingData = true;
         using var Db = DbFactory.CreateDbContext();
 
         var attendances = await Db.Attendances
@@ -142,8 +144,10 @@ else
                 PunchIn = x.PunchIn,
                 PunchOut = x.PunchOut
             })
+            .GroupBy(y => new { y.Name, y.Profile })
             .ToListAsync();
 
-        studentAttendances = attendances.Select(x => new StudentAttedance(x.Name, x.Profile, x.Date, x.PunchIn, x.PunchOut));
+        attendances.ForEach(x => studentAttendances.Add((x.Key.Name, x.Key.Profile), x.Select(y => new StudentAttedance(y.Date, y.PunchIn, y.PunchOut))));
+        loadingData = false;
     }
 }

@@ -17,4 +17,22 @@ public static class DateTimeExtensions
 
         return timeStampNepal;
     }
+
+    public static DateTime[] Until(this DateTime start, DateTime end)
+    {
+        List<DateTime> dates = [];
+
+        for(var counter = start; counter <= end; counter = counter.AddDays(1))
+        {
+            dates.Add(counter);
+        }
+
+        return [.. dates];
+    }
+
+    public static bool IsOfficeDay(this DateTime date)
+    {
+        var isWeekend = date.DayOfWeek == DayOfWeek.Saturday;
+        return !isWeekend;
+    }
 }

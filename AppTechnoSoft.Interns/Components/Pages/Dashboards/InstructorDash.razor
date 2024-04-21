@@ -19,7 +19,7 @@ else
         </MudChipSet>
     </MudPaper>
 
-    @if(loadingAttendaceData)
+    @if (loadingAttendaceData)
     {
         <MudProgressCircular Indeterminate Color="Color.Tertiary" />
     }
@@ -31,7 +31,7 @@ else
                     <th></th>
                     @foreach (var h in headings)
                     {
-                        <th style="@(!h.IsOfficeDay() ? $"background: {Colors.Grey.Lighten1}" : "")">@h.ToString("dddd, MMM d")</th>
+                        <th style="@(!h.IsOfficeDay() ? $"background: {Colors.Pink.Lighten3}" : "")">@h.ToString("dddd, MMM d")</th>
                     }
                 </tr>
             </thead>
@@ -50,9 +50,22 @@ else
                         </td>
                         @foreach (var date in headings)
                         {
-                            if (!date.IsOfficeDay() || date > DateTime.Today)   // Weekends and future dates
+                            var hasClassSchdeule = classesByBatch
+                                .FirstOrDefault(x => x.Key == selectedBatch)
+                                ?.Any(y => y.ClassStart.Date == date.Date) ?? false;
+
+                            
+                            if (!date.IsOfficeDay())   // Weekends and future dates
                             {
-                                <td style="@($"background: {Colors.Grey.Lighten1}")"></td>
+                                <td style="@($"background: {Colors.Pink.Lighten3}")" title="Weekend"></td>
+                            }
+                            else if (date > DateTime.Today)
+                            {
+                                <td style="@($"background: {Colors.Grey.Lighten1}")" title="Future date"></td>
+                            }
+                            else if (!hasClassSchdeule)
+                            {
+                                <td style="@($"background: {Colors.DeepPurple.Lighten1}")" title="No classes"></td>
                             }
                             else
                             {
@@ -65,7 +78,7 @@ else
                                     }
                                     else
                                     {
-                                        @if (attendance.PunchOut == null || attendance.PunchOut == TimeOnly.MinValue)
+                                        if (attendance.PunchOut == null || attendance.PunchOut == TimeOnly.MinValue)
                                         {
                                             <MudBadge Color="Color.Error" Icon="@Icons.Material.Sharp.CallMissed" Overlap Bordered>
                                                 <MudTooltip Text="@($"Punchin - {attendance.PunchIn}")">
@@ -102,8 +115,8 @@ else
     bool loadingAttendaceData = false;
     Instructor instructor = null!;
     DateTime[] headings = [];
-
     IEnumerable<IGrouping<Batch, ClassSchedule>> classesByBatch = [];
+    Batch selectedBatch = null!;
 
     protected override async Task OnInitializedAsync()
     {
@@ -136,6 +149,7 @@ else
         if (batch is null)
             return;
 
+        selectedBatch = batch;
         var batchId = batch.Id;
         headings = batch.Start.Until(batch.End);
 

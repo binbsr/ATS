@@ -41,7 +41,7 @@ else
 
         </MudTd>
         <MudTd DataLabel="Title">@context.AssignmentTitle</MudTd>
-        <MudTd DataLabel="Deadline">@context.Deadline</MudTd>
+        <MudTd DataLabel="Deadline">@context.Deadline.Humanize()</MudTd>
         <MudTd DataLabel="Instructor">@context.InstructorName</MudTd>
         <MudTd DataLabel="Status">@context.Status</MudTd>
     </RowTemplate>
@@ -128,7 +128,7 @@ else
                 AssignmentTitle = x.Title,
                 AssignmentBody = x.Content ?? "N/A",
                 InstructorName = x.Instructor,
-                Deadline = x.Deadline.Humanize(),
+                Deadline = x.Deadline,
                 Status = x.Status,
                 SolutionUrl = x.SolutionUrl,
                 Comment = x.Comment
@@ -143,6 +143,7 @@ else
                         .SetProperty(y => y.SolutionUrl, studentAssignmentViewModel.SolutionUrl)
                         .SetProperty(y => y.Comment, studentAssignmentViewModel.Comment)
                         .SetProperty(y => y.Status, AssignmentStatus.Returned)
+                        .SetProperty(y => y.ReturnDate, DateTime.Now)
                     );
 
         if (rowsUpdated > 0)

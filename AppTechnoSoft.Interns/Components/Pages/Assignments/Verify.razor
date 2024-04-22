@@ -32,8 +32,8 @@ else
             <MudTd DataLabel="Assignment">@context.AssignmentTitle</MudTd>
             <MudTd DataLabel="Student">@context.StudentName</MudTd>
             <MudTd DataLabel="Solution"><MudLink Target="_blank" Href="@context.SolutionUrl">Solution</MudLink></MudTd>
-            <MudTd DataLabel="Evaluation">@((context.Evaluation / (double)100 ).ToString("P"))</MudTd>
-            <MudTd DataLabel="Deadline">@context.Deadline</MudTd>
+            <MudTd DataLabel="Evaluation">@((context.Evaluation / (double)100).ToString("P"))</MudTd>
+            <MudTd DataLabel="Deadline" title="@context.Deadline">@context.Deadline.Humanize()</MudTd>
             <MudTd DataLabel="Status">@context.Status</MudTd>
             <MudTd DataLabel="Comment">@context.Comment</MudTd>
         </RowTemplate>
@@ -76,7 +76,7 @@ else
 
     private bool loading = false;
     private string searchString = string.Empty;
-    private Instructor instructor = null!;
+    private Instructor? instructor = null;
     private List<StudentAssignmentViewModel> studentAssignments = [];
     private StudentAssignmentViewModel selectedStudentAssignment = null!;
     private StudentAssignmentViewModel assignmentBeforeEdit = null!;
@@ -105,6 +105,7 @@ else
                 SolutionUrl = y.SolutionUrl,
                 Evaluation = y.Evaluation,
                 Deadline = y.Deadline,
+                ReturnDate = y.ReturnDate,
                 Status = y.Status,
                 Comment = y.Comment
             })
@@ -118,7 +119,8 @@ else
                     StudentName = x.StudentName,
                     SolutionUrl = x.SolutionUrl,
                     Evaluation = x.Evaluation,
-                    Deadline = x.Deadline.Humanize(),
+                    Deadline = x.Deadline,
+                    ReturnDate = x.ReturnDate,
                     Status = x.Status,
                     Comment = x.Comment
                 }).ToList();
@@ -139,14 +141,20 @@ else
     {
         var studentAssignment = assignment as StudentAssignmentViewModel;
 
+        if (studentAssignment is null)
+            return;
+
         var rowsUpdated = await Db.StudentAssignments
-                .Where(x => x.Id == studentAssignment.Id)
+                .Where(x => x.Id == studentAssignment.Id)                
                 .ExecuteUpdateAsync(x => x
                     .SetProperty(y => y.Evaluation, studentAssignment.Evaluation)
                     .SetProperty(y => y.Comment, studentAssignment.Comment)
-                    .SetProperty(y => y.Status, AssignmentStatus.Complete)
+                    .SetProperty(y => y.Status, 
+                        studentAssignment.Deadline > studentAssignment.ReturnDate
+                        ? AssignmentStatus.Complete
+                        : AssignmentStatus.CompleteButMissedDeadline)
                 );
-
+        
         if (rowsUpdated > 0)
         {
             SnackBar.Add($"Assignment details updated for {studentAssignment.StudentName} successfully", Severity.Success);

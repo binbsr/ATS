@@ -7,7 +7,8 @@ public class StudentAssignmentViewModel
     public AssignmentStatus Status { get; set; }
     public string? SolutionUrl { get; set; }
     public string? Comment { get; set; }
-    public string? Deadline { get; set; }
+    public DateTime? Deadline { get; set; }
+    public DateTime? ReturnDate { get; set; }
     public byte Evaluation { get; set; } = 0;  //Out of 100
 
     public int InstructorId { get; set; }

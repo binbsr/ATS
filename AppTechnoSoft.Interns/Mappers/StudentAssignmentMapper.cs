@@ -10,7 +10,8 @@ public static class StudentAssignmentMapper
         var viewModel = new StudentAssignmentViewModel
         {
             Id = model.Id,
-            Deadline = model.Deadline.Humanize(),
+            Deadline = model.Deadline,
+            ReturnDate = model.ReturnDate,
             SolutionUrl = model.SolutionUrl,
             Comment = model.Comment,
             Evaluation = model.Evaluation,

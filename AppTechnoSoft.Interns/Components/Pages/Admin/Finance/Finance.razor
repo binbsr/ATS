@@ -26,7 +26,7 @@
                       AdornmentIcon="@Icons.Material.Filled.Search" IconSize="Size.Medium" Class="mt-0"></MudTextField>
     </ToolBarContent>
     <Columns>
-        <TemplateColumn IsEditable="false">
+        <TemplateColumn IsEditable="false" Sortable="false" Filterable="false">
             <CellTemplate>
                 <MudAvatar>
                     @if (context.Item.ProfileImagePath is null or "")
@@ -47,9 +47,7 @@
         <PropertyColumn Property="x => x.FeeAmount" Title="Fee" Format="C2" Culture="@(new CultureInfo("ne-NP"))" AggregateDefinition="FeeAggregation" />
         <TemplateColumn AggregateDefinition="DiscountAggregation" Title="Discount">
             <CellTemplate>                
-                @context.Item.DiscountAmount.AsCurrency()
-                <br />
-                @($"({context.Item.Discount?.ToString("n2")}%)")
+                @($"{context.Item.DiscountAmount.AsCurrency()}({context.Item.Discount?.ToString("n2")}%)")
             </CellTemplate>
             <EditTemplate>
                 <MudNumericField Variant="Variant.Outlined" @bind-Value="@context.Item.Discount" Label="Discount" />

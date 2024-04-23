@@ -14,7 +14,7 @@ else
         <MudChipSet Filter SelectedChipChanged="BatchChanged">
             @foreach (var group in classesByBatch)
             {
-                <MudChip Variant="Variant.Text" Size="Size.Large" Color="Color.Tertiary" Value="group.Key">@group.Key.Name</MudChip>
+                <MudChip Variant="Variant.Text" Size="Size.Large" Color="Color.Tertiary" Value="group.Key">@group.Key!.Name</MudChip>
             }
         </MudChipSet>
     </MudPaper>
@@ -81,7 +81,7 @@ else
                                         if (attendance.PunchOut == null || attendance.PunchOut == TimeOnly.MinValue)
                                         {
                                             <MudBadge Color="Color.Error" Icon="@Icons.Material.Sharp.CallMissed" Overlap Bordered>
-                                                <MudTooltip Text="@($"Punchin - {attendance.PunchIn}")">
+                                                <MudTooltip Text="@($"Punchin - {attendance.PunchIn} Punchout - Missed")">
                                                     <MudAvatar Color="Color.Tertiary">P</MudAvatar>
                                                 </MudTooltip>
                                             </MudBadge>
@@ -113,9 +113,9 @@ else
     Dictionary<(string Name, string? Profile), IEnumerable<StudentAttedance>> studentAttendances = [];
     bool loadingData = false;
     bool loadingAttendaceData = false;
-    Instructor instructor = null!;
+    Instructor? instructor = null;
     DateTime[] headings = [];
-    IEnumerable<IGrouping<Batch, ClassSchedule>> classesByBatch = [];
+    IEnumerable<IGrouping<Batch?, ClassSchedule>> classesByBatch = [];
     Batch selectedBatch = null!;
 
     protected override async Task OnInitializedAsync()
@@ -136,6 +136,7 @@ else
             }
 
             var classes = await Db.ClassSchedules.Include(y => y.Batch).Where(x => x.InstructorId == instructor.Id).ToListAsync();
+                        
             classesByBatch = classes.GroupBy(x => x.Batch);
         }
 

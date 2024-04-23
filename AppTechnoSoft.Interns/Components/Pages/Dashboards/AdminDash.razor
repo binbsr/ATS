@@ -45,6 +45,23 @@ else
             </MudPaper>
         </MudItem>
 
+        <MudItem md="4">
+            <MudPaper Elevation="5" Class="pa-5">
+                <ApexChart TItem="StudentByBatchAggregate"
+                           Title="Trainees by Batch"
+                           Options="optionsBatch">
+
+                    <ApexPointSeries TItem="StudentByBatchAggregate"
+                                     Items="studentsByBatch"
+                                     SeriesType="SeriesType.Donut"
+                                     Name="Student Batch"
+                                     XValue="@(e => e.Batch)"
+                                     YAggregate="@(e => e.Sum(d => d.Students.Count))"
+                                     OrderByDescending="e=>e.Y" />
+                </ApexChart>
+            </MudPaper>
+        </MudItem>
+
         <MudItem md="12">
             <MudPaper Elevation="5" Class="pa-5">
                 <MudStack Row AlignItems="AlignItems.Baseline">
@@ -89,13 +106,16 @@ else
 
     private record StudentByProgramAggregate(string Program, List<Student> Students);
     private record StudentByStatusAggregate(string Status, List<Student> Students);
+    private record StudentByBatchAggregate(string Batch, List<Student> Students);
     private record StudentByCompetencyAggregate(string Competency, List<Student> Students);
 
     private IEnumerable<Status> traineeStatuses = [Status.Applied];
     private IEnumerable<StudentByProgramAggregate> studentsByPrograms = [];
     private IEnumerable<StudentByStatusAggregate> studentsByStatus = [];
+    private IEnumerable<StudentByBatchAggregate> studentsByBatch = [];
     private ApexChartOptions<StudentByProgramAggregate> options { get; set; } = new();
     private ApexChartOptions<StudentByStatusAggregate> optionsStatus { get; set; } = new();
+    private ApexChartOptions<StudentByBatchAggregate> optionsBatch { get; set; } = new();
 
     private IEnumerable<StudentByCompetencyAggregate> appliedStudentsByCompentencies = [];
     private IEnumerable<StudentByCompetencyAggregate> filteredStudentsByCompentencies => 
@@ -120,9 +140,11 @@ else
 
         options.PlotOptions = plotOptions;
         optionsStatus.PlotOptions = plotOptions;
+        optionsBatch.PlotOptions = plotOptions;
+        optionsBatch.Legend = new Legend { Position = LegendPosition.Bottom };
 
         using var Db = DbFactory.CreateDbContext();
-        var allStudents = await Db.Students.Include(x => x.TechProgram).Include(y => y.College).ToListAsync();
+        var allStudents = await Db.Students.Include(x => x.TechProgram).Include(y => y.College).Include(z => z.Batch).ToListAsync();
 
         if (allStudents is null || !allStudents.Any())
         {
@@ -139,6 +161,11 @@ else
         studentsByStatus = allStudents
             .GroupBy(x => x.Status)
             .Select(y => new StudentByStatusAggregate(y.Key.ToString(), y.ToList()));
+
+        // Group by batch
+        studentsByBatch = allStudents
+           .GroupBy(x => x.Batch)
+           .Select(y => new StudentByBatchAggregate(y.Key.Name, y.ToList()));
 
         // Group by compentences
         var appliedGroups = allStudents

@@ -28,10 +28,10 @@ else
         <MudSimpleTable Style="overflow-x: auto;" Dense Outlined>
             <thead>
                 <tr>
-                    <th></th>
+                    <th style="position:sticky;left:0;background:#26A69A;font-size:1.3rem;text-align:center;">Trainees</th>
                     @foreach (var h in headings)
                     {
-                        <th style="@(!h.IsOfficeDay() ? $"background: {Colors.Pink.Lighten3}" : "")">@h.ToString("dddd, MMM d")</th>
+                        <th style="@(!h.IsOfficeDay() ? $"background: {Colors.DeepOrange.Lighten1}" : $"background: {Colors.Teal.Lighten1}")">@h.ToString("dddd, MMM d")</th>
                     }
                 </tr>
             </thead>
@@ -39,7 +39,7 @@ else
                 @foreach (var row in studentAttendances)
                 {
                     <tr>
-                        <td>
+                        <td style="position:sticky;left:0;background:#26A69A;z-index:10;">
                             <MudStack Row>
                                 <MudAvatar>
                                     <MudImage Src="@row.Key.Profile" />
@@ -55,17 +55,17 @@ else
                                 ?.Any(y => y.ClassStart.Date == date.Date) ?? false;
 
                             
-                            if (!date.IsOfficeDay())   // Weekends and future dates
+                            if (!date.IsOfficeDay())
                             {
-                                <td style="@($"background: {Colors.Pink.Lighten3}")" title="Weekend"></td>
+                                <td style="@($"background: {Colors.DeepOrange.Lighten1}")" title="Weekend"></td>
                             }
                             else if (date > DateTime.Today)
                             {
-                                <td style="@($"background: {Colors.Grey.Lighten1}")" title="Future date"></td>
+                                <td style="@($"background: {Colors.Grey.Lighten1}")" title="Upcoming classes"></td>
                             }
                             else if (!hasClassSchdeule)
                             {
-                                <td style="@($"background: {Colors.DeepPurple.Lighten1}")" title="No classes"></td>
+                                <td style="@($"background: {Colors.DeepOrange.Lighten2}")" title="No classes"></td>
                             }
                             else
                             {

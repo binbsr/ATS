@@ -148,7 +148,7 @@ else
 
         if (rowsUpdated > 0)
         {
-            SnackBar.Add($"Assignment returned to {studentAssignmentViewModel.InstructorName} successfully", Severity.Success);
+            SnackBar.Add($"Assignment returned to Instructor '{studentAssignmentViewModel.InstructorName}' successfully", Severity.Success);
             await LoadAssignmnentsForStudent();
         }
         else

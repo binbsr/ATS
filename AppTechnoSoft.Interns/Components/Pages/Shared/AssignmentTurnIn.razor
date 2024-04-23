@@ -131,14 +131,13 @@
         {
             errorMessage = "No students on this batch";
         }
-
-        var oneStudent = batchStudents[0];
+        
         // Sanity check if this assignment already assigned to this batch
-        var alreadyAssinedStudent = await Db.StudentAssignments.FirstOrDefaultAsync(x => x.StudentId == oneStudent.Id && x.AssignmentId == Assignment.Id);
+        var alreadyAssinedStudentCount = await Db.StudentAssignments.CountAsync(x => x.AssignmentId == Assignment.Id && x.Student.BatchId == batchToAssign.Id);
 
-        if (alreadyAssinedStudent is not null)
+        if (alreadyAssinedStudentCount > 0)
         {
-            errorMessage = "This assignment already been turned in for this batch";
+            errorMessage = "This assignment already been turned in for students of this batch";
             return;
         }
 

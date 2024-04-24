@@ -126,16 +126,23 @@
 </MudPaper>
 
 <MudPaper Class="@panelClass" Elevation="0">
-    <MudText Typo="Typo.h6" Class="mb-3">@attendances.Count.ToWords().Pascalize() completed tasks (Training + Project)</MudText>
+    <MudText Typo="Typo.h6" Class="mb-3">@tasks.Count.ToWords().Pascalize() completed tasks (Training + Project)</MudText>
 
     <MudTimeline TimelinePosition="TimelinePosition.Start">
-        @foreach (var attendance in attendances)
+        @foreach (var task in tasks)
         {
-            <MudTimelineItem Color="Color.Info" Elevation="0" TimelineAlign="TimelineAlign.End" Class="pb-2">
+            <MudTimelineItem Color="@(task.TaskType == TaskType.WorkLog ? Color.Info: Color.Success)" Elevation="0" TimelineAlign="TimelineAlign.End" Class="pb-2">
                 <MudCard Outlined>
                     <MudCardContent Class="py-2">
-                        <MudText Typo="Typo.button">@attendance.Date.ToLongDateString()</MudText>
-                        <MudText Typo="Typo.body2">@attendance.WorkLog</MudText>
+                        <MudText Typo="Typo.button">@task.Date.ToLongDateString()</MudText>
+                        @if(task.TaskType == TaskType.Assignment)
+                        {
+                            <MudText Typo="Typo.body2">@task.Task - @task.Details</MudText>
+                        }
+                        else
+                        {
+                            <MudText Typo="Typo.body2">@task.Task</MudText>
+                        }
                     </MudCardContent>
                 </MudCard>
             </MudTimelineItem>
@@ -148,13 +155,15 @@
     [Parameter]
     public TraineeViewModel TraineeData { get; set; } = null!;
 
-    private List<Attendance> attendances = [];
+    private List<TraineeTask> tasks = [];
+
+    private record TraineeTask(DateTime Date, string Task, string Details, TaskType TaskType);
+    enum TaskType { WorkLog, Assignment }
 
     protected override async Task OnInitializedAsync()
     {
-
         // See if student is learning, if he/she has at least 5 entries for worklogs, treat it as learning
-        attendances = await Db.Attendances.Where(x => x.StudentId == TraineeData.Id && x.WorkLog != null).ToListAsync();
+        var attendances = await Db.Attendances.Where(x => x.StudentId == TraineeData.Id && x.WorkLog != null).ToListAsync();
 
         if (attendances is null || !attendances.Any())
             return;
@@ -163,5 +172,20 @@
         {
             TraineeData.Status = Status.Learning;
         }
+
+        tasks.AddRange(attendances.Select(x => new TraineeTask(x.Date.ToDateTime(TimeOnly.MinValue), x.WorkLog!, "", TaskType.WorkLog)));
+
+        // pull assignments data
+        var assignments = await Db.StudentAssignments
+            .Where(x => x.StudentId == TraineeData.Id && x.ReturnDate != null)
+            .Select(x => new { ReturnDate = x.ReturnDate, Title = x.Assignment!.Title, Score = x.Evaluation, Status = x.Status })
+            .ToListAsync();
+
+        if (assignments != null && assignments.Any())
+        {
+            tasks.AddRange(assignments.Select(x => new TraineeTask(x.ReturnDate!.Value, $"Assignment: {x.Title}", $"Achieved {(x.Score / (double)100).ToString("P")}, Status: {x.Status}", TaskType.Assignment)));
+        }
+
+        tasks = tasks.OrderBy(x => x.Date).ToList();
     }
 }

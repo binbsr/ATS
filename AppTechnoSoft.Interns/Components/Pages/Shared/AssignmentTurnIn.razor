@@ -133,7 +133,7 @@
         }
         
         // Sanity check if this assignment already assigned to this batch
-        var alreadyAssinedStudentCount = await Db.StudentAssignments.CountAsync(x => x.AssignmentId == Assignment.Id && x.Student.BatchId == batchToAssign.Id);
+        var alreadyAssinedStudentCount = await Db.StudentAssignments.CountAsync(x => x.AssignmentId == Assignment.Id && x.Student!.BatchId == batchToAssign.Id);
 
         if (alreadyAssinedStudentCount > 0)
         {

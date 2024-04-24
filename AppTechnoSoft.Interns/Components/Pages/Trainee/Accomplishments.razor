@@ -3,168 +3,16 @@
 @inject ApplicationDbContext Db
 
 <PageTitle>Accomplishments</PageTitle>
-
-@{
-    var panelClass = "pa-5 mb-5 border border-solid mud-border-tertiary";
-}
-
 @if (trainee is null)
 {
     <ApplicationAlert Text="You have not yet applied for AppSoft traineeship." Navigation="/apply" />
 }
 else
 {
-    <MudStack Row Justify="Justify.Center" AlignItems="AlignItems.Center" Spacing="16" Class="mb-4">
-        <MudText Typo="Typo.h5" Color="Color.Secondary">@trainee.Name</MudText>
-        <MudAvatar Style="height:128px; width:128px;">
-            <MudImage Src="@trainee.AvatarPath" />
-        </MudAvatar>
-        <MudText Typo="Typo.h5">
-            Student of @trainee.Program
-            <MudText Typo="Typo.body1">
-                From @trainee.College
-            </MudText>
-        </MudText>
-    </MudStack>
-
-    <MudPaper Class="@panelClass" Elevation="0">
-        <MudText Typo="Typo.h6" Class="mb-2">Progress with AppSoft</MudText>
-        @{
-            bool applied = false, enrolled = false, learning = false, contribution = false, evaluated = false, docs = false, completed = false;
-            switch (trainee.Status)
-            {
-                case Status.Applied:
-                    applied = true;
-                    break;
-                case Status.Enrolled:
-                    applied = true;
-                    enrolled = true;
-                    break;
-                case Status.Learning:
-                    applied = true;
-                    enrolled = true;
-                    learning = true;
-                    break;
-                case Status.Contribution:
-                    applied = true;
-                    enrolled = true;
-                    learning = true;
-                    contribution = true;
-                    break;
-                case Status.Evaluated:
-                    applied = true;
-                    enrolled = true;
-                    learning = true;
-                    contribution = true;
-                    evaluated = true;
-                    break;
-                case Status.Documentation:
-                    applied = true;
-                    enrolled = true;
-                    learning = true;
-                    contribution = true;
-                    evaluated = true;
-                    docs = true;
-                    break;
-                case Status.Completed:
-                    applied = true;
-                    enrolled = true;
-                    learning = true;
-                    contribution = true;
-                    evaluated = true;
-                    docs = true;
-                    completed = true;
-                    break;
-            }
-        }
-
-        <MudTimeline TimelineOrientation="TimelineOrientation.Horizontal" TimelinePosition="TimelinePosition.Top">
-
-            <MudTimelineItem Color="@(applied ? Color.Success : Color.Default)" Size="Size.Large" Variant="Variant.Outlined" Elevation="5">
-                <ItemDot>
-                    <MudIcon Size="Size.Large" Icon="@Icons.Material.Sharp.PersonAddAlt1" />
-                </ItemDot>
-                <ItemContent>
-                    <MudText Align="Align.Center">Applied</MudText>
-                </ItemContent>
-            </MudTimelineItem>
-
-
-            <MudTimelineItem Color="@(enrolled ? Color.Success : Color.Default)" Size="Size.Large" Variant="Variant.Outlined" Elevation="5">
-                <ItemDot>
-                    <MudIcon Size="Size.Large" Icon="@Icons.Material.Sharp.BatchPrediction" />
-                </ItemDot>
-                <ItemContent>
-                    <MudText Align="Align.Center">Enrolled</MudText>
-                </ItemContent>
-            </MudTimelineItem>
-
-
-            <MudTimelineItem Color="@(learning ? Color.Success : Color.Default)" Size="Size.Large" Variant="Variant.Outlined" Elevation="5">
-                <ItemDot>
-                    <MudIcon Size="Size.Large" Icon="@Icons.Material.Sharp.ModelTraining" />
-                </ItemDot>
-                <ItemContent>
-                    <MudText Align="Align.Center">Learning</MudText>
-                </ItemContent>
-            </MudTimelineItem>
-
-            <MudTimelineItem Color="@(contribution ? Color.Success : Color.Default)" Size="Size.Large" Variant="Variant.Outlined" Elevation="5">
-                <ItemDot>
-                    <MudIcon Size="Size.Large" Icon="@Icons.Material.Sharp.Code" />
-                </ItemDot>
-                <ItemContent>
-                    <MudText Align="Align.Center">Contribution</MudText>
-                </ItemContent>
-            </MudTimelineItem>
-
-            <MudTimelineItem Color="@(evaluated ? Color.Success : Color.Default)" Size="Size.Large" Variant="Variant.Outlined" Elevation="5">
-                <ItemDot>
-                    <MudIcon Size="Size.Large" Icon="@Icons.Material.Sharp.CreditScore" />
-                </ItemDot>
-                <ItemContent>
-                    <MudText Align="Align.Center">Evaluation</MudText>
-                </ItemContent>
-            </MudTimelineItem>
-
-            <MudTimelineItem Color="@(docs ? Color.Success : Color.Default)" Size="Size.Large" Variant="Variant.Outlined" Elevation="5">
-                <ItemDot>
-                    <MudIcon Size="Size.Large" Icon="@Icons.Material.Sharp.LibraryBooks" />
-                </ItemDot>
-                <ItemContent>
-                    <MudText Align="Align.Center">Documentation</MudText>
-                </ItemContent>
-            </MudTimelineItem>
-
-            <MudTimelineItem Color="@(completed ? Color.Success : Color.Default)" Size="Size.Large" Variant="Variant.Outlined" Elevation="5">
-                <ItemDot>
-                    <MudIcon Size="Size.Large" Icon="@Icons.Material.Sharp.Done" />
-                </ItemDot>
-                <ItemContent>
-                    <MudText Align="Align.Center">Completed</MudText>
-                </ItemContent>
-            </MudTimelineItem>
-        </MudTimeline>
-
-    </MudPaper>
-
-    <MudPaper Class="@panelClass" Elevation="0">
-        <MudText Typo="Typo.h6" Class="mb-3">@attendances.Count.ToWords().Pascalize() completed tasks (Training + Project)</MudText>
-
-        <MudTimeline TimelinePosition="TimelinePosition.Start">
-            @foreach (var attendance in attendances)
-            {
-                <MudTimelineItem Color="Color.Info" Elevation="0" TimelineAlign="TimelineAlign.End" Class="pb-2">
-                    <MudCard Outlined>
-                        <MudCardContent Class="py-2">
-                            <MudText Typo="Typo.button">@attendance.Date.ToLongDateString()</MudText>
-                            <MudText Typo="Typo.body2">@attendance.WorkLog</MudText>
-                        </MudCardContent>
-                    </MudCard>
-                </MudTimelineItem>
-            }
-        </MudTimeline>
-    </MudPaper>
+    <MudText Align="Align.Center">
+        <MudLink Href="@($"/trainee/{trainee.Id}")" Target="_blank" Style="font-size:1.5rem">Share Profile <MudIcon Icon="@Icons.Material.Sharp.OpenInNew" /></MudLink>
+    </MudText>
+    <Accomplishment TraineeData="@trainee" />
 }
 
 @code {
@@ -172,19 +20,13 @@ else
     [CascadingParameter]
     private Task<AuthenticationState> AuthTask { get; set; } = null!;
 
-    private record TraineeViewModel(string Name, string AvatarPath, string Program, string College)
-    {
-        public Status Status { get; set; }
-    }
-
     private TraineeViewModel trainee = null!;
-    private List<Attendance> attendances = [];
 
     protected override async Task OnInitializedAsync()
     {
         var state = await AuthTask;
-        var loggedInUserId = state.User.GetUserId();
-
+        var loggedInUserId = state.User.GetUserId();    
+        
         var student = await Db.Students
             .Where(y => y.ApplicationUserId == loggedInUserId)
             .Select(x => new
@@ -193,25 +35,17 @@ else
                 Name = x.Name,
                 Status = x.Status,
                 AvatarPath = x.ProfileImagePath,
-                Program = $"{x.TechProgram.Name} ({x.TechProgram.Affliation})",
-                College = $"{x.College.Name}, {x.College.Location}"
+                Program = $"{x.TechProgram!.Name} ({x.TechProgram.Affliation})",
+                College = $"{x.College!.Name}, {x.College.Location}"
             })
             .FirstOrDefaultAsync();
 
         if (student is null)
             return;
 
-        trainee = new TraineeViewModel(student.Name, student.AvatarPath ?? "/favicon.png", student.Program, student.College) { Status = student.Status };
-
-        // See if student is learning, if he/she has at least 5 entries for worklogs, treat it as learning
-        attendances = await Db.Attendances.Where(x => x.StudentId == student.Id && x.WorkLog != null).ToListAsync();
-
-        if (attendances is null || !attendances.Any())
-            return;
-
-        if (attendances.Count > 4)   // 5 or more tasks logged
-        {
-            trainee.Status = Status.Learning;
-        }
+        trainee = new TraineeViewModel(student.Id, student.Name, student.AvatarPath ?? "/favicon.png", student.Program, student.College)
+            {
+                Status = student.Status
+            };
     }
 }

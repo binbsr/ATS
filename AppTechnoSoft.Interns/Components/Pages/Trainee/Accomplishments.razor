@@ -35,8 +35,8 @@ else
                 Name = x.Name,
                 Status = x.Status,
                 AvatarPath = x.ProfileImagePath,
-                Program = $"{x.TechProgram.Name} ({x.TechProgram.Affliation})",
-                College = $"{x.College.Name}, {x.College.Location}"
+                Program = $"{x.TechProgram!.Name} ({x.TechProgram.Affliation})",
+                College = $"{x.College!.Name}, {x.College.Location}"
             })
             .FirstOrDefaultAsync();
 

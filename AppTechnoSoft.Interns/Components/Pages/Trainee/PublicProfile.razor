@@ -41,12 +41,12 @@ else
                 Name = x.Name,
                 Status = x.Status,
                 AvatarPath = x.ProfileImagePath,
-                Program = $"{x.TechProgram.Name} ({x.TechProgram.Affliation})",
-                College = $"{x.College.Name}, {x.College.Location}"
+                Program = $"{x.TechProgram!.Name} ({x.TechProgram.Affliation})",
+                College = $"{x.College!.Name}, {x.College.Location}"
             })
             .FirstOrDefaultAsync();
 
-        trainee = new TraineeViewModel(student.Id, student.Name, student.AvatarPath ?? "/favicon.png", student.Program, student.College)
+        trainee = new TraineeViewModel(student!.Id, student.Name, student.AvatarPath ?? "/favicon.png", student.Program, student.College)
             {
                 Status = student.Status
             };

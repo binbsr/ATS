@@ -24,7 +24,7 @@ else
             <MudTh>Student</MudTh>
             <MudTh>Solution</MudTh>
             <MudTh>Evaluation</MudTh>
-            <MudTh><MudTableSortLabel InitialDirection="SortDirection.Descending" SortBy="new Func<StudentAssignmentViewModel, object>(x=>x.Deadline)">Deadline</MudTableSortLabel></MudTh>
+            <MudTh><MudTableSortLabel InitialDirection="SortDirection.Descending" SortBy="new Func<StudentAssignmentViewModel, object>(x=>x.Deadline!)">Deadline</MudTableSortLabel></MudTh>
             <MudTh><MudTableSortLabel SortBy="new Func<StudentAssignmentViewModel, object>(x=>x.Status.ToString())">Status</MudTableSortLabel></MudTh>
             <MudTh>Comment</MudTh>
         </HeaderContent>

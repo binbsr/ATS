@@ -17,15 +17,17 @@ else if (instructor is null)
 else
 {
     <MudPaper Class="p-2 mb-2" Elevation="10">
-        <MudChipSet Filter SelectedChipChanged="BatchChanged">
+        <MudChipSet Filter SelectedChipChanged="BatchChanged" Mandatory>
             @foreach (var group in classesByBatch)
             {
-                <MudChip Variant="Variant.Filled"
+                <MudChip Variant="Variant.Outlined"
                          Color="Color.Tertiary"
                          Value="group.Key"
                          Label
                          Class="p-4"
-                         Style="font-size:1.3rem;">@group.Key!.Name</MudChip>
+                         Style="font-size:1.3rem;">
+                    @group.Key!.Name
+                </MudChip>
             }
         </MudChipSet>
     </MudPaper>
@@ -39,10 +41,10 @@ else
         <MudSimpleTable Style="overflow-x: auto;" Dense Outlined>
             <thead>
                 <tr>
-                    <th style="position:sticky;left:0;background:#26A69A;font-size:1.3rem;text-align:center;">Trainees</th>
+                    <th style="position:sticky;left:0;background:#4DB6AC;font-size:1.3rem;text-align:center;">Trainees</th>
                     @foreach (var h in headings)
                     {
-                        <th style="@(!h.IsOfficeDay() ? $"background: {Colors.DeepOrange.Lighten1}" : $"background: {Colors.Teal.Lighten1}")">@h.ToString("dddd, MMM d")</th>
+                        <th style="@(!h.IsOfficeDay() ? $"background: {Colors.DeepOrange.Lighten2}" : $"background: {Colors.Teal.Lighten2}")">@h.ToString("dddd, MMM d")</th>
                     }
                 </tr>
             </thead>
@@ -50,7 +52,7 @@ else
                 @foreach (var row in studentAttendances)
                 {
                     <tr>
-                        <td style="position:sticky;left:0;background:#26A69A;z-index:10;">
+                        <td style="position:sticky;left:0;background:#4DB6AC;z-index:10;">
                             <MudStack Row>
                                 <MudAvatar>
                                     <MudImage Src="@row.Key.Profile" />
@@ -68,7 +70,7 @@ else
 
                             if (!date.IsOfficeDay())
                             {
-                                <td style="@($"background: {Colors.DeepOrange.Lighten1}")" title="Weekend"></td>
+                                <td style="@($"background: {Colors.DeepOrange.Lighten2}")" title="Weekend"></td>
                             }
                             else if (date > DateTime.Today)
                             {
@@ -76,7 +78,7 @@ else
                             }
                             else if (!hasClassSchdeule)
                             {
-                                <td style="@($"background: {Colors.DeepOrange.Lighten2}")" title="No classes"></td>
+                                <td style="@($"background: {Colors.DeepOrange.Lighten3}")" title="No classes"></td>
                             }
                             else
                             {

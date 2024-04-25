@@ -169,8 +169,8 @@ else
 
         // Group by batch
         studentsByBatch = allStudents
-           .GroupBy(x => x.Batch)
-           .Select(y => new StudentByBatchAggregate(y.Key!.Name, y.ToList()));
+           .GroupBy(x => x.Batch?.Name ?? "Not Batched")
+           .Select(y => new StudentByBatchAggregate(y.Key, y.ToList()));
 
         // Group by compentences
         var appliedGroups = allStudents

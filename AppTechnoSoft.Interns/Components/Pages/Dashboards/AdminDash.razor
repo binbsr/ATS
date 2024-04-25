@@ -1,6 +1,11 @@
-﻿@using ApexCharts
+﻿@page "/dashboard/admin"
 
+@using ApexCharts
+
+@attribute [Authorize(Roles = Role.Admins)]
 @inject IDbContextFactory<ApplicationDbContext> DbFactory
+
+<PageTitle>Admin Dashboard</PageTitle>
 
 @if (loadingData)
 {

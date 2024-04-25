@@ -18,6 +18,14 @@
 
         <AuthorizeView Roles="@Role.AdminsAndInstructor">
             <MudDivider Class="my-2" />
+            <MudNavGroup Title="Dashboards" Icon="@Icons.Material.Filled.Dashboard" IconColor="Color.Warning" Expanded>
+                <MudNavLink Href="/dashboard/admin" Icon="@Icons.Material.Sharp.Lock" IconColor="Color.Warning">Admin</MudNavLink>
+                <MudNavLink Href="/dashboard/instructor" Icon="@Icons.Material.Sharp.Person2" IconColor="Color.Warning">Instructor</MudNavLink>               
+            </MudNavGroup>
+        </AuthorizeView>
+
+        <AuthorizeView Roles="@Role.AdminsAndInstructor">
+            <MudDivider Class="my-2" />
             <MudNavGroup Title="Assignments" Icon="@Icons.Material.Filled.Assessment" IconColor="Color.Tertiary" Expanded>
                 <MudNavLink Href="/assignments/add" Icon="@Icons.Material.Sharp.Create" IconColor="Color.Tertiary">Create</MudNavLink>
                 <MudNavLink Href="/assignments" Match="NavLinkMatch.All" Icon="@Icons.Material.Sharp.AssignmentTurnedIn" IconColor="Color.Tertiary">Assign</MudNavLink>
@@ -28,7 +36,6 @@
         <AuthorizeView Roles="@Role.Admins">
             <MudDivider Class="my-2" />
             <MudNavGroup Title="Moderation" Icon="@Icons.Material.Filled.VerifiedUser" IconColor="Color.Error" Expanded>
-                <MudNavLink Href="/dashboard" Icon="@Icons.Material.Filled.Dashboard" IconColor="Color.Error">Dashboard</MudNavLink>
                 <MudNavLink Href="/applicants" Icon="@Icons.Material.Filled.Groups3" IconColor="Color.Error">Applicants</MudNavLink>
                 <MudNavLink Href="/attendance" Icon="@Icons.Material.Filled.Checklist" IconColor="Color.Error">Attendance</MudNavLink>
                 <MudNavLink Href="/projects" Icon="@Icons.Material.Sharp.Code" IconColor="Color.Error">Projects</MudNavLink>

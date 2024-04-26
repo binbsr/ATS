@@ -6,14 +6,15 @@
 <PageTitle>Colleges</PageTitle>
 
 <MudTable Items="@CollegeList"
-          Hover="true"
+          Hover
           Loading="loadingData"
-          Dense="true">
+          Dense
+          Filter="_quickFilter">
 
     <ToolBarContent>
         <MudFab Href="/add-college" StartIcon="@Icons.Material.Filled.Add" Title="Add New College" Size="Size.Small" Color="Color.Tertiary"></MudFab>
         <MudSpacer />
-        <MudTextField @bind-Value="_searchString" Placeholder="Search by college name and location" Adornment="Adornment.Start" Immediate="true"
+        <MudTextField @bind-Value="_searchString" Placeholder="Search by college name and location" Adornment="Adornment.Start"
                       AdornmentIcon="@Icons.Material.Filled.Search" IconSize="Size.Medium" Class="mt-0"></MudTextField>
     </ToolBarContent>
     <HeaderContent>

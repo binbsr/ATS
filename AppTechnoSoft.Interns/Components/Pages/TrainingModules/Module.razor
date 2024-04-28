@@ -40,7 +40,7 @@
     public EventCallback<Widget> DeleteCallBack { get; set; }
 
     public string EditUrl => $"/edit-widget/{Widget.Id}";
-    bool isOpen;
+    bool isOpen = true;
     MudMessageBox mbox { get; set; } = null!;
 
     private async Task ConfirmDelete()

@@ -1,6 +1,6 @@
 ﻿@if (Widgets.Any())
 {
-    <div class="border-b-2 border-solid mud-border-default mt-4 mb-2 py-1 d-flex">
+    <div class="border-b-2 border-solid mud-border-default mb-2 mt-5 py-1 d-flex">
         <MudAvatar Rounded>
             <MudIcon Icon="@Icon" Color="Color.Dark" />
         </MudAvatar>
@@ -8,7 +8,10 @@
         @if (EnableSubFilter)
         {
             <MudSpacer />
-            <MudToggleGroup T="string" CheckMark FixedContent Dense Color="Color.Dark" ValueChanged="BackendTechChanged" Value="@defaultTechTag">
+            <MudToggleGroup T="string" CheckMark FixedContent Dense
+                            Value="BackendTech.All"
+                            Color="Color.Tertiary"
+                            ValueChanged="BackendTechChanged">
                 @foreach (var tech in backendTechs)
                 {
                     <MudToggleItem Value="@tech" Text="@tech" />
@@ -49,19 +52,11 @@
     public bool EnableSubFilter { get; set; } = false;
 
     public IEnumerable<Widget> filteredWidgets = [];
-    public string defaultTechTag = BackendTech.NET;
     private string[] backendTechs = [BackendTech.NET, BackendTech.Java, BackendTech.Python, BackendTech.Node, BackendTech.All];
 
     protected override void OnInitialized()
     {
-        if (EnableSubFilter)
-        {
-            BackendTechChanged(defaultTechTag);
-        }
-        else
-        {
-            filteredWidgets = Widgets;
-        }
+        filteredWidgets = Widgets;
     }
 
     private async Task DeleteInitiated(Widget widget)
@@ -71,6 +66,8 @@
 
     private void BackendTechChanged(string techTag)
     {
-        filteredWidgets = techTag == BackendTech.All ? Widgets : Widgets.Where(x => x.Tags!.Any(y => y.Name == techTag));
+        filteredWidgets = techTag == BackendTech.All
+            ? Widgets
+            : Widgets.Where(x => x.Tags!.Any(y => y.Name == techTag));
     }
 }

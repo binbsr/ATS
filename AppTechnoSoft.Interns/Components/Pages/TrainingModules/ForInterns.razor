@@ -1,0 +1,109 @@
+﻿@page "/modules/interns"
+
+<PageTitle>Training Modules for Interns</PageTitle>
+
+@inject IDbContextFactory<ApplicationDbContext> DbFactory
+@inject ISnackbar SnackBar
+
+<TagFilter TagDescription="@FIlterTagCategory.CourseModules"
+           FilterTriggered="FilterTagsChanged"
+           FilterHelpText="Click on tags below to filter respective modules and combinations." />
+
+@if (loadingData)
+{
+    <MudGrid>
+        <MudItem>
+            <MudSkeleton SkeletonType="SkeletonType.Rectangle" Height="100px" Class="mb-3" />
+            <MudSkeleton SkeletonType="SkeletonType.Rectangle" Height="100px" Class="mb-3" />
+            <MudSkeleton SkeletonType="SkeletonType.Rectangle" Height="100px" Class="mb-3" />
+        </MudItem>
+        <MudItem>
+            <MudSkeleton SkeletonType="SkeletonType.Rectangle" Height="100px" Class="mb-3" />
+            <MudSkeleton SkeletonType="SkeletonType.Rectangle" Height="100px" Class="mb-3" />
+            <MudSkeleton SkeletonType="SkeletonType.Rectangle" Height="100px" Class="mb-3" />
+        </MudItem>
+    </MudGrid>
+
+}
+else
+{
+    <ModulesSection SectionTitle="Common Tech Patterns" Widgets="commonTechWidgets" />
+    <ModulesSection SectionTitle="Language and SDKs" SectionTagFilter="@ModuleSection.Sdk" EnableSubFilter Icon=@Icons.Material.Sharp.Code Widgets="sdkAndLangWidgets" />
+    <ModulesSection SectionTitle="Database Access" SectionTagFilter="@ModuleSection.DataAccess" EnableSubFilter Icon=@Icons.Material.Sharp.Dataset Widgets="dataAccessWidgets" />
+    <ModulesSection SectionTitle="Web Development" SectionTagFilter="@ModuleSection.Web" EnableSubFilter Icon=@Icons.Material.Sharp.Web Widgets="webWidgets" />
+    <ModulesSection SectionTitle="DevOps" Icon=@Icons.Material.Sharp.DeveloperBoard Widgets="devOpsgWidgets" />
+    <ModulesSection SectionTitle="Interns Special" Icon=@Icons.Material.Sharp.Group Widgets="projectWorkeWidgets" />
+}
+
+@code {
+
+    List<Widget> widgets = [];
+    List<Widget> widgetFiltered = [];
+    IEnumerable<Widget> commonTechWidgets => FilterWidgets(ModuleSection.Common);
+    IEnumerable<Widget> sdkAndLangWidgets => FilterWidgets(ModuleSection.Sdk);
+    IEnumerable<Widget> dataAccessWidgets => FilterWidgets(ModuleSection.DataAccess);
+    IEnumerable<Widget> webWidgets => FilterWidgets(ModuleSection.Web);
+    IEnumerable<Widget> devOpsgWidgets => FilterWidgets(ModuleSection.Devops);
+    IEnumerable<Widget> projectWorkeWidgets => FilterWidgets(ModuleSection.ProjectWork);
+    IEnumerable<Widget> OtherWidgets => widgetFiltered
+        .Except(commonTechWidgets)
+        .Except(sdkAndLangWidgets)
+        .Except(dataAccessWidgets)
+        .Except(webWidgets)
+        .Except(devOpsgWidgets)
+        .Except(projectWorkeWidgets);
+
+    private List<Tag> tags = [];
+    bool loadingData;
+
+    protected override async Task OnInitializedAsync()
+    {
+        loadingData = true;
+
+        using var Db = DbFactory.CreateDbContext();
+        widgets = await Db.Widgets
+            .Where(x => x.Title == nameof(WidgetFilter.Module) && x.Tags!.Any(y => y.Name == RootFilter.Internship))
+            .Include(x => x.Tags)
+            .OrderBy(x => x.Description)
+            .ToListAsync();
+
+        if (widgets is null || widgets.Count == 0)
+            return;
+
+        GetFilteredModules([]);
+
+        loadingData = false;
+    }
+
+    private void FilterTagsChanged(List<string> filterTexts)
+    {
+        GetFilteredModules(filterTexts);
+    }
+
+    private void GetFilteredModules(List<string> secondaryTags)
+    {
+        widgetFiltered = secondaryTags.Any()
+        ? widgetFiltered.Where(x => x.Tags!.Any(y => secondaryTags.Contains(y.Name))).ToList()
+        : widgetFiltered = widgets;
+    }
+
+    private async Task DeleteInitiated(Widget widget)
+    {
+        using var Db = DbFactory.CreateDbContext();
+        Db.Widgets.Remove(widget);
+        var rowsAffected = await Db.SaveChangesAsync();
+
+        if (rowsAffected > 0)
+        {
+            SnackBar.Add("Module Deleted successfully", Severity.Success);
+            widgetFiltered.Remove(widget);
+        }
+        else
+        {
+            SnackBar.Add("Module Delete failed", Severity.Error);
+        }
+    }
+
+    private IEnumerable<Widget> FilterWidgets(string tag) =>
+        widgetFiltered.Where(x => x.Tags!.Any(y => y.Name == tag));
+}

@@ -6,6 +6,7 @@
 @inject ISnackbar SnackBar
 
 <TagFilter TagDescription="@FIlterTagCategory.CourseModules"
+            FilterTriggered="FilterTagsChanged"
            FilterHelpText="Click on tags below to filter respective modules and combinations." />
 
 @if (loadingData)

@@ -1,84 +1,45 @@
 ﻿@inject IDbContextFactory<ApplicationDbContext> DbFactory
 
-
 @if (tags is null || tags.Count == 0)
 {
-    <MudProgressCircular Size="Size.Large" />
+    <MudProgressLinear Indeterminate />
 }
 else
 {
-    if (ShowRootFilters)
-    {
-        <MudToggleGroup Class="mud-width-full" T="string" Color="Color.Info" ValueChanged="RootFilterChanged" Value="@RootFilter.Internship" SelectedClass="custom-gradient">
-            @foreach (var tag in roottags)
+    <MudPaper Class="border border-solid mud-border-tertiary pa-2" Elevation="5">
+        @if(showFilterInfo)
+        {
+            <MudAlert Dense Severity="Severity.Info"
+                      Style="font-size:1.2rem"
+                      ContentAlignment="HorizontalAlignment.Center"
+                      ShowCloseIcon="true"
+                      CloseIconClicked="(() => showFilterInfo = false)">
+                @FilterHelpText
+            </MudAlert>
+        }
+        
+        <MudChipSet Filter MultiSelection SelectedChipsChanged="FilterChanged">
+            @foreach (var tag in tags)
             {
-                <MudToggleItem Value="@tag.Title">
-                    <div class="mud-width-full mud-height-full">
-                        <div class="d-flex align-center justify-space-between flex-wrap">
-                            <MudText Class="ellipsis" Typo="Typo.h6">@tag.Title</MudText>
-                            <MudChip Class="text-white" Style=@(context ? "background:#1976D2": "background:#6D4C41") Icon="@(context ? Icons.Material.Filled.Check : "")">@tag.TagValue</MudChip>
-                        </div>
-                        <MudText Typo="Typo.subtitle2">@tag.Description</MudText>
-                    </div>
-                </MudToggleItem>
+                <MudChip Text="@tag.Name" Style="@("background:" + tag.ColorCode ?? "")" Class="text-white"></MudChip>
             }
-        </MudToggleGroup>
-    }
-
-    if (ShowSecondaryFilters)
-    {
-
-        <MudPaper Class="border border-solid mud-border-tertiary pa-2" Elevation="5">
-            @if(showFilterInfo)
-            {
-                <MudAlert Dense Severity="Severity.Info" ContentAlignment="HorizontalAlignment.Center" ShowCloseIcon="true" CloseIconClicked="(() => showFilterInfo = false)">
-                    Click on bubbles below to filter instructors and trainers by their expertise.
-                </MudAlert>
-            }            
-            <MudChipSet Filter MultiSelection SelectedChipsChanged="FilterChanged">
-                @foreach (var tag in tags)
-                {
-                    <MudChip Text="@tag.Name" Style="@("background:" + tag.ColorCode ?? "")" Class="text-white"></MudChip>
-                }
-            </MudChipSet>
-        </MudPaper>
-    }
+        </MudChipSet>
+    </MudPaper>
 }
 
-
-
-<style>
-    .custom-gradient {
-        background-image: linear-gradient(to right top, #0D47A1, #1565C0, #6D4C41, #E53935, #C62828);
-        color: white !important;
-    }
-</style>
-
 @code {
-
-    [Parameter]
-    public bool ShowRootFilters { get; set; } = true;
-
-    [Parameter]
-    public bool ShowSecondaryFilters { get; set; } = true;
 
     [Parameter]
     public required string TagDescription { get; set; }
 
     [Parameter]
-    public EventCallback<string> RootFilterTriggered { get; set; }
-
-    [Parameter]
     public EventCallback<List<string>> FilterTriggered { get; set; }
 
-    private bool showFilterInfo = true;
+    [Parameter]
+    public string FilterHelpText { get; set; } = "";
+
     public List<Tag> tags = [];
-    public List<(string Title, string Description, string TagValue)> roottags = [
-        (RootFilter.Internship, "Modules for Interns", "Interns"),
-    (RootFilter.Professional, "Modules for Specialized Professionals", "Professional"),
-    (RootFilter.Corporate, "Modules for Corporate Employees", "Corporate"),
-    (RootFilter.All, "All Course Modules", "All")
-    ];
+    private bool showFilterInfo = true;
 
     protected override async Task OnInitializedAsync()
     {
@@ -87,11 +48,6 @@ else
 
         using var Db = DbFactory.CreateDbContext();
         tags = await Db.Tags.Where(x => x.Description!.Contains(TagDescription)).ToListAsync();
-    }
-
-    private async Task RootFilterChanged(string rootTag)
-    {
-        await RootFilterTriggered.InvokeAsync(rootTag);
     }
 
     private async Task FilterChanged(MudChip[] chips)

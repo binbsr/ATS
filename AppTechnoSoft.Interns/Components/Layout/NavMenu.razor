@@ -1,10 +1,15 @@
 ﻿<MudPaper Width="230px" Class="d-inline-flex py-3 mb-3" Elevation="0">
     <MudNavMenu Class="mud-width-full">
         <MudNavLink Href="/" Match="NavLinkMatch.All" Icon="@Icons.Material.Filled.Home" IconColor="Color.Success">Home</MudNavLink>
-        <MudNavLink Href="/timeline" Icon="@Icons.Material.Filled.Timeline" IconColor="Color.Success">Timeline</MudNavLink>
-        <MudNavLink Href="/modules" Icon="@Icons.Material.Filled.ViewModule" IconColor="Color.Success">Training Modules</MudNavLink>
-        <MudNavLink Href="/instructors" Icon="@Icons.Material.Sharp.Group" IconColor="Color.Success">Instructors</MudNavLink>
         <MudNavLink Href="/apply" Icon="@Icons.Material.Filled.Person3" IconColor="Color.Success">Apply</MudNavLink>
+        <MudNavLink Href="/timeline" Icon="@Icons.Material.Filled.Timeline" IconColor="Color.Success">Timeline</MudNavLink>
+        <MudNavLink Href="/instructors" Icon="@Icons.Material.Sharp.Group" IconColor="Color.Success">Instructors</MudNavLink>
+
+        <MudNavGroup Title="Training Modules" Icon="@Icons.Material.Sharp.SettingsInputComponent" IconColor="Color.Success" Expanded>
+            <MudNavLink Href="/modules/interns" Icon="@Icons.Material.Sharp.School" IconColor="Color.Success">For Interns</MudNavLink>
+            <MudNavLink Href="/modules/professionals" Icon="@Icons.Material.Sharp.Laptop" IconColor="Color.Success">For Professionals</MudNavLink>
+            <MudNavLink Href="/modules/corporates" Icon="@Icons.Material.Sharp.CardTravel" IconColor="Color.Success">For Corporates</MudNavLink>
+        </MudNavGroup>
 
         <AuthorizeView Roles="@Role.Trainee">
             <MudDivider Class="my-2" />

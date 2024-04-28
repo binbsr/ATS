@@ -9,6 +9,9 @@
             <MudNavLink Href="/modules/interns" Icon="@Icons.Material.Sharp.School" IconColor="Color.Success">For Interns</MudNavLink>
             <MudNavLink Href="/modules/professionals" Icon="@Icons.Material.Sharp.Laptop" IconColor="Color.Success">For Professionals</MudNavLink>
             <MudNavLink Href="/modules/corporates" Icon="@Icons.Material.Sharp.CardTravel" IconColor="Color.Success">For Corporates</MudNavLink>
+            <AuthorizeView Roles="@Role.AdminsAndInstructor">
+                <MudNavLink Href="/modules/all" Icon="@Icons.Material.Sharp.SelectAll" IconColor="Color.Success">All Modules</MudNavLink>
+            </AuthorizeView>
         </MudNavGroup>
 
         <AuthorizeView Roles="@Role.Trainee">

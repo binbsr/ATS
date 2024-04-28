@@ -1,13 +1,15 @@
-﻿@page "/modules"
+﻿@page "/modules/all"
 
-<PageTitle>Training Modules</PageTitle>
+<PageTitle>All Training Modules</PageTitle>
+@attribute [Authorize(Roles = Role.AdminsAndInstructor)]
 
 @inject IDbContextFactory<ApplicationDbContext> DbFactory
 @inject ISnackbar SnackBar
 
 <TagFilter TagDescription="@FIlterTagCategory.CourseModules"
-           RootFilterTriggered="RootFilterChanged"
-           ShowSecondaryFilters="false" />
+           FilterTriggered="FilterTagsChanged"
+           FilterHelpText="Click on tags below to filter respective modules and combinations." />
+
 @if (loadingData)
 {
     <MudGrid>
@@ -69,8 +71,6 @@ else
         .Except(projectWorkeWidgets);
 
     private List<Tag> tags = [];
-    private string selectedRootFilter = RootFilter.Internship;
-    private List<string> selectedSecondaryFilters = [];
     bool loadingData;
 
     protected override async Task OnInitializedAsync()
@@ -83,41 +83,27 @@ else
         if (widgets is null || widgets.Count == 0)
             return;
 
-        GetFilteredModules(RootFilter.Internship, []);
+        GetFilteredModules([]);
 
         loadingData = false;
     }
 
-    private void RootFilterChanged(string filterText)
-    {
-        selectedRootFilter = filterText;
-        GetFilteredModules(filterText, selectedSecondaryFilters);
-    }
-
     private void FilterTagsChanged(List<string> filterTexts)
     {
-        selectedSecondaryFilters = filterTexts;
-        GetFilteredModules(selectedRootFilter, filterTexts);
+        GetFilteredModules(filterTexts);
     }
 
-    private void GetFilteredModules(string rootFilter, List<string> secondaryTags)
+    private void GetFilteredModules(List<string> secondaryTags)
     {
-        if (rootFilter != RootFilter.All)
-            widgetFiltered = widgets.Where(x => x.Tags!.Any(y => y.Name == selectedRootFilter)).ToList();
-        else
-            widgetFiltered = widgets;
-
-        if (secondaryTags.Any())
-        {
-            widgetFiltered = widgetFiltered.Where(x => x.Tags!.Any(y => secondaryTags.Contains(y.Name))).ToList();
-        }
+        widgetFiltered = secondaryTags.Any()
+            ? widgetFiltered.Where(x => x.Tags!.Any(y => secondaryTags.Contains(y.Name))).ToList()
+            : widgetFiltered = widgets;
     }
 
     private async Task DeleteInitiated(Widget widget)
     {
         using var Db = DbFactory.CreateDbContext();
         Db.Widgets.Remove(widget);
-
         var rowsAffected = await Db.SaveChangesAsync();
 
         if (rowsAffected > 0)

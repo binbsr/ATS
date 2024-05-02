@@ -36,6 +36,16 @@
                 <MudSelectItem Value="@tag">@tag.Name</MudSelectItem>
             }
         </MudSelect>
+
+        <MudField Label="Member Type" Variant="Variant.Text" InnerPadding="false">
+            <MudRadioGroup T="MemberType" @bind-Value="@model.MemberType">
+                @foreach(var memberType in Enum.GetValues<MemberType>())
+                {
+                    <MudRadio T="MemberType" Value="memberType">@memberType</MudRadio>
+                }
+            </MudRadioGroup>
+        </MudField>
+
         <MudSwitch @bind-Value="@model.Publish" Class="mt-3" Color="Color.Success" UnCheckedColor="Color.Error" Label="Public Profile" />
 
         <MudButton Variant="Variant.Outlined" Disabled="model.Email == string.Empty" Color="Color.Warning" Class="my-3" StartIcon="@Icons.Material.Filled.Security" OnClick="Generate">

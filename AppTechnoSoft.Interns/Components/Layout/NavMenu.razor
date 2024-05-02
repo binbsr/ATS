@@ -3,9 +3,13 @@
         <MudNavLink Href="/" Match="NavLinkMatch.All" Icon="@Icons.Material.Filled.Home" IconColor="Color.Success">Home</MudNavLink>
         <MudNavLink Href="/apply" Icon="@Icons.Material.Filled.Person3" IconColor="Color.Success">Apply</MudNavLink>
         <MudNavLink Href="/timeline" Icon="@Icons.Material.Filled.Timeline" IconColor="Color.Success">Timeline</MudNavLink>
-        <MudNavLink Href="/instructors" Icon="@Icons.Material.Sharp.Group" IconColor="Color.Success">Instructors</MudNavLink>
 
-        <MudNavGroup Title="Training Modules" Icon="@Icons.Material.Sharp.SettingsInputComponent" IconColor="Color.Success" Expanded>
+        <MudNavGroup Title="Our Team" Icon="@Icons.Material.Sharp.Groups3" IconColor="Color.Success" Expanded>
+            <MudNavLink Href="/appsoft-core" Icon="@Icons.Material.Sharp.PeopleOutline" IconColor="Color.Success">Core Team</MudNavLink>
+            <MudNavLink Href="/appsoft-consultants" Icon="@Icons.Material.Sharp.AccountBox" IconColor="Color.Success">Consultants</MudNavLink>
+        </MudNavGroup>
+
+        <MudNavGroup Title="AppSoft Modules" Icon="@Icons.Material.Sharp.SettingsInputComponent" IconColor="Color.Success" Expanded>
             <MudNavLink Href="/modules/interns" Icon="@Icons.Material.Sharp.School" IconColor="Color.Success">For Interns</MudNavLink>
             <MudNavLink Href="/modules/professionals" Icon="@Icons.Material.Sharp.Laptop" IconColor="Color.Success">For Professionals</MudNavLink>
             <MudNavLink Href="/modules/corporates" Icon="@Icons.Material.Sharp.CardTravel" IconColor="Color.Success">For Corporates</MudNavLink>
@@ -65,7 +69,7 @@
 
         <AuthorizeView Roles="@Role.SuperAdmin">
             <MudDivider Class="my-2" />
-            <MudNavGroup Title="User Accounts" Icon="@Icons.Material.Filled.AdminPanelSettings" IconColor="Color.Warning" Expanded>
+            <MudNavGroup Title="User Accounts" Icon="@Icons.Material.Filled.ManageAccounts" IconColor="Color.Warning" Expanded>
                 <MudNavLink Href="/identity/roles" Icon="@Icons.Material.Filled.Security" IconColor="Color.Warning">Roles</MudNavLink>
                 <MudNavLink Href="/identity/users" Icon="@Icons.Material.Filled.PersonSearch" IconColor="Color.Warning">Users</MudNavLink>
                 <MudNavLink Href="/finance" Icon="@Icons.Material.Filled.CurrencyRupee" IconColor="Color.Warning">Finance</MudNavLink>

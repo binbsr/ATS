@@ -1,0 +1,84 @@
+﻿@page "/appsoft-core"
+
+@inject IDbContextFactory<ApplicationDbContext> DbFactory
+
+<PageTitle>Our Core Team</PageTitle>
+
+<MudText Typo="Typo.h5" Align="Align.Center" Color="Color.Secondary" Class="mb-5 border-b-2 p-3">
+    Core Team - App TechnoSoft
+</MudText>
+<MudGrid Spacing="2">
+    @foreach (var member in coreMembers)
+    {
+        <MudItem xl="3" lg="4" md="6" sm="6" xs="12">
+            <MudCard>
+                <MudCardHeader>
+                    <CardHeaderContent>
+                        <MudContainer Class="d-flex justify-center">
+                            <MudAvatar Style="height:220px; width:220px; font-size:3rem;" Elevation="5">
+                                <MudImage Src="@member.ProfilePath" />
+                            </MudAvatar>
+                        </MudContainer>
+                    </CardHeaderContent>
+                    <CardHeaderActions>
+                        <AuthorizeView Roles="@Role.Admins">
+                            <MudChip Color="@(member.Publish ? Color.Success : Color.Warning)"
+                                     Text="@(member.Publish ? "Public" : "Draft")" />
+                            <MudIconButton Icon="@Icons.Material.Filled.Edit" Color="Color.Warning" Size="Size.Small" Class="ml-auto" Href="@("/edit-instructor/"+member.Id)" />
+                        </AuthorizeView>
+                    </CardHeaderActions>
+                </MudCardHeader>
+                <MudCardContent>
+                    <MudText Typo="Typo.h5" Align="Align.Center">@member.Name</MudText>
+                    <MudText Typo="Typo.h6" Align="Align.Center" Color="Color.Secondary">@member.Role</MudText>
+                    <MudText Typo="Typo.h6" Align="Align.Center">@member.Organization</MudText>
+                    <MudText Typo="Typo.body1" Class="mt-4" Style="text-align:justify">@member.Resume</MudText>
+                    <AuthorizeView Roles="@Role.Admins">
+                        <MudList DisableGutters Dense>
+                            <MudListItem Icon="@Icons.Material.Sharp.Email">@(member.Email ?? "None")</MudListItem>
+                            <MudListItem Icon="@Icons.Material.Sharp.Phone">@(member.Phone ?? "None")</MudListItem>
+                            <MudListItem title="Other details" Icon="@Icons.Material.Sharp.Details">@(member.OtherDetails ?? "None")</MudListItem>
+                        </MudList>
+                    </AuthorizeView>
+                </MudCardContent>
+                <MudCardActions>
+                    <MudContainer Class="p-0">
+                        @foreach (var tag in member.Tags!)
+                        {
+                            <MudChip Style="@("background:" + tag.ColorCode)" Class="text-white">@tag.Name</MudChip>
+                        }
+                    </MudContainer>
+                </MudCardActions>
+            </MudCard>
+        </MudItem>
+    }
+</MudGrid>
+
+@code {
+
+    [CascadingParameter]
+    private Task<AuthenticationState> AuthTask { get; set; } = null!;
+
+    private List<Instructor> coreMembers = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        var state = await AuthTask;
+        using var Db = DbFactory.CreateDbContext();
+
+        if (state?.User is not null && (state.User.IsInRole(Role.Admin) || state.User.IsInRole(Role.SuperAdmin)))
+        {
+            coreMembers = await Db.Instructors
+                .Include(x => x.Tags)
+                .Where(x => x.MemberType == MemberType.CoreTeam)
+                .ToListAsync();
+        }
+        else
+        {
+            coreMembers = await Db.Instructors
+                .Include(x => x.Tags)
+                .Where(y => y.Publish && y.MemberType == MemberType.CoreTeam)
+                .ToListAsync();
+        }
+    }
+}

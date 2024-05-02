@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Components.Forms;
+﻿using AppTechnoSoft.Interns.Data.Enums;
+using Microsoft.AspNetCore.Components.Forms;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace AppTechnoSoft.Interns.Data.Models;
@@ -10,6 +11,7 @@ public class Instructor
     public string? Phone { get; set; } = string.Empty;
     public string Role { get; set; } = string.Empty;
     public string? Organization { get; set; } = string.Empty;
+    public MemberType MemberType { get; set; } = MemberType.Consultant;
     public string Resume { get; set; } = string.Empty;
     public string? ProfilePath { get; set; }
     public bool Publish { get; set; } = true;

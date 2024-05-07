@@ -23,6 +23,7 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
     public DbSet<TraineeTimeline> TraineeTimelines { get; set; }
     public DbSet<Assignment> Assignments { get; set; }
     public DbSet<StudentAssignment> StudentAssignments { get; set; }
+    public DbSet<Expense> Expenses { get; set; }
 
     protected override void OnModelCreating(ModelBuilder builder)
     {

@@ -1,4 +1,4 @@
-﻿@page "/add-fee-account"
+﻿@page "/feecollection/add"
 
 @attribute [Authorize(Roles = Role.SuperAdmin)]
 
@@ -25,9 +25,9 @@
                          ItemDisabledFunc="(x => x.FeeAccountId != null || x.FeeAccountId != default)"
                          Validation="@(new Func<StudentSelectListItem, IEnumerable<string>>(Validate))" />
 
-        <MudNumericField Label="Fee Amount" Class="mt-3" @bind-Value="model.FeeAmount" />
-        <MudNumericField Label="Discount" Class="mt-3" @bind-Value="model.Discount" Min="0" Max="100" />
-        <MudNumericField Label="Paid Amount" Class="mt-3" @bind-Value="model.PaidAmount" />
+        <MudNumericField Variant="Variant.Outlined" Label="Fee Amount" Class="mt-3" @bind-Value="model.FeeAmount" />
+        <MudNumericField Variant="Variant.Outlined" Label="Discount" Class="mt-3" @bind-Value="model.Discount" Min="0" Max="100" />
+        <MudNumericField Variant="Variant.Outlined" Label="Paid Amount" Class="mt-3" @bind-Value="model.PaidAmount" />
 
 
         <MudButton ButtonType="ButtonType.Submit"
@@ -81,7 +81,7 @@
         if (rowsAffected > 0)
         {
             SnackBar.Add("New Fee Account Added Successfully", Severity.Success);
-            Navigation.NavigateTo("/finance");
+            Navigation.NavigateTo("/feecollection");
         }
         else
         {

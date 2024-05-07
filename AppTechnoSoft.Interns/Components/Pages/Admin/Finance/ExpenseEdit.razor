@@ -1,0 +1,64 @@
+﻿@page "/expense/add"
+
+@attribute [Authorize(Roles = Role.SuperAdmin)]
+
+@inject ApplicationDbContext Db
+@inject ISnackbar SnackBar
+@inject NavigationManager Navigation
+
+<PageTitle>Add Expense</PageTitle>
+
+<MudContainer>
+    <EditForm Model="@model" OnValidSubmit="OnValidSubmit">
+
+        <MudTextField Variant="Variant.Outlined" Label="Title" Class="mt-3" @bind-Value="model.Title" />
+        <MudTextField Variant="Variant.Outlined" Label="Description" Class="mt-3" @bind-Value="model.Description" />
+        <MudNumericField Variant="Variant.Outlined" Label="Amount" Class="mt-3" @bind-Value="model.Amount" />
+        <MudSelect Variant="Variant.Outlined" 
+        @bind-Value="model.ExpenseType" 
+        Label="Expense type" 
+        Class="mt-3">
+            @foreach (ExpenseType item in Enum.GetValues<ExpenseType>())
+            {
+                <MudSelectItem Value="@item">@item</MudSelectItem>
+            }
+        </MudSelect>
+
+        <MudButton ButtonType="ButtonType.Submit"
+                   Variant="Variant.Filled"
+                   Color="Color.Tertiary"
+                   Class="mt-3"
+                   StartIcon="@Icons.Material.Filled.Save">
+            Add Expense
+        </MudButton>
+    </EditForm>
+</MudContainer>
+
+@code {
+
+    [CascadingParameter]
+    private Task<AuthenticationState> AuthTask { get; set; } = null!;
+
+    Expense model = new() { Amount = 0.0f };
+
+    private async Task OnValidSubmit(EditContext context)
+    {        
+        var state = await AuthTask;
+        var userName = state.User.Identity?.Name;
+
+        model.AddCreatedStamps(userName);
+
+        Db.Expenses.Add(model);
+        var rowsAffected = await Db.SaveChangesAsync();
+
+        if (rowsAffected > 0)
+        {
+            SnackBar.Add("New expense added successfully", Severity.Success);
+            Navigation.NavigateTo("/expenses");
+        }
+        else
+        {
+            SnackBar.Add("New expense save failed", Severity.Error);
+        }
+    }
+}

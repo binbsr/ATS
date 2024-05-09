@@ -1,0 +1,125 @@
+﻿@page "/statement"
+
+@inject ApplicationDbContext Db
+
+<PageTitle>Financial statement</PageTitle>
+
+<MudDataGrid Items="@budgets"
+             Dense
+             Groupable 
+             Filterable>
+    <Columns>
+        <PropertyColumn Property="x => x.Title" Groupable="false" Filterable="false" />
+        <PropertyColumn Property="x => x.Date" Title="Date">
+            <CellTemplate>
+                @context.Item.Date.Value.ToNepalTime()
+            </CellTemplate>
+        </PropertyColumn>
+        <PropertyColumn Property="x => x.Credit" AggregateDefinition="CreditAggregation" Groupable="false" Filterable="false">
+            <CellTemplate>
+                @{
+                    var value = context.Item.Credit;
+                }
+                @if (value is not null)
+                {
+                    <MudIcon Icon="@Icons.Material.Sharp.ArrowUpward" Color="Color.Success" Size="Size.Small" />
+                    @value.AsCurrency()
+                }
+            </CellTemplate>
+        </PropertyColumn>
+        <PropertyColumn Property="x => x.Debit" AggregateDefinition="DebitAggregation" Groupable="false" Filterable="false">
+            <CellTemplate>
+                @{
+                    var value = context.Item.Debit;
+                }
+                @if (value is not null)
+                {
+                    <MudIcon Icon="@Icons.Material.Sharp.ArrowDownward" Color="Color.Error" Size="Size.Small" />
+                    @value.AsCurrency()
+                }
+            </CellTemplate>
+        </PropertyColumn>
+        <PropertyColumn Property="x => x.Balance">
+            <CellTemplate>@context.Item.Balance.AsCurrency()</CellTemplate>
+        </PropertyColumn>
+        <PropertyColumn Property="x => x.Status" />
+        <PropertyColumn Property="x => x.Notes" Groupable="false" Filterable="false" />
+    </Columns>
+</MudDataGrid>
+
+@code {
+
+    private List<BudgetViewModel> budgets = [];
+
+    protected override async Task OnInitializedAsync()
+    {
+        var feeCollection = await Db.FinAccounts
+            .Where(x => x.Enabled)
+            .Select(y => new { StudentName = y.Student.Name, PaidTotal = y.PaidAmount, DateAdded = y.Created })
+            .ToListAsync();
+
+        // Fee credits
+        if (feeCollection is not null)
+        {
+            foreach (var fee in feeCollection)
+            {
+                budgets.Add(new BudgetViewModel
+                    {
+                        Title = $"{fee.StudentName} - Tution Fee",
+                        Credit = fee.PaidTotal,
+                        Status = BudgetStatus.Paid,
+                        Date = fee.DateAdded,
+                        Notes = "Source: Fee Collection"
+                    });
+            }
+        }
+
+        // Operations debits
+        var expenses = await Db.Expenses.ToListAsync();
+
+        // Fee credits
+        if (expenses is not null)
+        {
+            foreach (var expense in expenses)
+            {
+                budgets.Add(new BudgetViewModel
+                    {
+                        Title = expense.Title,
+                        Debit = expense.Amount,
+                        Status = BudgetStatus.Paid,
+                        Date = expense.Created,
+                        Notes = expense.Description
+                    });
+            }
+        }
+
+        budgets = budgets.OrderByDescending(x => x.Date).ToList();
+
+        // Maintain balance at each step
+        for (int counter = 0; counter < budgets.Count; counter++)
+        {
+            var accumulation = budgets.Take(counter + 1);
+            budgets[counter].Balance = accumulation.Sum(x => x.Credit) - accumulation.Sum(x => x.Debit);
+        }
+    }
+
+    AggregateDefinition<BudgetViewModel> CreditAggregation = new()
+        {
+            Type = AggregateType.Custom,
+            CustomAggregate = x =>
+            {
+                var totalFee = x.Sum(y => y.Credit);
+                return $"{totalFee.AsCurrency()}";
+            }
+        };
+
+    AggregateDefinition<BudgetViewModel> DebitAggregation = new()
+        {
+            Type = AggregateType.Custom,
+            CustomAggregate = x =>
+            {
+                var totalFee = x.Sum(y => y.Debit);
+                return $"{totalFee.AsCurrency()}";
+            }
+        };
+}

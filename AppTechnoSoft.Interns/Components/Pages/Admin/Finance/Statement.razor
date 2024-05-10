@@ -39,10 +39,14 @@
                 }
             </CellTemplate>
         </PropertyColumn>
-        <PropertyColumn Property="x => x.Balance">
+        <PropertyColumn Property="x => x.Balance" AggregateDefinition="BalanceAggregation" Filterable="false" Groupable="false">
             <CellTemplate>@context.Item.Balance.AsCurrency()</CellTemplate>
         </PropertyColumn>
-        <PropertyColumn Property="x => x.Status" />
+        <PropertyColumn Property="x => x.Status">
+            <CellTemplate>
+                <MudChip Color="Color.Info" Size="Size.Small">@context.Item.Status</MudChip>
+            </CellTemplate>
+        </PropertyColumn>
         <PropertyColumn Property="x => x.Notes" Groupable="false" Filterable="false" />
     </Columns>
 </MudDataGrid>
@@ -103,13 +107,23 @@
         }
     }
 
+    AggregateDefinition<BudgetViewModel> BalanceAggregation = new()
+        {
+            Type = AggregateType.Custom,
+            CustomAggregate = x =>
+            {
+                var totalBalance = x.LastOrDefault()?.Balance;
+                return $"{totalBalance.AsCurrency()}";
+            }
+        };
+
     AggregateDefinition<BudgetViewModel> CreditAggregation = new()
         {
             Type = AggregateType.Custom,
             CustomAggregate = x =>
             {
-                var totalFee = x.Sum(y => y.Credit);
-                return $"{totalFee.AsCurrency()}";
+                var totalCredit = x.Sum(y => y.Credit);
+                return $"{totalCredit.AsCurrency()}";
             }
         };
 
@@ -118,8 +132,8 @@
             Type = AggregateType.Custom,
             CustomAggregate = x =>
             {
-                var totalFee = x.Sum(y => y.Debit);
-                return $"{totalFee.AsCurrency()}";
+                var totalDebit = x.Sum(y => y.Debit);
+                return $"{totalDebit.AsCurrency()}";
             }
         };
 }

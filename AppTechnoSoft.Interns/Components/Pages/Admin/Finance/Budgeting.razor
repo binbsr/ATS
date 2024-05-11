@@ -33,7 +33,7 @@
             </HeaderContent>
             <RowTemplate>
                 <MudTd DataLabel="Budget Type">@batchBudget.BudgetType</MudTd>
-                <MudTd DataLabel="Allocation">@batchBudget.Allocation</MudTd>
+                <MudTd DataLabel="Allocation">@((batchBudget.Allocation / 100).ToString("P"))</MudTd>
                 <MudTd DataLabel="Amount">@batchBudget.Amount</MudTd>
                 <MudTd DataLabel="Notes">@batchBudget.Notes</MudTd>
             </RowTemplate>

@@ -23,21 +23,24 @@
         @foreach (var m in models)
         {
             <MudStack Row>
-                <MudTextField @bind-Value="m.BudgetType" Disabled />
+                <MudTextField @bind-Value="m.BudgetType" Variant="Variant.Outlined" Disabled Class="mt-3" />
                 <MudNumericField Variant="Variant.Outlined"
                                  Label="Allocation"
                                  Class="mt-3"
                                  @bind-Value="m.Allocation"
                                  Adornment="Adornment.End"
                                  AdornmentIcon="@Icons.Material.Sharp.Percent" />
-
+                @{
+                    m.Amount = totalRevenue * m.Allocation / 100;
+                }
                 <MudNumericField Variant="Variant.Outlined"
                                  Label="Amount"
-                                 Class="mt-3" 
+                                 Class="mt-3"
                                  @bind-Value="m.Amount"
-                                 Adornment="Adornment.End"
+                                 Adornment="Adornment.Start"
                                  AdornmentIcon="@Icons.Material.Sharp.Money"
                                  Disabled />
+                <MudTextField Variant="Variant.Outlined" Label="Notes" @bind-Value="m.Notes" Class="mt-3" />
             </MudStack>
         }
 
@@ -58,6 +61,8 @@
     List<Batch> batches = [];
     float totalRevenue = 0.0f;
     string errorMessage = "";
+    Batch selectedBatch = null!;
+
     protected override async Task OnInitializedAsync()
     {
         batches = await Db.Batches.ToListAsync();
@@ -72,6 +77,7 @@
 
     private async Task BatchChanged(Batch batch)
     {
+        selectedBatch = batch;
         totalRevenue = await Db.FinAccounts
             .Where(x => x.Student.Batch == batch)
             .SumAsync(x => x.PaidAmount);
@@ -79,13 +85,18 @@
 
     private async Task OnValidSubmit(EditContext context)
     {
-        var rowsToInsert = models.Where(x => x.Allocation != 0);
+        var rowsToInsert = models.Where(x => x.Allocation != 0).ToList();
         var percentSum = rowsToInsert.Sum(x => x.Allocation);
         errorMessage = "";
-        if(percentSum != 100)
+        if (percentSum != 100)
         {
             errorMessage = $"Total sum of all allocations should be 100. Its {percentSum} now.";
             return;
+        }
+
+        for (int i = 0; i < rowsToInsert.Count; i++)
+        {
+            rowsToInsert[i].BatchId = selectedBatch.Id;
         }
 
         Db.BatchBudgets.AddRange(rowsToInsert);

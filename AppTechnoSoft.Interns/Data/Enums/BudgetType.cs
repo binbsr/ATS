@@ -7,5 +7,6 @@ public enum BudgetType
     Operations,
     Salary,
     Meeting,
+    Reserve,
     Other
 }

@@ -1,0 +1,104 @@
+﻿@page "/budgeting/add"
+
+@attribute [Authorize(Roles = Role.SuperAdmin)]
+
+@inject ApplicationDbContext Db
+@inject ISnackbar SnackBar
+@inject NavigationManager Navigation
+
+<PageTitle>Budget Allocation</PageTitle>
+
+<MudContainer>
+    <EditForm Model="@models" OnValidSubmit="OnValidSubmit">
+        <MudSelect T="Batch" Variant="Variant.Outlined"
+                   AnchorOrigin="Origin.BottomCenter"
+                   Label="Select batch" ValueChanged="BatchChanged">
+            @foreach (var item in batches)
+            {
+                <MudSelectItem Value="@item">@item.Name</MudSelectItem>
+            }
+        </MudSelect>
+        <MudText Align="Align.Center" Typo="Typo.h5" Class="my-4">Total Revenue : @totalRevenue.AsCurrency()</MudText>
+
+        @foreach (var m in models)
+        {
+            <MudStack Row>
+                <MudTextField @bind-Value="m.BudgetType" Disabled />
+                <MudNumericField Variant="Variant.Outlined"
+                                 Label="Allocation"
+                                 Class="mt-3"
+                                 @bind-Value="m.Allocation"
+                                 Adornment="Adornment.End"
+                                 AdornmentIcon="@Icons.Material.Sharp.Percent" />
+
+                <MudNumericField Variant="Variant.Outlined"
+                                 Label="Amount"
+                                 Class="mt-3" 
+                                 @bind-Value="m.Amount"
+                                 Adornment="Adornment.End"
+                                 AdornmentIcon="@Icons.Material.Sharp.Money"
+                                 Disabled />
+            </MudStack>
+        }
+
+        <MudButton ButtonType="ButtonType.Submit"
+                   Variant="Variant.Filled"
+                   Color="Color.Tertiary"
+                   Class="mt-3"
+                   StartIcon="@Icons.Material.Filled.Save">
+            Save
+        </MudButton>
+        <MudText Color="Color.Error">@errorMessage</MudText>
+    </EditForm>
+</MudContainer>
+
+@code {
+
+    List<BatchBudget> models = [];
+    List<Batch> batches = [];
+    float totalRevenue = 0.0f;
+    string errorMessage = "";
+    protected override async Task OnInitializedAsync()
+    {
+        batches = await Db.Batches.ToListAsync();
+
+        BudgetType[] budgetTypes = Enum.GetValues<BudgetType>();
+        models = new List<BatchBudget>(budgetTypes.Length);
+        foreach (var type in budgetTypes)
+        {
+            models.Add(new BatchBudget { BudgetType = type });
+        }
+    }
+
+    private async Task BatchChanged(Batch batch)
+    {
+        totalRevenue = await Db.FinAccounts
+            .Where(x => x.Student.Batch == batch)
+            .SumAsync(x => x.PaidAmount);
+    }
+
+    private async Task OnValidSubmit(EditContext context)
+    {
+        var rowsToInsert = models.Where(x => x.Allocation != 0);
+        var percentSum = rowsToInsert.Sum(x => x.Allocation);
+        errorMessage = "";
+        if(percentSum != 100)
+        {
+            errorMessage = $"Total sum of all allocations should be 100. Its {percentSum} now.";
+            return;
+        }
+
+        Db.BatchBudgets.AddRange(rowsToInsert);
+        var rowsAffected = await Db.SaveChangesAsync();
+
+        if (rowsAffected > 0)
+        {
+            SnackBar.Add("Budget allocations for batch added successfully", Severity.Success);
+            Navigation.NavigateTo("/budgeting");
+        }
+        else
+        {
+            SnackBar.Add("Budget allocations saving failed", Severity.Error);
+        }
+    }
+}

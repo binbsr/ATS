@@ -1,7 +1,7 @@
 ﻿using AppTechnoSoft.Interns.Data.Enums;
 
 namespace AppTechnoSoft.Core.ViewModels;
-public class BudgetViewModel
+public class AccountViewModel
 {
     public string Title { get; set; } = string.Empty;
     public float? Credit { get; set; }

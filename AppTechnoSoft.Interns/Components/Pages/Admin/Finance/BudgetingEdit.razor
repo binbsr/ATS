@@ -20,29 +20,37 @@
         </MudSelect>
         <MudText Align="Align.Center" Typo="Typo.h5" Class="my-4">Total Revenue : @totalRevenue.AsCurrency()</MudText>
 
-        @foreach (var m in models)
-        {
-            <MudStack Row>
-                <MudTextField @bind-Value="m.BudgetType" Variant="Variant.Outlined" Disabled Class="mt-3" />
-                <MudNumericField Variant="Variant.Outlined"
-                                 Label="Allocation"
-                                 Class="mt-3"
-                                 @bind-Value="m.Allocation"
-                                 Adornment="Adornment.End"
-                                 AdornmentIcon="@Icons.Material.Sharp.Percent" />
-                @{
-                    m.Amount = totalRevenue * m.Allocation / 100;
-                }
-                <MudNumericField Variant="Variant.Outlined"
-                                 Label="Amount"
-                                 Class="mt-3"
-                                 @bind-Value="m.Amount"
-                                 Adornment="Adornment.Start"
-                                 AdornmentIcon="@Icons.Material.Sharp.Money"
-                                 Disabled />
-                <MudTextField Variant="Variant.Outlined" Label="Notes" @bind-Value="m.Notes" Class="mt-3" />
-            </MudStack>
-        }
+        <MudGrid>
+            @foreach (var m in models)
+            {
+                <MudItem md="3">
+                    <MudTextField @bind-Value="m.BudgetType" Variant="Variant.Outlined" Disabled Class="mt-3" />
+                </MudItem>
+                <MudItem md="2">
+                    <MudNumericField Variant="Variant.Outlined"
+                                     Label="Allocation"
+                                     Class="mt-3"
+                                     @bind-Value="m.Allocation"
+                                     Adornment="Adornment.End"
+                                     AdornmentIcon="@Icons.Material.Sharp.Percent" />
+                </MudItem>
+                <MudItem md="2">
+                    @{
+                        m.Amount = totalRevenue * m.Allocation / 100;
+                    }
+                    <MudNumericField Variant="Variant.Outlined"
+                                     Label="Amount"
+                                     Class="mt-3"
+                                     @bind-Value="m.Amount"
+                                     Adornment="Adornment.Start"
+                                     AdornmentIcon="@Icons.Material.Sharp.Money"
+                                     Disabled />
+                </MudItem>
+                <MudItem md="5">
+                    <MudTextField Variant="Variant.Outlined" Label="Notes" @bind-Value="m.Notes" Class="mt-3" />
+                </MudItem>
+            }
+        </MudGrid>
 
         <MudButton ButtonType="ButtonType.Submit"
                    Variant="Variant.Filled"
@@ -62,6 +70,7 @@
     float totalRevenue = 0.0f;
     string errorMessage = "";
     Batch selectedBatch = null!;
+    bool allocationExists = false;
 
     protected override async Task OnInitializedAsync()
     {
@@ -81,6 +90,28 @@
         totalRevenue = await Db.FinAccounts
             .Where(x => x.Student.Batch == batch)
             .SumAsync(x => x.PaidAmount);
+
+        var allocations = await Db.BatchBudgets.Where(x => x.BatchId == batch.Id).ToListAsync();
+
+        if (allocations == null || !allocations.Any())
+        {
+            allocationExists = false;
+            return;
+        }
+
+        allocationExists = true;
+        for (var counter = 0; counter < models.Count; counter++)
+        {
+            var allocation = allocations.FirstOrDefault(x => x.BudgetType == models[counter].BudgetType);
+            if (allocation is null)
+                continue;
+            models[counter].Id = allocation.Id;
+            models[counter].BatchId = allocation.BatchId;
+            models[counter].BudgetType = allocation.BudgetType;
+            models[counter].Allocation = allocation.Allocation;
+            models[counter].Amount = allocation.Amount;
+            models[counter].Notes = allocation.Notes;
+        }
     }
 
     private async Task OnValidSubmit(EditContext context)
@@ -88,18 +119,27 @@
         var rowsToInsert = models.Where(x => x.Allocation != 0).ToList();
         var percentSum = rowsToInsert.Sum(x => x.Allocation);
         errorMessage = "";
+
         if (percentSum != 100)
         {
             errorMessage = $"Total sum of all allocations should be 100. Its {percentSum} now.";
             return;
         }
 
-        for (int i = 0; i < rowsToInsert.Count; i++)
+        if (allocationExists)
         {
-            rowsToInsert[i].BatchId = selectedBatch.Id;
+            Db.BatchBudgets.UpdateRange(rowsToInsert);
+        }
+        else
+        {
+            for (int i = 0; i < rowsToInsert.Count; i++)
+            {
+                rowsToInsert[i].BatchId = selectedBatch.Id;
+            }
+
+            Db.BatchBudgets.AddRange(rowsToInsert);
         }
 
-        Db.BatchBudgets.AddRange(rowsToInsert);
         var rowsAffected = await Db.SaveChangesAsync();
 
         if (rowsAffected > 0)

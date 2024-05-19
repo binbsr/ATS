@@ -90,7 +90,7 @@
             .Include(x => x.Batch)
             .Include(x => x.Module)
             .Include(x => x.Instructor)
-            .OrderBy(x => x.ClassStart)
+            .OrderByDescending(x => x.ClassStart)
             .ToListAsync();
         loadingData = false;
     }

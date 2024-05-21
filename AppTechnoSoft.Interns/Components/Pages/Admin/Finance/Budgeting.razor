@@ -1,0 +1,89 @@
+﻿@page "/budgeting"
+
+@inject ApplicationDbContext Db
+
+<PageTitle>Batch Budgeting</PageTitle>
+
+<MudDataGrid Items="@budgets"
+             Dense
+             Groupable
+             Filterable>
+    <ToolBarContent>
+        <MudFab Href="/budgeting/add" StartIcon="@Icons.Material.Filled.Add" Title="Add Budget for Batch" Size="Size.Small" Color="Color.Tertiary"></MudFab>
+        <MudSpacer />
+        <MudTextField @bind-Value="_searchString" Placeholder="Search" Adornment="Adornment.Start" Immediate="true"
+                      AdornmentIcon="@Icons.Material.Filled.Search" IconSize="Size.Medium" Class="mt-0"></MudTextField>
+    </ToolBarContent>
+    <Columns>
+        <HierarchyColumn T="BatchBudgetRoot" />
+        <PropertyColumn Property="x => x.Batch" />
+        <PropertyColumn Property="x => x.Revenue" Title="Total Revenue" AggregateDefinition="RevenueAggregation" Groupable="false" Filterable="false">
+            <CellTemplate>
+                @context.Item.Revenue.AsCurrency()
+            </CellTemplate>
+        </PropertyColumn>
+    </Columns>
+    <ChildRowContent>
+        <MudTable T="BatchBudget"
+                  Items="@context.Item.Budgets"
+                  Context="batchBudget"
+                  Hover
+                  Elevation="0"
+                  Class="my-2 border-1">
+            <HeaderContent>
+                <MudTh>Budget Type</MudTh>
+                <MudTh>Allocation</MudTh>
+                <MudTh>Amount</MudTh>
+                <MudTh>Notes</MudTh>
+            </HeaderContent>
+            <RowTemplate>
+                <MudTd DataLabel="Budget Type">@batchBudget.BudgetType</MudTd>
+                <MudTd DataLabel="Allocation">@((batchBudget.Allocation / 100).ToString("P"))</MudTd>
+                <MudTd DataLabel="Amount">@batchBudget.Amount.AsCurrency()</MudTd>
+                <MudTd DataLabel="Notes">@batchBudget.Notes</MudTd>
+            </RowTemplate>
+        </MudTable>
+    </ChildRowContent>
+</MudDataGrid>
+
+@code {
+
+    private record BatchBudgetRoot(string Batch, float? Revenue)
+    {
+        public IEnumerable<BatchBudget>? Budgets { get; set; }
+    }
+
+    private string _searchString = string.Empty;
+    private List<BatchBudgetRoot> budgets = [];
+
+    protected override async Task OnInitializedAsync()
+    {
+        var batchBudgets = await Db.BatchBudgets.Include(x => x.Batch).ToListAsync();
+
+        if (batchBudgets is null)
+            return;
+
+        var finBudgets = await Db.FinAccounts
+            .GroupBy(x => x.Student.Batch)
+            .Select(y => new { BatchName = y.Key!.Name, Revenue = y.Sum(x => x.PaidAmount) })
+            .ToListAsync();
+
+        foreach (var budget in finBudgets)
+        {
+            budgets.Add(new BatchBudgetRoot(budget.BatchName, budget.Revenue)
+                {
+                    Budgets = batchBudgets.Where(z => z.Batch.Name == budget.BatchName)
+                });
+        }
+    }
+
+    AggregateDefinition<BatchBudgetRoot> RevenueAggregation = new()
+        {
+            Type = AggregateType.Custom,
+            CustomAggregate = x =>
+            {
+                var totalRevenue = x.Sum(y => y.Revenue);
+                return $"{totalRevenue.AsCurrency()}";
+            }
+        };
+}

@@ -1,0 +1,127 @@
+﻿@page "/expenses"
+
+@using System.Globalization
+@attribute [Authorize(Roles = Role.SuperAdmin)]
+@inject ApplicationDbContext db
+@inject ISnackbar SnackBar
+
+<PageTitle>Expenses</PageTitle>
+
+<MudDataGrid T="Expense"
+             MultiSelection="true"
+             Items="@expenses"
+             SortMode="SortMode.Multiple"
+             Hover="true"
+             QuickFilter="@_quickFilter"
+             Loading="loadingData"
+             ReadOnly="false"
+             Dense="true"
+             EditMode="DataGridEditMode.Form"
+             EditTrigger="DataGridEditTrigger.Manual"
+             CommittedItemChanges="@CommittedItemChanges">
+    <ToolBarContent>
+        <MudFab Href="/expense/add" StartIcon="@Icons.Material.Filled.Add" Title="Add expense" Size="Size.Small" Color="Color.Tertiary"></MudFab>
+        <MudSpacer />
+        <MudTextField @bind-Value="_searchString" Placeholder="Search" Adornment="Adornment.Start" Immediate="true"
+                      AdornmentIcon="@Icons.Material.Filled.Search" IconSize="Size.Medium" Class="mt-0"></MudTextField>
+    </ToolBarContent>
+    <Columns>
+        <PropertyColumn Property="x => x.Title" Title="Title" />
+        <PropertyColumn Property="x => x.Description" Title="Description" />
+        <PropertyColumn Property="x => x.ExpenseType" Title="Expense Type" />
+        <TemplateColumn Title="Amount" AggregateDefinition="AmountAggregation">
+            <CellTemplate>
+                @context.Item.Amount.AsCurrency()
+            </CellTemplate>
+            <EditTemplate>
+                <MudTextField Label="Amount" Variant="Variant.Outlined" T="float" @bind-Value="@context.Item.Amount" />
+            </EditTemplate>
+        </TemplateColumn>
+        <TemplateColumn CellClass="d-flex justify-end">
+            <CellTemplate>
+                <MudIconButton Icon="@Icons.Material.Outlined.Edit" OnClick="@context.Actions.StartEditingItemAsync" />
+            </CellTemplate>
+        </TemplateColumn>
+    </Columns>
+    <PagerContent>
+        <MudDataGridPager T="Expense" PageSizeOptions="[30, 50, 100, 200]" />
+    </PagerContent>
+</MudDataGrid>
+
+@code {
+
+    [CascadingParameter]
+    private Task<AuthenticationState> AuthTask { get; set; } = null!;
+
+    private List<Expense> expenses = [];
+    private string _searchString = string.Empty;
+    private bool loadingData = false;
+
+    AggregateDefinition<Expense> AmountAggregation = new()
+        {
+            Type = AggregateType.Custom,
+            CustomAggregate = x =>
+            {
+                var totalExpense = x.Sum(y => y.Amount);
+                return $"{totalExpense.AsCurrency()}";
+            }
+        };
+
+    private Func<Expense, bool> _quickFilter => x =>
+    {
+        if (string.IsNullOrWhiteSpace(_searchString))
+            return true;
+
+        if (x.Title.Contains(_searchString, StringComparison.OrdinalIgnoreCase))
+            return true;
+
+        if (x.Description.Contains(_searchString, StringComparison.OrdinalIgnoreCase))
+            return true;
+
+        if (x.ExpenseType.ToString().Contains(_searchString, StringComparison.OrdinalIgnoreCase))
+            return true;
+
+        return false;
+    };
+
+    protected override async Task OnInitializedAsync()
+    {
+        loadingData = true;
+
+        expenses = await db.Expenses
+            .AsNoTracking()
+            .ToListAsync();
+
+        loadingData = false;
+    }
+
+    async Task CommittedItemChanges(Expense item)
+    {
+        if (item is null)
+            return;
+
+        var state = await AuthTask;
+        var userName = state.User.Identity?.Name;
+
+        item.AddLastUpdatedStamps(userName);
+
+        var rowsAffected = db.Expenses
+            .Where(x => x.Id == item.Id)
+            .ExecuteUpdate(x => x
+                .SetProperty(y => y.Title, item.Title)
+                .SetProperty(y => y.Description, item.Description)
+                .SetProperty(y => y.Amount, item.Amount)
+                .SetProperty(y => y.LastUpdated, item.LastUpdated)
+                .SetProperty(y => y.LastUpdatedBy, item.LastUpdatedBy)
+            );
+
+        if (rowsAffected > 0)
+        {
+            SnackBar.Add("Expense updated successfully", Severity.Success);
+        }
+        else
+        {
+            SnackBar.Add("Expense update failed", Severity.Error);
+        }
+    }
+}

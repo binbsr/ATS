@@ -88,6 +88,8 @@
         {
             pageTitle = "Edit Batch";
             model = await Db.Batches.FindAsync(Id) ?? new();
+            batchRange = new DateRange(model.Start, model.End);
+            selectedTrack = model.Name.Split()[1];
             studentsSelected = students.Where(x => x.BatchId == Id).Select(x => x.Id);
         }
     }

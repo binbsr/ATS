@@ -8,7 +8,7 @@ public static class StringExtensions
     {
         Random _rnd = new();
         var guid = _rnd.Next().ToString("x");
-        var output = $"{value} ({guid})";
+        var output = $"{value} {guid}";
         return output;
     }
 

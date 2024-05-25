@@ -6,11 +6,9 @@ public static class StringExtensions
 {
     public static string MakeUnique(this string value)
     {
-        var guid = Guid.NewGuid();
-        var identifier = Convert.ToBase64String(guid.ToByteArray())[0..^2]
-            .Replace('+', '-')
-            .Replace('/', '_');
-        var output = $"{value} ({identifier})";
+        Random _rnd = new();
+        var guid = _rnd.Next().ToString("x");
+        var output = $"{value} ({guid})";
         return output;
     }
 

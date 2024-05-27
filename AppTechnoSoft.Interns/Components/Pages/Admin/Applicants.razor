@@ -73,6 +73,29 @@
             <MudItem md="3" sm="4" Class="p-2">
                 <b>Database Development Experience</b><MudText Typo="Typo.body1">@context.Item.DbExperience.GetDbExperienceText()</MudText>
             </MudItem>
+            @* <MudItem md="12" Class="p-2">
+                <MudStack Row>
+                    <MudButton Variant="Variant.Outlined"
+                               Disabled="context.Item.Email == string.Empty"
+                               Color="Color.Warning"
+                               Class="my-3"
+                               StartIcon="@Icons.Material.Filled.Security"
+                               OnClick="GenerateUserCreds">
+                        Generate Login Details
+                    </MudButton>
+
+                    @if (password != string.Empty)
+                    {
+                        <MudAlert Severity="Severity.Info" Style="font-size:1.1rem">
+                            Please Keep it Safe (One time only)
+                            <span class="border-2 border-dashed p-2" style="font-family:Courier New, Courier, monospace">
+                                <b>Email:</b> @context.Item.Email
+                                <b>Password:</b> @password
+                            </span>
+                        </MudAlert>
+                    }
+                </MudStack>
+            </MudItem> *@
         </MudGrid>
     </ChildRowContent>
     <PagerContent>
@@ -85,6 +108,7 @@
     private HashSet<Student> selectedApplicants = [];
     private string _searchString = string.Empty;
     private bool loadingData = false;
+    private string password = "";
 
     private Func<Student, bool> _quickFilter => x =>
     {
@@ -134,5 +158,10 @@
                 SnackBar.Add("Debatching failed", Severity.Error);
             }
         }
+    }
+
+    private void GenerateUserCreds()
+    {
+        password = PwdGenerator.NewPassword(8);
     }
 }

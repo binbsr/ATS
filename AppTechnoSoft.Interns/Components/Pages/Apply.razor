@@ -11,7 +11,7 @@
 
             @if (alreadyApplied)
             {
-                <MudAlert Severity="Severity.Success" Variant="Variant.Outlined">We have already received your application, feel free to update your details if you have to.</MudAlert>
+                <MudAlert Severity="Severity.Success" Variant="Variant.Outlined">We have received your application, please feel free to update your details or contact us for any queries.</MudAlert>
             }
             else
             {
@@ -19,6 +19,7 @@
             }
 
             <MudTextField @bind-Value="model.Name"
+                          Class="mt-4"
                           Immediate="true"
                           Label="Full Name"
                           TextChanged="UserNameChanged" />
@@ -27,11 +28,13 @@
                           Class="mt-4"
                           Immediate="true"
                           Label="Email" Disabled="true" />
+
             <MudTextField @bind-Value="model.Phone"
                           Class="mt-4"
                           Immediate="true"
                           Label="Phone"
-                          TextChanged="PhoneChanged"/>
+                          TextChanged="PhoneChanged" />
+
             <MudAutocomplete T="College"
                              Label="Select College"
                              @bind-Value="model.College"
@@ -41,6 +44,7 @@
                              ShowProgressIndicator="true"
                              ProgressIndicatorColor="Color.Default"
                              MaxItems="null" />
+
             <MudAutocomplete T="TechProgram"
                              Label="Select Program"
                              Class="mt-4"
@@ -50,15 +54,17 @@
                              ShowProgressIndicator="true"
                              ProgressIndicatorColor="Color.Default"
                              MaxItems="null" />
+
             <ImageUpload Class="mt-4" ExistingImagePath="@model.ProfileImagePath" ImageChanged="ProfileChanged" Label="Upload Profile Image (<100kb)" />
             @if (!profileSuccess)
             {
                 <MudText Color="Color.Warning">@message</MudText>
             }
+
             <MudButton ButtonType="ButtonType.Submit"
                        Variant="Variant.Filled"
                        Color="Color.Primary"
-                       Class="mt-3"
+                       Class="mt-3 d-flex ml-auto"
                        StartIcon="@Icons.Material.Sharp.HowToReg"
                        Disabled="isSaveDisabled">
                 @(alreadyApplied ? "Update Details" : "Apply for Traineeship")
@@ -75,6 +81,7 @@
     List<TechProgram> techPrograms = [];
     private bool profileSuccess = false;
     private string message = "";
+    private string alreadyAppliedMessage = "";
 
     private bool isSaveDisabled => model.Name is ""
         || model.Phone is ""
@@ -154,11 +161,29 @@
         model.Email = CreateEmail(model.Name, model.Phone);
     }
 
-    private void PhoneChanged()
+    private async Task PhoneChanged()
     {
         model.Email = CreateEmail(model.Name, model.Phone);
+        if (model.Phone.Length == 10)
+        {
+            var student = await Db.Students
+                .Include(x => x.College)
+                .Include(y => y.TechProgram)
+                .FirstOrDefaultAsync(x => x.Phone == model.Phone);
+
+            alreadyApplied = student is not null;
+            if(alreadyApplied)
+            {
+                model = student!;
+            }
+            else
+            {
+                model.Id = Guid.NewGuid().ToString();
+            }
+        }
     }
 
     private string CreateEmail(string name, string phone) =>
         $"{name} {phone}".ToEmail();
+
 }

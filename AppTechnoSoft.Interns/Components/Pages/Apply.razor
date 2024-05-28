@@ -21,7 +21,7 @@
             <MudField Label="I am" Variant="Variant.Outlined" Class="mt-5">
                 <MudRadioGroup @bind-Value="model.ApplicantType">
                     <MudRadio Value="ApplicantType.StudentInternship" Color="Color.Tertiary">Student, want to start internship/traineeship</MudRadio>
-                    <MudRadio Value="ApplicantType.SoftwareEngineeringAspirant" Color="Color.Tertiary">Software engineering aspirant, nedd professional training</MudRadio>
+                    <MudRadio Value="ApplicantType.SoftwareEngineeringAspirant" Color="Color.Tertiary">Software engineering aspirant, need professional training</MudRadio>
                     <MudRadio Value="ApplicantType.CorporateEmployee" Color="Color.Tertiary">Corporate training</MudRadio>
                 </MudRadioGroup>
             </MudField>            
@@ -82,7 +82,7 @@
             }
             else
             {
-                
+                <MudText>Corporate area todo</MudText>
             }
 
             <ImageUpload Class="mt-4" ExistingImagePath="@model.ProfileImagePath" ImageChanged="ProfileChanged" Label="Upload Profile Image (<100kb)" />

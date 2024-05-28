@@ -1,3 +1,9 @@
+## CLI Commands
+```
+dotnet tool install -g dotnet-ef
+dotnet ef migrations script ApplicantDetails -o .\Data\Scripts\StudentTableChanges.sql
+```
+
 ## Widget Title
 1. Text **module** will be used to get all training modules.
 1. Text **HomeIntro** will be used render items on home page (bottom part)

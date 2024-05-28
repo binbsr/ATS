@@ -19,6 +19,7 @@ public class Student : BaseEntity
     public DbExperience DbExperience { get; set; } = DbExperience.None;
     public DateTime? FormSubmitted { get; set; } = DateTime.UtcNow;
     public Status Status { get; set; } = Status.Applied;
+    public ApplicantType ApplicantType { get; set; } = ApplicantType.StudentInternship;
 
     [NotMapped]
     public IBrowserFile? ProfileImage { get; set; }

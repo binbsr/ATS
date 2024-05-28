@@ -18,6 +18,12 @@
                 <MudAlert Severity="Severity.Warning" Variant="Variant.Outlined">Please enter your details and click apply to start your traineeship journey.</MudAlert>
             }
 
+            <MudRadioGroup @bind-Value="model.ApplicantType" Class="mt-4">
+                <MudRadio Value="ApplicantType.StudentInternship" Color="Color.Tertiary" Dense>I am student, want to start internship/traineeship</MudRadio>
+                <MudRadio Value="ApplicantType.SoftwareEngineeringAspirant" Color="Color.Tertiary" Dense>I want to learn software engineering and tech stack(s)</MudRadio>
+                <MudRadio Value="ApplicantType.CorporateEmployee" Color="Color.Tertiary" Dense>Corporate training</MudRadio>
+            </MudRadioGroup>
+
             <MudTextField @bind-Value="model.Name"
                           Class="mt-4"
                           Immediate="true"
@@ -63,7 +69,7 @@
 
             <MudButton ButtonType="ButtonType.Submit"
                        Variant="Variant.Filled"
-                       Color="Color.Primary"
+                       Color="Color.Tertiary"
                        Class="mt-3 d-flex ml-auto"
                        StartIcon="@Icons.Material.Sharp.HowToReg"
                        Disabled="isSaveDisabled">

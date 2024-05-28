@@ -1,13 +1,13 @@
 ﻿@page "/apply"
 
-<PageTitle>Apply For Internship / Traineeship</PageTitle>
+<PageTitle>Join appsoft for better</PageTitle>
 
 @inject ApplicationDbContext Db
 @inject ISnackbar SnackBar
 
 <EditForm Model="@model" OnValidSubmit="OnValidSubmit" Context="applicationForm">
     <MudContainer>
-        <MudPaper Class="pa-5 mb-4" Elevation="5">
+        <MudPaper Class="pa-5" Elevation="5">
 
             @if (alreadyApplied)
             {
@@ -15,51 +15,75 @@
             }
             else
             {
-                <MudAlert Severity="Severity.Warning" Variant="Variant.Outlined">Please enter your details and click apply to start your traineeship journey.</MudAlert>
+                <MudAlert Severity="Severity.Warning" Variant="Variant.Outlined">Please enter your details to start learning journey at AppSoft for successful professional career.</MudAlert>
             }
 
-            <MudRadioGroup @bind-Value="model.ApplicantType" Class="mt-4">
-                <MudRadio Value="ApplicantType.StudentInternship" Color="Color.Tertiary" Dense>I am student, want to start internship/traineeship</MudRadio>
-                <MudRadio Value="ApplicantType.SoftwareEngineeringAspirant" Color="Color.Tertiary" Dense>I want to learn software engineering and tech stack(s)</MudRadio>
-                <MudRadio Value="ApplicantType.CorporateEmployee" Color="Color.Tertiary" Dense>Corporate training</MudRadio>
-            </MudRadioGroup>
+            <MudField Label="I am" Variant="Variant.Outlined" Class="mt-5">
+                <MudRadioGroup @bind-Value="model.ApplicantType">
+                    <MudRadio Value="ApplicantType.StudentInternship" Color="Color.Tertiary">Student, want to start internship/traineeship</MudRadio>
+                    <MudRadio Value="ApplicantType.SoftwareEngineeringAspirant" Color="Color.Tertiary">Software engineering aspirant, nedd professional training</MudRadio>
+                    <MudRadio Value="ApplicantType.CorporateEmployee" Color="Color.Tertiary">Corporate training</MudRadio>
+                </MudRadioGroup>
+            </MudField>            
 
             <MudTextField @bind-Value="model.Name"
+            Variant="Variant.Outlined"
                           Class="mt-4"
                           Immediate="true"
                           Label="Full Name"
                           TextChanged="UserNameChanged" />
 
             <MudTextField @bind-Value="model.Email"
+                          Variant="Variant.Outlined"
                           Class="mt-4"
                           Immediate="true"
                           Label="Email" Disabled="true" />
 
             <MudTextField @bind-Value="model.Phone"
+                          Variant="Variant.Outlined"
                           Class="mt-4"
                           Immediate="true"
                           Label="Phone"
                           TextChanged="PhoneChanged" />
 
-            <MudAutocomplete T="College"
-                             Label="Select College"
-                             @bind-Value="model.College"
-                             Class="mt-4"
-                             SearchFunc="@SearchColleges"
-                             ToStringFunc="@(e=> e==null ? null : $"{e.Name} ({e.Location})")"
-                             ShowProgressIndicator="true"
-                             ProgressIndicatorColor="Color.Default"
-                             MaxItems="null" />
+            @if (model.ApplicantType == ApplicantType.StudentInternship)
+            {
+                <MudAutocomplete T="College"
+                                 Label="Select College"
+                                 Variant="Variant.Outlined"
+                                 @bind-Value="model.College"
+                                 Class="mt-4"
+                                 SearchFunc="@SearchColleges"
+                                 ToStringFunc="@(e=> e==null ? null : $"{e.Name} ({e.Location})")"
+                                 ShowProgressIndicator="true"
+                                 ProgressIndicatorColor="Color.Default"
+                                 MaxItems="null" />
 
-            <MudAutocomplete T="TechProgram"
-                             Label="Select Program"
-                             Class="mt-4"
-                             @bind-Value="model.TechProgram"
-                             SearchFunc="@SearchPrograms"
-                             ToStringFunc="@(e=> e==null ? null : $"{e.Name} ({e.Affliation})")"
-                             ShowProgressIndicator="true"
-                             ProgressIndicatorColor="Color.Default"
-                             MaxItems="null" />
+                <MudAutocomplete T="TechProgram"
+                                 Label="Select Program"
+                                 Variant="Variant.Outlined"
+                                 Class="mt-4"
+                                 @bind-Value="model.TechProgram"
+                                 SearchFunc="@SearchPrograms"
+                                 ToStringFunc="@(e=> e==null ? null : $"{e.Name} ({e.Affliation})")"
+                                 ShowProgressIndicator="true"
+                                 ProgressIndicatorColor="Color.Default"
+                MaxItems="null" />
+            }
+            else if (model.ApplicantType == ApplicantType.SoftwareEngineeringAspirant)
+            {
+                <MudSelect T="TrainingTrack" Variant="Variant.Outlined" Label="Training track" @bind-Value="model.TrainingTrack" Class="mt-4" AnchorOrigin="Origin.BottomCenter">
+                    <MudSelectItem T="TrainingTrack" Value="@TrainingTrack.None">No idea, need consulting</MudSelectItem>
+                    <MudSelectItem T="TrainingTrack" Value="@TrainingTrack.NETWeb">.NET Web Development</MudSelectItem>
+                    <MudSelectItem T="TrainingTrack" Value="@TrainingTrack.JavaWeb">Java Web Development</MudSelectItem>
+                    <MudSelectItem T="TrainingTrack" Value="@TrainingTrack.PythonWeb">Python Web Development</MudSelectItem>
+                    <MudSelectItem T="TrainingTrack" Value="@TrainingTrack.NodeWeb">Node.js Web Development</MudSelectItem>
+                </MudSelect>
+            }
+            else
+            {
+                
+            }
 
             <ImageUpload Class="mt-4" ExistingImagePath="@model.ProfileImagePath" ImageChanged="ProfileChanged" Label="Upload Profile Image (<100kb)" />
             @if (!profileSuccess)

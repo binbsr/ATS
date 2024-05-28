@@ -20,15 +20,16 @@ public class Student : BaseEntity
     public DateTime? FormSubmitted { get; set; } = DateTime.UtcNow;
     public Status Status { get; set; } = Status.Applied;
     public ApplicantType ApplicantType { get; set; } = ApplicantType.StudentInternship;
+    public TrainingTrack TrainingTrack { get; set; } = TrainingTrack.None;
 
     [NotMapped]
     public IBrowserFile? ProfileImage { get; set; }
     public string? ProfileImagePath { get; set; }
 
-    public int CollegeId { get; set; }
+    public int? CollegeId { get; set; }
     public College? College { get; set; }
 
-    public int TechProgramId { get; set; }
+    public int? TechProgramId { get; set; }
     public TechProgram? TechProgram { get; set; }   
    
     public int? TeamId { get; set; }

@@ -2,6 +2,8 @@
 
 @inject ApplicationDbContext Db
 
+<PageTitle>ATS Profile - @(trainee?.Name ?? "Trainee")</PageTitle>
+
 @if (trainee is null)
 {
     <MudProgressLinear Indeterminate Color="Color.Tertiary" />

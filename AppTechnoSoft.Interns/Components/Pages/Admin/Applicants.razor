@@ -45,6 +45,8 @@
         <PropertyColumn Property="x => x.Name" Filterable="false" />
         <PropertyColumn Property="x => x.Phone" Filterable="false" />
         <PropertyColumn Property="x => x.Email" Filterable="false" />
+        <PropertyColumn Property="x => x.ApplicantType" Filterable="false" />
+        <PropertyColumn Property="x => x.TrainingTrack" Filterable="false" />
         <PropertyColumn Property="x => x.Status" />
     </Columns>
     <ChildRowContent>
@@ -53,13 +55,13 @@
                 <b>Name</b><MudText Typo="Typo.body1">@context.Item.Name</MudText>
             </MudItem>
             <MudItem md="3" sm="4" Class="p-2">
-                <b>College</b><MudText Typo="Typo.body1">@context.Item.College!.Name</MudText>
+                <b>College</b><MudText Typo="Typo.body1">@(context.Item.College?.Name ?? "N/A")</MudText>
+            </MudItem>            
+            <MudItem md="3" sm="4" Class="p-2">
+                <b>Program</b><MudText Typo="Typo.body1">@(context.Item.TechProgram?.Name ?? "N/A")</MudText>
             </MudItem>
             <MudItem md="3" sm="4" Class="p-2">
                 <b>Team</b><MudText Typo="Typo.body1">@(context.Item.Team?.Name ?? "Not Assigned")</MudText>
-            </MudItem>
-            <MudItem md="3" sm="4" Class="p-2">
-                <b>Program</b><MudText Typo="Typo.body1">@context.Item.TechProgram!.Name</MudText>
             </MudItem>
             <MudItem md="3" sm="4" Class="p-2">
                 <b>Applied</b><MudText Typo="Typo.body1">@context.Item.FormSubmitted.Humanize()</MudText>
@@ -73,6 +75,29 @@
             <MudItem md="3" sm="4" Class="p-2">
                 <b>Database Development Experience</b><MudText Typo="Typo.body1">@context.Item.DbExperience.GetDbExperienceText()</MudText>
             </MudItem>
+            @* <MudItem md="12" Class="p-2">
+                <MudStack Row>
+                    <MudButton Variant="Variant.Outlined"
+                               Disabled="context.Item.Email == string.Empty"
+                               Color="Color.Warning"
+                               Class="my-3"
+                               StartIcon="@Icons.Material.Filled.Security"
+                               OnClick="GenerateUserCreds">
+                        Generate Login Details
+                    </MudButton>
+
+                    @if (password != string.Empty)
+                    {
+                        <MudAlert Severity="Severity.Info" Style="font-size:1.1rem">
+                            Please Keep it Safe (One time only)
+                            <span class="border-2 border-dashed p-2" style="font-family:Courier New, Courier, monospace">
+                                <b>Email:</b> @context.Item.Email
+                                <b>Password:</b> @password
+                            </span>
+                        </MudAlert>
+                    }
+                </MudStack>
+            </MudItem> *@
         </MudGrid>
     </ChildRowContent>
     <PagerContent>
@@ -85,6 +110,7 @@
     private HashSet<Student> selectedApplicants = [];
     private string _searchString = string.Empty;
     private bool loadingData = false;
+    private string password = "";
 
     private Func<Student, bool> _quickFilter => x =>
     {
@@ -127,12 +153,17 @@
 
             if (rowsAffected > 0)
             {
-                SnackBar.Add("Selectedt trainees debatched", Severity.Success);
+                SnackBar.Add("Selected trainees debatched", Severity.Success);
             }
             else
             {
                 SnackBar.Add("Debatching failed", Severity.Error);
             }
         }
+    }
+
+    private void GenerateUserCreds()
+    {
+        password = PwdGenerator.NewPassword(8);
     }
 }

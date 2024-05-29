@@ -1,119 +1,99 @@
 ﻿@page "/apply"
 
-<PageTitle>Apply For Internship</PageTitle>
+<PageTitle>Join appsoft for better</PageTitle>
 
-@attribute [Authorize]
 @inject ApplicationDbContext Db
 @inject ISnackbar SnackBar
 
 <EditForm Model="@model" OnValidSubmit="OnValidSubmit" Context="applicationForm">
-    <MudPaper Class="pa-5 mb-4" Elevation="5">
-        <MudGrid Class="pa-4">
-            <MudItem md="12">
-                @if (alreadyApplied)
-                {
-                    <MudAlert Severity="Severity.Success" Variant="Variant.Outlined">We have already received your application, feel free to update your details if you have to.</MudAlert>
-                }
-                else
-                {
-                    <MudAlert Severity="Severity.Warning" Variant="Variant.Outlined">Please enter your details and click apply to start your traineeship journey.</MudAlert>
-                }
-            </MudItem>
-            <MudItem md="6" xs="12" Class="pb-0">
-                <MudTextField @bind-Value="model.Name"
-                              Immediate="true"
-                              Label="Full Name" />
-            </MudItem>
-            <MudItem md="6" xs="12" Class="pb-0">
-                <ImageUpload ExistingImagePath="@model.ProfileImagePath" ImageChanged="ProfileChanged" Label="Your Profile Image" />
-                @if (!profileSuccess)
-                {
-                    <MudText Color="Color.Warning">@message</MudText>
-                }
-            </MudItem>
-            <MudItem md="6" xs="12">
-                <MudTextField @bind-Value="model.Email"
-                              Immediate="true"
-                              Label="Email" Disabled="true" />
-            </MudItem>
-            <MudItem md="6" xs="12">
-                <MudTextField @bind-Value="model.Phone"
-                              Immediate="true"
-                              Label="Phone" />
-            </MudItem>
-            <MudItem md="6" xs="12">
-                <MudAutocomplete T="College"
-                                 Label="Select College"
-                                 @bind-Value="model.College"
-                                 SearchFunc="@SearchColleges"
-                                 ToStringFunc="@(e=> e==null ? null : $"{e.Name} ({e.Location})")"
-                                 ShowProgressIndicator="true"
-                                 ProgressIndicatorColor="Color.Default"
-                                 MaxItems="null" />
-            </MudItem>
-            <MudItem md="6" xs="12">
-                <MudAutocomplete T="TechProgram"
-                                 Label="Select Program"
-                                 @bind-Value="model.TechProgram"
-                                 SearchFunc="@SearchPrograms"
-                                 ToStringFunc="@(e=> e==null ? null : $"{e.Name} ({e.Affliation})")"
-                                 ShowProgressIndicator="true"
-                                 ProgressIndicatorColor="Color.Default"
-                                 MaxItems="null" />
-            </MudItem>
-        </MudGrid>
-    </MudPaper>
-    <MudPaper Class="pa-5 mb-4" Elevation="5">
-        <MudGrid>
-            <MudItem md="12">
-                <MudText Typo="Typo.h6">Your experience and knowledge</MudText>
-                <MudText Typo="Typo.subtitle1">Please be as sincere as you can, it's important to enroll you to appropriate batch</MudText>
-            </MudItem>
-            <MudItem md="4" xs="12">
-                <MudText Typo="Typo.button">General Programming</MudText>
-                <MudRadioGroup @bind-Value="@model.GeneralProgramming">
-                    <MudStack Spacing="0">
-                        @foreach (var item in Enum.GetValues<GeneralProgrammingExperience>())
-                        {
-                            <MudRadio Value="item" Color="Color.Secondary">@item.GetGeneralProgText()</MudRadio>
-                        }
-                    </MudStack>
-                </MudRadioGroup>
-            </MudItem>
-            <MudItem md="4" xs="12">
-                <MudText Typo="Typo.button">Web Development</MudText>
-                <MudRadioGroup @bind-Value="@model.WebExperience">
-                    <MudStack Spacing="0">
-                        @foreach (var item in Enum.GetValues<WebExperience>())
-                        {
-                            <MudRadio Value="item" Color="Color.Secondary">@item.GetWebExperienceText()</MudRadio>
-                        }
-                    </MudStack>
-                </MudRadioGroup>
-            </MudItem>
-            <MudItem md="4" xs="12">
-                <MudText Typo="Typo.button">Database Development</MudText>
-                <MudRadioGroup @bind-Value="@model.DbExperience">
-                    <MudStack Spacing="0">
-                        @foreach (var item in Enum.GetValues<DbExperience>())
-                        {
-                            <MudRadio Value="item" Color="Color.Secondary">@item.GetDbExperienceText()</MudRadio>
-                        }
-                    </MudStack>
-                </MudRadioGroup>
-            </MudItem>
-        </MudGrid>
-    </MudPaper>
-    <MudItem md="12">
-        <MudButton ButtonType="ButtonType.Submit" Style="float:right"
+    <MudPaper Class="pa-5" Elevation="5">
+
+        @if (alreadyApplied)
+        {
+            <MudAlert Severity="Severity.Success" Variant="Variant.Outlined">We have received your application, please feel free to update your details or contact us for any queries.</MudAlert>
+        }
+        else
+        {
+            <MudAlert Severity="Severity.Warning" Variant="Variant.Outlined">Please enter your details to start learning journey at AppSoft for successful professional career.</MudAlert>
+        }
+
+        <MudField Label="I am" Variant="Variant.Outlined" Class="mt-5">
+            <MudRadioGroup @bind-Value="model.ApplicantType">
+                <MudRadio Value="ApplicantType.StudentInternship" Color="Color.Tertiary">Student, want to start internship/traineeship</MudRadio>
+                <MudRadio Value="ApplicantType.SoftwareEngineeringAspirant" Color="Color.Tertiary">Software engineering aspirant, need professional training</MudRadio>
+            </MudRadioGroup>
+        </MudField>
+
+        <MudTextField @bind-Value="model.Name"
+                      Variant="Variant.Outlined"
+                      Class="mt-4"
+                      Immediate="true"
+                      Label="Full Name"
+                      TextChanged="UserNameChanged" />
+
+        <MudTextField @bind-Value="model.Email"
+                      Variant="Variant.Outlined"
+                      Class="mt-4"
+                      Immediate="true"
+                      Label="Email" Disabled="true" />
+
+        <MudTextField @bind-Value="model.Phone"
+                      Variant="Variant.Outlined"
+                      Class="mt-4"
+                      Immediate="true"
+                      Label="Phone"
+                      TextChanged="PhoneChanged" />
+
+        @if (model.ApplicantType == ApplicantType.StudentInternship)
+        {
+            <MudAutocomplete T="College"
+                             Label="Select College"
+                             Variant="Variant.Outlined"
+                             @bind-Value="model.College"
+                             Class="mt-4"
+                             SearchFunc="@SearchColleges"
+                             ToStringFunc="@(e=> e==null ? null : $"{e.Name} ({e.Location})")"
+                             ShowProgressIndicator="true"
+                             ProgressIndicatorColor="Color.Default"
+                             MaxItems="null" />
+
+            <MudAutocomplete T="TechProgram"
+                             Label="Select Program"
+                             Variant="Variant.Outlined"
+                             Class="mt-4"
+                             @bind-Value="model.TechProgram"
+                             SearchFunc="@SearchPrograms"
+                             ToStringFunc="@(e=> e==null ? null : $"{e.Name} ({e.Affliation})")"
+                             ShowProgressIndicator="true"
+                             ProgressIndicatorColor="Color.Default"
+                             MaxItems="null" />
+        }
+        else if (model.ApplicantType == ApplicantType.SoftwareEngineeringAspirant)
+        {
+            <MudSelect T="TrainingTrack" Variant="Variant.Outlined" Label="Training track" @bind-Value="model.TrainingTrack" Class="mt-4" AnchorOrigin="Origin.BottomCenter">
+                <MudSelectItem T="TrainingTrack" Value="@TrainingTrack.None">No idea, need consulting</MudSelectItem>
+                <MudSelectItem T="TrainingTrack" Value="@TrainingTrack.NETWeb">.NET Web Development</MudSelectItem>
+                <MudSelectItem T="TrainingTrack" Value="@TrainingTrack.JavaWeb">Java Web Development</MudSelectItem>
+                <MudSelectItem T="TrainingTrack" Value="@TrainingTrack.PythonWeb">Python Web Development</MudSelectItem>
+                <MudSelectItem T="TrainingTrack" Value="@TrainingTrack.NodeWeb">Node.js Web Development</MudSelectItem>
+            </MudSelect>
+        }
+
+        <ImageUpload Class="mt-4" ExistingImagePath="@model.ProfileImagePath" ImageChanged="ProfileChanged" Label="Upload Profile Image (<100kb)" />
+        @if (!profileSuccess)
+        {
+            <MudText Color="Color.Warning">@message</MudText>
+        }
+
+        <MudButton ButtonType="ButtonType.Submit"
                    Variant="Variant.Filled"
-                   Color="Color.Primary"
-                   Class="ml-auto"
+                   Color="Color.Tertiary"
+                   Class="mt-3 d-flex ml-auto"
                    StartIcon="@Icons.Material.Sharp.HowToReg"
                    Disabled="isSaveDisabled">
-            @(alreadyApplied ? "Update Details" : "Apply for Traineeship")
+            @(alreadyApplied ? "Update Details" : "Apply")
         </MudButton>
-    </MudItem>
+    </MudPaper>
 </EditForm>
 
 @code {
@@ -124,38 +104,18 @@
     List<TechProgram> techPrograms = [];
     private bool profileSuccess = false;
     private string message = "";
+    private string alreadyAppliedMessage = "";
 
-    private bool isSaveDisabled => model.Name is ""
+    private bool isSaveDisabled => model.ApplicantType == ApplicantType.StudentInternship ?
+        (model.Name is ""
         || model.Phone is ""
         || model.Email is ""
         || model.College is null
-        || model.TechProgram is null;
-
-    [CascadingParameter]
-    private Task<AuthenticationState> authenticationStateTask { get; set; } = null!;
-
-    protected override async Task OnInitializedAsync()
-    {
-        var userState = await authenticationStateTask;
-        var userId = userState.User.GetUserId();
-        var user = await Db.Users.FindAsync(userId);
-
-        if (user is null)
-            return;
-
-        // Use logged in user email to fetch student data if already applied
-        var student = await Db.Students.Include(c => c.College).Include(t => t.TechProgram).FirstOrDefaultAsync(x => x.Email == user.Email);
-        if (student is null)
-        {
-            model.Email = user.Email!;
-            model.ApplicationUserId = user.Id;
-        }
-        else
-        {
-            model = student;
-            alreadyApplied = true;
-        }
-    }
+        || model.TechProgram is null) :
+        (model.Name is ""
+        || model.Phone is ""
+        || model.Email is "")
+        ;
 
     private async Task OnValidSubmit(EditContext editContext)
     {
@@ -166,17 +126,43 @@
             model.ProfileImagePath = message;
         }
 
+        var rowsAffected = 0;
         if (alreadyApplied)
         {
             // User updating his/her details
-            Db.Students.Update(model);
+            if (model.ApplicantType == ApplicantType.StudentInternship)
+            {
+                rowsAffected = await Db.Students.ExecuteUpdateAsync(o => o
+                    .SetProperty(x => x.Name, model.Name)
+                    .SetProperty(x => x.Email, model.Email)
+                    .SetProperty(x => x.Phone, model.Phone)
+                    .SetProperty(x => x.College, model.College)
+                    .SetProperty(x => x.TechProgram, model.TechProgram)
+                    .SetProperty(x => x.ProfileImagePath, model.ProfileImagePath)
+                );
+            }
+            else if (model.ApplicantType == ApplicantType.SoftwareEngineeringAspirant)
+            {
+                rowsAffected = await Db.Students.ExecuteUpdateAsync(o => o
+                    .SetProperty(x => x.Name, model.Name)
+                    .SetProperty(x => x.Email, model.Email)
+                    .SetProperty(x => x.Phone, model.Phone)
+                    .SetProperty(x => x.TrainingTrack, model.TrainingTrack)
+                    .SetProperty(x => x.ProfileImagePath, model.ProfileImagePath)
+                );
+            }
         }
         else
         {
-            Db.Students.Add(model);
-        }
+            if (model.ApplicantType == ApplicantType.SoftwareEngineeringAspirant)
+            {
+                model.College = null;
+                model.TechProgram = null;
+            }
 
-        var rowsAffected = await Db.SaveChangesAsync();
+            Db.Students.Add(model);
+            rowsAffected = await Db.SaveChangesAsync();
+        }
 
         if (rowsAffected > 0)
         {
@@ -223,4 +209,35 @@
 
         return techPrograms.Where(x => x.Name.Contains(value, StringComparison.OrdinalIgnoreCase));
     }
+
+    private void UserNameChanged()
+    {
+        model.Email = CreateEmail(model.Name, model.Phone);
+    }
+
+    private async Task PhoneChanged()
+    {
+        model.Email = CreateEmail(model.Name, model.Phone);
+        if (model.Phone.Length == 10)
+        {
+            var student = await Db.Students
+                .Include(x => x.College)
+                .Include(y => y.TechProgram)
+                .FirstOrDefaultAsync(x => x.Phone == model.Phone);
+
+            alreadyApplied = student is not null;
+            if (alreadyApplied)
+            {
+                model = student!;
+            }
+            else
+            {
+                model.Id = Guid.NewGuid().ToString();
+            }
+        }
+    }
+
+    private string CreateEmail(string name, string phone) =>
+        $"{name} {phone}".ToEmail();
+
 }

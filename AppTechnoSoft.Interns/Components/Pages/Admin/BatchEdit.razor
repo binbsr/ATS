@@ -13,7 +13,19 @@
     <EditForm Model="@model" OnValidSubmit="OnValidSubmit">
         <DataAnnotationsValidator />
         <MudTextField Label="Name" Value="@model.Name" Disabled />
-        <MudDateRangePicker Label="Batch Duration" DateRange="@(new DateRange(model.Start, model.End))" DateRangeChanged="DatesChanged" />
+        <MudSelect T="string"
+                   Dense="true"
+                   Label="Training Track"
+                   Value="selectedTrack"
+                   ValueChanged="TrackChanged"
+                   Class="my-3"
+                   AnchorOrigin="Origin.BottomCenter">
+            @foreach (var tech in backendTechs)
+            {
+                <MudSelectItem Value="tech">@tech</MudSelectItem>
+            }
+        </MudSelect>
+        <MudDateRangePicker Label="Batch Duration" DateRange="batchRange" DateRangeChanged="DatesChanged" />
 
         <MudSelect T="string"
                    Dense="true"
@@ -53,6 +65,9 @@
     record ListItem(string Id, string Name, int? BatchId);
     string pageTitle = string.Empty;
     bool IsAdd => Id is null or 0;
+    DateRange batchRange = null!;
+    string selectedTrack = "General";
+    string[] backendTechs = ["General", BackendTech.NET, BackendTech.Java, BackendTech.Python, BackendTech.Node];
 
     protected override async Task OnInitializedAsync()
     {
@@ -66,12 +81,15 @@
                     Start = DateTime.Now,
                     End = DateTime.Now.AddDays(75)
                 };
-            model.Name = $"{"Batch".MakeUnique()} - {model.Start:MMM dd (yyyy)} to {model.End:MMM dd (yyyy)}";
+            batchRange = new DateRange(model.Start, model.End);
+            model.Name = CreateBatchName(batchRange, selectedTrack);
         }
         else
         {
             pageTitle = "Edit Batch";
             model = await Db.Batches.FindAsync(Id) ?? new();
+            batchRange = new DateRange(model.Start, model.End);
+            selectedTrack = model.Name.Split()[1];
             studentsSelected = students.Where(x => x.BatchId == Id).Select(x => x.Id);
         }
     }
@@ -136,8 +154,7 @@
                 _ = resultAdd.Succeeded ?
                 SnackBar.Add($"{appUser.UserName} assinged trainee role", Severity.Success) :
                 SnackBar.Add($"{appUser.UserName} role assignment failed. {string.Join("\n\r", resultAdd.Errors.Select(x => x.Description))}", Severity.Error);
-            }           
-
+            } 
         }
 
         Navigation.NavigateTo("/batches");
@@ -147,12 +164,24 @@
     {
         if (range.Start is null || range.End is null)
             return;
+        batchRange = range;
+        model.Name = CreateBatchName(range, selectedTrack);
+    }
 
+    private void TrackChanged(string tech)
+    {
+        selectedTrack = tech;
+        model.Name = CreateBatchName(batchRange, tech);
+    }
+
+    private string CreateBatchName(DateRange range, string tech)
+    {
         model.Start = range.Start.Value;
         model.End = range.End.Value;
-        var batchName = IsAdd ? "Batch".MakeUnique() : model.Name[..model.Name.IndexOf("-")].TrimEnd();
-        model.Name = $"{batchName} - {range.Start:MMM dd (yyyy)} to {range.End:MMM dd (yyyy)}";
+        
+        return $"Batch {tech} Track ({model.Start:MMM dd, yyyy} to {model.End:MMM dd, yyyy})";
     }
+    
 
     private string GetMultiSelectionText(List<string> selectedValues)
     {

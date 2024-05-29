@@ -45,6 +45,8 @@
         <PropertyColumn Property="x => x.Name" Filterable="false" />
         <PropertyColumn Property="x => x.Phone" Filterable="false" />
         <PropertyColumn Property="x => x.Email" Filterable="false" />
+        <PropertyColumn Property="x => x.ApplicantType" Filterable="false" />
+        <PropertyColumn Property="x => x.TrainingTrack" Filterable="false" />
         <PropertyColumn Property="x => x.Status" />
     </Columns>
     <ChildRowContent>
@@ -53,13 +55,13 @@
                 <b>Name</b><MudText Typo="Typo.body1">@context.Item.Name</MudText>
             </MudItem>
             <MudItem md="3" sm="4" Class="p-2">
-                <b>College</b><MudText Typo="Typo.body1">@context.Item.College!.Name</MudText>
+                <b>College</b><MudText Typo="Typo.body1">@(context.Item.College?.Name ?? "N/A")</MudText>
+            </MudItem>            
+            <MudItem md="3" sm="4" Class="p-2">
+                <b>Program</b><MudText Typo="Typo.body1">@(context.Item.TechProgram?.Name ?? "N/A")</MudText>
             </MudItem>
             <MudItem md="3" sm="4" Class="p-2">
                 <b>Team</b><MudText Typo="Typo.body1">@(context.Item.Team?.Name ?? "Not Assigned")</MudText>
-            </MudItem>
-            <MudItem md="3" sm="4" Class="p-2">
-                <b>Program</b><MudText Typo="Typo.body1">@context.Item.TechProgram!.Name</MudText>
             </MudItem>
             <MudItem md="3" sm="4" Class="p-2">
                 <b>Applied</b><MudText Typo="Typo.body1">@context.Item.FormSubmitted.Humanize()</MudText>
@@ -151,7 +153,7 @@
 
             if (rowsAffected > 0)
             {
-                SnackBar.Add("Selectedt trainees debatched", Severity.Success);
+                SnackBar.Add("Selected trainees debatched", Severity.Success);
             }
             else
             {

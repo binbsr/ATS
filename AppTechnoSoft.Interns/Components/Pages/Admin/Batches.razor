@@ -5,52 +5,106 @@
 
 <PageTitle>Training Batches</PageTitle>
 
-<MudTable Items="@batches" Hover="true" Filter="new Func<Batch, bool>(FilterFunc1)" @bind-SelectedItem="selectedBatch" Loading="@loadingData">
-    <ToolBarContent>
-        <MudFab Href="/add-batch" StartIcon="@Icons.Material.Filled.Add" Title="Add New Batch" Size="Size.Small" Color="Color.Tertiary"></MudFab>
-        <MudSpacer />
-        <MudTextField @bind-Value="searchString" Placeholder="Search"
-                      Adornment="Adornment.Start"
-                      AdornmentIcon="@Icons.Material.Filled.Search"
-                      IconSize="Size.Medium"
-                      Class="mt-0">
-        </MudTextField>
-    </ToolBarContent>
-    <HeaderContent>
-        <MudTh>#</MudTh>
-        <MudTh>Name</MudTh>
-        <MudTh>Start Date</MudTh>
-        <MudTh>End Date</MudTh>
-        <MudTh>Created</MudTh>
-        <MudTh>Created By</MudTh>
-    </HeaderContent>
-    <RowTemplate>
-        <MudTd DataLabel="#">@(batches.IndexOf(context) + 1)</MudTd>
-        <MudTd DataLabel="Name">@context.Name</MudTd>
-            <MudTd DataLabel="Start">@context.Start.Humanize()</MudTd>
-            <MudTd DataLabel="End">@context.End.Humanize()</MudTd>
-            <MudTd DataLabel="Created">@context.Created.Humanize()</MudTd>
-            <MudTd DataLabel="CreatedBy">@(context.CreatedBy ?? "N/A")</MudTd>
-            <MudTd>
-                <MudIconButton Icon="@Icons.Material.Filled.Edit" Size="Size.Small" Color="Color.Warning" Href="@("/edit-batch/" + context.Id)" />
-                <MudIconButton Icon="@Icons.Material.Sharp.Delete" Size="Size.Small" Color="Color.Error" OnClick="() => ConfirmDelete(context)" />
-                <MudMessageBox @ref="mbox" Title="Warning" CancelText="Cancel">
-                    <MessageContent>
-                        Are you sure to delete this batch? It can't be undone!
-                    </MessageContent>
-                    <YesButton>
-                        <MudButton Variant="Variant.Filled" Color="Color.Error" Class="ml-2 mb-2 mr-3" StartIcon="@Icons.Material.Filled.DeleteForever">Delete</MudButton>
-                    </YesButton>
-                </MudMessageBox>
-            </MudTd>
-        </RowTemplate>
-        <PagerContent>
-            <MudTablePager />
-        </PagerContent>
-    </MudTable>
+<MudButton Href="/add-batch" StartIcon="@Icons.Material.Filled.Add" Color="Color.Tertiary" Variant="Variant.Filled" Size="Size.Large" Class="mb-4">New Batch</MudButton>
 
+<MudGrid>
+    @foreach (var batch in batches)
+    {
+        <MudItem md="12">
+            <MudCard Elevation="10">
+                <MudCardHeader>
+                    <CardHeaderAvatar>
+                        <MudAvatar Color="Color.Secondary" Size="Size.Large">B</MudAvatar>
+                    </CardHeaderAvatar>
+                    <CardHeaderContent>
+                        <MudText Typo="Typo.h5">@batch.Name</MudText>
+                        <MudText Typo="Typo.body1" title="@batch.Created">Added @batch.Created.Humanize()</MudText>
+                    </CardHeaderContent>
+                    <CardHeaderActions>
+                        <MudIconButton Class="mt-5" Icon="@Icons.Material.Filled.Edit" Size="Size.Small" Color="Color.Warning" Href="@("/edit-batch/" + batch.Id)" />
+                        <MudIconButton Class="mt-5" Icon="@Icons.Material.Sharp.Delete" Size="Size.Small" Color="Color.Error" OnClick="() => ConfirmDelete(batch)" />
+                        <MudMessageBox @ref="mbox" Title="Warning" CancelText="Cancel">
+                            <MessageContent>
+                                Are you sure to delete this batch? It can't be undone.
+                            </MessageContent>
+                            <YesButton>
+                                <MudButton Variant="Variant.Filled" Color="Color.Error" StartIcon="@Icons.Material.Filled.DeleteForever">Delete</MudButton>
+                            </YesButton>
+                        </MudMessageBox>
+                    </CardHeaderActions>
+                </MudCardHeader>
+                <MudCardContent>
+                    <MudStack Row>
+                        <MudAvatarGroup Max="8" Spacing="2" MaxColor="Color.Primary" MaxSize="Size.Large" Outlined>
+                            @foreach (var student in batch.Students)
+                            {
+                                <MudAvatar Size="Size.Large">
+                                    <MudImage Src="@student.ProfileImagePath" title="@student.Name" />
+                                </MudAvatar>
+                            }
+                        </MudAvatarGroup>
+                        <MudSpacer />
+                        <MudText Typo="Typo.h6" Inline>@("agile team".ToQuantity(batch.Teams.Count)) formed</MudText>
+                    </MudStack>
 
-    @code {
+                    <MudGrid Class="mt-3">
+                        @foreach (var team in batch.Teams)
+                        {
+                            <MudItem md="3" sm="4" xs="12">
+                                <MudCard Elevation="0" Class="border-1 border-solid">
+                                    <MudCardHeader>
+                                        <CardHeaderAvatar>
+                                            <MudAvatar Size="Size.Large">
+                                                <MudImage Src="@team.Avatar" />
+                                            </MudAvatar>
+                                        </CardHeaderAvatar>
+                                        <CardHeaderContent>
+                                            <MudText Typo="Typo.h5">@team.Name</MudText>
+                                        </CardHeaderContent>
+                                        <CardHeaderActions>
+                                            <MudIconButton Class="mt-5" Icon="@Icons.Material.Filled.Edit" Size="Size.Small" Color="Color.Warning" Href="@("/edit-team/" + team.Id)" />
+                                            <MudIconButton Class="mt-5" Icon="@Icons.Material.Sharp.Delete" Size="Size.Small" Color="Color.Error" OnClick="() => ConfirmDeleteTeam(team, batch)" />
+                                            <MudMessageBox @ref="mbox" Title="Warning" CancelText="Cancel">
+                                                <MessageContent>
+                                                    Are you sure to delete this team? It can't be undone!
+                                                </MessageContent>
+                                                <YesButton>
+                                                    <MudButton Variant="Variant.Filled" Color="Color.Error" StartIcon="@Icons.Material.Filled.DeleteForever">Delete!</MudButton>
+                                                </YesButton>
+                                            </MudMessageBox>
+                                        </CardHeaderActions>
+                                    </MudCardHeader>
+                                    <MudCardContent>
+                                        <MudAvatarGroup Max="5" Spacing="2" MaxColor="Color.Primary" MaxSize="Size.Large" Outlined>
+                                            @foreach (var student in team.Students)
+                                            {
+                                                <MudAvatar Size="Size.Large">
+                                                    <MudImage Src="@student.ProfileImagePath" title="@student.Name" />
+                                                </MudAvatar>
+                                            }
+                                        </MudAvatarGroup>
+                                        @* <MudText Typo="Typo.subtitle1" Class="mt-4">
+                                            Project: <MudText Typo="Typo.h6" Inline>@(team.Project?.Title ?? "None")</MudText>
+                                        </MudText> *@
+                                        
+                                    </MudCardContent>
+                                    <MudCardActions>
+                                        <MudText Typo="Typo.body1" title="@team.Created">Added @team.Created.Humanize()</MudText>
+                                    </MudCardActions>
+                                </MudCard>
+                            </MudItem>
+                        }
+                        <MudItem>
+                            <MudButton Href="@($"/add-team?batchId={@batch.Id}")" StartIcon="@Icons.Material.Filled.Add" Color="Color.Tertiary" Variant="Variant.Filled" Size="Size.Large">New Team</MudButton>
+                        </MudItem>
+                    </MudGrid>
+                </MudCardContent>
+            </MudCard>
+        </MudItem>
+    }
+</MudGrid>
+
+@code {
 
     private List<Batch> batches = new();
     private Batch selectedBatch = new();
@@ -61,7 +115,13 @@
     protected override async Task OnInitializedAsync()
     {
         loadingData = true;
-        batches = await Db.Batches.ToListAsync();        
+
+        batches = await Db.Batches
+            .Include(x => x.Students)
+            .Include(z => z.Teams)
+            .ThenInclude(y => y.Students)
+            .ToListAsync();
+
         loadingData = false;
     }
 
@@ -72,7 +132,7 @@
         if (string.IsNullOrWhiteSpace(searchString))
             return true;
         if (batch.Name.Contains(searchString, StringComparison.OrdinalIgnoreCase))
-            return true;       
+            return true;
         return false;
     }
 
@@ -94,6 +154,27 @@
         else
         {
             SnackBar.Add("Batch Delete failed", Severity.Error);
+        }
+    }
+
+    private async Task ConfirmDeleteTeam(Team team, Batch batch)
+    {
+        bool? result = await mbox.Show();
+        if (result == null)
+            return;
+
+        Db.Teams.Remove(team);
+
+        var rowsAffected = await Db.SaveChangesAsync();
+
+        if (rowsAffected > 0)
+        {
+            SnackBar.Add("Team Deleted successfully", Severity.Success);
+            batch.Teams?.Remove(team);
+        }
+        else
+        {
+            SnackBar.Add("Team Delete failed", Severity.Error);
         }
     }
 }

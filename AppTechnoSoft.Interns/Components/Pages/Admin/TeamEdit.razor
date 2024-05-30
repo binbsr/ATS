@@ -68,6 +68,9 @@
     [Parameter]
     public int? Id { get; set; }
 
+    [SupplyParameterFromQuery]
+    public int? batchId { get; set; }
+
     [CascadingParameter]
     private Task<AuthenticationState> AuthTask { get; set; } = null!;
 
@@ -88,6 +91,7 @@
         if (IsAdd)
         {
             pageTitle = "Add Team";
+            model.Batch = batches.Find(x => x.Id == batchId);
         }
         else
         {
@@ -143,7 +147,7 @@
             SnackBar.Add("Team save failed", Severity.Error);
         }
 
-        Navigation.NavigateTo("/teams");
+        Navigation.NavigateTo("/batches");
     }
 
     private async Task BatchChanged(Batch batch)

@@ -1,0 +1,93 @@
+﻿@page "/timesheets"
+
+@attribute [Authorize(Roles = Role.Admins)]
+
+@inject ApplicationDbContext Db
+
+<PageTitle>Timesheet Details</PageTitle>
+
+<MudDataGrid T="Attendance"
+             Items="@attendances"
+             SortMode="SortMode.Multiple"
+             Filterable="true"
+             Hover="true"
+             QuickFilter="@_quickFilter"
+             Loading="loadingData"
+             Hideable="true"
+             Dense="true">
+
+    <ToolBarContent>
+        <MudText Typo="Typo.h6">Trainee timesheets</MudText>
+        <MudSpacer />
+        <MudTextField @bind-Value="_searchString" Placeholder="Search" Adornment="Adornment.Start" Immediate="true"
+                      AdornmentIcon="@Icons.Material.Filled.Search" IconSize="Size.Medium" Class="mt-0"></MudTextField>
+    </ToolBarContent>
+    <Columns>
+        <PropertyColumn Property="x => x.Date" Grouping Groupable="true">
+            <GroupTemplate>
+                <span style="font-weight:bold">
+                    Attendance Date: @context.Grouping.Key
+                    <MudChip Variant="Variant.Outlined" Color="Color.Tertiary">@context.Grouping.Count() Entries</MudChip>
+                </span>
+            </GroupTemplate>
+        </PropertyColumn>
+        <PropertyColumn Property="x => x.PunchIn.ToNepalTime(x.Date)" Filterable="false"/>
+        <TemplateColumn Title="Punchout" Filterable="false">
+            <CellTemplate>
+                @(IsPunchOutEmpty(context.Item.PunchOut) ? "No Punch Out" : context.Item.PunchOut.ToNepalTime(context.Item.Date))
+            </CellTemplate>
+        </TemplateColumn>
+        <TemplateColumn Title="Duration" Filterable="false">
+            <CellTemplate>
+                @(IsPunchOutEmpty(context.Item.PunchOut) ? "N/A" : (context.Item!.PunchOut - context.Item!.PunchIn)!.Value.Humanize(2))
+            </CellTemplate>
+        </TemplateColumn>
+        <PropertyColumn Property="x => x.WorkLog" Title="Task" Filterable="false"/>
+        <PropertyColumn Property="x => x.Student.Name" Title="Name" Groupable="true"/>
+        <TemplateColumn Title="Team" Groupable="true">
+            <CellTemplate>
+                @(context.Item.Student?.Team?.Name ?? "Not Assigned")
+            </CellTemplate>
+        </TemplateColumn>
+    </Columns>
+    <PagerContent>
+        <MudDataGridPager T="Attendance" PageSizeOptions="[200, 500, 1000]" />
+    </PagerContent>
+</MudDataGrid>
+
+
+@code {
+
+    List<Attendance> attendances = [];
+    private string _searchString = string.Empty;
+    private bool loadingData = false;
+
+    protected override async Task OnInitializedAsync()
+    {
+        loadingData = true;
+
+        attendances = await Db.Attendances
+            .Include(x => x.Student)
+            .ThenInclude(x => x.Team)
+            .OrderByDescending(x => x.Date)
+            .ToListAsync();
+
+        loadingData = false;
+    }
+
+    private bool IsPunchOutEmpty(TimeOnly? time) => time == null || time == TimeOnly.MinValue;
+
+    private Func<Attendance, bool> _quickFilter => x =>
+    {
+        if (string.IsNullOrWhiteSpace(_searchString))
+            return true;
+
+        if (x.Student.Name.Contains(_searchString, StringComparison.OrdinalIgnoreCase))
+            return true;
+
+        if (x.Date.ToString().Contains(_searchString, StringComparison.OrdinalIgnoreCase))
+            return true;
+
+        return false;
+    };
+}

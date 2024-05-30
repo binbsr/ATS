@@ -4,60 +4,55 @@
 @inject ApplicationDbContext Db
 @inject ISnackbar SnackBar
 
-<PageTitle>Project Teams</PageTitle>
+<PageTitle>All project teams</PageTitle>
 
-<MudTable Items="@teams" Hover="true" Dense Filter="new Func<Team,bool>(FilterFunc1)" @bind-SelectedItem="selectedTeam" Loading="@loadingData">
-     <ToolBarContent>
-         <MudFab Href="/add-team" StartIcon="@Icons.Material.Filled.Add" Title="Add New Team" Size="Size.Small" Color="Color.Tertiary"></MudFab>
-         <MudSpacer />
-         <MudTextField @bind-Value="searchString" Placeholder="Search"
-                       Adornment="Adornment.Start"
-                       AdornmentIcon="@Icons.Material.Filled.Search"
-                       IconSize="Size.Medium"
-                       Class="mt-0">
-         </MudTextField>
-     </ToolBarContent>
-     <HeaderContent>
-         <MudTh>#</MudTh>
-         <MudTh>Team Avatar</MudTh>
-         <MudTh>Name</MudTh>
-         <MudTh>Batch</MudTh>
-         <MudTh>Project Title</MudTh>
-         <MudTh>Added</MudTh>
-         <MudTh>Added By</MudTh>
-     </HeaderContent>
-     <RowTemplate>
-         <MudTd DataLabel="#">@(teams.IndexOf(context) + 1)</MudTd>
-         <MudTd DataLabel="Team Avatar">
-             <MudAvatar>
-                 <MudImage Src="@context.Avatar" />
-             </MudAvatar>
-         </MudTd>
-         <MudTd DataLabel="Name">@context.Name</MudTd>
-            <MudTd DataLabel="Batch">@(context?.Batch?.Name ?? "N/A")</MudTd>
-            <MudTd DataLabel="Project Title">@(context?.Project?.Title ?? "N/A")</MudTd>
-            <MudTd DataLabel="Created">@context.Created.Humanize()</MudTd>
-            <MudTd DataLabel="Created">@context.CreatedBy</MudTd>
-            <MudTd>
-                <MudIconButton Icon="@Icons.Material.Filled.Edit" Size="Size.Small" Color="Color.Warning" Href="@("/edit-team/" + context.Id)" />
-                <MudIconButton Icon="@Icons.Material.Sharp.Delete" Size="Size.Small" Color="Color.Error" OnClick="() => ConfirmDelete(context)" />
-                <MudMessageBox @ref="mbox" Title="Warning" CancelText="Cancel">
-                    <MessageContent>
-                        Are you sure to delete this team? It can't be undone!
-                    </MessageContent>
-                    <YesButton>
-                        <MudButton Variant="Variant.Filled" Color="Color.Error" StartIcon="@Icons.Material.Filled.DeleteForever">Delete!</MudButton>
-                    </YesButton>
-                </MudMessageBox>
-            </MudTd>
-        </RowTemplate>
-        <PagerContent>
-            <MudTablePager />
-        </PagerContent>
-    </MudTable>
+<MudGrid>
 
+    @foreach (var team in teams)
+    {
+        <MudItem md="3" sm="4" xs="12">
+            <MudCard>
+                <MudCardHeader>
+                    <CardHeaderAvatar>
+                        <MudAvatar Size="Size.Large">
+                            <MudImage Src="@team.Avatar" />
+                        </MudAvatar>
+                    </CardHeaderAvatar>
+                    <CardHeaderContent>
+                        <MudText Typo="Typo.h5">@team.Name</MudText>
+                    </CardHeaderContent>
+                    <CardHeaderActions>
+                        <MudIconButton Class="mt-5" Icon="@Icons.Material.Filled.Edit" Size="Size.Small" Color="Color.Warning" Href="@("/edit-team/" + team.Id)" />
+                        <MudIconButton Class="mt-5" Icon="@Icons.Material.Sharp.Delete" Size="Size.Small" Color="Color.Error" OnClick="() => ConfirmDelete(team)" />
+                        <MudMessageBox @ref="mbox" Title="Warning" CancelText="Cancel">
+                            <MessageContent>
+                                Are you sure to delete this team? It can't be undone!
+                            </MessageContent>
+                            <YesButton>
+                                <MudButton Variant="Variant.Filled" Color="Color.Error" StartIcon="@Icons.Material.Filled.DeleteForever">Delete!</MudButton>
+                            </YesButton>
+                        </MudMessageBox>
+                    </CardHeaderActions>
+                </MudCardHeader>                
+                <MudCardContent>
+                    <MudAvatarGroup Max="5" Spacing="2" MaxColor="Color.Primary" MaxSize="Size.Large" Outlined>
+                        @foreach (var student in team.Students)
+                        {
+                            <MudAvatar Size="Size.Large">
+                                <MudImage Src="@student.ProfileImagePath" title="@student.Name" />
+                            </MudAvatar>
+                        }
+                    </MudAvatarGroup>
+                </MudCardContent>
+                <MudCardActions>
+                    <MudText Typo="Typo.body1" title="@team.Created">Added @team.Created.Humanize()</MudText>
+                </MudCardActions>
+            </MudCard>
+        </MudItem>
+    }
+</MudGrid>
 
-    @code {
+@code {
 
     private List<Team> teams = new();
     private Team selectedTeam = new();
@@ -68,7 +63,7 @@
     protected override async Task OnInitializedAsync()
     {
         loadingData = true;
-        teams = await Db.Teams.Include(x => x.Batch).Include(t => t.Project).OrderByDescending(x => x.Created).ToListAsync();
+        teams = await Db.Teams.Include(x => x.Batch).Include(t => t.Project).OrderByDescending(x => x.Batch).ToListAsync();
         loadingData = false;
     }
 

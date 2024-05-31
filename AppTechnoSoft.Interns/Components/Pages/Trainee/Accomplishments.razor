@@ -8,7 +8,7 @@
     <MudAutocomplete T="TraineeViewModel"
                      Label="Select Trainee/Student"
                      Variant="Variant.Outlined"
-                     @bind-Value="trainee"
+                     ValueChanged="TraineeChanged"
                      SearchFunc="@SearchTrainees"
                      ToStringFunc="@(e=> e==null ? null : $"{e.Name} ({e.College})")"
                      ShowProgressIndicator="true"
@@ -90,5 +90,10 @@ else
         }
 
         return trainees.Where(x => x.Name.Contains(value, StringComparison.OrdinalIgnoreCase));
+    }
+
+    public void TraineeChanged(TraineeViewModel value)
+    {
+        trainee = value;
     }
 }

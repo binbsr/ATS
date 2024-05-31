@@ -36,7 +36,7 @@
                 <MudCardContent>
                     <MudStack Row>
                         <MudAvatarGroup Max="8" Spacing="2" MaxColor="Color.Primary" MaxSize="Size.Large" Outlined>
-                            @foreach (var student in batch.Students)
+                            @foreach (var student in batch.Students ?? [])
                             {
                                 <MudAvatar Size="Size.Large">
                                     <MudImage Src="@student.ProfileImagePath" title="@student.Name" />
@@ -44,11 +44,11 @@
                             }
                         </MudAvatarGroup>
                         <MudSpacer />
-                        <MudText Typo="Typo.h6" Inline>@("agile team".ToQuantity(batch.Teams.Count)) formed</MudText>
+                        <MudText Typo="Typo.h6" Inline>@("agile team".ToQuantity(batch.Teams?.Count ?? 0)) formed</MudText>
                     </MudStack>
 
                     <MudGrid Class="mt-3">
-                        @foreach (var team in batch.Teams)
+                        @foreach (var team in batch.Teams ?? [])
                         {
                             <MudItem md="3" sm="4" xs="12">
                                 <MudCard Elevation="0" Class="border-1 border-solid">
@@ -59,7 +59,7 @@
                                             </MudAvatar>
                                         </CardHeaderAvatar>
                                         <CardHeaderContent>
-                                            <MudText Typo="Typo.h5">@team.Name</MudText>
+                                            <MudText Typo="Typo.h6">Team @team.Name</MudText>
                                         </CardHeaderContent>
                                         <CardHeaderActions>
                                             <MudIconButton Class="mt-5" Icon="@Icons.Material.Filled.Edit" Size="Size.Small" Color="Color.Warning" Href="@("/edit-team/" + team.Id)" />
@@ -76,7 +76,7 @@
                                     </MudCardHeader>
                                     <MudCardContent>
                                         <MudAvatarGroup Max="5" Spacing="2" MaxColor="Color.Primary" MaxSize="Size.Large" Outlined>
-                                            @foreach (var student in team.Students)
+                                            @foreach (var student in team.Students ?? [])
                                             {
                                                 <MudAvatar Size="Size.Large">
                                                     <MudImage Src="@student.ProfileImagePath" title="@student.Name" />

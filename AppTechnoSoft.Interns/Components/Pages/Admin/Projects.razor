@@ -6,7 +6,7 @@
 
 <PageTitle>Team Projects</PageTitle>
 
-<MudTable Items="@projects" Hover="true" Breakpoint="Breakpoint.Sm" Filter="new Func<ProjectViewModel, bool>(FilterFunc)">
+<MudTable Items="@projects" Hover="true" Breakpoint="Breakpoint.Sm" Filter="new Func<ProjectViewModel, bool>(FilterFunc)" Dense RowClassFunc="HighlightRow">
     <ToolBarContent>
         <MudFab Href="/add-project" StartIcon="@Icons.Material.Filled.Add" Title="Add New Project" Size="Size.Small" Color="Color.Tertiary"></MudFab>
         <MudSpacer />
@@ -77,6 +77,9 @@
 
 @code
 {
+    [SupplyParameterFromQuery]
+    public int? Highlight { get; set; } = 0;
+
     private List<ProjectViewModel> projects = [];
     private List<Project> projectEntities = [];
     private ProjectViewModel currentProject = new();
@@ -131,4 +134,7 @@
             return true;
         return false;
     }
+
+    public string HighlightRow(ProjectViewModel projectViewModel, int index)
+        => projectViewModel.Id == Highlight ? "mud-tertiary" : "";
 }

@@ -83,15 +83,15 @@
                                                 </MudAvatar>
                                             }
                                         </MudAvatarGroup>
-                                        <MudPaper Class="mt-4 border-1 border-dashed p-2" Style="text-align:center" Elevation="0">
+                                        <MudPaper Class="mt-4 p-2" Style="text-align:center" Elevation="0">
                                             <MudChip Label>Project</MudChip>
-                                            <MudText Typo="Typo.body1" Style="font-size:0.8rem">@(team.Project?.Title ?? "None")</MudText>
+                                            <MudLink Href="@($"/projects?highlight={@team.Project?.Id}")" Class="d-block">@(team.Project?.Title ?? "None")</MudLink>
                                             <MudDivider Class="my-1" />
                                             <MudChip Label>Repository</MudChip>
-                                            <MudText Typo="Typo.body1" Style="font-size:0.8rem">@(team.Project?.RepoUrl ?? "None")</MudText>
+                                            <MudLink Href="@team.Project?.RepoUrl" Target="_blank" Class="d-block">@(team.Project?.RepoUrl ?? "None")</MudLink>
                                             <MudDivider Class="my-1" />
-                                            <MudChip Label>Board</MudChip>
-                                            <MudText Typo="Typo.body1" Style="font-size:0.8rem">@(team.Project?.BoardUrl ?? "None")</MudText>
+                                            <MudChip Label>Project Board</MudChip>
+                                            <MudLink Href="@team.Project?.BoardUrl" Target="_blank" Class="d-block">@(team.Project?.BoardUrl ?? "None")</MudLink>
                                         </MudPaper>
                                     </MudCardContent>
                                     <MudCardActions Class="mx-2">

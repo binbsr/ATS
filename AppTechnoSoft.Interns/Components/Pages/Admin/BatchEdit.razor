@@ -1,11 +1,9 @@
 ﻿@page "/add-batch"
 @page "/edit-batch/{Id:int}"
-@using AppTechnoSoft.Interns.Extensions
 
 @inject ApplicationDbContext Db
 @inject ISnackbar SnackBar
 @inject NavigationManager Navigation
-@inject UserManager<ApplicationUser> UserManager
 
 <PageTitle>@pageTitle</PageTitle>
 
@@ -135,26 +133,6 @@
             _ = (rowsAffected > 0)
                 ? SnackBar.Add($"Trainees added to {model.Name} successfully", Severity.Success)
                 : SnackBar.Add("Couldn't add trainees to just created batch", Severity.Error);
-
-
-            // Get all students applicationUserids
-            var appUserIds = await Db.Students.Where(x => studentsSelected.Contains(x.Id)).Select(y => y.ApplicationUserId).ToListAsync();
-
-            if (appUserIds is null || !appUserIds.Any())
-                return;
-
-            foreach(var userId in appUserIds)
-            {
-                var appUser = await UserManager.FindByIdAsync(userId!);
-                if (appUser is null)
-                    continue;
-
-                var resultAdd = await UserManager.AddToRoleAsync(appUser, Role.Trainee);
-
-                _ = resultAdd.Succeeded ?
-                SnackBar.Add($"{appUser.UserName} assinged trainee role", Severity.Success) :
-                SnackBar.Add($"{appUser.UserName} role assignment failed. {string.Join("\n\r", resultAdd.Errors.Select(x => x.Description))}", Severity.Error);
-            } 
         }
 
         Navigation.NavigateTo("/batches");

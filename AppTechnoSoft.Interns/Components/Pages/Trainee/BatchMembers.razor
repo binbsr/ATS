@@ -50,8 +50,8 @@ else
     string loggedInUserTeamName = "Not assigned to any team";
     string loggedInUserBatchName = "Not assigned to any batch";
     string loggedInUserTeamAvatar = "";
-    List<StudentViewModel> teamMembers = [];
-    List<StudentViewModel> batchMembers = [];
+    List<StudentLightViewModel> teamMembers = [];
+    List<StudentLightViewModel> batchMembers = [];
     public string loggedInUserId = string.Empty;
 
     protected override async Task OnInitializedAsync()
@@ -81,7 +81,7 @@ else
 
         batchMembers = await Db.Students
             .Where(x => x.BatchId == student!.BatchId)
-            .Select(x => new StudentViewModel(x.Name, x.ApplicationUserId!, x.ProfileImagePath!, x!.Team!.Name, x!.Batch!.Name))
+            .Select(x => new StudentLightViewModel(x.Name, x.ApplicationUserId!, x.ProfileImagePath!, x!.Team!.Name, x!.Batch!.Name))
             .ToListAsync();
         teamMembers = batchMembers.Where(x => x.TeamName == loggedInUserTeamName).ToList();
 

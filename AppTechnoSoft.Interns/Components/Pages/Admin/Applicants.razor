@@ -2,11 +2,13 @@
 
 @attribute [Authorize(Roles = Role.Admins)]
 @inject ApplicationDbContext Db
+@inject UserManager<ApplicationUser> UserManager
+@inject IUserStore<ApplicationUser> UserStore
 @inject ISnackbar SnackBar
 
 <PageTitle>Applicants</PageTitle>
 
-<MudDataGrid T="Student"
+<MudDataGrid T="StudentViewModel"
              MultiSelection="true"
              Items="@studentList"
              @bind-SelectedItems="selectedApplicants"
@@ -27,7 +29,7 @@
     </ToolBarContent>
     <Columns>
         <SelectColumn ShowInFooter="false" ShowInHeader="false" />
-        <HierarchyColumn T="Student" />
+        <HierarchyColumn T="StudentViewModel" />
         <TemplateColumn Filterable="false">
             <CellTemplate>
                 <MudAvatar>
@@ -51,17 +53,40 @@
     </Columns>
     <ChildRowContent>
         <MudGrid Class="p-2">
+            <MudItem md="12" Class="p-2">
+                <MudStack Row>
+                    <MudButton Variant="Variant.Outlined"
+                               Disabled="context.Item.Email == string.Empty"
+                               Color="Color.Warning"
+                               Class="my-3"
+                               StartIcon="@Icons.Material.Filled.Security"
+                               OnClick="() => GenerateUserCreds(context.Item)">
+                        Generate Login Details
+                    </MudButton>
+
+                    @if (context.Item.Password is not null)
+                    {
+                        <MudAlert Severity="Severity.Info" Style="font-size:1rem">
+                            Please Keep it Safe (One time only)
+                            <span class="border-2 border-dashed p-2" style="font-family:Courier New, Courier, monospace">
+                                <b>Email:</b> @context.Item.Email
+                                <b>Password:</b> @context.Item.Password
+                            </span>
+                        </MudAlert>
+                    }
+                </MudStack>
+            </MudItem>
             <MudItem md="3" sm="4" Class="p-2">
                 <b>Name</b><MudText Typo="Typo.body1">@context.Item.Name</MudText>
             </MudItem>
             <MudItem md="3" sm="4" Class="p-2">
-                <b>College</b><MudText Typo="Typo.body1">@(context.Item.College?.Name ?? "N/A")</MudText>
-            </MudItem>            
-            <MudItem md="3" sm="4" Class="p-2">
-                <b>Program</b><MudText Typo="Typo.body1">@(context.Item.TechProgram?.Name ?? "N/A")</MudText>
+                <b>College</b><MudText Typo="Typo.body1">@(context.Item.CollegeName ?? "N/A")</MudText>
             </MudItem>
             <MudItem md="3" sm="4" Class="p-2">
-                <b>Team</b><MudText Typo="Typo.body1">@(context.Item.Team?.Name ?? "Not Assigned")</MudText>
+                <b>Program</b><MudText Typo="Typo.body1">@(context.Item.ProgramName ?? "N/A")</MudText>
+            </MudItem>
+            <MudItem md="3" sm="4" Class="p-2">
+                <b>Team</b><MudText Typo="Typo.body1">@(context.Item.TeamName ?? "Not Assigned")</MudText>
             </MudItem>
             <MudItem md="3" sm="4" Class="p-2">
                 <b>Applied</b><MudText Typo="Typo.body1">@context.Item.FormSubmitted.Humanize()</MudText>
@@ -75,44 +100,20 @@
             <MudItem md="3" sm="4" Class="p-2">
                 <b>Database Development Experience</b><MudText Typo="Typo.body1">@context.Item.DbExperience.GetDbExperienceText()</MudText>
             </MudItem>
-            @* <MudItem md="12" Class="p-2">
-                <MudStack Row>
-                    <MudButton Variant="Variant.Outlined"
-                               Disabled="context.Item.Email == string.Empty"
-                               Color="Color.Warning"
-                               Class="my-3"
-                               StartIcon="@Icons.Material.Filled.Security"
-                               OnClick="GenerateUserCreds">
-                        Generate Login Details
-                    </MudButton>
-
-                    @if (password != string.Empty)
-                    {
-                        <MudAlert Severity="Severity.Info" Style="font-size:1.1rem">
-                            Please Keep it Safe (One time only)
-                            <span class="border-2 border-dashed p-2" style="font-family:Courier New, Courier, monospace">
-                                <b>Email:</b> @context.Item.Email
-                                <b>Password:</b> @password
-                            </span>
-                        </MudAlert>
-                    }
-                </MudStack>
-            </MudItem> *@
         </MudGrid>
     </ChildRowContent>
     <PagerContent>
-        <MudDataGridPager T="Student" PageSizeOptions="[15, 30, 50, 100, 200]" />
+        <MudDataGridPager T="StudentViewModel" PageSizeOptions="[20, 50, 100, 200]" />
     </PagerContent>
 </MudDataGrid>
 
 @code {
-    private List<Student> studentList = new();
-    private HashSet<Student> selectedApplicants = [];
+    private List<StudentViewModel> studentList = new();
+    private HashSet<StudentViewModel> selectedApplicants = [];
     private string _searchString = string.Empty;
     private bool loadingData = false;
-    private string password = "";
 
-    private Func<Student, bool> _quickFilter => x =>
+    private Func<StudentViewModel, bool> _quickFilter => x =>
     {
         if (string.IsNullOrWhiteSpace(_searchString))
             return true;
@@ -135,7 +136,15 @@
     protected override async Task OnInitializedAsync()
     {
         loadingData = true;
-        studentList = await Db.Students.Include(s => s.College).Include(t => t.TechProgram).Include(t => t.Team).ToListAsync();
+        var studentModels = await Db.Students
+            .Include(s => s.College)
+            .Include(t => t.TechProgram)
+            .Include(t => t.Team)
+            .Include(u => u.User)
+            .AsNoTracking()
+            .ToListAsync();
+
+        studentList = studentModels.ToViewModel();
         loadingData = false;
     }
 
@@ -162,8 +171,26 @@
         }
     }
 
-    private void GenerateUserCreds()
+    private async Task GenerateUserCreds(StudentViewModel studentViewModel)
     {
-        password = PwdGenerator.NewPassword(8);
+        // Register user programatically
+        var user = Activator.CreateInstance<ApplicationUser>();
+        await UserStore.SetUserNameAsync(user, studentViewModel.Email, CancellationToken.None);
+        var emailStore = (IUserEmailStore<ApplicationUser>)UserStore;
+        await emailStore.SetEmailAsync(user, studentViewModel.Email, CancellationToken.None);
+        var password = PwdGenerator.NewPassword(8);
+        var result = await UserManager.CreateAsync(user, password);
+        _ = await UserManager.AddToRoleAsync(user, Role.Trainee);
+
+        if (result.Succeeded)
+        {
+            SnackBar.Add($"User '{studentViewModel.Email}' registered successfully", Severity.Success);
+        }
+        else
+        {
+            SnackBar.Add(string.Join(", ", result.Errors.Select(error => error.Description)), Severity.Error);
+        }
+
+        studentViewModel.Password = password;
     }
 }

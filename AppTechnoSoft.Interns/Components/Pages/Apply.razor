@@ -1,6 +1,6 @@
 ﻿@page "/apply"
 
-<PageTitle>Join appsoft for better</PageTitle>
+<PageTitle>Joining AppSoft</PageTitle>
 
 @inject ApplicationDbContext Db
 @inject ISnackbar SnackBar
@@ -98,6 +98,9 @@
 
 @code {
 
+    [CascadingParameter]
+    private Task<AuthenticationState> AuthTask { get; set; } = null!;
+
     private Student model = new();
     bool alreadyApplied = false;
     List<College> colleges = [];
@@ -117,6 +120,17 @@
         || model.Email is "")
         ;
 
+    protected override async Task OnInitializedAsync()
+    {
+        var state = await AuthTask;
+        var applicationUserId = state.User.GetUserId();
+
+        if (applicationUserId == string.Empty)
+            return;
+
+        model = await Db.Students.FirstOrDefaultAsync(x => x.ApplicationUserId == applicationUserId) ?? new();
+    }
+
     private async Task OnValidSubmit(EditContext editContext)
     {
         // Save profile image first if it's uploaded
@@ -132,18 +146,22 @@
             // User updating his/her details
             if (model.ApplicantType == ApplicantType.StudentInternship)
             {
-                rowsAffected = await Db.Students.ExecuteUpdateAsync(o => o
+                rowsAffected = await Db.Students
+                .Where(x=> x.Id == model.Id)
+                .ExecuteUpdateAsync(o => o
                     .SetProperty(x => x.Name, model.Name)
                     .SetProperty(x => x.Email, model.Email)
                     .SetProperty(x => x.Phone, model.Phone)
-                    .SetProperty(x => x.College, model.College)
-                    .SetProperty(x => x.TechProgram, model.TechProgram)
+                    .SetProperty(x => x.CollegeId, model.College.Id)
+                    .SetProperty(x => x.TechProgramId, model.TechProgram.Id)
                     .SetProperty(x => x.ProfileImagePath, model.ProfileImagePath)
                 );
             }
             else if (model.ApplicantType == ApplicantType.SoftwareEngineeringAspirant)
             {
-                rowsAffected = await Db.Students.ExecuteUpdateAsync(o => o
+                rowsAffected = await Db.Students
+                .Where(x => x.Id == model.Id)
+                .ExecuteUpdateAsync(o => o
                     .SetProperty(x => x.Name, model.Name)
                     .SetProperty(x => x.Email, model.Email)
                     .SetProperty(x => x.Phone, model.Phone)

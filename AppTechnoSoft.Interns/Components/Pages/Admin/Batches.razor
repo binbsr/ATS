@@ -35,7 +35,7 @@
                 </MudCardHeader>
                 <MudCardContent>
                     <MudStack Row>
-                        <MudAvatarGroup Max="8" Spacing="2" MaxColor="Color.Primary" MaxSize="Size.Large" Outlined>
+                        <MudAvatarGroup Max="10" Spacing="2" MaxColor="Color.Primary" MaxSize="Size.Large" Outlined>
                             @foreach (var student in batch.Students ?? [])
                             {
                                 <MudAvatar Size="Size.Large">
@@ -83,13 +83,13 @@
                                                 </MudAvatar>
                                             }
                                         </MudAvatarGroup>
-                                        @* <MudText Typo="Typo.subtitle1" Class="mt-4">
-                                            Project: <MudText Typo="Typo.h6" Inline>@(team.Project?.Title ?? "None")</MudText>
-                                        </MudText> *@
+                                        <MudText Typo="Typo.subtitle1" Class="mt-4">
+                                            Project: <MudText Typo="Typo.body1" Inline>@(team.Project?.Title ?? "None")</MudText>
+                                        </MudText>
                                         
                                     </MudCardContent>
                                     <MudCardActions>
-                                        <MudText Typo="Typo.body1" title="@team.Created">Added @team.Created.Humanize()</MudText>
+                                        <MudText Class="ml-auto" Typo="Typo.body1" title="@team.Created">Added @team.Created.Humanize()</MudText>
                                     </MudCardActions>
                                 </MudCard>
                             </MudItem>
@@ -120,6 +120,8 @@
             .Include(x => x.Students)
             .Include(z => z.Teams)
             .ThenInclude(y => y.Students)
+            .Include(z => z.Teams)
+            .ThenInclude(y => y.Project)
             .ToListAsync();
 
         loadingData = false;

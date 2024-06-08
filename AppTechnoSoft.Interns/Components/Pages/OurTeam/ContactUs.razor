@@ -1,20 +1,30 @@
 ﻿@page "/Contact"
 
-<MudPaper Class="p-2">
-    <MudStack Row Justify="Justify.SpaceAround" Class="border-2 border-dashed p-3 mb-5">
-        <MudText Typo="Typo.h5">
-            <MudIcon Icon="@Icons.Material.Sharp.LocationCity" Size="Size.Large" Class="mb-2" /> Address
-            <MudText Typo="Typo.h6">Janata Marg, Koteshwor, Kathmandu, Nepal</MudText>
-        </MudText>
-        <MudText Typo="Typo.h5">
-            <MudIcon Icon="@Icons.Material.Sharp.Phone" Size="Size.Large" /> Telephone
-            <MudText Typo="Typo.h6">01-5921848</MudText>
-        </MudText>
-        <MudText Typo="Typo.h5">
-            <MudIcon Icon="@Icons.Material.Sharp.Smartphone" Size="Size.Large" /> Phone
-            <MudText Typo="Typo.h6">9851345885, 9803034959</MudText>
-        </MudText>
+<MudPaper Class="p-3">
+    <MudStack Row Justify="Justify.SpaceBetween" Class="border-2 border-dashed p-5 mb-5">
+        <MudStack Row>
+            <MudIcon Icon="@Icons.Material.Sharp.LocationCity" Style="font-size:3rem;height:60;width:60" />
+            <span>
+                <MudText Typo="Typo.h5">Address</MudText>
+                <MudText Typo="Typo.h6">Janata Marg, Koteshwor, Kathmandu, Nepal</MudText>
+            </span>
+        </MudStack>
+
+        <MudStack Row>
+            <MudIcon Icon="@Icons.Material.Sharp.Phone" Style="font-size:2rem;height:60;width:60" />
+            <span>
+                <MudText Typo="Typo.h5">Telephone</MudText>                
+                <MudText Typo="Typo.h6">01-5921848</MudText>
+            </span>
+        </MudStack>
+
+        <MudStack Row>
+            <MudIcon Icon="@Icons.Material.Sharp.Smartphone" Style="font-size:2rem;height:60;width:60" />
+            <span>
+                <MudText Typo="Typo.h5">Phone</MudText>
+                <MudText Typo="Typo.h6">9851345885, 9803034959</MudText>
+            </span>
+        </MudStack>
     </MudStack>
-    
     <iframe src="https://www.google.com/maps/embed?pb=!1m14!1m8!1m3!1d391.6988271045735!2d85.33781234273229!3d27.681523499229684!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x39eb1979403f46b7%3A0x78238421653c8527!2sAppTechnoSoft!5e0!3m2!1sen!2snp!4v1717385613870!5m2!1sen!2snp" style="border:0;height:700px;width:100%;" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
 </MudPaper>

@@ -19,6 +19,7 @@
              Loading="loadingData"
              ReadOnly="true"
              Hideable="true"
+             RowClassFunc="HighlightRow"
              Dense="true">
 
     <ToolBarContent>
@@ -63,7 +64,7 @@
                                OnClick="() => GenerateUserCreds(context.Item)">
                         @(context.Item.UserCreated ? "Reset Login Details" : "Generate Login Details")
                     </MudButton>
-                    @if(loadingData)
+                    @if (loadingData)
                     {
                         <MudProgressCircular Indeterminate Size="Size.Small" />
                     }
@@ -111,6 +112,9 @@
 </MudDataGrid>
 
 @code {
+    [SupplyParameterFromQuery]
+    public string Highlight { get; set; } = "";
+
     private List<StudentViewModel> studentList = new();
     private HashSet<StudentViewModel> selectedApplicants = [];
     private string _searchString = string.Empty;
@@ -145,6 +149,7 @@
             .Include(t => t.Team)
             .Include(u => u.User)
             .AsNoTracking()
+            .OrderByDescending(x => x.FormSubmitted)
             .ToListAsync();
 
         studentList = studentModels.ToViewModel();
@@ -204,5 +209,18 @@
 
         studentViewModel.Password = password;
         loadingData = false;
+    }
+
+    public string HighlightRow(StudentViewModel studentViewModel, int index)
+    {
+        if (Highlight is "")
+            return "";
+
+        if (Highlight.Contains(","))
+        {
+            var ids = Highlight.Split(",", StringSplitOptions.RemoveEmptyEntries);
+            return ids.Contains(studentViewModel.Id) ? "mud-tertiary" : "";
+        }
+        return Highlight == studentViewModel.Id ? "mud-tertiary" : "";
     }
 }

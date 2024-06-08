@@ -42,6 +42,8 @@
                       Class="mt-4"
                       Immediate="true"
                       Label="Phone"
+                      Error="@alreadyAppliedPhone"
+                      ErrorText="You have already applied at Appsoft with this number, please ring us if you have any queries."
                       TextChanged="PhoneChanged" />
 
         @if (model.ApplicantType == ApplicantType.StudentInternship)
@@ -103,6 +105,7 @@
 
     private Student model = new();
     bool alreadyApplied = false;
+    bool alreadyAppliedPhone = false;
     List<College> colleges = [];
     List<TechProgram> techPrograms = [];
     private bool profileSuccess = false;
@@ -129,6 +132,7 @@
             return;
 
         model = await Db.Students.FirstOrDefaultAsync(x => x.ApplicationUserId == applicationUserId) ?? new();
+        alreadyApplied = model is not null;
     }
 
     private async Task OnValidSubmit(EditContext editContext)
@@ -238,20 +242,7 @@
         model.Email = CreateEmail(model.Name, model.Phone);
         if (model.Phone.Length == 10)
         {
-            var student = await Db.Students
-                .Include(x => x.College)
-                .Include(y => y.TechProgram)
-                .FirstOrDefaultAsync(x => x.Phone == model.Phone);
-
-            alreadyApplied = student is not null;
-            if (alreadyApplied)
-            {
-                model = student!;
-            }
-            else
-            {
-                model.Id = Guid.NewGuid().ToString();
-            }
+            alreadyAppliedPhone = await Db.Students.AnyAsync(x => x.Phone == model.Phone);           
         }
     }
 

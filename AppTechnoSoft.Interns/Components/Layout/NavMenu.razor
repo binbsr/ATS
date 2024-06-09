@@ -5,8 +5,8 @@
         <MudNavLink Href="/timeline" Icon="@Icons.Material.Filled.Timeline" IconColor="Color.Success">Timeline</MudNavLink>
 
         <MudNavGroup Title="Our Team" Icon="@Icons.Material.Sharp.Groups3" IconColor="Color.Success" Expanded>
-            <MudNavLink Href="/appsoft-core" Icon="@Icons.Material.Sharp.PeopleOutline" IconColor="Color.Success">Core Team</MudNavLink>
-            <MudNavLink Href="/appsoft-consultants" Icon="@Icons.Material.Sharp.AccountBox" IconColor="Color.Success">Consultants</MudNavLink>
+            <MudNavLink Href="/coreteam" Icon="@Icons.Material.Sharp.PeopleOutline" IconColor="Color.Success">Core Team</MudNavLink>
+            <MudNavLink Href="/consultants" Icon="@Icons.Material.Sharp.AccountBox" IconColor="Color.Success">Consultants</MudNavLink>
             <MudNavLink Href="/contact" Icon="@Icons.Material.Sharp.ContactPhone" IconColor="Color.Success">Contact Us</MudNavLink>
         </MudNavGroup>
 
@@ -23,18 +23,20 @@
             <MudDivider Class="my-2" />
             <MudNavLink Href="/timesheet" Icon="@Icons.Material.Sharp.AddTask" IconColor="Color.Secondary">My Timesheet</MudNavLink>
             <MudNavLink Href="/classes/me" Icon="@Icons.Material.Sharp.Class" IconColor="Color.Secondary">My Classes</MudNavLink>
-            <MudNavLink Href="/assignments/me" Icon="@Icons.Material.Sharp.Assignment" IconColor="Color.Secondary">My Assignments</MudNavLink>            
+            <MudNavLink Href="/assignments/me" Icon="@Icons.Material.Sharp.Assignment" IconColor="Color.Secondary">My Assignments</MudNavLink>
             <MudNavLink Href="/members" Icon="@Icons.Material.Sharp.Groups3" IconColor="Color.Secondary">My Batch and Team</MudNavLink>
             <MudNavLink Href="/project/me" Icon="@Icons.Material.Sharp.AppRegistration" IconColor="Color.Secondary">My Project Contribution</MudNavLink>
             <MudNavLink Href="/accomplishments" Icon="@Icons.Material.Sharp.CardMembership" IconColor="Color.Secondary">My Accomplishments</MudNavLink>
         </AuthorizeView>
 
-        <AuthorizeView Roles="@Role.AdminsAndInstructor">
-            <MudNavGroup Title="Dashboards" Icon="@Icons.Material.Filled.Dashboard" IconColor="Color.Warning" Expanded>
+        <MudNavGroup Title="Dashboards" Icon="@Icons.Material.Filled.Dashboard" IconColor="Color.Warning" Expanded>
+            <AuthorizeView Roles="@Role.Admins">
                 <MudNavLink Href="/dashboard/admin" Icon="@Icons.Material.Sharp.Lock" IconColor="Color.Warning">Admin</MudNavLink>
+            </AuthorizeView>
+            <AuthorizeView Roles="@Role.Instructor">
                 <MudNavLink Href="/dashboard/instructor" Icon="@Icons.Material.Sharp.Person2" IconColor="Color.Warning">Instructor</MudNavLink>
-            </MudNavGroup>
-        </AuthorizeView>
+            </AuthorizeView>
+        </MudNavGroup>
 
         <AuthorizeView Roles="@Role.AdminsAndInstructor">
             <MudNavGroup Title="Assignments" Icon="@Icons.Material.Filled.Assessment" IconColor="Color.Tertiary" Expanded>
@@ -59,7 +61,7 @@
                 <MudNavLink Href="/projects" Icon="@Icons.Material.Sharp.Code" IconColor="Color.Error">Projects</MudNavLink>
             </MudNavGroup>
         </AuthorizeView>
-        
+
         <AuthorizeView Roles="@Role.SuperAdmin">
             <MudNavGroup Title="Finance" Icon="@Icons.Material.Filled.Money" IconColor="Color.Tertiary" Expanded>
                 <MudNavLink Href="/feecollection" Icon="@Icons.Material.Filled.CurrencyRupee" IconColor="Color.Tertiary">Fee Collection</MudNavLink>
@@ -70,7 +72,7 @@
             <MudNavGroup Title="User Accounts" Icon="@Icons.Material.Filled.ManageAccounts" IconColor="Color.Warning" Expanded>
                 <MudNavLink Href="/identity/roles" Icon="@Icons.Material.Filled.Security" IconColor="Color.Warning">Roles</MudNavLink>
                 <MudNavLink Href="/identity/users" Icon="@Icons.Material.Filled.PersonSearch" IconColor="Color.Warning">Users</MudNavLink>
-            </MudNavGroup>            
+            </MudNavGroup>
         </AuthorizeView>
         <AuthorizeView Roles="@Role.Admins">
             <MudNavGroup Title="Core" Icon="@Icons.Material.Filled.VerifiedUser" IconColor="Color.Info" Expanded>

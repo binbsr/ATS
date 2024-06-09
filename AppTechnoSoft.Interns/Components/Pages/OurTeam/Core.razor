@@ -1,12 +1,9 @@
-﻿@page "/appsoft-core"
+﻿@page "/coreteam"
 
 @inject IDbContextFactory<ApplicationDbContext> DbFactory
 
 <PageTitle>Our Core Team</PageTitle>
 
-<MudText Typo="Typo.h5" Align="Align.Center" Color="Color.Secondary" Class="mb-5 border-b-2 p-3">
-    Core Team - App TechnoSoft
-</MudText>
 <MudGrid Spacing="2">
     @foreach (var member in coreMembers)
     {

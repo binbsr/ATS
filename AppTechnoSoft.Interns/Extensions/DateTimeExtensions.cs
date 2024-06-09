@@ -9,6 +9,14 @@ public static class DateTimeExtensions
         return nepalTime;
     }
 
+    public static DateTime ToNepalTime(this DateTime? dateTime)
+    {
+        if (dateTime is null)
+            return DateTime.MinValue;
+
+        return dateTime.ToNepalTime();
+    }
+
     public static TimeOnly ToNepalTime(this TimeOnly? time, DateOnly date)
     {
         var dateTime = new DateTime(date, time!.Value, DateTimeKind.Utc);        

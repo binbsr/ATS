@@ -12,7 +12,7 @@
         <PropertyColumn Property="x => x.Title" Groupable="false" Filterable="false" />
         <PropertyColumn Property="x => x.Date" Title="Date">
             <CellTemplate>
-                @context.Item.Date.Value.ToNepalTime()
+                @context.Item.Date.ToNepalTime()
             </CellTemplate>
         </PropertyColumn>
         <PropertyColumn Property="x => x.Credit" AggregateDefinition="CreditAggregation" Groupable="false" Filterable="false">
@@ -59,7 +59,12 @@
     {
         var feeCollection = await Db.FinAccounts
             .Where(x => x.Enabled)
-            .Select(y => new { StudentName = y.Student.Name, PaidTotal = y.PaidAmount, DateAdded = y.Created })
+            .Select(y => new 
+                { 
+                    StudentName = y.Student.Name, 
+                    PaidTotal = y.PaidAmount, 
+                    DateAdded = y.Created 
+                })
             .ToListAsync();
 
         // Fee credits
@@ -81,7 +86,7 @@
         // Operations debits
         var expenses = await Db.Expenses.ToListAsync();
 
-        // Fee credits
+        // Account debits
         if (expenses is not null)
         {
             foreach (var expense in expenses)
@@ -97,7 +102,7 @@
             }
         }
 
-        budgets = budgets.OrderByDescending(x => x.Date).ToList();
+        budgets = budgets.OrderBy(x => x.Date).ToList();
 
         // Maintain balance at each step
         for (int counter = 0; counter < budgets.Count; counter++)

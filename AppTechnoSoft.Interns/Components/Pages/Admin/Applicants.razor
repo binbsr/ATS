@@ -113,7 +113,7 @@
 
 @code {
     [SupplyParameterFromQuery]
-    public string Highlight { get; set; } = "";
+    public string? Highlight { get; set; } = "";
 
     private List<StudentViewModel> studentList = new();
     private HashSet<StudentViewModel> selectedApplicants = [];
@@ -213,7 +213,7 @@
 
     public string HighlightRow(StudentViewModel studentViewModel, int index)
     {
-        if (Highlight is "")
+        if (Highlight is null or "")
             return "";
 
         if (Highlight.Contains(","))

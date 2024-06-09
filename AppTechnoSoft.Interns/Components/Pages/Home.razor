@@ -6,10 +6,23 @@
 
 @if (homeItems is null || homeItems.Count == 0)
 {
-    <MudProgressCircular />
+    <MudProgressCircular Indeterminate Color="Color.Tertiary" />
 }
 else
 {
+    var homeTitle = homeItems.FirstOrDefault(x => x.Title == nameof(WidgetFilter.HomeTitle));
+    if (homeTitle is not null)
+    {
+        <MudText Typo="Typo.h4" Align="Align.Center">
+            @homeTitle.Description
+            <br />
+            <MudIcon Icon="@Icons.Material.Sharp.Handshake" Style="height:50px;width:50px;" Color="Color.Tertiary" />
+            <AuthorizeView Roles="@Role.Admins">
+                <MudIconButton Icon="@Icons.Material.Filled.Edit" Color="Color.Warning" Size="Size.Small" Class="ml-auto" Href="@("/edit-widget/" + homeTitle.Id)" />
+            </AuthorizeView>
+        </MudText>
+        @((MarkupString)homeTitle.HtmlContent.ToHtmlString())        
+    }
     <MudPaper Elevation="3" Class="mb-3">
         <MudCarousel Class="border border-solid mud-border-tertiary"
                      Style="height:500px;"
@@ -107,7 +120,7 @@ else
 
     protected override async Task OnInitializedAsync()
     {
-        homeItems = await db.Widgets.Where(x => x.Title == nameof(WidgetFilter.CarouselItem) || x.Title == nameof(WidgetFilter.HomeIntro)).ToListAsync();
+        homeItems = await db.Widgets.Where(x => x.Title == nameof(WidgetFilter.CarouselItem) || x.Title == nameof(WidgetFilter.HomeIntro) || x.Title == nameof(WidgetFilter.HomeTitle)).ToListAsync();
 
         // Get all home images for reference
         var state = await AuthTask;

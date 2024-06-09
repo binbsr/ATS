@@ -6,9 +6,9 @@
 
 <PageTitle>@pageTitle</PageTitle>
 
-    <EditForm Model="@model" OnValidSubmit="OnValidSubmit">
-        <MudSelect T="string" Label="Widget Type" @bind-Value="model.Title" AnchorOrigin="Origin.BottomCenter" Variant="Variant.Outlined">
-            @foreach (var filter in widgetFilters)
+<EditForm Model="@model" OnValidSubmit="OnValidSubmit">
+    <MudSelect T="string" Label="Widget Type" @bind-Value="model.Title" AnchorOrigin="Origin.BottomCenter" Variant="Variant.Outlined">
+        @foreach (var filter in widgetFilters)
         {
             <MudSelectItem Value="@filter.Key">@filter.Value</MudSelectItem>
         }
@@ -48,9 +48,13 @@
     Widget model = new Widget();
     List<Tag> tags = new();
     IEnumerable<Tag> tagsSelected = [];
-    List<(string Key, string Value)> widgetFilters = [(nameof(WidgetFilter.Module), WidgetFilter.Module),
+    List<(string Key, string Value)> widgetFilters =
+    [
+        (nameof(WidgetFilter.Module), WidgetFilter.Module),
         (nameof(WidgetFilter.HomeIntro), WidgetFilter.HomeIntro),
-        (nameof(WidgetFilter.CarouselItem), WidgetFilter.CarouselItem)];
+        (nameof(WidgetFilter.CarouselItem), WidgetFilter.CarouselItem),
+        (nameof(WidgetFilter.HomeTitle), WidgetFilter.HomeTitle)
+    ];
 
     string pageTitle = string.Empty;
     bool IsAdd => Id is null or 0;

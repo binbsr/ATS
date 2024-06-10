@@ -29,14 +29,16 @@
             <MudNavLink Href="/accomplishments" Icon="@Icons.Material.Sharp.CardMembership" IconColor="Color.Secondary">My Accomplishments</MudNavLink>
         </AuthorizeView>
 
-        <MudNavGroup Title="Dashboards" Icon="@Icons.Material.Filled.Dashboard" IconColor="Color.Warning" Expanded>
-            <AuthorizeView Roles="@Role.Admins">
-                <MudNavLink Href="/dashboard/admin" Icon="@Icons.Material.Sharp.Lock" IconColor="Color.Warning">Admin</MudNavLink>
-            </AuthorizeView>
-            <AuthorizeView Roles="@Role.Instructor">
-                <MudNavLink Href="/dashboard/instructor" Icon="@Icons.Material.Sharp.Person2" IconColor="Color.Warning">Instructor</MudNavLink>
-            </AuthorizeView>
-        </MudNavGroup>
+        <AuthorizeView Roles="@Role.AdminsAndInstructor">
+            <MudNavGroup Title="Dashboards" Icon="@Icons.Material.Filled.Dashboard" IconColor="Color.Warning" Expanded>
+                <AuthorizeView Roles="@Role.Admins">
+                    <MudNavLink Href="/dashboard/admin" Icon="@Icons.Material.Sharp.Lock" IconColor="Color.Warning">Admin</MudNavLink>
+                </AuthorizeView>
+                <AuthorizeView Roles="@Role.Instructor">
+                    <MudNavLink Href="/dashboard/instructor" Icon="@Icons.Material.Sharp.Person2" IconColor="Color.Warning">Instructor</MudNavLink>
+                </AuthorizeView>
+            </MudNavGroup>
+        </AuthorizeView>
 
         <AuthorizeView Roles="@Role.AdminsAndInstructor">
             <MudNavGroup Title="Assignments" Icon="@Icons.Material.Filled.Assessment" IconColor="Color.Tertiary" Expanded>

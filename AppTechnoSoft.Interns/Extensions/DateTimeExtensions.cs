@@ -14,7 +14,10 @@ public static class DateTimeExtensions
         if (dateTime is null)
             return DateTime.MinValue;
 
-        return dateTime.ToNepalTime();
+        TimeZoneInfo nepalZone = TimeZoneInfo.FindSystemTimeZoneById("Nepal Standard Time");
+        DateTime nepalTime = TimeZoneInfo.ConvertTime(dateTime.Value, TimeZoneInfo.Utc, nepalZone);
+
+        return nepalTime;
     }
 
     public static TimeOnly ToNepalTime(this TimeOnly? time, DateOnly date)

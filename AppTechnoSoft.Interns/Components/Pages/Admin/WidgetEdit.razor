@@ -35,7 +35,7 @@
     <MudText Style="font-weight:bold" Class="py-2">Content RichText (Markdown) and Live Preview on Right Panel</MudText>
     <RichTextEditor MarkdownValue="@model.HtmlContent" EditorValueChanged="OnMarkdownValueChanged" />
 
-    <MudButton ButtonType="ButtonType.Submit" Variant="Variant.Filled" Color="Color.Primary" Class="mt-3" StartIcon="@Icons.Material.Filled.Save">Save Widget</MudButton>
+    <MudButton ButtonType="ButtonType.Submit" Variant="Variant.Filled" Color="Color.Tertiary" Class="mt-3" StartIcon="@Icons.Material.Filled.Save">Save Widget</MudButton>
 </EditForm>
 @code {
 
@@ -53,7 +53,8 @@
         (nameof(WidgetFilter.Module), WidgetFilter.Module),
         (nameof(WidgetFilter.HomeIntro), WidgetFilter.HomeIntro),
         (nameof(WidgetFilter.CarouselItem), WidgetFilter.CarouselItem),
-        (nameof(WidgetFilter.HomeTitle), WidgetFilter.HomeTitle)
+        (nameof(WidgetFilter.HomeTitle), WidgetFilter.HomeTitle),
+        (nameof(WidgetFilter.Prospectus), WidgetFilter.Prospectus)
     ];
 
     string pageTitle = string.Empty;

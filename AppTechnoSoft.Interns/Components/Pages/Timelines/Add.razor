@@ -7,7 +7,12 @@
 
 <MudContainer>
     <EditForm Model="@model" OnValidSubmit="OnValidSubmit">
-        <MudTextField Label="Stage" @bind-Value="model.Stage" Variant="Variant.Outlined"/>
+        <MudSelect T="string" Label="Stage" @bind-Value="model.Stage" AnchorOrigin="Origin.BottomCenter" Variant="Variant.Outlined">
+            @foreach (var stage in stages)
+            {
+                <MudSelectItem Value="@stage">@stage</MudSelectItem>
+            }
+        </MudSelect>
         <MudTextField Label="Temporal Value" @bind-Value="model.Date" Class="mt-3" Variant="Variant.Outlined" />
         <MudTextField Label="Title" @bind-Value="model.Title" Class="mt-3" Variant="Variant.Outlined" />
         <MudTextField Label="Details" @bind-Value="model.Details" Class="mt-3" Variant="Variant.Outlined" />
@@ -26,6 +31,7 @@
 @code {
 
     TraineeTimeline model = new();
+    string[] stages = [TraineeStage.Batching, TraineeStage.Training, TraineeStage.TrainingTrackNet, TraineeStage.TrainingTrackJava, TraineeStage.Project, TraineeStage.Placement];
 
     private async Task OnValidSubmit(EditContext context)
     {

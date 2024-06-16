@@ -1,0 +1,33 @@
+﻿@page "/prospectus"
+
+@inject ApplicationDbContext db
+
+<PageTitle>Prospectus</PageTitle>
+
+@if (prospectusItems is null || prospectusItems.Count == 0)
+{
+    <MudProgressCircular Indeterminate Color="Color.Tertiary" />
+}
+else
+{
+    foreach(var prospectus in prospectusItems)
+    {
+        <MudText Typo="Typo.h4" Align="Align.Center">
+            @prospectus.Description            
+            <AuthorizeView Roles="@Role.Admins">
+                <MudIconButton Icon="@Icons.Material.Filled.Edit" Color="Color.Warning" Size="Size.Small" Class="ml-auto" Href="@("/edit-widget/" + prospectus.Id)" />
+            </AuthorizeView>
+        </MudText>
+        @((MarkupString)prospectus.HtmlContent.ToHtmlString())
+    }
+}
+
+
+@code {
+    private List<Widget> prospectusItems = [];
+
+    protected override async Task OnInitializedAsync()
+    {
+        prospectusItems = await db.Widgets.Where(x => x.Title == nameof(WidgetFilter.Prospectus)).ToListAsync();
+    }
+}

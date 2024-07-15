@@ -3,5 +3,6 @@ public enum ApplicantType
 {
     StudentInternship = 1,
     SoftwareEngineeringAspirant,
+    Professional,
     CorporateEmployee
 }

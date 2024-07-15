@@ -1,24 +1,25 @@
 ﻿<MudPaper Width="230px" Class="d-inline-flex py-3 mb-3" Elevation="0">
     <MudNavMenu Class="mud-width-full">
         <MudNavLink Href="/" Match="NavLinkMatch.All" Icon="@Icons.Material.Filled.Home" IconColor="Color.Success">Home</MudNavLink>
-        <MudNavLink Href="/apply" Icon="@Icons.Material.Filled.Person3" IconColor="Color.Success">Apply</MudNavLink>
-        <MudNavLink Href="/timeline" Icon="@Icons.Material.Filled.Timeline" IconColor="Color.Success">Timeline</MudNavLink>
-        <MudNavLink Href="/prospectus" Icon="@Icons.Material.Sharp.Article" IconColor="Color.Success">Prospectus</MudNavLink>
+        <MudNavLink Href="/join" Icon="@Icons.Material.Filled.Person3" IconColor="Color.Success">Join Us</MudNavLink>
         <MudNavLink Href="/contact" Icon="@Icons.Material.Sharp.Contacts" IconColor="Color.Success">Contact Us</MudNavLink>
 
-        <MudNavGroup Title="Our Team" Icon="@Icons.Material.Sharp.Groups3" IconColor="Color.Success" Expanded>
-            <MudNavLink Href="/coreteam" Icon="@Icons.Material.Sharp.PeopleOutline" IconColor="Color.Success">Core Team</MudNavLink>
-            <MudNavLink Href="/consultants" Icon="@Icons.Material.Sharp.AccountBox" IconColor="Color.Success">Consultants</MudNavLink>
-        </MudNavGroup>
-
-        <MudNavGroup Title="AppSoft Modules" Icon="@Icons.Material.Sharp.SettingsInputComponent" IconColor="Color.Success" Expanded>
-            <MudNavLink Href="/modules/interns" Icon="@Icons.Material.Sharp.School" IconColor="Color.Success">For Interns</MudNavLink>
-            <MudNavLink Href="/modules/professionals" Icon="@Icons.Material.Sharp.Laptop" IconColor="Color.Success">For Professionals</MudNavLink>
-            <MudNavLink Href="/modules/corporates" Icon="@Icons.Material.Sharp.CardTravel" IconColor="Color.Success">For Corporates</MudNavLink>
-            <AuthorizeView Roles="@Role.AdminsAndInstructor">
-                <MudNavLink Href="/modules/all" Icon="@Icons.Material.Sharp.SelectAll" IconColor="Color.Success">All Modules</MudNavLink>
-            </AuthorizeView>
-        </MudNavGroup>
+        <AuthorizeView Context="moduleGroup">
+            <MudNavLink Href="/timeline" Icon="@Icons.Material.Filled.Timeline" IconColor="Color.Success">Timeline</MudNavLink>
+            <MudNavLink Href="/prospectus" Icon="@Icons.Material.Sharp.Article" IconColor="Color.Success">Prospectus</MudNavLink>
+            <MudNavGroup Title="Our Team" Icon="@Icons.Material.Sharp.Groups3" IconColor="Color.Success" Expanded>
+                <MudNavLink Href="/coreteam" Icon="@Icons.Material.Sharp.PeopleOutline" IconColor="Color.Success">Core Team</MudNavLink>
+                <MudNavLink Href="/consultants" Icon="@Icons.Material.Sharp.AccountBox" IconColor="Color.Success">Consultants</MudNavLink>
+            </MudNavGroup>
+            <MudNavGroup Title="Grooming Modules" Icon="@Icons.Material.Sharp.SettingsInputComponent" IconColor="Color.Success" Expanded>
+                <MudNavLink Href="/modules/interns" Icon="@Icons.Material.Sharp.School" IconColor="Color.Success">For Trainees</MudNavLink>
+                <MudNavLink Href="/modules/professionals" Icon="@Icons.Material.Sharp.Laptop" IconColor="Color.Success">For Professionals</MudNavLink>
+                <MudNavLink Href="/modules/corporates" Icon="@Icons.Material.Sharp.CardTravel" IconColor="Color.Success">For Corporates</MudNavLink>
+                <AuthorizeView Roles="@Role.AdminsAndInstructor">
+                    <MudNavLink Href="/modules/all" Icon="@Icons.Material.Sharp.SelectAll" IconColor="Color.Success">All Modules</MudNavLink>
+                </AuthorizeView>
+            </MudNavGroup>
+        </AuthorizeView>
 
         <AuthorizeView Roles="@Role.Trainee">
             <MudDivider Class="my-2" />

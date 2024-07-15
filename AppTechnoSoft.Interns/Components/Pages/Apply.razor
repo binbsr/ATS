@@ -1,4 +1,4 @@
-﻿@page "/apply"
+﻿@page "/join"
 
 <PageTitle>Joining AppSoft</PageTitle>
 
@@ -14,13 +14,14 @@
         }
         else
         {
-            <MudAlert Severity="Severity.Warning" Variant="Variant.Outlined">Please enter your details to start learning journey at AppSoft for successful professional career.</MudAlert>
+            <MudAlert Severity="Severity.Warning" Variant="Variant.Outlined">Please enter your details to start professional journey at AppSoft for successful career.</MudAlert>
         }
 
         <MudField Label="I am" Variant="Variant.Outlined" Class="mt-5">
             <MudRadioGroup @bind-Value="model.ApplicantType">
-                <MudRadio Value="ApplicantType.StudentInternship" Color="Color.Tertiary">Student, want to start internship/traineeship</MudRadio>
-                <MudRadio Value="ApplicantType.SoftwareEngineeringAspirant" Color="Color.Tertiary">Software engineering aspirant, need professional training</MudRadio>
+                <MudRadio Value="ApplicantType.StudentInternship" Color="Color.Tertiary">a student - running</MudRadio>
+                <MudRadio Value="ApplicantType.SoftwareEngineeringAspirant" Color="Color.Tertiary">a student - complete or result waiting</MudRadio>
+                <MudRadio Value="ApplicantType.Professional" Color="Color.Tertiary">a working professional</MudRadio>
             </MudRadioGroup>
         </MudField>
 
@@ -70,9 +71,10 @@
                              ProgressIndicatorColor="Color.Default"
                              MaxItems="null" />
         }
-        else if (model.ApplicantType == ApplicantType.SoftwareEngineeringAspirant)
+        else if (model.ApplicantType == ApplicantType.SoftwareEngineeringAspirant
+            || model.ApplicantType == ApplicantType.Professional)
         {
-            <MudSelect T="TrainingTrack" Variant="Variant.Outlined" Label="Training track" @bind-Value="model.TrainingTrack" Class="mt-4" AnchorOrigin="Origin.BottomCenter">
+            <MudSelect T="TrainingTrack" Variant="Variant.Outlined" Label="Track" @bind-Value="model.TrainingTrack" Class="mt-4" AnchorOrigin="Origin.BottomCenter">
                 <MudSelectItem T="TrainingTrack" Value="@TrainingTrack.None">No idea, need consulting</MudSelectItem>
                 <MudSelectItem T="TrainingTrack" Value="@TrainingTrack.NETWeb">.NET Web Development</MudSelectItem>
                 <MudSelectItem T="TrainingTrack" Value="@TrainingTrack.JavaWeb">Java Web Development</MudSelectItem>
@@ -151,7 +153,7 @@
             if (model.ApplicantType == ApplicantType.StudentInternship)
             {
                 rowsAffected = await Db.Students
-                .Where(x=> x.Id == model.Id)
+                .Where(x => x.Id == model.Id)
                 .ExecuteUpdateAsync(o => o
                     .SetProperty(x => x.Name, model.Name)
                     .SetProperty(x => x.Email, model.Email)
@@ -242,7 +244,7 @@
         model.Email = CreateEmail(model.Name, model.Phone);
         if (model.Phone.Length == 10)
         {
-            alreadyAppliedPhone = await Db.Students.AnyAsync(x => x.Phone == model.Phone);           
+            alreadyAppliedPhone = await Db.Students.AnyAsync(x => x.Phone == model.Phone);
         }
     }
 

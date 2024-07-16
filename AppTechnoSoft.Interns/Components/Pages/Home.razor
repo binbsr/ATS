@@ -15,8 +15,6 @@ else
     {
         <MudText Typo="Typo.h3" Align="Align.Center">
             @homeTitle.Description
-            <MudIcon Icon="@Icons.Material.Sharp.WavingHand" Size="Size.Large" Color="Color.Tertiary" />
-            <MudIcon Icon="@Icons.Material.Sharp.WavingHand" Size="Size.Large" Color="Color.Tertiary" />
             <AuthorizeView Roles="@Role.Admins">
                 <MudIconButton Icon="@Icons.Material.Filled.Edit" Color="Color.Warning" Size="Size.Small" Class="ml-auto" Href="@("/edit-widget/" + homeTitle.Id)" />
             </AuthorizeView>

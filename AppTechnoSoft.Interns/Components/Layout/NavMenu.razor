@@ -53,7 +53,6 @@
         <AuthorizeView Roles="@Role.AdminsAndInstructor">
             <MudNavGroup Title="Instructor" Icon="@Icons.Material.Sharp.PersonalVideo" IconColor="Color.Success">
                 <MudNavLink Href="/schedules" Icon="@Icons.Material.Sharp.Schedule" IconColor="Color.Success">Schedules</MudNavLink>
-                <MudNavLink Href="/batches" Icon="@Icons.Material.Sharp.BatchPrediction" IconColor="Color.Success">Batches</MudNavLink>
                 <MudNavLink Href="/attendance" Icon="@Icons.Material.Sharp.Person2" IconColor="Color.Success">Attendance</MudNavLink>
             </MudNavGroup>
         </AuthorizeView>
@@ -61,6 +60,7 @@
         <AuthorizeView Roles="@Role.Admins">
             <MudNavGroup Title="Moderation" Icon="@Icons.Material.Filled.VerifiedUser" IconColor="Color.Error">
                 <MudNavLink Href="/applicants" Icon="@Icons.Material.Filled.Groups3" IconColor="Color.Error">Applicants</MudNavLink>
+                <MudNavLink Href="/batches" Icon="@Icons.Material.Sharp.BatchPrediction" IconColor="Color.Error">Batches</MudNavLink>
                 <MudNavLink Href="/timesheets" Icon="@Icons.Material.Filled.Checklist" IconColor="Color.Error">Timesheets</MudNavLink>
                 <MudNavLink Href="/projects" Icon="@Icons.Material.Sharp.Code" IconColor="Color.Error">Projects</MudNavLink>
             </MudNavGroup>
@@ -87,6 +87,10 @@
                 <MudNavLink Href="/add-widget" Icon="@Icons.Material.Filled.Widgets" IconColor="Color.Info">Add Widget</MudNavLink>
                 <MudNavLink Href="/add-instructor" Icon="@Icons.Material.Filled.PersonAdd" IconColor="Color.Info">Add Instructor</MudNavLink>
                 <MudNavLink Href="/timelineitem/add" Icon="@Icons.Material.Sharp.Timeline" IconColor="Color.Info">Add Timeline Item</MudNavLink>
+                <MudNavGroup Title="Organizations" Icon="@Icons.Material.Filled.Apartment" IconColor="Color.Info">
+                    <MudNavLink Href="/admin/organizations" Icon="@Icons.Material.Filled.TableRows" Match="NavLinkMatch.All" IconColor="Color.Info">All</MudNavLink>
+                    <MudNavLink Href="/admin/organizations/add" Icon="@Icons.Material.Filled.PlusOne" IconColor="Color.Info">Add Organization</MudNavLink>
+                </MudNavGroup>
             </MudNavGroup>
         </AuthorizeView>
     </MudNavMenu>

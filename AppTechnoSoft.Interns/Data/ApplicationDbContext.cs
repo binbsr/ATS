@@ -3,8 +3,6 @@ using AppTechnoSoft.Interns.Data.Models;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Hosting;
-using System.Reflection.Emit;
 
 namespace AppTechnoSoft.Interns.Data;
 public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)

@@ -71,8 +71,7 @@
                              ProgressIndicatorColor="Color.Default"
                              MaxItems="null" />
         }
-        else if (model.ApplicantType == ApplicantType.SoftwareEngineeringAspirant
-            || model.ApplicantType == ApplicantType.Professional)
+        else if (model.ApplicantType == ApplicantType.SoftwareEngineeringAspirant)
         {
             <MudSelect T="TrainingTrack" Variant="Variant.Outlined" Label="Track" @bind-Value="model.TrainingTrack" Class="mt-4" AnchorOrigin="Origin.BottomCenter">
                 <MudSelectItem T="TrainingTrack" Value="@TrainingTrack.None">No idea, need consulting</MudSelectItem>

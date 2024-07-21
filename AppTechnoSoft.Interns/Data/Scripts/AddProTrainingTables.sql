@@ -1,0 +1,71 @@
+﻿
+GO
+
+ALTER TABLE [Students] ADD [TrainingId] int NULL;
+GO
+
+CREATE TABLE [CourseQuotes] (
+    [Id] int NOT NULL IDENTITY,
+    [Code] nvarchar(max) NOT NULL,
+    [Description] nvarchar(max) NOT NULL,
+    [PricePerUnit] real NOT NULL,
+    CONSTRAINT [PK_CourseQuotes] PRIMARY KEY ([Id])
+);
+GO
+
+CREATE TABLE [Organizations] (
+    [Id] int NOT NULL IDENTITY,
+    [Name] nvarchar(max) NOT NULL,
+    [Details] nvarchar(max) NOT NULL,
+    [OrganizationType] int NOT NULL,
+    CONSTRAINT [PK_Organizations] PRIMARY KEY ([Id])
+);
+GO
+
+CREATE TABLE [CourseQuoteModules] (
+    [CourseQuoteId] int NOT NULL,
+    [ModulesId] int NOT NULL,
+    CONSTRAINT [PK_CourseQuoteModules] PRIMARY KEY ([CourseQuoteId], [ModulesId]),
+    CONSTRAINT [FK_CourseQuoteModules_CourseQuotes_CourseQuoteId] FOREIGN KEY ([CourseQuoteId]) REFERENCES [CourseQuotes] ([Id]) ON DELETE CASCADE,
+    CONSTRAINT [FK_CourseQuoteModules_Widgets_ModulesId] FOREIGN KEY ([ModulesId]) REFERENCES [Widgets] ([Id]) ON DELETE CASCADE
+);
+GO
+
+CREATE TABLE [Training] (
+    [Id] int NOT NULL IDENTITY,
+    [DurationHours] real NOT NULL,
+    [DiscountPercentage] real NOT NULL,
+    [OrganizationId] int NOT NULL,
+    [CourseQuoteId] int NOT NULL,
+    [InstructorId] int NOT NULL,
+    [Created] datetime2 NULL,
+    [CreatedBy] nvarchar(max) NULL,
+    [LastUpdated] datetime2 NULL,
+    [LastUpdatedBy] nvarchar(max) NULL,
+    CONSTRAINT [PK_Training] PRIMARY KEY ([Id]),
+    CONSTRAINT [FK_Training_CourseQuotes_CourseQuoteId] FOREIGN KEY ([CourseQuoteId]) REFERENCES [CourseQuotes] ([Id]) ON DELETE CASCADE,
+    CONSTRAINT [FK_Training_Instructors_InstructorId] FOREIGN KEY ([InstructorId]) REFERENCES [Instructors] ([Id]) ON DELETE CASCADE,
+    CONSTRAINT [FK_Training_Organizations_OrganizationId] FOREIGN KEY ([OrganizationId]) REFERENCES [Organizations] ([Id]) ON DELETE CASCADE
+);
+GO
+
+CREATE INDEX [IX_Students_TrainingId] ON [Students] ([TrainingId]);
+GO
+
+CREATE INDEX [IX_CourseQuoteModules_ModulesId] ON [CourseQuoteModules] ([ModulesId]);
+GO
+
+CREATE INDEX [IX_Training_CourseQuoteId] ON [Training] ([CourseQuoteId]);
+GO
+
+CREATE INDEX [IX_Training_InstructorId] ON [Training] ([InstructorId]);
+GO
+
+CREATE INDEX [IX_Training_OrganizationId] ON [Training] ([OrganizationId]);
+GO
+
+ALTER TABLE [Students] ADD CONSTRAINT [FK_Students_Training_TrainingId] FOREIGN KEY ([TrainingId]) REFERENCES [Training] ([Id]);
+GO
+
+COMMIT;
+GO

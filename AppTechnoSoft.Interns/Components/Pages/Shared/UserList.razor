@@ -3,12 +3,7 @@
     {
         var user = LoggedInUserId == member.UserId ? $"{member.Name} (You)" : member.Name;
         <MudItem md="2" sm="6" xs="1">
-            <MudStack AlignItems="AlignItems.Center">
-                <MudAvatar Style="height:80px; width:80px; font-size:2rem;">
-                    <MudImage Src="@member.ProfilePath" />
-                </MudAvatar>
-                <MudText Typo="Typo.subtitle2">@user</MudText>
-            </MudStack>
+            <UserProfile AvatarPath="@member.ProfilePath" Name="@member.Name" />
         </MudItem>
     }
 </MudGrid>

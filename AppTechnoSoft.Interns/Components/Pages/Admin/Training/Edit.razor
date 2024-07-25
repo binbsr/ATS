@@ -1,4 +1,4 @@
-﻿@page "/admin/organizations/edit/{Id:int}"
+﻿@page "/trainingplans/edit/{Id:int}"
 
 @attribute [Authorize(Roles = Role.Admins)]
 @inject ISnackbar SnackBar
@@ -9,10 +9,8 @@
 
 <EditForm Model="@model" OnValidSubmit="OnValidSubmit">
     <MudTextField Label="Title" @bind-Value="model.Name" Variant="Variant.Outlined" />
-    <MudTextField Label="Organization Details" Class="my-3" Lines="5" @bind-Value="model.Details" Variant="Variant.Outlined" />
-    <MudSelect @bind-Value="@model.OrganizationType"
-               Variant="Variant.Outlined"
-               AnchorOrigin="Origin.BottomCenter">
+    <MudTextField Class="mt-3" Lines="5" @bind-Value="model.Details" Variant="Variant.Outlined" />
+    <MudSelect @bind-Value="@model.OrganizationType">
         @foreach (var org in Enum.GetValues<OrganizationType>())
         {
             <MudSelectItem Value="@org">@org</MudSelectItem>
@@ -22,7 +20,6 @@
     <MudButton ButtonType="ButtonType.Submit"
                Variant="Variant.Filled"
                Color="Color.Tertiary"
-               Class="my-3"
                StartIcon="@Icons.Material.Filled.Save">
         Save
     </MudButton>
@@ -48,7 +45,7 @@
         if (rowsAffected > 0)
         {
             SnackBar.Add("Organization saved successfully", Severity.Success);
-            Navigation.NavigateTo("/admin/organizations");
+            Navigation.NavigateTo("/trainingplans");
         }
         else
         {

@@ -5,62 +5,121 @@
 @inject NavigationManager Navigation
 @inject ApplicationDbContext Db
 
-<PageTitle>Add Course Quote</PageTitle>
+<PageTitle>Add New Training Plan</PageTitle>
 
-<EditForm Model="@model" OnValidSubmit="OnValidSubmit">
-    <MudTextField Label="Course Code" @bind-Value="model.Code" Variant="Variant.Outlined" />
-    <MudTextField Label="Course Description" Class="mt-3" Lines="3" @bind-Value="model.Description" Variant="Variant.Outlined" />
-    <MudNumericField Label="Price per unit" Format="N2" Class="mt-3" @bind-Value="model.PricePerUnit" Variant="Variant.Outlined" />
-    
-    <MudSelect T="Widget"
-               Label="Course Modules"
-               MultiSelection
-               Dense
-               Placeholder="Select course modules"
-               @bind-SelectedValues="@selectedModules"
-               AnchorOrigin="Origin.BottomCenter"
-               ToStringFunc="x => x.Description"
-               Variant="Variant.Outlined"
-               Class="my-3">
-        @foreach (var module in techModules)
-        {
-            <MudSelectItem Value="@module" />
-        }
-    </MudSelect>
+<MudContainer>
+    <EditForm Model="@model" OnValidSubmit="OnValidSubmit">
+        <MudNumericField Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Sharp.HourglassTop" Label="Duration Hours" Format="N2" Class="mt-3" @bind-Value="model.DurationHours" Variant="Variant.Outlined" />
+        <MudNumericField Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Sharp.Percent" Label="Discount Percentage" Class="my-4" @bind-Value="model.DiscountPercentage" Variant="Variant.Outlined" />
 
-    <MudButton ButtonType="ButtonType.Submit"
-               Variant="Variant.Filled"
-               Color="Color.Tertiary"
-               StartIcon="@Icons.Material.Filled.Save">
-        Save
-    </MudButton>
-</EditForm>
+        <MudAutocomplete T="Instructor"
+                         Label="Select Training Consultant"
+                         @bind-Value="model.Instructor"
+                         SearchFunc="@SearchConsultants"
+                         ToStringFunc="@(e=> e==null ? null : $"{e.Name} ({e.Role})")"
+                         ShowProgressIndicator="true"
+                         ProgressIndicatorColor="Color.Default"
+                         Variant="Variant.Outlined"
+                         Class="my-4"
+                         MaxItems="null" />
+
+        <MudAutocomplete T="CourseQuote"
+                         Label="Select Quote"
+                         @bind-Value="model.CourseQuote"
+                         SearchFunc="@SearchQuotes"
+                         ToStringFunc="@(e=> e==null ? null : $"{e.Code} - {e.Description} ({e.PricePerUnit.AsCurrency()}/Unit)")"
+                         ShowProgressIndicator="true"
+                         ProgressIndicatorColor="Color.Default"
+                         Variant="Variant.Outlined"
+                         Class="my-4"
+                         MaxItems="null" />
+
+        <MudAutocomplete T="Organization"
+                         Label="Training For"
+                         @bind-Value="model.Organization"
+                         SearchFunc="@SearchOrganizations"
+                         ToStringFunc="@(e=> e==null ? null : $"{e.Name} ({e.Details})")"
+                         ShowProgressIndicator="true"
+                         ProgressIndicatorColor="Color.Default"
+                         Variant="Variant.Outlined"
+                         Class="my-4"
+                         MaxItems="null" />
+
+        <MudButton ButtonType="ButtonType.Submit"
+                   Variant="Variant.Filled"
+                   Color="Color.Tertiary"
+                   StartIcon="@Icons.Material.Filled.Save">
+            Save
+        </MudButton>
+    </EditForm>
+</MudContainer>
 
 @code {
 
-    CourseQuote model = new() { PricePerUnit = 2500f };
-    List<Widget> techModules = [];
-    IEnumerable<Widget> selectedModules = [];
-
-    protected override async Task OnInitializedAsync()
-    {
-        techModules = await Db.Widgets.Where(x => x.Title == nameof(WidgetFilter.Module)).ToListAsync();
-    }
+    Training model = new() { DurationHours = 20f };
+    IEnumerable<Instructor> consultants = [];
+    IEnumerable<CourseQuote> quotes = [];
+    IEnumerable<Organization> forOrganizations = [];
 
     private async Task OnValidSubmit(EditContext context)
     {
-        model.Modules = selectedModules.ToList();
-        Db.CourseQuotes.Add(model);
+        Db.Training.Add(model);
         var rowsAffected = await Db.SaveChangesAsync();
 
         if (rowsAffected > 0)
         {
-            SnackBar.Add("New quote added successfully", Severity.Success);
+            SnackBar.Add("New training plan added successfully", Severity.Success);
             Navigation.NavigateTo("/trainingplans");
         }
         else
         {
-            SnackBar.Add("New quote save failed", Severity.Error);
+            SnackBar.Add("New training plan save failed", Severity.Error);
         }
+    }
+
+    private async Task<IEnumerable<Instructor>> SearchConsultants(string value)
+    {
+        if (!consultants.Any())
+        {
+            consultants = await Db.Instructors.ToListAsync();
+        }
+
+        if (value is null or "")
+        {
+            return consultants;
+        }
+
+        return consultants.Where(x => x.Name.Contains(value, StringComparison.OrdinalIgnoreCase));
+    }
+
+    private async Task<IEnumerable<CourseQuote>> SearchQuotes(string value)
+    {
+        if (!quotes.Any())
+        {
+            quotes = await Db.CourseQuotes.ToListAsync();
+        }
+
+        if (value is null or "")
+        {
+            return quotes;
+        }
+
+        return quotes.Where(x => x.Code.Contains(value, StringComparison.OrdinalIgnoreCase)
+        || x.Description.Contains(value, StringComparison.OrdinalIgnoreCase));
+    }
+
+    private async Task<IEnumerable<Organization>> SearchOrganizations(string value)
+    {
+        if (!forOrganizations.Any())
+        {
+            forOrganizations = await Db.Organizations.ToListAsync();
+        }
+
+        if (value is null or "")
+        {
+            return forOrganizations;
+        }
+
+        return forOrganizations.Where(x => x.Name.Contains(value, StringComparison.OrdinalIgnoreCase));
     }
 }

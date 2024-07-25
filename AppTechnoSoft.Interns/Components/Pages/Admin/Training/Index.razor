@@ -19,6 +19,7 @@
         <HierarchyColumn T="Training" ButtonDisabledFunc="@(x => (x.CourseQuote?.Modules?.Count ?? 0) == 0)" />
         <PropertyColumn Property="x => x.CourseQuote!.Code" Title="Course" />
         <PropertyColumn Property="x => x.CourseQuote!.Description" Title="Course Description" />
+        <PropertyColumn Property="x => x.Organization!.Name" Title="Organization" />
         <PropertyColumn Property="x => x.DiscountPercentage" />
         <PropertyColumn Property="x => x.DurationHours" />
         <TemplateColumn>

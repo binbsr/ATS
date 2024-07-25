@@ -49,12 +49,15 @@
                    Variant="Variant.Filled"
                    Color="Color.Tertiary"
                    StartIcon="@Icons.Material.Filled.Save">
-            Save
+            Save Plan
         </MudButton>
     </EditForm>
 </MudContainer>
 
 @code {
+
+    [CascadingParameter]
+    private Task<AuthenticationState> AuthTask { get; set; } = null!;
 
     Training model = new() { DurationHours = 20f };
     IEnumerable<Instructor> consultants = [];
@@ -63,6 +66,10 @@
 
     private async Task OnValidSubmit(EditContext context)
     {
+        var state = await AuthTask;
+        var userName = state.User.Identity?.Name;
+        model.AddCreatedStamps(userName);
+
         Db.Training.Add(model);
         var rowsAffected = await Db.SaveChangesAsync();
 

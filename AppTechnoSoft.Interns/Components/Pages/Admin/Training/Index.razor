@@ -76,6 +76,7 @@
             .Include(x => x.Instructor)
             .Include(x => x.CourseQuote)
             .ThenInclude(y => y.Modules)
+            .OrderBy(x => x.CourseQuote.Code)
             .ToListAsync();
 
         loadingData = false;

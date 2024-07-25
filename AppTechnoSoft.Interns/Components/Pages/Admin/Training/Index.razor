@@ -17,18 +17,24 @@
     </ToolBarContent>
     <Columns>
         <HierarchyColumn T="Training" ButtonDisabledFunc="@(x => (x.CourseQuote?.Modules?.Count ?? 0) == 0)" />
+        <PropertyColumn Property="x => x.Title" />
         <PropertyColumn Property="x => x.CourseQuote!.Code" Title="Course" />
         <PropertyColumn Property="x => x.CourseQuote!.Description" Title="Course Description" />
         <PropertyColumn Property="x => x.Organization!.Name" Title="Organization" />
         <PropertyColumn Property="x => x.DiscountPercentage" />
         <PropertyColumn Property="x => x.DurationHours" />
-        <TemplateColumn>
+        <TemplateColumn Title="Consultant">
             <CellTemplate>
-                <UserProfile AvatarPath="@context.Item.Instructor?.ProfilePath" Name="@context.Item.Instructor?.Name" />
+                <MudTooltip Text="@context.Item.Instructor?.Name">
+                    <MudAvatar>
+                        <MudImage Src="@context.Item.Instructor?.ProfilePath" />
+                    </MudAvatar>
+                </MudTooltip>
             </CellTemplate>
         </TemplateColumn>
         <TemplateColumn>
             <CellTemplate>
+                <MudIconButton Title="Share plan" Icon="@Icons.Material.Filled.Share" Color="Color.Info" Href="@("/consulting/plans/" + context.Item.Hash)" />
                 <MudIconButton Icon="@Icons.Material.Filled.Edit" Size="Size.Small" Color="Color.Warning" Href="@("/trainingplans/edit/" + context.Item.Id)" />
                 <MudIconButton Icon="@Icons.Material.Sharp.Delete" Size="Size.Small" Color="Color.Error" OnClick="() => ConfirmDelete(context.Item)" />
                 <MudMessageBox @ref="mbox" Title="Warning" CancelText="Cancel">

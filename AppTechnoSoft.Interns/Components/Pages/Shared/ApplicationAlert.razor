@@ -1,4 +1,4 @@
-﻿<MudAlert Severity="Severity.Info" Elevation="5" Style="font-size:1.2rem" NoIcon>    
+﻿<MudAlert Severity="@Type" Elevation="5" Style="font-size:1.2rem" NoIcon>    
     <MudIcon Icon="@Icons.Material.Sharp.Info" Size="Size.Large" />
     @Text
     @if (Navigation is not "")
@@ -15,6 +15,9 @@
 
     [Parameter]
     public string Navigation { get; set; } = "";
+
+    [Parameter]
+    public Severity Type { get; set; } = Severity.Info;
 
     [Parameter]
     public RenderFragment? ChildContent { get; set; }

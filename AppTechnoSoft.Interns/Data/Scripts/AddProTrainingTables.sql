@@ -40,7 +40,7 @@ CREATE TABLE [Training] (
     [Id] int NOT NULL IDENTITY,
     [Hash]  nvarchar(max) NULL,
     [Status] int NOT NULL,
-    [Label] nvarchar(max) NOT NULL,
+    [Title] nvarchar(max) NOT NULL,
     [DurationHours] real NOT NULL,
     [DiscountPercentage] real NOT NULL,
     [OrganizationId] int NOT NULL,

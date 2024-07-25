@@ -1,0 +1,43 @@
+﻿@page "/consulting/plans/{Id:string}"
+
+@inject ApplicationDbContext Db
+
+@if(Id == null)
+{
+    <ApplicationAlert Type="Severity.Error" Text="Oops! couldn't fetch plan details." />   
+}
+
+@if(loading)
+{
+    <Loading />
+}
+else
+{
+    //todo
+}
+
+@code {
+
+    [Parameter]
+    public string Id { get; set; }
+
+    Training model = new();
+    bool loading = false;
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (Id is null)
+            return;
+
+        loading = true;
+        model = await Db.Training
+            .Include(x => x.Organization)
+            .Include(x => x.Instructor)
+            .Include(x => x.CourseQuote)
+            .ThenInclude(y => y.Modules)
+            .Where(x => x.Hash == Id)
+            .FirstOrDefaultAsync() ?? new();
+
+        loading = false;
+    }
+}

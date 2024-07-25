@@ -9,7 +9,8 @@
 
 <MudContainer>
     <EditForm Model="@model" OnValidSubmit="OnValidSubmit">
-        <MudNumericField Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Sharp.HourglassTop" Label="Duration Hours" Format="N2" Class="mt-3" @bind-Value="model.DurationHours" Variant="Variant.Outlined" />
+        <MudTextField Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Sharp.Title" Label="Training Label" Class="mt-3" @bind-Value="model.Title" Variant="Variant.Outlined" />
+        <MudNumericField Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Sharp.HourglassTop" Label="Duration Hours" Format="N2" Class="my-3" @bind-Value="model.DurationHours" Variant="Variant.Outlined" />
         <MudNumericField Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Sharp.Percent" Label="Discount Percentage" Class="my-4" @bind-Value="model.DiscountPercentage" Variant="Variant.Outlined" />
 
         <MudAutocomplete T="Instructor"

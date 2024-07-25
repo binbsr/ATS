@@ -4,6 +4,11 @@ GO
 ALTER TABLE [Students] ADD [TrainingId] int NULL;
 GO
 
+ALTER TABLE [dbo].[Batches] ADD [TrainingId] int NULL;
+ALTER TABLE [dbo].[Batches]
+    ADD CONSTRAINT [FK_Batches_Training_TrainingId] FOREIGN KEY ([TrainingId]) REFERENCES [dbo].[Training] ([Id]);
+GO
+
 CREATE TABLE [CourseQuotes] (
     [Id] int NOT NULL IDENTITY,
     [Code] nvarchar(max) NOT NULL,
@@ -33,6 +38,9 @@ GO
 
 CREATE TABLE [Training] (
     [Id] int NOT NULL IDENTITY,
+    [Hash]  nvarchar(max) NULL,
+    [Status] int NOT NULL,
+    [Label] nvarchar(max) NOT NULL,
     [DurationHours] real NOT NULL,
     [DiscountPercentage] real NOT NULL,
     [OrganizationId] int NOT NULL,

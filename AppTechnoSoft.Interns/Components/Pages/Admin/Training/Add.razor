@@ -69,6 +69,7 @@
         var state = await AuthTask;
         var userName = state.User.Identity?.Name;
         model.AddCreatedStamps(userName);
+        model.Hash = Guid.NewGuid().ToString();
 
         Db.Training.Add(model);
         var rowsAffected = await Db.SaveChangesAsync();

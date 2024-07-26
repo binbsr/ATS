@@ -3,12 +3,12 @@
                Hidden="@false"
                InputClass="absolute mud-width-full mud-height-full overflow-hidden z-20"
                InputStyle="opacity:0">
-    <ButtonTemplate>
+    <ActivatorContent>
         <MudPaper Height="116px"
                   Outlined="true"
                   Class="relative rounded-lg border-2 border-dashed pa-4 mud-width-full mud-height-full z-10">
             <MudStack Row AlignItems="AlignItems.Center">
-                 @if (ExistingImagePath is not (null or ""))
+                @if (ExistingImagePath is not (null or ""))
                 {
                     <MudAvatar Style="height:80px; width:80px; font-size:2rem;">
                         <MudImage Src="@ExistingImagePath" />
@@ -23,7 +23,7 @@
                 </MudText>
             </MudStack>
         </MudPaper>
-    </ButtonTemplate>
+    </ActivatorContent>
 </MudFileUpload>
 
 @code {

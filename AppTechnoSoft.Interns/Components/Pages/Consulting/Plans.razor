@@ -1,32 +1,85 @@
-﻿@page "/consulting/plans/{Id:string}"
+﻿@page "/consulting/plans/{Hash:guid}"
+
+<PageTitle>@($"{model.Organization!.Name} - {model.Title}")</PageTitle>
 
 @inject ApplicationDbContext Db
 
-@if(Id == null)
+@if (Hash == null)
 {
-    <ApplicationAlert Type="Severity.Error" Text="Oops! couldn't fetch plan details." />   
+    <ApplicationAlert Type="Severity.Error" Text="Oops! couldn't fetch plan details." />
 }
 
-@if(loading)
+@if (loading)
 {
     <Loading />
 }
 else
 {
-    //todo
+    <MudPaper Elevation="5" Class="p-3" Square>
+        <MudGrid Class="px-5">
+            <MudItem xs="12">
+                <MudText Typo="Typo.h5" Align="Align.Center" Class="py-5">@model.Title</MudText>
+            </MudItem>
+
+            <MudItem md="6" xs="12">
+                <MudStack AlignItems="AlignItems.Start">
+                    <MudText Typo="Typo.h6">
+                        Code
+                        <MudText Typo="Typo.subtitle1">@(model.CourseQuote?.Code ?? "N/A")</MudText>
+                    </MudText>                                    
+                    <MudText Typo="Typo.h6">
+                        Description
+                        <MudText Typo="Typo.subtitle1">@(model.CourseQuote?.Description ?? "N/A")</MudText>
+                    </MudText>
+                    <MudText Typo="Typo.h6">
+                        Duration
+                        <MudText Typo="Typo.subtitle1">@("Hour".ToQuantity(model.DurationHours))</MudText>
+                    </MudText>                    
+                </MudStack>
+            </MudItem>
+            <MudItem md="6" xs="12">
+                <MudStack AlignItems="AlignItems.Start">
+                    <MudText Typo="Typo.h6">
+                        Beneficiary
+                        <MudText Typo="Typo.subtitle1">@(model.Organization?.Name ?? "N/A")</MudText>
+                    </MudText>
+                    <MudText Typo="Typo.h6">
+                        Modules
+                        <MudText Typo="Typo.subtitle1">@((model.CourseQuote?.Modules?.Count ?? 0).ToWords().Pascalize())</MudText>
+                    </MudText>
+                    <MudText Typo="Typo.h6">
+                        Drafted
+                        <MudText Typo="Typo.subtitle1">@(model.Created?.ToLongDateString() ?? "N/A")</MudText>
+                    </MudText>
+                </MudStack>
+            </MudItem>
+            <MudItem xs="12">
+                <MudPaper Class="d-flex align-center justify-center mud-width-full py-8 mb-4">
+                    <MudGrid>
+                        @foreach (var module in model.CourseQuote?.Modules ?? [])
+                        {
+                            <MudItem xs="12" md="6">
+                                <ModuleReadOnly Widget="module" />
+                            </MudItem>
+                        }                        
+                    </MudGrid>                    
+                </MudPaper>
+            </MudItem>
+        </MudGrid>
+    </MudPaper>
 }
 
 @code {
 
     [Parameter]
-    public string Id { get; set; }
+    public Guid? Hash { get; set; }
 
     Training model = new();
     bool loading = false;
 
     protected override async Task OnInitializedAsync()
     {
-        if (Id is null)
+        if (Hash is null)
             return;
 
         loading = true;
@@ -35,7 +88,7 @@ else
             .Include(x => x.Instructor)
             .Include(x => x.CourseQuote)
             .ThenInclude(y => y.Modules)
-            .Where(x => x.Hash == Id)
+            .Where(x => x.Hash!.Equals(Hash.ToString()))
             .FirstOrDefaultAsync() ?? new();
 
         loading = false;

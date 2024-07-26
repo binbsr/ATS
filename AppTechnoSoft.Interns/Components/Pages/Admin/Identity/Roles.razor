@@ -54,7 +54,7 @@
 
     private async Task ConfirmDelete(IdentityRole role)
     {
-        bool? result = await mbox.Show();
+        bool? result = await mbox.ShowAsync();
         if (result == null)
             return;
 

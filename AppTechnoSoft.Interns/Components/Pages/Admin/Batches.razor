@@ -84,13 +84,13 @@
                                             }
                                         </MudAvatarGroup>
                                         <MudPaper Class="mt-4 p-2" Style="text-align:center" Elevation="0">
-                                            <MudChip Label>Project</MudChip>
+                                            <MudChip T="string" Label="true">Project</MudChip>
                                             <MudLink Href="@($"/projects?highlight={@team.Project?.Id}")" Class="d-block">@(team.Project?.Title ?? "None")</MudLink>
                                             <MudDivider Class="my-1" />
-                                            <MudChip Label>Repository</MudChip>
+                                            <MudChip T="string" Label="true">Repository</MudChip>
                                             <MudLink Href="@team.Project?.RepoUrl" Target="_blank" Class="d-block">@(team.Project?.RepoUrl ?? "None")</MudLink>
                                             <MudDivider Class="my-1" />
-                                            <MudChip Label>Project Board</MudChip>
+                                            <MudChip T="string" Label="true">Project Board</MudChip>
                                             <MudLink Href="@team.Project?.BoardUrl" Target="_blank" Class="d-block">@(team.Project?.BoardUrl ?? "None")</MudLink>
                                         </MudPaper>
                                     </MudCardContent>
@@ -146,7 +146,7 @@
 
     private async Task ConfirmDelete(Batch batch)
     {
-        bool? result = await mbox.Show();
+        bool? result = await mbox.ShowAsync();
         if (result == null)
             return;
 
@@ -167,7 +167,7 @@
 
     private async Task ConfirmDeleteTeam(Team team, Batch batch)
     {
-        bool? result = await mbox.Show();
+        bool? result = await mbox.ShowAsync();
         if (result == null)
             return;
 

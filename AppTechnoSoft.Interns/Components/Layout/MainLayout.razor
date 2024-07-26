@@ -3,6 +3,7 @@
 <MudThemeProvider IsDarkMode="isDarkMode" />
 <MudDialogProvider />
 <MudSnackbarProvider />
+<MudPopoverProvider />
 
 <MudLayout>
     <MudAppBar Elevation="1" Style="@("background:" + Colors.Teal.Lighten1)">
@@ -11,8 +12,8 @@
         <MudText Typo="Typo.h6" Align="Align.Center" Class="ml-2">APP TECHNOSOFT</MudText>
         <MudSpacer />
         <MudToggleIconButton @bind-Toggled="@isDarkMode"
-                             Icon="@Icons.Material.Sharp.DarkMode" Title="Dark mode" Size="Size.Large"
-                             ToggledIcon="@Icons.Material.Sharp.LightMode" ToggledTitle="Light mode" />
+                             Icon="@Icons.Material.Sharp.DarkMode" Size="Size.Large"
+                             ToggledIcon="@Icons.Material.Sharp.LightMode" />
 
         <MudHidden Breakpoint="Breakpoint.Xs">
             <Login />

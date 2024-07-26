@@ -18,10 +18,10 @@ else
             </MudAlert>
         }
         
-        <MudChipSet Filter MultiSelection SelectedChipsChanged="FilterChanged">
+        <MudChipSet T="Tag" SelectionMode="SelectionMode.MultiSelection" SelectedValuesChanged="FilterChanged">
             @foreach (var tag in tags)
             {
-                <MudChip Text="@tag.Name" Style="@("background:" + tag.ColorCode ?? "")" Class="text-white"></MudChip>
+                <MudChip Value="@tag" Text="@tag.Name" Style="@("background:" + tag.ColorCode ?? "")" Class="text-white" />
             }
         </MudChipSet>
     </MudPaper>
@@ -50,9 +50,9 @@ else
         tags = await Db.Tags.Where(x => x.Description!.Contains(TagDescription)).ToListAsync();
     }
 
-    private async Task FilterChanged(MudChip[] chips)
+    private async Task FilterChanged(IReadOnlyCollection<Tag> chips)
     {
-        var filters = chips.Select(x => x.Text).ToList() ?? [];
+        var filters = chips.Select(x => x.Name).ToList() ?? [];
         await FilterTriggered.InvokeAsync(filters);
     }
 }

@@ -86,11 +86,11 @@
         }
     }
 
-    private async Task<IEnumerable<Instructor>> SearchConsultants(string value)
+    private async Task<IEnumerable<Instructor>> SearchConsultants(string value, CancellationToken token)
     {
         if (!consultants.Any())
         {
-            consultants = await Db.Instructors.ToListAsync();
+            consultants = await Db.Instructors.ToListAsync(token);
         }
 
         if (value is null or "")
@@ -101,11 +101,11 @@
         return consultants.Where(x => x.Name.Contains(value, StringComparison.OrdinalIgnoreCase));
     }
 
-    private async Task<IEnumerable<CourseQuote>> SearchQuotes(string value)
+    private async Task<IEnumerable<CourseQuote>> SearchQuotes(string value, CancellationToken token)
     {
         if (!quotes.Any())
         {
-            quotes = await Db.CourseQuotes.ToListAsync();
+            quotes = await Db.CourseQuotes.ToListAsync(token);
         }
 
         if (value is null or "")
@@ -117,11 +117,11 @@
         || x.Description.Contains(value, StringComparison.OrdinalIgnoreCase));
     }
 
-    private async Task<IEnumerable<Organization>> SearchOrganizations(string value)
+    private async Task<IEnumerable<Organization>> SearchOrganizations(string value, CancellationToken token)
     {
         if (!forOrganizations.Any())
         {
-            forOrganizations = await Db.Organizations.ToListAsync();
+            forOrganizations = await Db.Organizations.ToListAsync(token);
         }
 
         if (value is null or "")

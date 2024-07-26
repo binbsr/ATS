@@ -19,7 +19,7 @@
                     </CardHeaderContent>
                     <CardHeaderActions>
                         <AuthorizeView Roles="@Role.Admins">
-                            <MudChip Color="@(member.Publish ? Color.Success : Color.Warning)"
+                            <MudChip T="string" Color="@(member.Publish ? Color.Success : Color.Warning)"
                                      Text="@(member.Publish ? "Public" : "Draft")" />
                             <MudIconButton Icon="@Icons.Material.Filled.Edit" Color="Color.Warning" Size="Size.Small" Class="ml-auto" Href="@("/edit-instructor/"+member.Id)" />
                         </AuthorizeView>
@@ -31,7 +31,7 @@
                     <MudText Typo="Typo.h6" Align="Align.Center">@member.Organization</MudText>
                     <MudText Typo="Typo.body1" Class="mt-4" Style="text-align:justify">@member.Resume</MudText>
                     <AuthorizeView Roles="@Role.Admins">
-                        <MudList DisableGutters Dense>
+                        <MudList T="string" Gutters="false" Dense>
                             <MudListItem Icon="@Icons.Material.Sharp.Email">@(member.Email ?? "None")</MudListItem>
                             <MudListItem Icon="@Icons.Material.Sharp.Phone">@(member.Phone ?? "None")</MudListItem>
                             <MudListItem title="Other details" Icon="@Icons.Material.Sharp.Details">@(member.OtherDetails ?? "None")</MudListItem>
@@ -42,7 +42,7 @@
                     <MudContainer Class="p-0">
                         @foreach (var tag in member.Tags!)
                         {
-                            <MudChip Style="@("background:" + tag.ColorCode)" Class="text-white">@tag.Name</MudChip>
+                            <MudChip Value="@tag" Style="@("background:" + tag.ColorCode)" Class="text-white">@tag.Name</MudChip>
                         }
                     </MudContainer>
                 </MudCardActions>

@@ -1,0 +1,22 @@
+﻿<div class="d-flex">
+    <MudIcon Class="mr-2"></MudIcon>
+    <MudText Style="font-size:1.1rem;font-weight:500;">@Widget.Description</MudText>
+    <MudText Class="ml-auto mt-2" Typo="Typo.body2">Updated @((Widget.LastUpdated ?? Widget.Created).Humanize())</MudText>    
+</div>
+
+<MudContainer Style="font-size: 1.3em">
+    @((MarkupString)Widget.HtmlContent.ToHtmlString())
+</MudContainer>
+
+<MudChipSet T="Tag">
+    @foreach (var tag in Widget.Tags ?? [])
+    {
+        <MudChip Style="@("background:" + tag.ColorCode ?? "")" Class="text-white">@tag.Name</MudChip>
+    }
+</MudChipSet>
+
+@code {
+
+    [Parameter]
+    public Widget Widget { get; set; } = new();
+}

@@ -3,29 +3,29 @@
         <div class="d-flex">
             <MudIcon Icon="@(isOpen ? Icons.Material.Sharp.HorizontalRule : Icons.Material.Sharp.Add)" Class="mr-2"></MudIcon>
             <MudText Style="font-size:1.1rem;font-weight:500;">@Widget.Description</MudText>
-                <MudText Class="ml-auto mt-2" Typo="Typo.body2">Updated @((Widget.LastUpdated ?? Widget.Created).Humanize())</MudText>
-                <AuthorizeView Roles="@($"{Role.Admin},{Role.SuperAdmin}")">
-                    <MudIconButton Icon="@Icons.Material.Filled.Edit" Color="Color.Warning" Size="Size.Small" Href="@EditUrl" />
-                    <MudIconButton Icon="@Icons.Material.Sharp.Delete" Size="Size.Small" Color="Color.Error" OnClick="() => ConfirmDelete()" />
-                    <MudMessageBox @ref="mbox" Title="Warning" CancelText="Cancel">
-                        <MessageContent>
-                            Are you sure to delete this module? It can't be undone!
-                        </MessageContent>
-                        <YesButton>
-                            <MudButton Variant="Variant.Filled" Color="Color.Error" Class="ml-2 mb-2 mr-3" StartIcon="@Icons.Material.Filled.DeleteForever">Delete</MudButton>
-                        </YesButton>
-                    </MudMessageBox>
-                </AuthorizeView>
-            </div>
-        </TitleContent>
-        <ChildContent>
-            <MudContainer Style="font-size: 1.3em">
-                @((MarkupString)Widget.HtmlContent.ToHtmlString())
-            </MudContainer>
-            <MudChipSet>
-                @foreach (var tag in Widget.Tags ?? [])
+            <MudText Class="ml-auto mt-2" Typo="Typo.body2">Updated @((Widget.LastUpdated ?? Widget.Created).Humanize())</MudText>
+            <AuthorizeView Roles="@($"{Role.Admin},{Role.SuperAdmin}")">
+                <MudIconButton Icon="@Icons.Material.Filled.Edit" Color="Color.Warning" Size="Size.Small" Href="@EditUrl" />
+                <MudIconButton Icon="@Icons.Material.Sharp.Delete" Size="Size.Small" Color="Color.Error" OnClick="() => ConfirmDelete()" />
+                <MudMessageBox @ref="mbox" Title="Warning" CancelText="Cancel">
+                    <MessageContent>
+                        Are you sure to delete this module? It can't be undone!
+                    </MessageContent>
+                    <YesButton>
+                        <MudButton Variant="Variant.Filled" Color="Color.Error" Class="ml-2 mb-2 mr-3" StartIcon="@Icons.Material.Filled.DeleteForever">Delete</MudButton>
+                    </YesButton>
+                </MudMessageBox>
+            </AuthorizeView>
+        </div>
+    </TitleContent>
+    <ChildContent>
+        <MudContainer Style="font-size: 1.3em">
+            @((MarkupString)Widget.HtmlContent.ToHtmlString())
+        </MudContainer>
+        <MudChipSet T="Tag">
+            @foreach (var tag in Widget.Tags ?? [])
             {
-                <MudChip Style="@("background:" + tag.ColorCode ?? "")" Class="text-white">@tag.Name</MudChip>
+                <MudChip Value="@tag" Style="@("background:" + tag.ColorCode ?? "")" Class="text-white">@tag.Name</MudChip>
             }
         </MudChipSet>
     </ChildContent>
@@ -45,7 +45,7 @@
 
     private async Task ConfirmDelete()
     {
-        bool? result = await mbox.Show();
+        bool? result = await mbox.ShowAsync();
         if (result == null)
             return;
 

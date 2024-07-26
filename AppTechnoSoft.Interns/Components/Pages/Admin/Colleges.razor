@@ -88,7 +88,7 @@
 
     private async Task ConfirmDelete(College college)
     {
-        bool? result = await mbox.Show();
+        bool? result = await mbox.ShowAsync();
         if (result == null)
             return;
 

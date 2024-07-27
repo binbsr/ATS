@@ -3,7 +3,7 @@
 @inject ApplicationDbContext Db
 @inject ISnackbar SnackBar
 
-<PageTitle>Training Batches</PageTitle>
+<PageTitle>Learning Batches</PageTitle>
 
 <MudButton Href="/add-batch" StartIcon="@Icons.Material.Filled.Add" Color="Color.Tertiary" Variant="Variant.Filled" Size="Size.Large" Class="mb-4">New Batch</MudButton>
 
@@ -35,14 +35,12 @@
                 </MudCardHeader>
                 <MudCardContent>
                     <MudStack Row>
-                        <MudAvatarGroup Max="10" Spacing="2" MaxColor="Color.Primary" MaxSize="Size.Large" Outlined>
+                        <MudStack Spacing="3" Row Wrap="Wrap.Wrap">
                             @foreach (var student in batch.Students ?? [])
                             {
-                                <MudAvatar Size="Size.Large">
-                                    <MudImage Src="@student.ProfileImagePath" title="@student.Name" />
-                                </MudAvatar>
+                                <UserProfile AvatarPath="@student.ProfileImagePath" Name="@student.Name" />
                             }
-                        </MudAvatarGroup>
+                        </MudStack>
                         <MudSpacer />
                         <MudText Typo="Typo.h6" Inline>@("agile team".ToQuantity(batch.Teams?.Count ?? 0)) formed</MudText>
                     </MudStack>
@@ -75,22 +73,18 @@
                                         </CardHeaderActions>
                                     </MudCardHeader>
                                     <MudCardContent Class="py-0">
-                                        <MudAvatarGroup Max="5" Spacing="2" MaxColor="Color.Primary" MaxSize="Size.Large" Outlined>
+                                        <MudStack Spacing="3" Row Wrap="Wrap.Wrap">
                                             @foreach (var student in team.Students ?? [])
                                             {
-                                                <MudAvatar Size="Size.Large">
-                                                    <MudImage Src="@student.ProfileImagePath" title="@student.Name" />
-                                                </MudAvatar>
+                                                <UserProfile AvatarPath="@student.ProfileImagePath" Name="@student.Name" />
                                             }
-                                        </MudAvatarGroup>
+                                        </MudStack>
                                         <MudPaper Class="mt-4 p-2" Style="text-align:center" Elevation="0">
                                             <MudChip T="string" Label="true">Project</MudChip>
                                             <MudLink Href="@($"/projects?highlight={@team.Project?.Id}")" Class="d-block">@(team.Project?.Title ?? "None")</MudLink>
-                                            <MudDivider Class="my-1" />
                                             <MudChip T="string" Label="true">Repository</MudChip>
                                             <MudLink Href="@team.Project?.RepoUrl" Target="_blank" Class="d-block">@(team.Project?.RepoUrl ?? "None")</MudLink>
-                                            <MudDivider Class="my-1" />
-                                            <MudChip T="string" Label="true">Project Board</MudChip>
+                                            <MudChip T="string" Label="true">Agile Board</MudChip>
                                             <MudLink Href="@team.Project?.BoardUrl" Target="_blank" Class="d-block">@(team.Project?.BoardUrl ?? "None")</MudLink>
                                         </MudPaper>
                                     </MudCardContent>

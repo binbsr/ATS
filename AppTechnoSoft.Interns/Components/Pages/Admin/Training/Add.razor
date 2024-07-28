@@ -9,9 +9,9 @@
 
 <MudContainer>
     <EditForm Model="@model" OnValidSubmit="OnValidSubmit">
-        <MudTextField Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Sharp.Title" Label="Training Label" Class="mt-3" @bind-Value="model.Title" Variant="Variant.Outlined" />
-        <MudNumericField Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Sharp.HourglassTop" Label="Duration Hours" Format="N2" Class="my-3" @bind-Value="model.DurationHours" Variant="Variant.Outlined" />
-        <MudNumericField Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Sharp.Percent" Label="Discount Percentage" Class="my-4" @bind-Value="model.DiscountPercentage" Variant="Variant.Outlined" />
+        <MudTextField Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Sharp.Title" Label="Training Label" Class="mt-4" @bind-Value="model.Title" Variant="Variant.Outlined" />
+        <MudNumericField Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Sharp.HourglassTop" Label="Duration Hours" Format="N2" Class="mt-4" @bind-Value="model.DurationHours" Variant="Variant.Outlined" />
+        <MudNumericField Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Sharp.Percent" Label="Discount Percentage" Class="mt-4" @bind-Value="model.DiscountPercentage" Variant="Variant.Outlined" />
 
         <MudAutocomplete T="Instructor"
                          Label="Select Training Consultant"
@@ -21,18 +21,18 @@
                          ShowProgressIndicator="true"
                          ProgressIndicatorColor="Color.Default"
                          Variant="Variant.Outlined"
-                         Class="my-4"
+                         Class="mt-4"
                          MaxItems="null" />
 
         <MudAutocomplete T="CourseQuote"
                          Label="Select Quote"
-                         @bind-Value="model.CourseQuote"
+                         ValueChanged="QuoteChanged"
                          SearchFunc="@SearchQuotes"
                          ToStringFunc="@(e=> e==null ? null : $"{e.Code} - {e.Description} ({e.PricePerUnit.AsCurrency()}/Unit)")"
                          ShowProgressIndicator="true"
                          ProgressIndicatorColor="Color.Default"
                          Variant="Variant.Outlined"
-                         Class="my-4"
+                         Class="mt-4"
                          MaxItems="null" />
 
         <MudAutocomplete T="Organization"
@@ -43,12 +43,43 @@
                          ShowProgressIndicator="true"
                          ProgressIndicatorColor="Color.Default"
                          Variant="Variant.Outlined"
-                         Class="my-4"
+                         Class="mt-4"
                          MaxItems="null" />
+
+        <MudSelect T="Assignment"
+                   Label="Curate Assignments"
+                   MultiSelection
+                   Dense
+                   @bind-SelectedValues="@moduleAssignmentsSelected"
+                   AnchorOrigin="Origin.BottomCenter"
+                   ToStringFunc="x => x.Title"
+                   Variant="Variant.Outlined"
+                   Class="mt-4">
+            @foreach (var assignment in moduleAssignments)
+            {
+                <MudSelectItem Value="@assignment">@($"{assignment.Title} (Module: {assignment.Module?.Description})")</MudSelectItem>
+            }
+        </MudSelect>
+
+        <MudSelect T="Project"
+                   Label="Curate Projects"
+                   MultiSelection
+                   Dense
+                   @bind-SelectedValues="@trainingProjectsSelected"
+                   AnchorOrigin="Origin.BottomCenter"
+                   ToStringFunc="x => x.Title"
+                   Variant="Variant.Outlined"
+                   Class="mt-4">
+            @foreach (var project in trainingProjects)
+            {
+                <MudSelectItem Value="@project"/>
+            }
+        </MudSelect>
 
         <MudButton ButtonType="ButtonType.Submit"
                    Variant="Variant.Filled"
                    Color="Color.Tertiary"
+                   Class="mt-4"
                    StartIcon="@Icons.Material.Filled.Save">
             Save Plan
         </MudButton>
@@ -65,12 +96,26 @@
     IEnumerable<CourseQuote> quotes = [];
     IEnumerable<Organization> forOrganizations = [];
 
+    IEnumerable<Assignment> moduleAssignments = [];
+    IEnumerable<Assignment> moduleAssignmentsSelected = [];
+
+    IEnumerable<Project> trainingProjects = [];
+    IEnumerable<Project> trainingProjectsSelected = [];
+
+    protected override async Task OnInitializedAsync()
+    {
+        trainingProjects = await Db.Projects.ToArrayAsync();        
+    }
+
     private async Task OnValidSubmit(EditContext context)
     {
         var state = await AuthTask;
         var userName = state.User.Identity?.Name;
         model.AddCreatedStamps(userName);
         model.Hash = Guid.NewGuid().ToString();
+
+        model.Assignments = moduleAssignmentsSelected.ToList();
+        model.Projects = trainingProjectsSelected.ToList();
 
         Db.Training.Add(model);
         var rowsAffected = await Db.SaveChangesAsync();
@@ -84,6 +129,22 @@
         {
             SnackBar.Add("New training plan save failed", Severity.Error);
         }
+    }
+
+    private async Task QuoteChanged(CourseQuote quote)
+    {
+        model.CourseQuote = quote;
+
+        // fetch quote modules and assignments for those modules
+        var moduleIds = await Db.CourseQuoteModules
+        .Where(x => x.CourseQuoteId == quote.Id)
+        .Select(x => x.ModulesId)
+        .ToArrayAsync();
+
+        moduleAssignments = await Db.Assignments
+        .Include(x => x.Module)
+        .Where(x => moduleIds.Contains(x.ModuleId))
+        .ToArrayAsync();
     }
 
     private async Task<IEnumerable<Instructor>> SearchConsultants(string value, CancellationToken token)

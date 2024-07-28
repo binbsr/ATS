@@ -3,7 +3,8 @@
 
 @attribute [Authorize(Roles=Role.Admins)]
 
-@inject ApplicationDbContext Db
+@inject IDbContextFactory<ApplicationDbContext> DbFactory
+@inject IDbContextFactory<ApplicationDbContext> DbFactory
 @inject UserManager<ApplicationUser> UserManager
 @inject IUserStore<ApplicationUser> UserStore
 @inject ISnackbar SnackBar
@@ -46,7 +47,7 @@
             </MudRadioGroup>
         </MudField>
 
-        <MudSwitch @bind-Value="@model.Publish" Class="mt-3" Color="Color.Success" UnCheckedColor="Color.Error" Label="Public Profile" />
+        <MudSwitch @bind-Value="@model.Publish" Class="mt-3" Color="Color.Success" UncheckedColor="Color.Error" Label="Public Profile" />
 
         <MudButton Variant="Variant.Outlined" Disabled="model.Email == string.Empty" Color="Color.Warning" Class="my-3" StartIcon="@Icons.Material.Filled.Security" OnClick="Generate">
             Generate Login Details
@@ -81,7 +82,8 @@
 
     protected override async Task OnInitializedAsync()
     {
-        tags = await Db.Tags.ToListAsync();
+        using var db = DbFactory.CreateDbContext();
+        tags = await db.Tags.ToListAsync();
 
         if (IsAdd)
         {
@@ -90,7 +92,7 @@
         else
         {
             pageTitle = "Edit Instructor";
-            model = await Db.Instructors.Include(x => x.Tags).FirstAsync(x => x.Id == Id);
+            model = await db.Instructors.Include(x => x.Tags).FirstOrDefaultAsync(x => x.Id == Id) ?? new();
             tagsSelected = model?.Tags ?? [];
         }
     }
@@ -108,19 +110,21 @@
             Console.WriteLine($"Error: {message}");
         }
 
+        using var db = DbFactory.CreateDbContext();
+
         model.Tags = tagsSelected.ToList();
 
         if (IsAdd)
         {
-            Db.Instructors.Add(model);
+            db.Instructors.Add(model);
         }
         else
         {
             model.Id = Id!.Value;
-            Db.Instructors.Update(model);
+            db.Instructors.Update(model);
         }
 
-        var rowsAffected = await Db.SaveChangesAsync();
+        var rowsAffected = await db.SaveChangesAsync();
 
         if (rowsAffected > 0)
         {

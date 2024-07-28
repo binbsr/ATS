@@ -26,6 +26,7 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
     public DbSet<Expense> Expenses { get; set; }
     public DbSet<BatchBudget> BatchBudgets { get; set; }
     public DbSet<CourseQuote> CourseQuotes { get; set; }
+    public DbSet<CourseQuoteModule> CourseQuoteModules { get; set; }
     public DbSet<Organization> Organizations { get; set; }
     public DbSet<Training> Training { get; set; }
 
@@ -48,7 +49,7 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
         builder.Entity<CourseQuote>()
         .HasMany(e => e.Modules)
         .WithMany()
-        .UsingEntity("CourseQuoteModules");
+        .UsingEntity<CourseQuoteModule>();
 
         builder.Entity<Training>()
         .HasMany(e => e.Assignments)

@@ -75,5 +75,29 @@ GO
 ALTER TABLE [Students] ADD CONSTRAINT [FK_Students_Training_TrainingId] FOREIGN KEY ([TrainingId]) REFERENCES [Training] ([Id]);
 GO
 
+CREATE TABLE [TrainingAssignments] (
+    [AssignmentsId] int NOT NULL,
+    [TrainingId] int NOT NULL,
+    CONSTRAINT [PK_TrainingAssignments] PRIMARY KEY ([AssignmentsId], [TrainingId]),
+    CONSTRAINT [FK_TrainingAssignments_Assignments_AssignmentsId] FOREIGN KEY ([AssignmentsId]) REFERENCES [Assignments] ([Id]) ON DELETE CASCADE,
+    CONSTRAINT [FK_TrainingAssignments_Training_TrainingId] FOREIGN KEY ([TrainingId]) REFERENCES [Training] ([Id]) ON DELETE CASCADE
+);
+GO
+
+CREATE TABLE [TrainingProjects] (
+    [ProjectsId] int NOT NULL,
+    [TrainingId] int NOT NULL,
+    CONSTRAINT [PK_TrainingProjects] PRIMARY KEY ([ProjectsId], [TrainingId]),
+    CONSTRAINT [FK_TrainingProjects_Projects_ProjectsId] FOREIGN KEY ([ProjectsId]) REFERENCES [Projects] ([Id]) ON DELETE CASCADE,
+    CONSTRAINT [FK_TrainingProjects_Training_TrainingId] FOREIGN KEY ([TrainingId]) REFERENCES [Training] ([Id]) ON DELETE CASCADE
+);
+GO
+
+CREATE INDEX [IX_TrainingAssignments_TrainingId] ON [TrainingAssignments] ([TrainingId]);
+GO
+
+CREATE INDEX [IX_TrainingProjects_TrainingId] ON [TrainingProjects] ([TrainingId]);
+GO
+
 COMMIT;
 GO

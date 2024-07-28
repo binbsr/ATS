@@ -18,4 +18,7 @@ public class Training : BaseEntity
 
     public int InstructorId { get; set; }
     public Instructor? Instructor { get; set; }
+
+    public List<Assignment>? Assignments { get; set; }
+    public List<Project>? Projects { get; set; }
 }

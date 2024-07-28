@@ -50,6 +50,16 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
         .WithMany()
         .UsingEntity("CourseQuoteModules");
 
+        builder.Entity<Training>()
+        .HasMany(e => e.Assignments)
+        .WithMany()
+        .UsingEntity("TrainingAssignments");
+
+        builder.Entity<Training>()
+        .HasMany(e => e.Projects)
+        .WithMany()
+        .UsingEntity("TrainingProjects");
+
         builder.Entity<College>()
             .HasData([
                 new College { Id = 1, Name = "Mechi Multiple Campus", Location = "Bhadrapur, Jhapa" },

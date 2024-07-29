@@ -17,13 +17,13 @@ else if (instructor is null)
 else
 {
     <MudPaper Class="p-2 mb-2" Elevation="10">
-        <MudChipSet Filter SelectedChipChanged="BatchChanged" Mandatory>
+        <MudChipSet T="Batch" SelectionMode="SelectionMode.SingleSelection" SelectedValueChanged="BatchChanged">
             @foreach (var group in classesByBatch)
             {
                 <MudChip Variant="Variant.Outlined"
                          Color="Color.Tertiary"
                          Value="group.Key"
-                         Label
+                         Label="true"
                          Class="p-4"
                          Style="font-size:1.3rem;">
                     @group.Key!.Name
@@ -74,7 +74,7 @@ else
                             }
                             else if (date > DateTime.Today)
                             {
-                                <td style="@($"background: {Colors.Grey.Lighten1}")" title="Upcoming classes"></td>
+                                <td style="@($"background: {Colors.Gray.Lighten1}")" title="Upcoming classes"></td>
                             }
                             else if (!hasClassSchdeule)
                             {
@@ -160,10 +160,9 @@ else
         loadingData = false;
     }
 
-    private async Task BatchChanged(MudChip chip)
+    private async Task BatchChanged(Batch batch)
     {
         //fetch students and attendances for this batch selection
-        var batch = (Batch)chip.Value;
         if (batch is null)
             return;
 

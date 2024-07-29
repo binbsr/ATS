@@ -25,7 +25,7 @@
     </HeaderContent>
     <RowTemplate>
         <MudTd DataLabel="#">@(tags.IndexOf(context) + 1)</MudTd>
-        <MudTd DataLabel="Name"><MudChip Style="@("background:" + context.ColorCode ?? "")" Class="text-white" Size="Size.Small">@context.Name</MudChip></MudTd>
+        <MudTd DataLabel="Name"><MudChip T="string" Style="@("background:" + context.ColorCode ?? "")" Class="text-white" Size="Size.Small">@context.Name</MudChip></MudTd>
         <MudTd DataLabel="Description">@context.Description</MudTd>
         <MudTd DataLabel="ColorCode">@context.ColorCode</MudTd>
         <MudTd>
@@ -75,7 +75,7 @@
 
     private async Task ConfirmDelete(Tag tag)
     {
-        bool? result = await mbox.Show();
+        bool? result = await mbox.ShowAsync();
         if (result == null)
             return;
 

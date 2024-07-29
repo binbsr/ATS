@@ -93,7 +93,7 @@
 
     private async Task ConfirmDelete(ApplicationUser user)
     {
-        bool? result = await mbox.Show();
+        bool? result = await mbox.ShowAsync();
         if (result == null)
             return;
 

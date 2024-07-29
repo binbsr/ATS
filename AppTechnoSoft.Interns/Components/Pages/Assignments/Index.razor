@@ -104,7 +104,7 @@
 
     private async Task ConfirmDelete(AssignmentViewModel assignment)
     {
-        bool? result = await mbox.Show();
+        bool? result = await mbox.ShowAsync();
         if (result == null)
             return;
 

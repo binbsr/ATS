@@ -1,8 +1,9 @@
 ﻿@inherits LayoutComponentBase
 
-<MudThemeProvider IsDarkMode="isDarkMode"/>
+<MudThemeProvider IsDarkMode="isDarkMode" />
 <MudDialogProvider />
 <MudSnackbarProvider />
+<MudPopoverProvider />
 
 <MudLayout>
     <MudAppBar Elevation="1" Style="@("background:" + Colors.Teal.Lighten1)">
@@ -11,22 +12,25 @@
         <MudText Typo="Typo.h6" Align="Align.Center" Class="ml-2">APP TECHNOSOFT</MudText>
         <MudSpacer />
         <MudToggleIconButton @bind-Toggled="@isDarkMode"
-                             Icon="@Icons.Material.Sharp.DarkMode" Title="Dark mode" Size="Size.Large"
-                             ToggledIcon="@Icons.Material.Sharp.LightMode" ToggledTitle="Light mode" />
-        <Login />
+                             Icon="@Icons.Material.Sharp.DarkMode" Size="Size.Large"
+                             ToggledIcon="@Icons.Material.Sharp.LightMode" />
+
+        <MudHidden Breakpoint="Breakpoint.Xs">
+            <Login />
+        </MudHidden>
     </MudAppBar>
     <MudDrawer @bind-Open="_drawerOpen" Elevation="2" ClipMode="DrawerClipMode.Always">
         <NavMenu />
     </MudDrawer>
     <MudMainContent Class="px-3 mt-3">
         @Body
-        
+
         <MudToolBar DisableGutters Class="mt-16 px-1 border-t-2 border-solid mud-border-tertiary" Dense>
             <MudText Typo="Typo.subtitle2" Style="font-size:1rem">@DateTime.Now.Year &copy; APP TECHNOSOFT</MudText>
             <MudSpacer />
             <MudText Typo="Typo.subtitle2" Style="font-size:1rem">With Love ❤️</MudText>
         </MudToolBar>
-    </MudMainContent>    
+    </MudMainContent>
 </MudLayout>
 
 <div id="blazor-error-ui">

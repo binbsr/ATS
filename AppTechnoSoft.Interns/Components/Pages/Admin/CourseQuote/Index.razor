@@ -1,0 +1,108 @@
+﻿@page "/admin/quotes"
+
+@attribute [Authorize(Roles = Role.Admins)]
+@inject ApplicationDbContext Db
+@inject ISnackbar SnackBar
+
+<PageTitle>Course Quotes</PageTitle>
+
+<MudDataGrid Items="@quotes"
+             Hover="true"
+             Outlined
+             Loading="@loadingData"
+             QuickFilter="new Func<CourseQuote,bool>(FilterFunc1)">
+    <ToolBarContent>
+        <MudButton Variant="Variant.Outlined" Class="rounded" StartIcon="@Icons.Material.Outlined.Add" Href="/admin/quotes/add" Color="Color.Tertiary">Quote</MudButton>
+        <MudSpacer />
+        <MudTextField @bind-Value="searchString" Placeholder="Search organization by code and description..."
+                      Adornment="Adornment.Start"
+                      AdornmentIcon="@Icons.Material.Filled.Search"
+                      Class="mt-0">
+        </MudTextField>
+    </ToolBarContent>
+    <Columns>
+        <HierarchyColumn T="CourseQuote" ButtonDisabledFunc="@(x => x.Modules?.Count == 0)" />
+        <PropertyColumn Property="x => x.Code" />
+        <PropertyColumn Property="x => x.Description" />
+        <PropertyColumn Property="x => x.PricePerUnit" />
+        <TemplateColumn>
+            <CellTemplate>
+                <MudIconButton Icon="@Icons.Material.Filled.Edit" Size="Size.Small" Color="Color.Warning" Href="@("/admin/quotes/edit/" + context.Item.Id)" />
+                <MudIconButton Icon="@Icons.Material.Sharp.Delete" Size="Size.Small" Color="Color.Error" OnClick="() => ConfirmDelete(context.Item)" />
+                <MudMessageBox @ref="mbox" Title="Warning" CancelText="Cancel">
+                    <MessageContent>
+                        Are you sure to delete this quote? It can't be undone.
+                    </MessageContent>
+                    <YesButton>
+                        <MudButton Variant="Variant.Filled" Color="Color.Error" Class="ml-2 mb-2 mr-3" StartIcon="@Icons.Material.Filled.DeleteForever">Delete</MudButton>
+                    </YesButton>
+                </MudMessageBox>
+            </CellTemplate>
+        </TemplateColumn>
+    </Columns>
+
+    <ChildRowContent>
+        <MudGrid>
+            @foreach (var module in context.Item.Modules ?? [])
+            {
+                <MudItem xs="12" md="6">
+                    <Module Widget="@module" />
+                </MudItem>
+            }
+        </MudGrid>
+    </ChildRowContent>
+    <PagerContent>
+        <MudDataGridPager PageSizeOptions="[20, 50, 100, 200]" />
+    </PagerContent>
+</MudDataGrid>
+
+
+@code {
+
+    private List<CourseQuote> quotes = [];
+
+    private bool loadingData = false;
+    private string searchString = string.Empty;
+    private MudMessageBox mbox { get; set; } = null!;
+
+    protected override async Task OnInitializedAsync()
+    {
+        loadingData = true;
+        quotes = await Db.CourseQuotes.Include(x => x.Modules).ToListAsync();
+        loadingData = false;
+    }
+
+    private async Task ConfirmDelete(CourseQuote quote)
+    {
+        bool? result = await mbox.ShowAsync();
+        if (result == null)
+            return;
+
+        Db.CourseQuotes.Remove(quote);
+        var rowsAffected = await Db.SaveChangesAsync();
+
+        if (rowsAffected > 0)
+        {
+            SnackBar.Add("Quote deleted successfully", Severity.Success);
+            quotes.Remove(quote);
+        }
+        else
+        {
+            SnackBar.Add("Quote deletion failed", Severity.Error);
+        }
+    }
+
+    private bool FilterFunc1(CourseQuote quote) => FilterFunc(quote, searchString);
+
+    private bool FilterFunc(CourseQuote quote, string searchString)
+    {
+        if (string.IsNullOrWhiteSpace(searchString))
+            return true;
+        if (quote.Code!.Contains(searchString, StringComparison.OrdinalIgnoreCase))
+            return true;
+        if (quote.Description.Contains(searchString, StringComparison.OrdinalIgnoreCase))
+            return true;
+
+        return false;
+    }
+}

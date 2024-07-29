@@ -25,6 +25,10 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
     public DbSet<StudentAssignment> StudentAssignments { get; set; }
     public DbSet<Expense> Expenses { get; set; }
     public DbSet<BatchBudget> BatchBudgets { get; set; }
+    public DbSet<CourseQuote> CourseQuotes { get; set; }
+    public DbSet<CourseQuoteModule> CourseQuoteModules { get; set; }
+    public DbSet<Organization> Organizations { get; set; }
+    public DbSet<Training> Training { get; set; }
 
     protected override void OnModelCreating(ModelBuilder builder)
     {
@@ -39,8 +43,23 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
         builder.Entity<IdentityUserRole<string>>().ToTable("UserRole");
 
         builder.Entity<Instructor>()
-            .HasMany(e => e.Tags)
-            .WithMany();
+        .HasMany(e => e.Tags)
+        .WithMany();
+
+        builder.Entity<CourseQuote>()
+        .HasMany(e => e.Modules)
+        .WithMany()
+        .UsingEntity<CourseQuoteModule>();
+
+        builder.Entity<Training>()
+        .HasMany(e => e.Assignments)
+        .WithMany()
+        .UsingEntity("TrainingAssignments");
+
+        builder.Entity<Training>()
+        .HasMany(e => e.Projects)
+        .WithMany()
+        .UsingEntity("TrainingProjects");
 
         builder.Entity<College>()
             .HasData([

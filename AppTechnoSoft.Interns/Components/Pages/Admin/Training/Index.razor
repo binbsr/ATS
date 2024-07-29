@@ -1,0 +1,111 @@
+﻿@page "/trainingplans"
+
+@attribute [Authorize(Roles = Role.Admins)]
+@inject ApplicationDbContext Db
+@inject ISnackbar SnackBar
+
+<PageTitle>Customized Training Plans</PageTitle>
+
+<MudDataGrid Items="@trainings"
+             Hover="true"
+             Outlined
+             Loading="@loadingData">
+    <ToolBarContent>
+        <MudButton Variant="Variant.Outlined" Class="rounded" StartIcon="@Icons.Material.Outlined.Add" Href="/trainingplans/add" Color="Color.Tertiary">Training Plan</MudButton>
+        <MudSpacer />
+        <MudText Typo="Typo.h6">Professional Training Plans</MudText>
+    </ToolBarContent>
+    <Columns>
+        <HierarchyColumn T="Training" ButtonDisabledFunc="@(x => (x.CourseQuote?.Modules?.Count ?? 0) == 0)" />
+        <PropertyColumn Property="x => x.Title" />
+        <PropertyColumn Property="x => x.CourseQuote!.Code" Title="Course" />
+        <PropertyColumn Property="x => x.CourseQuote!.Description" Title="Course Description" />
+        <PropertyColumn Property="x => x.Organization!.Name" Title="Beneficiary" />
+        <PropertyColumn Property="x => x.DiscountPercentage" />
+        <PropertyColumn Property="x => x.DurationHours" />
+        <TemplateColumn Title="Consultant">
+            <CellTemplate>
+                <MudTooltip Text="@context.Item.Instructor?.Name" Arrow="true" Placement="Placement.Bottom">
+                    <MudAvatar>
+                        <MudImage Src="@context.Item.Instructor?.ProfilePath" />
+                    </MudAvatar>
+                </MudTooltip>
+            </CellTemplate>
+        </TemplateColumn>
+        <TemplateColumn>
+            <CellTemplate>
+                <MudIconButton Title="Share plan" Icon="@Icons.Material.Filled.Share" Color="Color.Info" Href="@("/consulting/plans/" + context.Item.Hash)" />
+                <MudIconButton Icon="@Icons.Material.Filled.Edit" Size="Size.Small" Color="Color.Warning" Href="@("/trainingplans/edit/" + context.Item.Id)" />
+                <MudIconButton Icon="@Icons.Material.Sharp.Delete" Size="Size.Small" Color="Color.Error" OnClick="() => ConfirmDelete(context.Item)" />
+                <MudMessageBox @ref="mbox" Title="Warning" CancelText="Cancel">
+                    <MessageContent>
+                        Are you sure to delete this training plan? It can't be undone.
+                    </MessageContent>
+                    <YesButton>
+                        <MudButton Variant="Variant.Filled" Color="Color.Error" Class="ml-2 mb-2 mr-3" StartIcon="@Icons.Material.Filled.DeleteForever">Delete</MudButton>
+                    </YesButton>
+                </MudMessageBox>
+            </CellTemplate>
+        </TemplateColumn>
+    </Columns>
+
+    <ChildRowContent>
+        <MudGrid Spacing="1" Class="p-1" Style="background:#EEEEEE">
+            @foreach (var module in context.Item.CourseQuote?.Modules ?? [])
+            {
+                <MudItem xs="12" md="6">
+                    <MudExpansionPanels>
+                        <Module Widget="@module" />
+                    </MudExpansionPanels>
+                </MudItem>
+            }
+        </MudGrid>
+    </ChildRowContent>
+    <PagerContent>
+        <MudDataGridPager PageSizeOptions="[20, 50, 100, 200]" />
+    </PagerContent>
+</MudDataGrid>
+
+@code {
+
+    private List<Training> trainings = [];
+
+    private bool loadingData = false;
+    private string searchString = string.Empty;
+    private MudMessageBox mbox { get; set; } = null!;
+
+    protected override async Task OnInitializedAsync()
+    {
+        loadingData = true;
+
+        trainings = await Db.Training
+            .Include(x => x.Organization)
+            .Include(x => x.Instructor)
+            .Include(x => x.CourseQuote)
+            .ThenInclude(y => y.Modules)
+            .OrderBy(x => x.CourseQuote.Code)
+            .ToListAsync();
+
+        loadingData = false;
+    }
+
+    private async Task ConfirmDelete(Training training)
+    {
+        bool? result = await mbox.ShowAsync();
+        if (result == null)
+            return;
+
+        Db.Training.Remove(training);
+        var rowsAffected = await Db.SaveChangesAsync();
+
+        if (rowsAffected > 0)
+        {
+            SnackBar.Add("Training plan deleted successfully", Severity.Success);
+            trainings.Remove(training);
+        }
+        else
+        {
+            SnackBar.Add("Training plan deletion failed", Severity.Error);
+        }
+    }
+}

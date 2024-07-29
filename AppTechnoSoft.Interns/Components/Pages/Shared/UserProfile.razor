@@ -1,0 +1,14 @@
+﻿<MudStack AlignItems="AlignItems.Center">
+    <MudAvatar Style="height:80px; width:80px; font-size:2rem;">
+        <MudImage Src="@AvatarPath" />
+    </MudAvatar>
+    <MudText Typo="Typo.body2" HtmlTag="strong">@Name</MudText>
+</MudStack>
+
+@code {
+    [Parameter]
+    public string AvatarPath { get; set; } = "/favicon.png";
+
+    [Parameter]
+    public string Name { get; set; } = string.Empty;
+}

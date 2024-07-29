@@ -1,0 +1,66 @@
+﻿@page "/admin/quotes/add"
+
+@attribute [Authorize(Roles = Role.Admins)]
+@inject ISnackbar SnackBar
+@inject NavigationManager Navigation
+@inject ApplicationDbContext Db
+
+<PageTitle>Add Course Quote</PageTitle>
+
+<EditForm Model="@model" OnValidSubmit="OnValidSubmit">
+    <MudTextField Label="Course Code" @bind-Value="model.Code" Variant="Variant.Outlined" />
+    <MudTextField Label="Course Description" Class="mt-3" Lines="3" @bind-Value="model.Description" Variant="Variant.Outlined" />
+    <MudNumericField Label="Price per unit" Format="N2" Class="mt-3" @bind-Value="model.PricePerUnit" Variant="Variant.Outlined" />
+    
+    <MudSelect T="Widget"
+               Label="Course Modules"
+               MultiSelection
+               Dense
+               Placeholder="Select course modules"
+               @bind-SelectedValues="@selectedModules"
+               AnchorOrigin="Origin.BottomCenter"
+               ToStringFunc="x => x.Description"
+               Variant="Variant.Outlined"
+               Class="my-3">
+        @foreach (var module in techModules)
+        {
+            <MudSelectItem Value="@module" />
+        }
+    </MudSelect>
+
+    <MudButton ButtonType="ButtonType.Submit"
+               Variant="Variant.Filled"
+               Color="Color.Tertiary"
+               StartIcon="@Icons.Material.Filled.Save">
+        Save
+    </MudButton>
+</EditForm>
+
+@code {
+
+    CourseQuote model = new() { PricePerUnit = 2500f };
+    List<Widget> techModules = [];
+    IEnumerable<Widget> selectedModules = [];
+
+    protected override async Task OnInitializedAsync()
+    {
+        techModules = await Db.Widgets.Where(x => x.Title == nameof(WidgetFilter.Module)).ToListAsync();
+    }
+
+    private async Task OnValidSubmit(EditContext context)
+    {
+        model.Modules = selectedModules.ToList();
+        Db.CourseQuotes.Add(model);
+        var rowsAffected = await Db.SaveChangesAsync();
+
+        if (rowsAffected > 0)
+        {
+            SnackBar.Add("New quote added successfully", Severity.Success);
+            Navigation.NavigateTo("/admin/quotes");
+        }
+        else
+        {
+            SnackBar.Add("New quote save failed", Severity.Error);
+        }
+    }
+}

@@ -1,0 +1,104 @@
+﻿@page "/admin/organizations"
+
+@attribute [Authorize(Roles = Role.Admins)]
+@inject ApplicationDbContext Db
+@inject ISnackbar SnackBar
+
+<PageTitle>Organizations</PageTitle>
+
+<MudTable Items="@organizations"
+          Hover="true"
+          Outlined
+          Loading="@loadingData"
+          Filter="new Func<Organization,bool>(FilterFunc1)">
+    <ToolBarContent>
+        <MudButton Variant="Variant.Outlined" Class="rounded" StartIcon="@Icons.Material.Outlined.Add" Href="/admin/organizations/add" Color="Color.Tertiary">Organization</MudButton>
+
+        <MudSpacer />
+        <MudTextField @bind-Value="searchString" Placeholder="Search organization by name, details and type..."
+                      Adornment="Adornment.Start"
+                      AdornmentIcon="@Icons.Material.Filled.Search"
+                      Class="mt-0">
+        </MudTextField>
+    </ToolBarContent>
+    <HeaderContent>
+        <MudTh>#</MudTh>
+        <MudTh>Name</MudTh>
+        <MudTh>Details</MudTh>
+        <MudTh>Type</MudTh>
+    </HeaderContent>
+    <RowTemplate>
+        <MudTd DataLabel="#">@(organizations.IndexOf(context) + 1)</MudTd>
+        <MudTd DataLabel="Title">@context.Name</MudTd>
+        <MudTd DataLabel="Module">@context.Details</MudTd>
+        <MudTd DataLabel="Created">@context.OrganizationType</MudTd>   
+        <MudTd>
+            <MudIconButton Icon="@Icons.Material.Filled.Edit" Size="Size.Small" Color="Color.Warning" Href="@("/admin/organizations/edit/" + context.Id)" />
+            <MudIconButton Icon="@Icons.Material.Sharp.Delete" Size="Size.Small" Color="Color.Error" OnClick="() => ConfirmDelete(context)" />
+            <MudMessageBox @ref="mbox" Title="Warning" CancelText="Cancel">
+                <MessageContent>
+                    Are you sure to delete this organization? It can't be undone.
+                </MessageContent>
+                <YesButton>
+                    <MudButton Variant="Variant.Filled" Color="Color.Error" Class="ml-2 mb-2 mr-3" StartIcon="@Icons.Material.Filled.DeleteForever">Delete</MudButton>
+                </YesButton>
+            </MudMessageBox>
+        </MudTd>
+    </RowTemplate>    
+    <PagerContent>
+        <MudTablePager PageSizeOptions="[20, 50, 100, 200]" />
+    </PagerContent>
+</MudTable>
+
+
+@code {
+
+    private List<Organization> organizations = [];
+
+    private bool loadingData = false;
+    private string searchString = string.Empty;
+    private MudMessageBox mbox { get; set; } = null!;
+
+    protected override async Task OnInitializedAsync()
+    {
+        loadingData = true;
+        organizations = await Db.Organizations.ToListAsync();
+        loadingData = false;
+    }
+
+    private async Task ConfirmDelete(Organization organization)
+    {
+        bool? result = await mbox.ShowAsync();
+        if (result == null)
+            return;
+
+        Db.Organizations.Remove(organization);
+        var rowsAffected = await Db.SaveChangesAsync();
+
+        if (rowsAffected > 0)
+        {
+            SnackBar.Add("Organization deleted successfully", Severity.Success);
+            organizations.Remove(organization);
+        }
+        else
+        {
+            SnackBar.Add("Organization deletion failed", Severity.Error);
+        }
+    }
+
+    private bool FilterFunc1(Organization organization) => FilterFunc(organization, searchString);
+
+    private bool FilterFunc(Organization organization, string searchString)
+    {
+        if (string.IsNullOrWhiteSpace(searchString))
+            return true;
+        if (organization.Name!.Contains(searchString, StringComparison.OrdinalIgnoreCase))
+            return true;
+        if (organization.Details.Contains(searchString, StringComparison.OrdinalIgnoreCase))
+            return true;
+        if (organization.OrganizationType.ToString()!.Contains(searchString, StringComparison.OrdinalIgnoreCase))
+            return true;
+
+        return false;
+    }
+}

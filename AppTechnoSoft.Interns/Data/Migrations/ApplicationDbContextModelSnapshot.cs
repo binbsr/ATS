@@ -17,7 +17,7 @@ namespace AppTechnoSoft.Interns.Data.Migrations
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "8.0.4")
+                .HasAnnotation("ProductVersion", "8.0.7")
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
@@ -89,16 +89,16 @@ namespace AppTechnoSoft.Interns.Data.Migrations
                     b.HasData(
                         new
                         {
-                            Id = "d5d1c1bc-b50f-4835-998d-04fd98833154",
+                            Id = "ce0d5df4-fc2c-4aac-9a45-8328b3e5fdc0",
                             AccessFailedCount = 0,
-                            ConcurrencyStamp = "e2010785-619f-4edb-a5b4-fa6db2850812",
+                            ConcurrencyStamp = "fb220201-9a9d-443e-ad55-29ae67b95d3e",
                             Email = "rawal.bishnu@live.com",
                             EmailConfirmed = true,
                             LockoutEnabled = false,
                             NormalizedUserName = "RAWAL.BISHNU@LIVE.COM",
-                            PasswordHash = "AQAAAAIAAYagAAAAED5lBz8Dgt3AdLyMC0N0uzUWPxB5vN1AKeF/HXKTIgHE5sOACP0gbRMj+2x2RXDOYA==",
+                            PasswordHash = "AQAAAAIAAYagAAAAEI5MzRdqn3eRFilZqiEh/ZnNzefppHOqzw6zuflANybg7Tbp8z8sysd78iricVdSbg==",
                             PhoneNumberConfirmed = false,
-                            SecurityStamp = "c11a13df-e734-41c2-9ef8-5d52026d4851",
+                            SecurityStamp = "90aa2a5e-2ddb-40ba-a96b-c59989028c7d",
                             TwoFactorEnabled = false,
                             UserName = "rawal.bishnu@live.com"
                         });
@@ -202,7 +202,12 @@ namespace AppTechnoSoft.Interns.Data.Migrations
                     b.Property<DateTime>("Start")
                         .HasColumnType("datetime2");
 
+                    b.Property<int?>("TrainingId")
+                        .HasColumnType("int");
+
                     b.HasKey("Id");
+
+                    b.HasIndex("TrainingId");
 
                     b.ToTable("Batches");
                 });
@@ -465,6 +470,30 @@ namespace AppTechnoSoft.Interns.Data.Migrations
                         });
                 });
 
+            modelBuilder.Entity("AppTechnoSoft.Interns.Data.Models.CourseQuote", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Code")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<float>("PricePerUnit")
+                        .HasColumnType("real");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("CourseQuotes");
+                });
+
             modelBuilder.Entity("AppTechnoSoft.Interns.Data.Models.Expense", b =>
                 {
                     b.Property<int>("Id")
@@ -600,6 +629,30 @@ namespace AppTechnoSoft.Interns.Data.Migrations
                     b.ToTable("Instructors");
                 });
 
+            modelBuilder.Entity("AppTechnoSoft.Interns.Data.Models.Organization", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Details")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("OrganizationType")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Organizations");
+                });
+
             modelBuilder.Entity("AppTechnoSoft.Interns.Data.Models.Project", b =>
                 {
                     b.Property<int>("Id")
@@ -701,6 +754,9 @@ namespace AppTechnoSoft.Interns.Data.Migrations
                     b.Property<int?>("TechProgramId")
                         .HasColumnType("int");
 
+                    b.Property<int?>("TrainingId")
+                        .HasColumnType("int");
+
                     b.Property<int>("TrainingTrack")
                         .HasColumnType("int");
 
@@ -718,6 +774,8 @@ namespace AppTechnoSoft.Interns.Data.Migrations
                     b.HasIndex("TeamId");
 
                     b.HasIndex("TechProgramId");
+
+                    b.HasIndex("TrainingId");
 
                     b.ToTable("Students");
                 });
@@ -955,6 +1013,62 @@ namespace AppTechnoSoft.Interns.Data.Migrations
                     b.ToTable("TraineeTimelines");
                 });
 
+            modelBuilder.Entity("AppTechnoSoft.Interns.Data.Models.Training", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("CourseQuoteId")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime?>("Created")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("CreatedBy")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<float>("DiscountPercentage")
+                        .HasColumnType("real");
+
+                    b.Property<float>("DurationHours")
+                        .HasColumnType("real");
+
+                    b.Property<string>("Hash")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("InstructorId")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime?>("LastUpdated")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("LastUpdatedBy")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("OrganizationId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CourseQuoteId");
+
+                    b.HasIndex("InstructorId");
+
+                    b.HasIndex("OrganizationId");
+
+                    b.ToTable("Training");
+                });
+
             modelBuilder.Entity("AppTechnoSoft.Interns.Data.Models.Widget", b =>
                 {
                     b.Property<int>("Id")
@@ -995,7 +1109,7 @@ namespace AppTechnoSoft.Interns.Data.Migrations
                         new
                         {
                             Id = 1,
-                            Created = new DateTime(2024, 5, 28, 21, 49, 11, 347, DateTimeKind.Local).AddTicks(1903),
+                            Created = new DateTime(2024, 7, 28, 15, 39, 28, 895, DateTimeKind.Local).AddTicks(9194),
                             CreatedBy = "Seed",
                             Description = "An display item in home page",
                             HtmlContent = "Welcome to AppTechnoSoft! An initiative for students and freshers.",
@@ -1004,7 +1118,7 @@ namespace AppTechnoSoft.Interns.Data.Migrations
                         new
                         {
                             Id = 2,
-                            Created = new DateTime(2024, 5, 28, 21, 49, 11, 347, DateTimeKind.Local).AddTicks(1923),
+                            Created = new DateTime(2024, 7, 28, 15, 39, 28, 895, DateTimeKind.Local).AddTicks(9216),
                             CreatedBy = "Seed",
                             Description = "An display item in home page",
                             HtmlContent = "Bridging the gap between academia and industry!",
@@ -1013,7 +1127,7 @@ namespace AppTechnoSoft.Interns.Data.Migrations
                         new
                         {
                             Id = 3,
-                            Created = new DateTime(2024, 5, 28, 21, 49, 11, 347, DateTimeKind.Local).AddTicks(1927),
+                            Created = new DateTime(2024, 7, 28, 15, 39, 28, 895, DateTimeKind.Local).AddTicks(9219),
                             CreatedBy = "Seed",
                             Description = "An display item in home page",
                             HtmlContent = "We guide you on software R&D and SDLC to kickstart your career!",
@@ -1022,7 +1136,7 @@ namespace AppTechnoSoft.Interns.Data.Migrations
                         new
                         {
                             Id = 4,
-                            Created = new DateTime(2024, 5, 28, 21, 49, 11, 347, DateTimeKind.Local).AddTicks(1930),
+                            Created = new DateTime(2024, 7, 28, 15, 39, 28, 895, DateTimeKind.Local).AddTicks(9222),
                             CreatedBy = "Seed",
                             Description = "An display item in home page",
                             HtmlContent = "Replacement Opportunities!",
@@ -1031,7 +1145,7 @@ namespace AppTechnoSoft.Interns.Data.Migrations
                         new
                         {
                             Id = 5,
-                            Created = new DateTime(2024, 5, 28, 21, 49, 11, 347, DateTimeKind.Local).AddTicks(1932),
+                            Created = new DateTime(2024, 7, 28, 15, 39, 28, 895, DateTimeKind.Local).AddTicks(9224),
                             CreatedBy = "Seed",
                             Description = "An display item in home page",
                             HtmlContent = "From basics to professional touches!",
@@ -1040,7 +1154,7 @@ namespace AppTechnoSoft.Interns.Data.Migrations
                         new
                         {
                             Id = 6,
-                            Created = new DateTime(2024, 5, 28, 21, 49, 11, 347, DateTimeKind.Local).AddTicks(1935),
+                            Created = new DateTime(2024, 7, 28, 15, 39, 28, 895, DateTimeKind.Local).AddTicks(9226),
                             CreatedBy = "Seed",
                             Description = "GIT and GitHub Essentials",
                             HtmlContent = "todo",
@@ -1049,12 +1163,27 @@ namespace AppTechnoSoft.Interns.Data.Migrations
                         new
                         {
                             Id = 7,
-                            Created = new DateTime(2024, 5, 28, 21, 49, 11, 347, DateTimeKind.Local).AddTicks(1937),
+                            Created = new DateTime(2024, 7, 28, 15, 39, 28, 895, DateTimeKind.Local).AddTicks(9229),
                             CreatedBy = "Seed",
                             Description = "Training + Internship Combo",
                             HtmlContent = "todo",
                             Title = "HomeIntro"
                         });
+                });
+
+            modelBuilder.Entity("CourseQuoteModules", b =>
+                {
+                    b.Property<int>("CourseQuoteId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("ModulesId")
+                        .HasColumnType("int");
+
+                    b.HasKey("CourseQuoteId", "ModulesId");
+
+                    b.HasIndex("ModulesId");
+
+                    b.ToTable("CourseQuoteModules");
                 });
 
             modelBuilder.Entity("InstructorTag", b =>
@@ -1101,22 +1230,22 @@ namespace AppTechnoSoft.Interns.Data.Migrations
                     b.HasData(
                         new
                         {
-                            Id = "6d092d67-be01-49e9-a8e1-f2a8977ae592",
-                            ConcurrencyStamp = "6d092d67-be01-49e9-a8e1-f2a8977ae592",
+                            Id = "b897649e-28c0-4ed0-831e-54396402d430",
+                            ConcurrencyStamp = "b897649e-28c0-4ed0-831e-54396402d430",
                             Name = "SuperAdmin",
                             NormalizedName = "SUPERADMIN"
                         },
                         new
                         {
-                            Id = "c9998673-0fd7-4ead-ab18-b0ea8a22999c",
-                            ConcurrencyStamp = "c9998673-0fd7-4ead-ab18-b0ea8a22999c",
+                            Id = "7adb64a7-894f-4d64-b5d4-796a0fa39b89",
+                            ConcurrencyStamp = "7adb64a7-894f-4d64-b5d4-796a0fa39b89",
                             Name = "Admin",
                             NormalizedName = "ADMIN"
                         },
                         new
                         {
-                            Id = "8453e6fc-6c42-470e-a602-f3263b60ac30",
-                            ConcurrencyStamp = "8453e6fc-6c42-470e-a602-f3263b60ac30",
+                            Id = "6412be14-bfe7-440f-a373-e2752f8692b9",
+                            ConcurrencyStamp = "6412be14-bfe7-440f-a373-e2752f8692b9",
                             Name = "Trainee",
                             NormalizedName = "TRAINEE"
                         });
@@ -1211,18 +1340,18 @@ namespace AppTechnoSoft.Interns.Data.Migrations
                     b.HasData(
                         new
                         {
-                            UserId = "d5d1c1bc-b50f-4835-998d-04fd98833154",
-                            RoleId = "6d092d67-be01-49e9-a8e1-f2a8977ae592"
+                            UserId = "ce0d5df4-fc2c-4aac-9a45-8328b3e5fdc0",
+                            RoleId = "b897649e-28c0-4ed0-831e-54396402d430"
                         },
                         new
                         {
-                            UserId = "d5d1c1bc-b50f-4835-998d-04fd98833154",
-                            RoleId = "c9998673-0fd7-4ead-ab18-b0ea8a22999c"
+                            UserId = "ce0d5df4-fc2c-4aac-9a45-8328b3e5fdc0",
+                            RoleId = "7adb64a7-894f-4d64-b5d4-796a0fa39b89"
                         },
                         new
                         {
-                            UserId = "d5d1c1bc-b50f-4835-998d-04fd98833154",
-                            RoleId = "8453e6fc-6c42-470e-a602-f3263b60ac30"
+                            UserId = "ce0d5df4-fc2c-4aac-9a45-8328b3e5fdc0",
+                            RoleId = "6412be14-bfe7-440f-a373-e2752f8692b9"
                         });
                 });
 
@@ -1260,6 +1389,36 @@ namespace AppTechnoSoft.Interns.Data.Migrations
                     b.ToTable("TagWidget");
                 });
 
+            modelBuilder.Entity("TrainingAssignments", b =>
+                {
+                    b.Property<int>("AssignmentsId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("TrainingId")
+                        .HasColumnType("int");
+
+                    b.HasKey("AssignmentsId", "TrainingId");
+
+                    b.HasIndex("TrainingId");
+
+                    b.ToTable("TrainingAssignments");
+                });
+
+            modelBuilder.Entity("TrainingProjects", b =>
+                {
+                    b.Property<int>("ProjectsId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("TrainingId")
+                        .HasColumnType("int");
+
+                    b.HasKey("ProjectsId", "TrainingId");
+
+                    b.HasIndex("TrainingId");
+
+                    b.ToTable("TrainingProjects");
+                });
+
             modelBuilder.Entity("AppTechnoSoft.Interns.Data.Models.Assignment", b =>
                 {
                     b.HasOne("AppTechnoSoft.Interns.Data.Models.Widget", "Module")
@@ -1280,6 +1439,15 @@ namespace AppTechnoSoft.Interns.Data.Migrations
                         .IsRequired();
 
                     b.Navigation("Student");
+                });
+
+            modelBuilder.Entity("AppTechnoSoft.Interns.Data.Models.Batch", b =>
+                {
+                    b.HasOne("AppTechnoSoft.Interns.Data.Models.Training", "Training")
+                        .WithMany()
+                        .HasForeignKey("TrainingId");
+
+                    b.Navigation("Training");
                 });
 
             modelBuilder.Entity("AppTechnoSoft.Interns.Data.Models.BatchBudget", b =>
@@ -1358,6 +1526,10 @@ namespace AppTechnoSoft.Interns.Data.Migrations
                         .WithMany()
                         .HasForeignKey("TechProgramId");
 
+                    b.HasOne("AppTechnoSoft.Interns.Data.Models.Training", "Training")
+                        .WithMany()
+                        .HasForeignKey("TrainingId");
+
                     b.Navigation("Batch");
 
                     b.Navigation("College");
@@ -1365,6 +1537,8 @@ namespace AppTechnoSoft.Interns.Data.Migrations
                     b.Navigation("Team");
 
                     b.Navigation("TechProgram");
+
+                    b.Navigation("Training");
 
                     b.Navigation("User");
                 });
@@ -1409,6 +1583,48 @@ namespace AppTechnoSoft.Interns.Data.Migrations
                     b.Navigation("Batch");
 
                     b.Navigation("Project");
+                });
+
+            modelBuilder.Entity("AppTechnoSoft.Interns.Data.Models.Training", b =>
+                {
+                    b.HasOne("AppTechnoSoft.Interns.Data.Models.CourseQuote", "CourseQuote")
+                        .WithMany()
+                        .HasForeignKey("CourseQuoteId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("AppTechnoSoft.Interns.Data.Models.Instructor", "Instructor")
+                        .WithMany()
+                        .HasForeignKey("InstructorId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("AppTechnoSoft.Interns.Data.Models.Organization", "Organization")
+                        .WithMany()
+                        .HasForeignKey("OrganizationId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("CourseQuote");
+
+                    b.Navigation("Instructor");
+
+                    b.Navigation("Organization");
+                });
+
+            modelBuilder.Entity("CourseQuoteModules", b =>
+                {
+                    b.HasOne("AppTechnoSoft.Interns.Data.Models.CourseQuote", null)
+                        .WithMany()
+                        .HasForeignKey("CourseQuoteId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("AppTechnoSoft.Interns.Data.Models.Widget", null)
+                        .WithMany()
+                        .HasForeignKey("ModulesId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("InstructorTag", b =>
@@ -1488,6 +1704,36 @@ namespace AppTechnoSoft.Interns.Data.Migrations
                     b.HasOne("AppTechnoSoft.Interns.Data.Models.Widget", null)
                         .WithMany()
                         .HasForeignKey("WidgetsId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("TrainingAssignments", b =>
+                {
+                    b.HasOne("AppTechnoSoft.Interns.Data.Models.Assignment", null)
+                        .WithMany()
+                        .HasForeignKey("AssignmentsId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("AppTechnoSoft.Interns.Data.Models.Training", null)
+                        .WithMany()
+                        .HasForeignKey("TrainingId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("TrainingProjects", b =>
+                {
+                    b.HasOne("AppTechnoSoft.Interns.Data.Models.Project", null)
+                        .WithMany()
+                        .HasForeignKey("ProjectsId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("AppTechnoSoft.Interns.Data.Models.Training", null)
+                        .WithMany()
+                        .HasForeignKey("TrainingId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });

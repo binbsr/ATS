@@ -1,0 +1,203 @@
+﻿@page "/trainingplans/edit/{Id:int}"
+
+@attribute [Authorize(Roles = Role.Admins)]
+@inject ISnackbar SnackBar
+@inject NavigationManager Navigation
+@inject ApplicationDbContext Db
+
+<PageTitle>Edit Training Plan</PageTitle>
+
+<MudContainer>
+    <EditForm Model="@model" OnValidSubmit="OnValidSubmit">
+        <MudTextField Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Sharp.Title" Label="Training Label" Class="mt-4" @bind-Value="model.Title" Variant="Variant.Outlined" />
+        <MudNumericField Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Sharp.HourglassTop" Label="Duration Hours" Format="N2" Class="mt-4" @bind-Value="model.DurationHours" Variant="Variant.Outlined" />
+        <MudNumericField Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Sharp.Percent" Label="Discount Percentage" Class="mt-4" @bind-Value="model.DiscountPercentage" Variant="Variant.Outlined" />
+
+        <MudAutocomplete T="Instructor"
+                         Label="Select Training Consultant"
+                         @bind-Value="model.Instructor"
+                         SearchFunc="@SearchConsultants"
+                         ToStringFunc="@(e=> e==null ? null : $"{e.Name} ({e.Role})")"
+                         ShowProgressIndicator="true"
+                         ProgressIndicatorColor="Color.Default"
+                         Variant="Variant.Outlined"
+                         Class="mt-4"
+                         MaxItems="null" />
+
+        <MudAutocomplete T="CourseQuote"
+                         Label="Select Quote"
+                         ValueChanged="QuoteChanged"
+                         SearchFunc="@SearchQuotes"
+                         ToStringFunc="@(e=> e==null ? null : $"{e.Code} - {e.Description} ({e.PricePerUnit.AsCurrency()}/Unit)")"
+                         ShowProgressIndicator="true"
+                         ProgressIndicatorColor="Color.Default"
+                         Variant="Variant.Outlined"
+                         Class="mt-4"
+                         MaxItems="null" />
+
+        <MudAutocomplete T="Organization"
+                         Label="Training For"
+                         @bind-Value="model.Organization"
+                         SearchFunc="@SearchOrganizations"
+                         ToStringFunc="@(e=> e==null ? null : $"{e.Name} ({e.Details})")"
+                         ShowProgressIndicator="true"
+                         ProgressIndicatorColor="Color.Default"
+                         Variant="Variant.Outlined"
+                         Class="mt-4"
+                         MaxItems="null" />
+
+        <MudSelect T="Assignment"
+                   Label="Curate Assignments"
+                   MultiSelection
+                   Dense
+                   @bind-SelectedValues="@moduleAssignmentsSelected"
+                   AnchorOrigin="Origin.BottomCenter"
+                   ToStringFunc="x => x.Title"
+                   Variant="Variant.Outlined"
+                   Class="mt-4">
+            @foreach (var assignment in moduleAssignments)
+            {
+                <MudSelectItem Value="@assignment">@($"{assignment.Title} (Module: {assignment.Module?.Description})")</MudSelectItem>
+            }
+        </MudSelect>
+
+        <MudSelect T="Project"
+                   Label="Curate Projects"
+                   MultiSelection
+                   Dense
+                   @bind-SelectedValues="@trainingProjectsSelected"
+                   AnchorOrigin="Origin.BottomCenter"
+                   ToStringFunc="x => x.Title"
+                   Variant="Variant.Outlined"
+                   Class="mt-4">
+            @foreach (var project in trainingProjects)
+            {
+                <MudSelectItem Value="@project" />
+            }
+        </MudSelect>
+
+        <MudButton ButtonType="ButtonType.Submit"
+                   Variant="Variant.Filled"
+                   Color="Color.Tertiary"
+                   Class="mt-4"
+                   StartIcon="@Icons.Material.Filled.Save">
+            Save Plan
+        </MudButton>
+    </EditForm>
+</MudContainer>
+
+@code {
+
+    [CascadingParameter]
+    private Task<AuthenticationState> AuthTask { get; set; } = null!;
+
+    [Parameter]
+    public int Id { get; set; }
+
+    Training model = new() { DurationHours = 20f };
+    IEnumerable<Instructor> consultants = [];
+    IEnumerable<CourseQuote> quotes = [];
+    IEnumerable<Organization> forOrganizations = [];
+    IEnumerable<Assignment> moduleAssignments = [];
+    IEnumerable<Assignment> moduleAssignmentsSelected = [];
+    IEnumerable<Project> trainingProjects = [];
+    IEnumerable<Project> trainingProjectsSelected = [];
+
+    protected override async Task OnInitializedAsync()
+    {
+        model = await Db.Training
+            .Include(x => x.Organization)
+            .Include(x => x.Instructor)
+            .Include(x => x.CourseQuote)
+            .ThenInclude(y => y.Modules)
+            .Where(x => x.Id == Id)
+            .FirstOrDefaultAsync() ?? new();
+
+        trainingProjects = await Db.Projects.ToArrayAsync();
+    }
+
+    private async Task OnValidSubmit(EditContext context)
+    {
+        var state = await AuthTask;
+        var userName = state.User.Identity?.Name;
+        model.AddLastUpdatedStamps(userName);
+
+        model.Assignments = moduleAssignmentsSelected.ToList();
+        model.Projects = trainingProjectsSelected.ToList();
+
+        Db.Training.Update(model);
+        var rowsAffected = await Db.SaveChangesAsync();
+
+        if (rowsAffected > 0)
+        {
+            SnackBar.Add("Training plan saved successfully", Severity.Success);
+            Navigation.NavigateTo("/trainingplans");
+        }
+        else
+        {
+            SnackBar.Add("Training plan save failed", Severity.Error);
+        }
+    }
+
+    private async Task QuoteChanged(CourseQuote quote)
+    {
+        model.CourseQuote = quote;
+
+        // fetch quote modules and assignments for those modules
+        var moduleIds = await Db.CourseQuoteModules
+        .Where(x => x.CourseQuoteId == quote.Id)
+        .Select(x => x.ModulesId)
+        .ToArrayAsync();
+
+        moduleAssignments = await Db.Assignments
+        .Include(x => x.Module)
+        .Where(x => moduleIds.Contains(x.ModuleId))
+        .ToArrayAsync();
+    }
+
+    private async Task<IEnumerable<Instructor>> SearchConsultants(string value, CancellationToken token)
+    {
+        if (!consultants.Any())
+        {
+            consultants = await Db.Instructors.ToListAsync(token);
+        }
+
+        if (value is null or "")
+        {
+            return consultants;
+        }
+
+        return consultants.Where(x => x.Name.Contains(value, StringComparison.OrdinalIgnoreCase));
+    }
+
+    private async Task<IEnumerable<CourseQuote>> SearchQuotes(string value, CancellationToken token)
+    {
+        if (!quotes.Any())
+        {
+            quotes = await Db.CourseQuotes.ToListAsync(token);
+        }
+
+        if (value is null or "")
+        {
+            return quotes;
+        }
+
+        return quotes.Where(x => x.Code.Contains(value, StringComparison.OrdinalIgnoreCase)
+        || x.Description.Contains(value, StringComparison.OrdinalIgnoreCase));
+    }
+
+    private async Task<IEnumerable<Organization>> SearchOrganizations(string value, CancellationToken token)
+    {
+        if (!forOrganizations.Any())
+        {
+            forOrganizations = await Db.Organizations.ToListAsync(token);
+        }
+
+        if (value is null or "")
+        {
+            return forOrganizations;
+        }
+
+        return forOrganizations.Where(x => x.Name.Contains(value, StringComparison.OrdinalIgnoreCase));
+    }
+}

@@ -38,6 +38,9 @@ public class Student : BaseEntity
     public int? BatchId { get; set; }
     public Batch? Batch { get; set; }
 
+    public int? TrainingId { get; set; }
+    public Training? Training { get; set; }
+
     public string? ApplicationUserId { get; set; }
     public ApplicationUser? User { get; set; }
 

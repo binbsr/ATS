@@ -9,9 +9,7 @@
 
 @if (!traineeTimeLines.Any())
 {
-    <MudText Align="Align.Center">
-        <MudProgressCircular Color="Color.Tertiary" Size="Size.Large" Indeterminate="true" />
-    </MudText>
+    <Loading />
 }
 else
 {
@@ -206,7 +204,7 @@ else
 
     private async Task ConfirmDelete(TraineeTimeline timeline)
     {
-        bool? result = await mbox.Show();
+        bool? result = await mbox.ShowAsync();
         if (result == null)
             return;
 

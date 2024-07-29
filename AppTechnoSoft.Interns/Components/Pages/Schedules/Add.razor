@@ -94,11 +94,11 @@
     private int selectedDayCount => (dateRange.End - dateRange.Start)!.Value.Days + 1;
     private IEnumerable<DayOfWeek> selectedDaysOfWeek = [DateTime.UtcNow.ToNepalTime().DayOfWeek];
 
-    private async Task<IEnumerable<Widget>> SearchModules(string value)
+    private async Task<IEnumerable<Widget>> SearchModules(string value, CancellationToken token)
     {
         if (!trainingModules.Any())
         {
-            trainingModules = await Db.Widgets.Where(x => x.Title == nameof(WidgetFilter.Module)).ToArrayAsync();
+            trainingModules = await Db.Widgets.Where(x => x.Title == nameof(WidgetFilter.Module)).ToArrayAsync(token);
         }
 
         if (value is null or "")
@@ -109,11 +109,11 @@
         return trainingModules.Where(x => x.Description.Contains(value, StringComparison.OrdinalIgnoreCase));
     }
 
-    private async Task<IEnumerable<Instructor>> SearchInstructors(string value)
+    private async Task<IEnumerable<Instructor>> SearchInstructors(string value, CancellationToken token)
     {
         if (!instructors.Any())
         {
-            instructors = await Db.Instructors.ToArrayAsync();
+            instructors = await Db.Instructors.ToArrayAsync(token);
         }
 
         if (value is null or "")
@@ -124,11 +124,11 @@
         return instructors.Where(x => x.Name.Contains(value, StringComparison.OrdinalIgnoreCase));
     }
 
-    private async Task<IEnumerable<Batch>> SearchBatches(string value)
+    private async Task<IEnumerable<Batch>> SearchBatches(string value, CancellationToken token)
     {
         if (!batches.Any())
         {
-            batches = await Db.Batches.ToArrayAsync();
+            batches = await Db.Batches.ToArrayAsync(token);
         }
 
         if (value is null or "")

@@ -71,8 +71,7 @@
                              ProgressIndicatorColor="Color.Default"
                              MaxItems="null" />
         }
-        else if (model.ApplicantType == ApplicantType.SoftwareEngineeringAspirant
-            || model.ApplicantType == ApplicantType.Professional)
+        else if (model.ApplicantType == ApplicantType.SoftwareEngineeringAspirant)
         {
             <MudSelect T="TrainingTrack" Variant="Variant.Outlined" Label="Track" @bind-Value="model.TrainingTrack" Class="mt-4" AnchorOrigin="Origin.BottomCenter">
                 <MudSelectItem T="TrainingTrack" Value="@TrainingTrack.None">No idea, need consulting</MudSelectItem>
@@ -204,11 +203,11 @@
         model.ProfileImage = file;
     }
 
-    private async Task<IEnumerable<College>> SearchColleges(string value)
+    private async Task<IEnumerable<College>> SearchColleges(string value, CancellationToken token)
     {
         if (!colleges.Any())
         {
-            colleges = await Db.Colleges.ToListAsync();
+            colleges = await Db.Colleges.ToListAsync(token);
         }
 
         if (value is null or "")
@@ -219,11 +218,11 @@
         return colleges.Where(x => x.Name.Contains(value, StringComparison.OrdinalIgnoreCase));
     }
 
-    private async Task<IEnumerable<TechProgram>> SearchPrograms(string value)
+    private async Task<IEnumerable<TechProgram>> SearchPrograms(string value, CancellationToken token)
     {
         if (!techPrograms.Any())
         {
-            techPrograms = await Db.TechPrograms.ToListAsync();
+            techPrograms = await Db.TechPrograms.ToListAsync(token);
         }
 
         if (value is null or "")

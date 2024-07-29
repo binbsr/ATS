@@ -63,7 +63,7 @@ else
             };
     }
 
-    private async Task<IEnumerable<TraineeViewModel>> SearchTrainees(string value)
+    private async Task<IEnumerable<TraineeViewModel>> SearchTrainees(string value, CancellationToken token)
     {
         if (!trainees.Any())
         {
@@ -76,7 +76,7 @@ else
                 AvatarPath = x.ProfileImagePath,
                 Program = $"{x.TechProgram!.Name} ({x.TechProgram.Affliation})",
                 College = $"{x.College!.Name}, {x.College.Location}"
-            }).ToListAsync();
+            }).ToListAsync(token);
 
             trainees = students.Select(student => new TraineeViewModel(student.Id, student.Name, student.AvatarPath ?? "/favicon.png", student.Program, student.College)
                 {

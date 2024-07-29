@@ -86,12 +86,12 @@
         onBehalfOfInstructor = instructor;
     }
 
-    private async Task<IEnumerable<Batch>> SearchItems(string value)
+    private async Task<IEnumerable<Batch>> SearchItems(string value, CancellationToken token)
     {
         if (!batches.Any())
         {
             using var Db = DbFactory.CreateDbContext();
-            batches = await Db.Batches.ToListAsync();
+            batches = await Db.Batches.ToListAsync(token);
         }
 
         if (value is null or "")
@@ -102,12 +102,14 @@
         return batches.Where(x => x.Name.Contains(value, StringComparison.OrdinalIgnoreCase));
     }
 
-    private async Task<IEnumerable<Instructor>> SearchInstructors(string value)
+    private async Task<IEnumerable<Instructor>> SearchInstructors(string value, CancellationToken token)
     {
         if (!instructors.Any())
         {
             using var Db = DbFactory.CreateDbContext();
-            var instructorModels = await Db.Instructors.Select(x => new { Id = x.Id, AppUserId = x.ApplicationUserId, Name = x.Name }).ToListAsync();
+            var instructorModels = await Db.Instructors
+                .Select(x => new { Id = x.Id, AppUserId = x.ApplicationUserId, Name = x.Name })
+                .ToListAsync(token);
             instructors = instructorModels.Select(x => new Instructor { Id = x.Id, ApplicationUserId = x.AppUserId, Name = x.Name });
         }
 
@@ -131,7 +133,7 @@
         {
             errorMessage = "No students on this batch";
         }
-        
+
         // Sanity check if this assignment already assigned to this batch
         var alreadyAssinedStudentCount = await Db.StudentAssignments.CountAsync(x => x.AssignmentId == Assignment.Id && x.Student!.BatchId == batchToAssign.Id);
 

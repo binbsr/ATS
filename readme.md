@@ -86,3 +86,10 @@ Tag description is used to fetch filters, so please describe your tag accordigly
 
 ## Trainee Status
 Appllied => Enrolled (Assigned to Batch) => 
+
+
+
+## Professional Training
+
+1. CourseQuate contains number of modules and pricing info
+1. Training contains a quote, beneficiary, assignments and project info

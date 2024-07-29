@@ -1,0 +1,19 @@
+﻿<MudChip T="string" Label="true" Class="ml-8" Size="Size.Large">
+    <MudText Typo="Typo.h5">@Widget.Description</MudText>
+</MudChip>
+<MudContainer Style="font-size: 1.3em">
+    @((MarkupString)Widget.HtmlContent.ToHtmlString())
+</MudContainer>
+
+<MudChipSet T="Tag">
+    @foreach (var tag in Widget.Tags ?? [])
+    {
+        <MudChip Style="@("background:" + tag.ColorCode ?? "")" Class="text-white">@tag.Name</MudChip>
+    }
+</MudChipSet>
+
+@code {
+
+    [Parameter]
+    public Widget Widget { get; set; } = new();
+}

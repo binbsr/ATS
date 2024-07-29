@@ -23,6 +23,17 @@
                 <MudSelectItem Value="tech">@tech</MudSelectItem>
             }
         </MudSelect>
+        <MudSelect T="Data.Models.Training"
+                   Dense="true"
+                   Label="Training Plan"
+                   @bind-Value="model.Training"
+                   Class="my-3"
+                   AnchorOrigin="Origin.BottomCenter">
+            @foreach (var plan in trainingPlans)
+            {
+                <MudSelectItem Value="plan">@($"{plan.Title} - {plan.Organization?.Name}")</MudSelectItem>
+            }
+        </MudSelect>
         <MudDateRangePicker Label="Batch Duration" DateRange="batchRange" DateRangeChanged="DatesChanged" />
 
         <MudSelect T="string"
@@ -66,10 +77,12 @@
     DateRange batchRange = null!;
     string selectedTrack = "General";
     string[] backendTechs = ["General", BackendTech.NET, BackendTech.Java, BackendTech.Python, BackendTech.Node];
+    Data.Models.Training[] trainingPlans = [];
 
     protected override async Task OnInitializedAsync()
     {
         students = await Db.Students.Select(x => new ListItem(x.Id, $"{x.Name} ({x.Email})", x.BatchId)).ToListAsync();
+        trainingPlans = await Db.Training.Include(x => x.Organization).ToArrayAsync();
 
         if (IsAdd)
         {
@@ -156,10 +169,10 @@
     {
         model.Start = range.Start.Value;
         model.End = range.End.Value;
-        
+
         return $"Batch {tech} Track ({model.Start:MMM dd, yyyy} to {model.End:MMM dd, yyyy})";
     }
-    
+
 
     private string GetMultiSelectionText(List<string> selectedValues)
     {

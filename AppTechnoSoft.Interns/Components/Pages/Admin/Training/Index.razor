@@ -34,7 +34,7 @@
         </TemplateColumn>
         <TemplateColumn>
             <CellTemplate>
-                <MudIconButton Title="Share plan" Icon="@Icons.Material.Filled.Share" Color="Color.Info" Href="@("/consulting/plans/" + context.Item.Hash)" />
+                <MudIconButton Title="Share plan" Icon="@Icons.Material.Filled.Share" Target="_blank" Color="Color.Info" Href="@("/consulting/plans/" + context.Item.Hash)" />
                 <MudIconButton Icon="@Icons.Material.Filled.Edit" Size="Size.Small" Color="Color.Warning" Href="@("/trainingplans/edit/" + context.Item.Id)" />
                 <MudIconButton Icon="@Icons.Material.Sharp.Delete" Size="Size.Small" Color="Color.Error" OnClick="() => ConfirmDelete(context.Item)" />
                 <MudMessageBox @ref="mbox" Title="Warning" CancelText="Cancel">

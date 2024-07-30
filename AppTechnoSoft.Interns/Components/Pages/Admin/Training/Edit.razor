@@ -26,6 +26,7 @@
 
         <MudAutocomplete T="CourseQuote"
                          Label="Select Quote"
+                         Value="@model.CourseQuote"
                          ValueChanged="QuoteChanged"
                          SearchFunc="@SearchQuotes"
                          ToStringFunc="@(e=> e==null ? null : $"{e.Code} - {e.Description} ({e.PricePerUnit.AsCurrency()}/Unit)")"
@@ -108,12 +109,32 @@
         model = await Db.Training
             .Include(x => x.Organization)
             .Include(x => x.Instructor)
+            .Include(x => x.Assignments)
+            .Include(x => x.Projects)
             .Include(x => x.CourseQuote)
             .ThenInclude(y => y.Modules)
             .Where(x => x.Id == Id)
             .FirstOrDefaultAsync() ?? new();
 
+        moduleAssignmentsSelected = model.Assignments ?? [];
+        trainingProjectsSelected = model.Projects ?? [];
+
+        // Fetch all projects
         trainingProjects = await Db.Projects.ToArrayAsync();
+
+        // fetch quote modules and assignments for those modules
+        var moduleIds = await Db.CourseQuoteModules
+        .Where(x => x.CourseQuoteId == model.CourseQuote.Id)
+        .Select(x => x.ModulesId)
+        .ToArrayAsync();
+
+        if (moduleIds?.Any() ?? false)
+        {
+            moduleAssignments = await Db.Assignments
+               .Include(x => x.Module)
+               .Where(x => moduleIds.Contains(x.ModuleId))
+               .ToArrayAsync();
+        }
     }
 
     private async Task OnValidSubmit(EditContext context)

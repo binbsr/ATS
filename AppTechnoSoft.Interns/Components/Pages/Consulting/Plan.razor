@@ -53,6 +53,15 @@ else
                                 </MudText>
                             </MudText>
                             <MudText Typo="Typo.h6">
+                                Attendees
+                                <MudText>
+                                    <MudTooltip Text="@(string.Join(", " , traineeNames))" Arrow="true">
+                                        @traineeNames.Length Pax
+                                    </MudTooltip>
+                                </MudText>
+
+                            </MudText>
+                            <MudText Typo="Typo.h6">
                                 Training Drafted
                                 <MudText Typo="Typo.subtitle1">@(model?.Created?.ToLongDateString() ?? "N/A")</MudText>
                             </MudText>
@@ -168,6 +177,7 @@ else
     public Guid? Hash { get; set; }
 
     Training model = new();
+    string[] traineeNames = [];
     bool loading = false;
 
     protected override async Task OnInitializedAsync()
@@ -186,6 +196,7 @@ else
             .ThenInclude(y => y.Modules)
             .FirstOrDefaultAsync(x => x.Hash == Hash.ToString()) ?? new();
 
+        traineeNames = await Db.Students.Where(x => x.TrainingId == model.Id).Select(x => x.Name).ToArrayAsync();
         loading = false;
     }
 }

@@ -140,6 +140,7 @@
                 .Where(s => studentsSelected.Contains(s.Id))
                 .ExecuteUpdate(x => x
                     .SetProperty(y => y.BatchId, model.Id)
+                    .SetProperty(y => y.TrainingId, model.TrainingId)
                     .SetProperty(y => y.Status, Status.Enrolled)
                 );
 

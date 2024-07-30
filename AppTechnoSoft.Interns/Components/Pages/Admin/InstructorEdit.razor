@@ -3,8 +3,7 @@
 
 @attribute [Authorize(Roles=Role.Admins)]
 
-@inject IDbContextFactory<ApplicationDbContext> DbFactory
-@inject IDbContextFactory<ApplicationDbContext> DbFactory
+@inject ApplicationDbContext Db
 @inject UserManager<ApplicationUser> UserManager
 @inject IUserStore<ApplicationUser> UserStore
 @inject ISnackbar SnackBar
@@ -26,6 +25,7 @@
         <ImageUpload ExistingImagePath="@model.ProfilePath" ImageChanged="ProfileChanged" Label="Instructor Profile Image" />
         <MudSelect T="Tag"
                    Label="Tags"
+                   Dense="true"
                    MultiSelection="true"
                    @bind-SelectedValues="@tagsSelected"
                    Class="mt-3"
@@ -82,8 +82,7 @@
 
     protected override async Task OnInitializedAsync()
     {
-        using var db = DbFactory.CreateDbContext();
-        tags = await db.Tags.ToListAsync();
+        tags = await Db.Tags.ToListAsync();
 
         if (IsAdd)
         {
@@ -92,7 +91,7 @@
         else
         {
             pageTitle = "Edit Instructor";
-            model = await db.Instructors.Include(x => x.Tags).FirstOrDefaultAsync(x => x.Id == Id) ?? new();
+            model = await Db.Instructors.Include(x => x.Tags).FirstOrDefaultAsync(x => x.Id == Id) ?? new();
             tagsSelected = model?.Tags ?? [];
         }
     }
@@ -110,21 +109,19 @@
             Console.WriteLine($"Error: {message}");
         }
 
-        using var db = DbFactory.CreateDbContext();
-
         model.Tags = tagsSelected.ToList();
 
         if (IsAdd)
         {
-            db.Instructors.Add(model);
+            Db.Instructors.Add(model);
         }
         else
         {
             model.Id = Id!.Value;
-            db.Instructors.Update(model);
+            Db.Instructors.Update(model);
         }
 
-        var rowsAffected = await db.SaveChangesAsync();
+        var rowsAffected = await Db.SaveChangesAsync();
 
         if (rowsAffected > 0)
         {

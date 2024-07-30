@@ -110,48 +110,54 @@ else
             </MudPaper>
         </MudItem>
         <MudItem xs="12">
-            <MudText Typo="Typo.button" Style="font-size:1.1rem;">Assignment Details</MudText>
-            <MudPaper Elevation="0" Class="p-4 border" Square>
-                @{
-                    byte i = 1;
-                }
-                <MudStack Row Wrap="Wrap.Wrap" Spacing="5">
-                    @foreach (var assignment in model?.Assignments?.OrderBy(x => x.Title).ToArray() ?? [])
-                    {
-                        <MudPaper Elevation="0" Class="p-4 border" Square Style="text-align:center;background:#F5F5F5;">
-                            <MudChip T="string" Label="true" Size="Size.Large" Class="mb-2">
-                                <MudText Typo="Typo.h6">@($"Assignment {i++}")</MudText>
-                            </MudChip>
-                            <MudText Typo="Typo.h6">
-                                @assignment.Title
-                                <MudText Typo="Typo.body2">On <b>@assignment?.Module?.Description</b> Module</MudText>
-                            </MudText>
-                        </MudPaper>
-                    }
-                </MudStack>
-            </MudPaper>
-        </MudItem>
-        <MudItem xs="12">
-            <MudText Typo="Typo.button" Style="font-size:1.1rem;">Project Details</MudText>
-            <MudPaper Elevation="0" Class="p-4 border" Square>
-                <MudStack Row Wrap="Wrap.Wrap" Spacing="5">
+            @if (model?.Assignments?.Any() ?? false)
+            {
+                <MudText Typo="Typo.button" Style="font-size:1.1rem;">Assignment Details</MudText>
+                <MudPaper Elevation="0" Class="p-4 border" Square>
                     @{
                         byte i = 1;
                     }
-                    @foreach (var project in model?.Projects?.OrderBy(x => x.Title).ToArray() ?? [])
-                    {
-                        <MudPaper Elevation="0" Class="p-4 border" Square Style="text-align:center;background:#F5F5F5;">
-                            <MudChip T="string" Label="true" Size="Size.Large" Class="mb-2">
-                                <MudText Typo="Typo.h6">@($"Project {i++}")</MudText>
-                            </MudChip>
-                            <MudText Typo="Typo.h6">
-                                @project.Title
-                                <MudText Typo="Typo.body2">@project.RepoUrl</MudText>
-                            </MudText>
-                        </MudPaper>
-                    }
-                </MudStack>
-            </MudPaper>
+                    <MudStack Row Wrap="Wrap.Wrap" Spacing="5">
+                        @foreach (var assignment in model?.Assignments?.OrderBy(x => x.Title).ToArray() ?? [])
+                        {
+                            <MudPaper Elevation="0" Class="p-4 border" Square Style="text-align:center;background:#F5F5F5;">
+                                <MudChip T="string" Label="true" Size="Size.Large" Class="mb-2">
+                                    <MudText Typo="Typo.h6">@($"Assignment {i++}")</MudText>
+                                </MudChip>
+                                <MudText Typo="Typo.h6">
+                                    @assignment.Title
+                                    <MudText Typo="Typo.body2">On <b>@assignment?.Module?.Description</b> Module</MudText>
+                                </MudText>
+                            </MudPaper>
+                        }
+                    </MudStack>
+                </MudPaper>
+            }
+        </MudItem>
+        <MudItem xs="12">
+            @if (model?.Projects?.Any() ?? false)
+            {
+                <MudText Typo="Typo.button" Style="font-size:1.1rem;">Project Details</MudText>
+                <MudPaper Elevation="0" Class="p-4 border" Square>
+                    <MudStack Row Wrap="Wrap.Wrap" Spacing="5">
+                        @{
+                            byte i = 1;
+                        }
+                        @foreach (var project in model?.Projects?.OrderBy(x => x.Title).ToArray() ?? [])
+                        {
+                            <MudPaper Elevation="0" Class="p-4 border" Square Style="text-align:center;background:#F5F5F5;">
+                                <MudChip T="string" Label="true" Size="Size.Large" Class="mb-2">
+                                    <MudText Typo="Typo.h6">@($"Project {i++}")</MudText>
+                                </MudChip>
+                                <MudText Typo="Typo.h6">
+                                    @project.Title
+                                    <MudText Typo="Typo.body2">@project.RepoUrl</MudText>
+                                </MudText>
+                            </MudPaper>
+                        }
+                    </MudStack>
+                </MudPaper>
+            }
         </MudItem>
     </MudGrid>
 }
@@ -162,7 +168,6 @@ else
     public Guid? Hash { get; set; }
 
     Training model = new();
-    List<Assignment> assignments = [];
     bool loading = false;
 
     protected override async Task OnInitializedAsync()

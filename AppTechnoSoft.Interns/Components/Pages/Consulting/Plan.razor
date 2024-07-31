@@ -46,7 +46,7 @@ else
                                     };
                                 }
                                 <MudText>
-                                    <MudChip Value="@model.Status" Color="@color" Label="true" />
+                                    <MudChip Value="@model.Status" Color="@color" Label="true" Class="ml-0" />
                                 </MudText>
                             </MudText>
                         </MudStack>
@@ -121,7 +121,7 @@ else
         <MudItem xs="12">
             <MudText Typo="Typo.button" Style="font-size:1.1rem;">Course Module Details</MudText>
             <MudPaper Elevation="0" Class="py-8 border" Square>
-                <MudGrid>
+                <MudGrid Class="px-8">
                     @foreach (var module in model?.CourseQuote?.Modules?.OrderBy(x => x.Description).ToArray() ?? [])
                     {
                         <MudItem xs="12" md="6">

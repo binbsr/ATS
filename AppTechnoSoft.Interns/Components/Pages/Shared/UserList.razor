@@ -1,8 +1,8 @@
-﻿<MudGrid Spacing="2">
+﻿<MudGrid>
     @foreach (var member in Users)
     {
         var user = LoggedInUserId == member.UserId ? $"{member.Name} (You)" : member.Name;
-        <MudItem md="2" sm="6" xs="1">
+        <MudItem lg="1" md="2" sm="4" xs="6">
             <UserProfile AvatarPath="@member.ProfilePath" Name="@member.Name" />
         </MudItem>
     }

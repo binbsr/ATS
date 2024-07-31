@@ -43,8 +43,8 @@
                       Class="mt-4"
                       Immediate="true"
                       Label="Phone"
-                      Error="@alreadyAppliedPhone"
-                      ErrorText="You have already applied at Appsoft with this number, please ring us if you have any queries."
+                      Error="@(alreadyAppliedPhone && !alreadyApplied)"
+                      ErrorText="You have already applied at Appsoft with this number, please call us if you have any queries."
                       TextChanged="PhoneChanged" />
 
         @if (model.ApplicantType == ApplicantType.StudentInternship)
@@ -82,11 +82,7 @@
             </MudSelect>
         }
 
-        <ImageUpload Class="mt-4" ExistingImagePath="@model.ProfileImagePath" ImageChanged="ProfileChanged" Label="Upload Profile Image (<100kb)" />
-        @if (!profileSuccess)
-        {
-            <MudText Color="Color.Warning">@message</MudText>
-        }
+        <ImageUpload Class="mt-4" ExistingImagePath="@model.ProfileImagePath" ImageChanged="ProfileChanged" Label="Upload Profile Image (<100kb)" />        
 
         <MudButton ButtonType="ButtonType.Submit"
                    Variant="Variant.Filled"
@@ -131,7 +127,11 @@
         if (applicationUserId == string.Empty)
             return;
 
-        model = await Db.Students.FirstOrDefaultAsync(x => x.ApplicationUserId == applicationUserId) ?? new();
+        model = await Db.Students
+            .Include(x => x.College)
+            .Include(x => x.TechProgram)
+            .FirstOrDefaultAsync(x => x.ApplicationUserId == applicationUserId) ?? new();
+
         alreadyApplied = model is not null;
     }
 

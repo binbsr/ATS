@@ -23,7 +23,8 @@
              Dense="true">
 
     <ToolBarContent>
-        <MudButton Disabled="@(!selectedApplicants.Any())" StartIcon="@Icons.Material.Sharp.AutoDelete" OnClick="RemoveFromBatch" Class="ml-2 mt-5" Variant="Variant.Filled" Color="Color.Tertiary">De-Batch</MudButton>
+        <MudButton Disabled="@(!selectedApplicants.Any())" StartIcon="@Icons.Material.Sharp.AutoDelete" OnClick="RemoveFromBatch" Class="ml-2 mt-5" Variant="Variant.Filled" Color="Color.Warning">De-Batch</MudButton>
+        <MudButton Disabled="@(!selectedApplicants.Any())" StartIcon="@Icons.Material.Sharp.DeleteForever" OnClick="RemoveApplicants" Class="ml-2 mt-5" Variant="Variant.Filled" Color="Color.Error">Remove</MudButton>
         <MudSpacer />
         <MudTextField @bind-Value="_searchString" Placeholder="@($"Search {studentList.Count} applicants by name, email, status or phone...")" Adornment="Adornment.Start" Immediate="true"
                       AdornmentIcon="@Icons.Material.Filled.Search" IconSize="Size.Medium" Class="mt-0"></MudTextField>
@@ -175,6 +176,26 @@
             else
             {
                 SnackBar.Add("Debatching failed", Severity.Error);
+            }
+        }
+    }
+
+    private async Task RemoveApplicants()
+    {
+        if (selectedApplicants.Any())
+        {
+            var rowsAffected = await Db.Students
+                .Where(s => selectedApplicants.Select(z => z.Id).Contains(s.Id))
+                .ExecuteDeleteAsync();
+
+            if (rowsAffected > 0)
+            {
+                SnackBar.Add("Selected trainees removed from system", Severity.Success);
+                studentList.RemoveAll(x => selectedApplicants.Select(z => z.Id).Contains(x.Id));
+            }
+            else
+            {
+                SnackBar.Add("Removing applicants failed", Severity.Error);
             }
         }
     }

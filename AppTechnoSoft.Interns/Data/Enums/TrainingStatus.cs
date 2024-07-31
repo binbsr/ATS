@@ -1,7 +1,7 @@
 ﻿namespace AppTechnoSoft.Interns.Data.Enums;
 public enum TrainingStatus
 {
-    Created = 1,
+    Drafted = 1,
     InProgress,
     Completed
 }

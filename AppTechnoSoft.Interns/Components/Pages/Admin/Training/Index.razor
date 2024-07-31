@@ -13,7 +13,7 @@
     <ToolBarContent>
         <MudButton Variant="Variant.Outlined" Class="rounded" StartIcon="@Icons.Material.Outlined.Add" Href="/trainingplans/add" Color="Color.Tertiary">Training Plan</MudButton>
         <MudSpacer />
-        <MudText Typo="Typo.h6">Professional Training Plans</MudText>
+        <MudChip Text="Professional Training Plans" Label="true" Size="Size.Large" />
     </ToolBarContent>
     <Columns>
         <HierarchyColumn T="Training" ButtonDisabledFunc="@(x => (x.CourseQuote?.Modules?.Count ?? 0) == 0)" />
@@ -34,17 +34,29 @@
         </TemplateColumn>
         <TemplateColumn>
             <CellTemplate>
-                <MudIconButton Title="Share plan" Icon="@Icons.Material.Filled.Share" Target="_blank" Color="Color.Info" Href="@("/consulting/plans/" + context.Item.Hash)" />
-                <MudIconButton Icon="@Icons.Material.Filled.Edit" Size="Size.Small" Color="Color.Warning" Href="@("/trainingplans/edit/" + context.Item.Id)" />
-                <MudIconButton Icon="@Icons.Material.Sharp.Delete" Size="Size.Small" Color="Color.Error" OnClick="() => ConfirmDelete(context.Item)" />
-                <MudMessageBox @ref="mbox" Title="Warning" CancelText="Cancel">
-                    <MessageContent>
-                        Are you sure to delete this training plan? It can't be undone.
-                    </MessageContent>
-                    <YesButton>
-                        <MudButton Variant="Variant.Filled" Color="Color.Error" Class="ml-2 mb-2 mr-3" StartIcon="@Icons.Material.Filled.DeleteForever">Delete</MudButton>
-                    </YesButton>
-                </MudMessageBox>
+                <MudContainer Class="d-flex align-center gap-0" Fixed="true" Gutters="false">
+                    <MudSelect T="TrainingStatus"
+                               AnchorOrigin="Origin.BottomCenter"
+                               Value="@context.Item.Status" 
+                               ValueChanged="(s) => TrainingStatusChanged(context.Item, s)"
+                               Style="width:30px;">
+                        @foreach (var status in Enum.GetValues<TrainingStatus>())
+                        {
+                            <MudSelectItem Value="@status" />
+                        }
+                    </MudSelect>
+                    <MudIconButton Title="Share plan" Icon="@Icons.Material.Filled.Share" Target="_blank" Color="Color.Info" Href="@("/consulting/plans/" + context.Item.Hash)" />
+                    <MudIconButton Icon="@Icons.Material.Filled.Edit" Size="Size.Small" Color="Color.Warning" Href="@("/trainingplans/edit/" + context.Item.Id)" />
+                    <MudIconButton Icon="@Icons.Material.Sharp.Delete" Size="Size.Small" Color="Color.Error" OnClick="() => ConfirmDelete(context.Item)" />
+                    <MudMessageBox @ref="mbox" Title="Warning" CancelText="Cancel">
+                        <MessageContent>
+                            Are you sure to delete this training plan? It can't be undone.
+                        </MessageContent>
+                        <YesButton>
+                            <MudButton Variant="Variant.Filled" Color="Color.Error" Class="ml-2 mb-2 mr-3" StartIcon="@Icons.Material.Filled.DeleteForever">Delete</MudButton>
+                        </YesButton>
+                    </MudMessageBox>
+                </MudContainer>                
             </CellTemplate>
         </TemplateColumn>
     </Columns>
@@ -87,6 +99,20 @@
             .ToListAsync();
 
         loadingData = false;
+    }
+
+    private void TrainingStatusChanged(Training training, TrainingStatus status)
+    {
+        training.Status = status;
+        var rowsAffected = Db.Training
+                .Where(s => s.Id == training.Id)
+                .ExecuteUpdate(x => x
+                    .SetProperty(y => y.Status, status)
+                );
+
+        _ = (rowsAffected > 0)
+            ? SnackBar.Add($"Training status updated to '{status}' successfully", Severity.Success)
+            : SnackBar.Add("Training status update failed", Severity.Error);
     }
 
     private async Task ConfirmDelete(Training training)

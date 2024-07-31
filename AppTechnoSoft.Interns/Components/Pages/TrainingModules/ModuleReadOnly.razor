@@ -1,9 +1,12 @@
-﻿<MudChip T="string" Label="true" Class="ml-8" Size="Size.Large">
-    <MudText Typo="Typo.h5">@Widget.Description</MudText>
-</MudChip>
-<MudContainer Style="font-size: 1.3em">
-    @((MarkupString)Widget.HtmlContent.ToHtmlString())
-</MudContainer>
+﻿<MudPaper Class="border p-3" Elevation="0">
+    <MudChip T="string" Label="true" Class="ml-8" Size="Size.Large">
+        <MudText Typo="Typo.h5">@Widget.Description</MudText>
+    </MudChip>
+    <MudContainer Style="font-size: 1.3em">
+        @((MarkupString)Widget.HtmlContent.ToHtmlString())
+    </MudContainer>
+</MudPaper>
+
 
 <MudChipSet T="Tag">
     @foreach (var tag in Widget.Tags ?? [])

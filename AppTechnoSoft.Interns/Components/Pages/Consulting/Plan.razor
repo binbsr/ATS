@@ -10,9 +10,11 @@
 }
 else
 {
-    <MudGrid Class="px-5">
-        <MudItem xs="12">
-            <MudText Typo="Typo.h4" Align="Align.Center" Class="py-4">@model.Title</MudText>
+    <MudGrid Class="px-8">
+        <MudItem xs="12" Style="text-align:center" Class="my-4">
+            <MudChip T="string" Class="p-4" Label="true">
+                <MudText Typo="Typo.h4" Align="Align.Center">@model.Title</MudText>
+            </MudChip>
         </MudItem>
         <MudItem xs="12" md="6">
             <MudText Typo="Typo.button" Style="font-size:1.1rem;" Align="Align.Center">Training Summary</MudText>
@@ -34,7 +36,18 @@ else
                             </MudText>
                             <MudText Typo="Typo.h6">
                                 Coaching Status
-                                <MudText Typo="Typo.subtitle1">@model.Status</MudText>
+                                @{
+                                    var color = model.Status switch
+                                    {
+                                        TrainingStatus.Drafted => Color.Error,
+                                        TrainingStatus.InProgress => Color.Warning,
+                                        TrainingStatus.Completed => Color.Success,
+                                        _ => Color.Info
+                                    };
+                                }
+                                <MudText>
+                                    <MudChip Value="@model.Status" Color="@color" Label="true" Class="ml-0" />
+                                </MudText>
                             </MudText>
                         </MudStack>
                     </MudItem>
@@ -108,7 +121,7 @@ else
         <MudItem xs="12">
             <MudText Typo="Typo.button" Style="font-size:1.1rem;">Course Module Details</MudText>
             <MudPaper Elevation="0" Class="py-8 border" Square>
-                <MudGrid>
+                <MudGrid Class="px-8">
                     @foreach (var module in model?.CourseQuote?.Modules?.OrderBy(x => x.Description).ToArray() ?? [])
                     {
                         <MudItem xs="12" md="6">
@@ -129,7 +142,7 @@ else
                     <MudStack Row Wrap="Wrap.Wrap" Spacing="5">
                         @foreach (var assignment in model?.Assignments?.OrderBy(x => x.Title).ToArray() ?? [])
                         {
-                            <MudPaper Elevation="0" Class="p-4 border" Square Style="text-align:center;background:#F5F5F5;">
+                            <MudPaper Elevation="0" Class="p-4 border" Square Style="text-align:center;">
                                 <MudChip T="string" Label="true" Size="Size.Large" Class="mb-2">
                                     <MudText Typo="Typo.h6">@($"Assignment {i++}")</MudText>
                                 </MudChip>
@@ -154,7 +167,7 @@ else
                         }
                         @foreach (var project in model?.Projects?.OrderBy(x => x.Title).ToArray() ?? [])
                         {
-                            <MudPaper Elevation="0" Class="p-4 border" Square Style="text-align:center;background:#F5F5F5;">
+                            <MudPaper Elevation="0" Class="p-4 border" Square Style="text-align:center">
                                 <MudChip T="string" Label="true" Size="Size.Large" Class="mb-2">
                                     <MudText Typo="Typo.h6">@($"Project {i++}")</MudText>
                                 </MudChip>

@@ -8,7 +8,7 @@
         @if (EnableSubFilter)
         {
             <MudSpacer />
-            <MudToggleGroup T="string" CheckMark FixedContent Dense
+            <MudToggleGroup T="string" CheckMark FixedContent Size="Size.Small"
                             Value="BackendTech.All"
                             Color="Color.Tertiary"
                             ValueChanged="BackendTechChanged">
@@ -19,7 +19,7 @@
             </MudToggleGroup>
         }
     </div>
-    <MudExpansionPanels Elevation="5" MultiExpansion="true" DisableBorders>
+    <MudExpansionPanels Elevation="5" MultiExpansion="true" Outlined="false">
         <MudGrid Spacing="1">
             @foreach (var widget in filteredWidgets)
             {

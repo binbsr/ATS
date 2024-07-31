@@ -34,7 +34,7 @@
                             </YesButton>
                         </MudMessageBox>
                     </CardHeaderActions>
-                </MudCardHeader>                
+                </MudCardHeader>
                 <MudCardContent>
                     <MudAvatarGroup Max="5" Spacing="2" MaxColor="Color.Primary" MaxSize="Size.Large" Outlined>
                         @foreach (var student in team.Students)
@@ -59,19 +59,16 @@
 
     private List<Team> teams = new();
     private Team selectedTeam = new();
-    private bool loadingData;
     private string searchString = "";
     MudMessageBox mbox { get; set; } = null!;
 
     protected override async Task OnInitializedAsync()
     {
-        loadingData = true;
         teams = await Db.Teams
             .Include(x => x.Batch)
             .Include(x => x.Students)
             .Include(t => t.Project)
             .OrderByDescending(x => x.Batch).ToListAsync();
-        loadingData = false;
     }
 
     private bool FilterFunc1(Team team) => FilterFunc(team, searchString);

@@ -8,7 +8,7 @@ public class Training : BaseEntity
     public float DurationHours { get; set; }
     public float DiscountPercentage { get; set; }
     public string? Hash { get; set; }
-    public TrainingStatus Status { get; set; } = TrainingStatus.Created;
+    public TrainingStatus Status { get; set; } = TrainingStatus.Drafted;
 
     public int OrganizationId { get; set; }
     public Organization? Organization { get; set; }

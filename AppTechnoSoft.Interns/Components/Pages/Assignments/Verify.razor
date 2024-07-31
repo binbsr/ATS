@@ -74,7 +74,6 @@ else
     [CascadingParameter]
     private Task<AuthenticationState> AuthTask { get; set; } = null!;
 
-    private bool loading = false;
     private string searchString = string.Empty;
     private Instructor? instructor = null;
     private List<StudentAssignmentViewModel> studentAssignments = [];
@@ -83,8 +82,6 @@ else
 
     protected override async Task OnInitializedAsync()
     {
-        loading = true;
-
         var userTask = await AuthTask;
         var loggedInUser = userTask.User;
         var loggedInUserId = loggedInUser.GetUserId();
@@ -124,8 +121,6 @@ else
                     Status = x.Status,
                     Comment = x.Comment
                 }).ToList();
-
-        loading = false;
     }
 
     private void BackupItem(object assignment)
@@ -145,16 +140,16 @@ else
             return;
 
         var rowsUpdated = await Db.StudentAssignments
-                .Where(x => x.Id == studentAssignment.Id)                
+                .Where(x => x.Id == studentAssignment.Id)
                 .ExecuteUpdateAsync(x => x
                     .SetProperty(y => y.Evaluation, studentAssignment.Evaluation)
                     .SetProperty(y => y.Comment, studentAssignment.Comment)
-                    .SetProperty(y => y.Status, 
+                    .SetProperty(y => y.Status,
                         studentAssignment.Deadline > studentAssignment.ReturnDate
                         ? AssignmentStatus.Complete
                         : AssignmentStatus.CompleteButMissedDeadline)
                 );
-        
+
         if (rowsUpdated > 0)
         {
             SnackBar.Add($"Assignment details updated for {studentAssignment.StudentName} successfully", Severity.Success);

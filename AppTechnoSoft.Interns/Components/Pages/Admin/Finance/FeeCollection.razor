@@ -21,13 +21,13 @@
              EditTrigger="DataGridEditTrigger.Manual"
              CommittedItemChanges="@CommittedItemChanges">
     <ToolBarContent>
-        <MudFab Href="/feecollection/add" StartIcon="@Icons.Material.Filled.Add" Title="Add New Fee Account" Size="Size.Small" Color="Color.Tertiary"></MudFab>
+        <MudFab Href="/feecollection/add" StartIcon="@Icons.Material.Filled.Add" title="Add New Fee Account" Size="Size.Small" Color="Color.Tertiary"></MudFab>
         <MudSpacer />
         <MudTextField @bind-Value="_searchString" Placeholder="Search" Adornment="Adornment.Start" Immediate="true"
                       AdornmentIcon="@Icons.Material.Filled.Search" IconSize="Size.Medium" Class="mt-0"></MudTextField>
     </ToolBarContent>
     <Columns>
-        <TemplateColumn IsEditable="false" Sortable="false" Filterable="false">
+        <TemplateColumn Editable="false" Sortable="false" Filterable="false">
             <CellTemplate>
                 <MudAvatar>
                     @if (context.Item.ProfileImagePath is null or "")
@@ -41,8 +41,8 @@
                 </MudAvatar>
             </CellTemplate>
         </TemplateColumn>
-        <PropertyColumn Property="x => x.Name" IsEditable="false" />
-        <PropertyColumn Property="x => x.Phone" IsEditable="false">
+        <PropertyColumn Property="x => x.Name" Editable="false" />
+        <PropertyColumn Property="x => x.Phone" Editable="false">
             <FooterTemplate>Total</FooterTemplate>
         </PropertyColumn>
         <PropertyColumn Property="x => x.FeeAmount" Title="Fee" Format="C2" Culture="@(new CultureInfo("ne-NP"))" AggregateDefinition="FeeAggregation" />
@@ -54,14 +54,14 @@
                 <MudNumericField Variant="Variant.Outlined" @bind-Value="@context.Item.Discount" Label="Discount" />
             </EditTemplate>
         </TemplateColumn>       
-        <PropertyColumn Property="x => x.TotalAmount" Title="Total" Format="C2" Culture="@(new CultureInfo("ne-NP"))" IsEditable="false" AggregateDefinition="TotalFeeToPayAggregation" />
+        <PropertyColumn Property="x => x.TotalAmount" Title="Total" Format="C2" Culture="@(new CultureInfo("ne-NP"))" Editable="false" AggregateDefinition="TotalFeeToPayAggregation" />
         <PropertyColumn Property="x => x.PaidAmount" Title="Paid" Format="C2" Culture="@(new CultureInfo("ne-NP"))" AggregateDefinition="TotalFeePaidAggregation" />
-        <TemplateColumn Title="Remaining" IsEditable="false" AggregateDefinition="TotalRemainingAggregation">
+        <TemplateColumn Title="Remaining" Editable="false" AggregateDefinition="TotalRemainingAggregation">
             <CellTemplate>
                 @((context.Item.TotalAmount - context.Item.PaidAmount).AsCurrency())
             </CellTemplate>
         </TemplateColumn>
-        <PropertyColumn Property="x => x.AddedBy" Title="Added By" IsEditable="false" />
+        <PropertyColumn Property="x => x.AddedBy" Title="Added By" Editable="false" />
         <TemplateColumn Title="Account Status">
             <CellTemplate>
                 @(context.Item.Enabled ? "Enabled" : "Disabled")

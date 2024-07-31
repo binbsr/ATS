@@ -111,7 +111,6 @@
     List<TechProgram> techPrograms = [];
     private bool profileSuccess = false;
     private string message = "";
-    private string alreadyAppliedMessage = "";
 
     private bool isSaveDisabled => model.ApplicantType == ApplicantType.StudentInternship ?
         (model.Name is ""

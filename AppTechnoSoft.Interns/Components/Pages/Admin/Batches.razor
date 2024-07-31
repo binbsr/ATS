@@ -7,100 +7,107 @@
 
 <MudButton Href="/add-batch" StartIcon="@Icons.Material.Filled.Add" Color="Color.Tertiary" Variant="Variant.Filled" Size="Size.Large" Class="mb-4">New Batch</MudButton>
 
-<MudGrid>
-    @foreach (var batch in batches)
-    {
-        <MudItem md="12">
-            <MudCard Elevation="10">
-                <MudCardHeader>
-                    <CardHeaderAvatar>
-                        <MudAvatar Color="Color.Secondary" Size="Size.Large">B</MudAvatar>
-                    </CardHeaderAvatar>
-                    <CardHeaderContent>
-                        <MudText Typo="Typo.h5">@batch.Name</MudText>
-                        <MudText Typo="Typo.body1" title="@batch.Created">Added @batch.Created.Humanize()</MudText>
-                    </CardHeaderContent>
-                    <CardHeaderActions>
-                        <MudIconButton Class="mt-5" Icon="@Icons.Material.Filled.Edit" Size="Size.Small" Color="Color.Warning" Href="@("/edit-batch/" + batch.Id)" />
-                        <MudIconButton Class="mt-5" Icon="@Icons.Material.Sharp.Delete" Size="Size.Small" Color="Color.Error" OnClick="() => ConfirmDelete(batch)" />
-                        <MudMessageBox @ref="mbox" Title="Warning" CancelText="Cancel">
-                            <MessageContent>
-                                Are you sure to delete this batch? It can't be undone.
-                            </MessageContent>
-                            <YesButton>
-                                <MudButton Variant="Variant.Filled" Color="Color.Error" StartIcon="@Icons.Material.Filled.DeleteForever">Delete</MudButton>
-                            </YesButton>
-                        </MudMessageBox>
-                    </CardHeaderActions>
-                </MudCardHeader>
-                <MudCardContent>
-                    <MudStack Row>
-                        <MudStack Spacing="3" Row Wrap="Wrap.Wrap">
-                            @foreach (var student in batch.Students ?? [])
-                            {
-                                <UserProfile AvatarPath="@student.ProfileImagePath" Name="@student.Name" />
-                            }
+@if (loadingData)
+{
+    <Loading />
+}
+else
+{
+    <MudGrid>
+        @foreach (var batch in batches)
+        {
+            <MudItem md="12">
+                <MudCard Elevation="10">
+                    <MudCardHeader>
+                        <CardHeaderAvatar>
+                            <MudAvatar Color="Color.Secondary" Size="Size.Large">B</MudAvatar>
+                        </CardHeaderAvatar>
+                        <CardHeaderContent>
+                            <MudText Typo="Typo.h5">@batch.Name</MudText>
+                            <MudText Typo="Typo.body1" title="@batch.Created">Added @batch.Created.Humanize()</MudText>
+                        </CardHeaderContent>
+                        <CardHeaderActions>
+                            <MudIconButton Class="mt-5" Icon="@Icons.Material.Filled.Edit" Size="Size.Small" Color="Color.Warning" Href="@("/edit-batch/" + batch.Id)" />
+                            <MudIconButton Class="mt-5" Icon="@Icons.Material.Sharp.Delete" Size="Size.Small" Color="Color.Error" OnClick="() => ConfirmDelete(batch)" />
+                            <MudMessageBox @ref="mbox" Title="Warning" CancelText="Cancel">
+                                <MessageContent>
+                                    Are you sure to delete this batch? It can't be undone.
+                                </MessageContent>
+                                <YesButton>
+                                    <MudButton Variant="Variant.Filled" Color="Color.Error" StartIcon="@Icons.Material.Filled.DeleteForever">Delete</MudButton>
+                                </YesButton>
+                            </MudMessageBox>
+                        </CardHeaderActions>
+                    </MudCardHeader>
+                    <MudCardContent>
+                        <MudStack Row>
+                            <MudStack Spacing="3" Row Wrap="Wrap.Wrap">
+                                @foreach (var student in batch.Students ?? [])
+                                {
+                                    <UserProfile AvatarPath="@student.ProfileImagePath" Name="@student.Name" />
+                                }
+                            </MudStack>
                         </MudStack>
-                    </MudStack>
 
-                    <MudGrid Class="mt-3">
-                        @foreach (var team in batch.Teams ?? [])
-                        {
-                            <MudItem md="6" xs="12">
-                                <MudCard Elevation="0" Class="border-1 border-solid" Outlined>
-                                    <MudCardHeader>
-                                        <CardHeaderAvatar>
-                                            <MudAvatar Size="Size.Large">
-                                                <MudImage Src="@team.Avatar" />
-                                            </MudAvatar>
-                                        </CardHeaderAvatar>
-                                        <CardHeaderContent>
-                                            <MudText Typo="Typo.h6">Team @team.Name</MudText>
-                                        </CardHeaderContent>
-                                        <CardHeaderActions>
-                                            <MudIconButton Class="mt-5" Icon="@Icons.Material.Filled.Edit" Size="Size.Small" Color="Color.Warning" Href="@("/edit-team/" + team.Id)" />
-                                            <MudIconButton Class="mt-5" Icon="@Icons.Material.Sharp.Delete" Size="Size.Small" Color="Color.Error" OnClick="() => ConfirmDeleteTeam(team, batch)" />
-                                            <MudMessageBox @ref="mbox" Title="Warning" CancelText="Cancel">
-                                                <MessageContent>
-                                                    Are you sure to delete this team? It can't be undone.
-                                                </MessageContent>
-                                                <YesButton>
-                                                    <MudButton Variant="Variant.Filled" Color="Color.Error" StartIcon="@Icons.Material.Filled.DeleteForever">Delete</MudButton>
-                                                </YesButton>
-                                            </MudMessageBox>
-                                        </CardHeaderActions>
-                                    </MudCardHeader>
-                                    <MudCardContent Class="py-0">
-                                        <MudStack Spacing="3" Row Wrap="Wrap.Wrap">
-                                            @foreach (var student in team.Students ?? [])
-                                            {
-                                                <UserProfile AvatarPath="@student.ProfileImagePath" Name="@student.Name" />
-                                            }
-                                        </MudStack>
-                                        <MudPaper Class="mt-4 p-2" Elevation="0">
-                                            <MudChip T="string" Size="Size.Large" Label="true">Project</MudChip>
-                                            <MudLink Href="@($"/projects?highlight={@team.Project?.Id}")" Class="d-block ml-2">@(team.Project?.Title ?? "None")</MudLink>
-                                            <MudChip T="string" Size="Size.Large" Label="true">Repository</MudChip>
-                                            <MudLink Href="@team.Project?.RepoUrl" Target="_blank" Class="d-block ml-2">@(team.Project?.RepoUrl ?? "None")</MudLink>
-                                            <MudChip T="string" Size="Size.Large" Label="true">Agile Board</MudChip>
-                                            <MudLink Href="@team.Project?.BoardUrl" Target="_blank" Class="d-block ml-2">@(team.Project?.BoardUrl ?? "None")</MudLink>
-                                        </MudPaper>
-                                    </MudCardContent>
-                                    <MudCardActions Class="mx-2">
-                                        <MudText Class="ml-auto" Typo="Typo.body1" title="@team.Created">Added @team.Created.Humanize()</MudText>
-                                    </MudCardActions>
-                                </MudCard>
+                        <MudGrid Class="mt-3">
+                            @foreach (var team in batch.Teams ?? [])
+                            {
+                                <MudItem md="6" xs="12">
+                                    <MudCard Elevation="0" Class="border-1 border-solid" Outlined>
+                                        <MudCardHeader>
+                                            <CardHeaderAvatar>
+                                                <MudAvatar Size="Size.Large">
+                                                    <MudImage Src="@team.Avatar" />
+                                                </MudAvatar>
+                                            </CardHeaderAvatar>
+                                            <CardHeaderContent>
+                                                <MudText Typo="Typo.h6">Team @team.Name</MudText>
+                                            </CardHeaderContent>
+                                            <CardHeaderActions>
+                                                <MudIconButton Class="mt-5" Icon="@Icons.Material.Filled.Edit" Size="Size.Small" Color="Color.Warning" Href="@("/edit-team/" + team.Id)" />
+                                                <MudIconButton Class="mt-5" Icon="@Icons.Material.Sharp.Delete" Size="Size.Small" Color="Color.Error" OnClick="() => ConfirmDeleteTeam(team, batch)" />
+                                                <MudMessageBox @ref="mbox" Title="Warning" CancelText="Cancel">
+                                                    <MessageContent>
+                                                        Are you sure to delete this team? It can't be undone.
+                                                    </MessageContent>
+                                                    <YesButton>
+                                                        <MudButton Variant="Variant.Filled" Color="Color.Error" StartIcon="@Icons.Material.Filled.DeleteForever">Delete</MudButton>
+                                                    </YesButton>
+                                                </MudMessageBox>
+                                            </CardHeaderActions>
+                                        </MudCardHeader>
+                                        <MudCardContent Class="py-0">
+                                            <MudStack Spacing="3" Row Wrap="Wrap.Wrap">
+                                                @foreach (var student in team.Students ?? [])
+                                                {
+                                                    <UserProfile AvatarPath="@student.ProfileImagePath" Name="@student.Name" />
+                                                }
+                                            </MudStack>
+                                            <MudPaper Class="mt-4 p-2" Elevation="0">
+                                                <MudChip T="string" Size="Size.Large" Label="true">Project</MudChip>
+                                                <MudLink Href="@($"/projects?highlight={@team.Project?.Id}")" Class="d-block ml-2">@(team.Project?.Title ?? "None")</MudLink>
+                                                <MudChip T="string" Size="Size.Large" Label="true">Repository</MudChip>
+                                                <MudLink Href="@team.Project?.RepoUrl" Target="_blank" Class="d-block ml-2">@(team.Project?.RepoUrl ?? "None")</MudLink>
+                                                <MudChip T="string" Size="Size.Large" Label="true">Agile Board</MudChip>
+                                                <MudLink Href="@team.Project?.BoardUrl" Target="_blank" Class="d-block ml-2">@(team.Project?.BoardUrl ?? "None")</MudLink>
+                                            </MudPaper>
+                                        </MudCardContent>
+                                        <MudCardActions Class="mx-2">
+                                            <MudText Class="ml-auto" Typo="Typo.body1" title="@team.Created">Added @team.Created.Humanize()</MudText>
+                                        </MudCardActions>
+                                    </MudCard>
+                                </MudItem>
+                            }
+                            <MudItem>
+                                <MudButton Href="@($"/add-team?batchId={@batch.Id}")" StartIcon="@Icons.Material.Filled.Add" Color="Color.Tertiary" Variant="Variant.Filled" Size="Size.Large">New Team</MudButton>
                             </MudItem>
-                        }
-                        <MudItem>
-                            <MudButton Href="@($"/add-team?batchId={@batch.Id}")" StartIcon="@Icons.Material.Filled.Add" Color="Color.Tertiary" Variant="Variant.Filled" Size="Size.Large">New Team</MudButton>
-                        </MudItem>
-                    </MudGrid>
-                </MudCardContent>
-            </MudCard>
-        </MudItem>
-    }
-</MudGrid>
+                        </MudGrid>
+                    </MudCardContent>
+                </MudCard>
+            </MudItem>
+        }
+    </MudGrid>
+}
 
 @code {
 

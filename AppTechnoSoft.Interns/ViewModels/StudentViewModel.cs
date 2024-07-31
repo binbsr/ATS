@@ -5,7 +5,7 @@ namespace AppTechnoSoft.Core.ViewModels;
 
 public class StudentViewModel
 {
-    public string Id { get; set; }
+    public string Id { get; set; } = string.Empty;
     public string Name { get; set; } = string.Empty;
     public string Phone { get; set; } = string.Empty;
     public string Email { get; set; } = string.Empty;
@@ -20,20 +20,20 @@ public class StudentViewModel
     public string? ProfileImagePath { get; set; }
 
     public int? CollegeId { get; set; }
-    public string CollegeName { get; set; }
+    public string CollegeName { get; set; } = string.Empty;
 
     public int? TechProgramId { get; set; }
-    public string ProgramName { get; set; }
+    public string ProgramName { get; set; } = string.Empty;
 
     public int? TeamId { get; set; }
-    public string TeamName { get; set; }
+    public string TeamName { get; set; } = string.Empty;
 
     public int? BatchId { get; set; }
-    public string BatchName { get; set; }
+    public string BatchName { get; set; } = string.Empty;
 
     public string? ApplicationUserId { get; set; }
-    public string UserName { get; set; }
-    public string Password { get; set; }
+    public string UserName { get; set; } = string.Empty;
+    public string Password { get; set; } = string.Empty;
     public bool UserCreated => ApplicationUserId is not null;
 
     public DateTime? Created { get; set; }

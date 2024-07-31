@@ -8,7 +8,7 @@
 
 <MudTable Items="@projects" Hover="true" Breakpoint="Breakpoint.Sm" Filter="new Func<ProjectViewModel, bool>(FilterFunc)" Dense RowClassFunc="HighlightRow">
     <ToolBarContent>
-        <MudFab Href="/add-project" StartIcon="@Icons.Material.Filled.Add" Title="Add New Project" Size="Size.Small" Color="Color.Tertiary"></MudFab>
+        <MudFab Href="/add-project" StartIcon="@Icons.Material.Filled.Add" title="Add New Project" Size="Size.Small" Color="Color.Tertiary"></MudFab>
         <MudSpacer />
         <MudTextField @bind-Value="searchString" Placeholder="Search"
                       Adornment="Adornment.Start"

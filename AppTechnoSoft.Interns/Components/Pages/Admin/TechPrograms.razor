@@ -8,7 +8,7 @@
 <MudTable Items="@programs" Hover="true" Loading="loadingData" Filter="_quickFilter">
 
     <ToolBarContent>
-        <MudFab Href="/add-program" StartIcon="@Icons.Material.Filled.Add" Title="Add New Tech Program" Size="Size.Small" Color="Color.Tertiary"></MudFab>
+        <MudFab Href="/add-program" StartIcon="@Icons.Material.Filled.Add" title="Add New Tech Program" Size="Size.Small" Color="Color.Tertiary"></MudFab>
         <MudSpacer />
         <MudTextField @bind-Value="_searchString" Placeholder="Search" Adornment="Adornment.Start"
                       AdornmentIcon="@Icons.Material.Filled.Search" IconSize="Size.Medium" Class="mt-0"></MudTextField>

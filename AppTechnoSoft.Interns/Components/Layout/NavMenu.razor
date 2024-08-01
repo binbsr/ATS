@@ -4,7 +4,7 @@
         <MudNavLink Href="/join" Icon="@Icons.Material.Filled.Person3" IconColor="Color.Success">Join Team</MudNavLink>
         <MudNavLink Href="/contact" Icon="@Icons.Material.Sharp.Contacts" IconColor="Color.Success">Contact Us</MudNavLink>
 
-        <AuthorizeView Context="moduleGroup">
+        <AuthorizeView Context="moduleGroup" Roles="@Role.AdminsAndInstructorAndTrainees">
             <MudNavLink Href="/timeline" Icon="@Icons.Material.Filled.Timeline" IconColor="Color.Success">Timeline</MudNavLink>
             <MudNavLink Href="/prospectus" Icon="@Icons.Material.Sharp.Article" IconColor="Color.Success">Prospectus</MudNavLink>
             <MudNavGroup Title="Our Team" Icon="@Icons.Material.Sharp.Groups3" IconColor="Color.Success">
@@ -29,11 +29,12 @@
             <AuthorizeView Roles="@Role.Trainee" Context="trainee">
                 <MudNavLink Href="/members" Icon="@Icons.Material.Sharp.Groups3" IconColor="Color.Secondary">My Batch and Team</MudNavLink>
                 <MudNavLink Href="/project/me" Icon="@Icons.Material.Sharp.AppRegistration" IconColor="Color.Secondary">My Project Contribution</MudNavLink>
+                <MudNavLink Href="/accomplishments" Icon="@Icons.Material.Sharp.CardMembership" IconColor="Color.Secondary">My Accomplishments</MudNavLink>
             </AuthorizeView>
             <AuthorizeView Roles="@Role.Employee" Context="employee">
                 <MudNavLink Href="/batchmates" Icon="@Icons.Material.Sharp.Groups3" IconColor="Color.Secondary">My Batch Mates</MudNavLink>
+                @* <MudNavLink Href="/my/accomplishments" Icon="@Icons.Material.Sharp.CardMembership" IconColor="Color.Secondary">My Accomplishments</MudNavLink> *@
             </AuthorizeView>
-            <MudNavLink Href="/accomplishments" Icon="@Icons.Material.Sharp.CardMembership" IconColor="Color.Secondary">My Accomplishments</MudNavLink>
         </AuthorizeView>
 
         <AuthorizeView Roles="@Role.AdminsAndInstructor" Context="con">

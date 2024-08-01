@@ -1,0 +1,99 @@
+﻿@page "/my/accomplishments"
+
+@inject ApplicationDbContext Db
+
+<PageTitle>Training Accomplishments</PageTitle>
+
+<AuthorizeView Roles="@Role.Admins">
+    <MudAutocomplete T="TraineeViewModel"
+                     Label="Select Trainee/Student"
+                     Variant="Variant.Outlined"
+                     ValueChanged="TraineeChanged"
+                     SearchFunc="@SearchTrainees"
+                     ToStringFunc="@(e=> e==null ? null : $"{e.Name} ({e.College})")"
+                     ShowProgressIndicator="true"
+                     ProgressIndicatorColor="Color.Default"
+                     MaxItems="null" />
+</AuthorizeView>
+
+@if (trainee is null)
+{
+    <ApplicationAlert Text="You are not yet enrolled or part of any batch." Navigation="/apply" />
+}
+else
+{
+    <MudText Align="Align.Center">
+        <MudLink Href="@($"/trainee/{trainee.Id}")" Target="_blank" Style="font-size:1.5rem">Share Profile <MudIcon Icon="@Icons.Material.Sharp.OpenInNew" /></MudLink>
+    </MudText>
+    <Accomplishment TraineeData="@trainee" />
+}
+
+@code {
+
+    [CascadingParameter]
+    private Task<AuthenticationState> AuthTask { get; set; } = null!;
+
+    private TraineeViewModel trainee = null!;
+    private IEnumerable<TraineeViewModel> trainees = [];
+
+    protected override async Task OnInitializedAsync()
+    {
+        var state = await AuthTask;
+        var loggedInUserId = state.User.GetUserId();
+
+        var student = await Db.Students
+            .Where(y => y.ApplicationUserId == loggedInUserId)
+            .Select(x => new
+            {
+                Id = x.Id,
+                Name = x.Name,
+                Status = x.Status,
+                AvatarPath = x.ProfileImagePath,
+                Program = $"{x.TechProgram!.Name} ({x.TechProgram.Affliation})",
+                College = $"{x.College!.Name}, {x.College.Location}"
+            })
+            .FirstOrDefaultAsync();
+
+        if (student is null)
+            return;
+
+        trainee = new TraineeViewModel(student.Id, student.Name, student.AvatarPath ?? "/favicon.png", student.Program, student.College)
+            {
+                Status = student.Status
+            };
+    }
+
+    private async Task<IEnumerable<TraineeViewModel>> SearchTrainees(string value, CancellationToken token)
+    {
+        if (!trainees.Any())
+        {
+            var students = await Db.Students
+            .Select(x => new
+            {
+                Id = x.Id,
+                Name = x.Name,
+                Status = x.Status,
+                AvatarPath = x.ProfileImagePath,
+                Program = $"{x.TechProgram!.Name} ({x.TechProgram.Affliation})",
+                College = $"{x.College!.Name}, {x.College.Location}"
+            }).ToListAsync(token);
+
+            trainees = students.Select(student => new TraineeViewModel(student.Id, student.Name, student.AvatarPath ?? "/favicon.png", student.Program, student.College)
+                {
+                    Status = student.Status
+                });
+        }
+
+        if (value is null or "")
+        {
+            return trainees;
+        }
+
+        return trainees.Where(x => x.Name.Contains(value, StringComparison.OrdinalIgnoreCase));
+    }
+
+    public void TraineeChanged(TraineeViewModel value)
+    {
+        trainee = value;
+    }
+}

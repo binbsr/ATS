@@ -8,5 +8,6 @@ public class Role
     public const string Employee = nameof(Employee);
     public const string Trainees = $"{Trainee},{Employee}";
     public const string Admins = $"{Admin},{SuperAdmin}";
-    public const string AdminsAndInstructor = $"{Admin},{SuperAdmin},{Instructor}";
+    public const string AdminsAndInstructor = $"{Admins},{Instructor}";
+    public const string AdminsAndInstructorAndTrainees = $"{AdminsAndInstructor},{Trainee}";
 }

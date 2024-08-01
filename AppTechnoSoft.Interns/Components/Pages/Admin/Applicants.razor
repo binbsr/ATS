@@ -210,7 +210,10 @@
         await emailStore.SetEmailAsync(user, studentViewModel.Email, CancellationToken.None);
         var password = PwdGenerator.NewPassword(8);
         var result = await UserManager.CreateAsync(user, password);
-        _ = await UserManager.AddToRoleAsync(user, Role.Trainee);
+        _ = await UserManager.AddToRoleAsync(user,
+            studentViewModel.ApplicantType == ApplicantType.Professional
+            ? Role.Employee
+            : Role.Trainee);
 
         // Save userid to students table
         _ = await Db.Students

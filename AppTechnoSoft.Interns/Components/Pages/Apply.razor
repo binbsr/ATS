@@ -176,7 +176,8 @@
         }
         else
         {
-            if (model.ApplicantType == ApplicantType.SoftwareEngineeringAspirant)
+            if (model.ApplicantType == ApplicantType.SoftwareEngineeringAspirant 
+                || model.ApplicantType == ApplicantType.Professional)
             {
                 model.College = null;
                 model.TechProgram = null;

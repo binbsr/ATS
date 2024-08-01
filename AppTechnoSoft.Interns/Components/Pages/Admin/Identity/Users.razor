@@ -159,17 +159,7 @@
                     await Db.Instructors
                         .Where(x => x.Email == user.Email)
                         .ExecuteUpdateAsync(x => x.SetProperty(y => y.ApplicationUserId, null as string));
-                }
-                else if (selectedRole == Role.Trainee)
-                {
-                    Db.Students
-                        .Where(x => x.Email == user.Email)
-                        .ExecuteUpdate(x => x
-                            .SetProperty(y => y.BatchId, null as int?)
-                            .SetProperty(y => y.ApplicationUserId, null as string)
-                            .SetProperty(y => y.Status, Status.Applied)
-                        );
-                }
+                }                
 
                 SnackBar.Add($"{user.UserName} saved successfully", Severity.Success);
             }

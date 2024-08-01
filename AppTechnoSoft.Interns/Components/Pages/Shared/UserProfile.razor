@@ -1,6 +1,13 @@
 ﻿<MudStack AlignItems="AlignItems.Center">
     <MudAvatar Style="height:80px; width:80px; font-size:2rem;">
-        <MudImage Src="@AvatarPath" />
+        @if (AvatarPath is null or "")
+        {
+            <MudIcon Icon="@Icons.Material.Sharp.Person" Size="Size.Large" />
+        }
+        else
+        {
+            <MudImage Src="@AvatarPath" />
+        }
     </MudAvatar>
     <MudText Typo="Typo.body2" HtmlTag="strong">@Name</MudText>
 </MudStack>

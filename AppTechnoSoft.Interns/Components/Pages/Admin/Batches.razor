@@ -56,9 +56,16 @@ else
                                     <MudCard Elevation="0" Class="border-1 border-solid" Outlined>
                                         <MudCardHeader>
                                             <CardHeaderAvatar>
-                                                <MudAvatar Size="Size.Large">
-                                                    <MudImage Src="@team.Avatar" />
-                                                </MudAvatar>
+                                                @if (team.Avatar is null or "")
+                                                {
+                                                    <MudAvatar Color="Color.Info" Size="Size.Large">T</MudAvatar>
+                                                }
+                                                else
+                                                {
+                                                    <MudAvatar Size="Size.Large">
+                                                        <MudImage Src="@team.Avatar" />
+                                                    </MudAvatar>
+                                                }
                                             </CardHeaderAvatar>
                                             <CardHeaderContent>
                                                 <MudText Typo="Typo.h6">Team @team.Name</MudText>

@@ -53,12 +53,19 @@ else
                             @foreach (var team in batch.Teams ?? [])
                             {
                                 <MudItem md="6" xs="12">
-                                    <MudCard Elevation="0" Class="border-1 border-solid" Outlined>
+                                    <MudCard Elevation="0" Class="border-3 border-solid" Outlined>
                                         <MudCardHeader>
                                             <CardHeaderAvatar>
-                                                <MudAvatar Size="Size.Large">
-                                                    <MudImage Src="@team.Avatar" />
-                                                </MudAvatar>
+                                                @if (team.Avatar is null or "")
+                                                {
+                                                    <MudAvatar Color="Color.Info" Size="Size.Large">T</MudAvatar>
+                                                }
+                                                else
+                                                {
+                                                    <MudAvatar Size="Size.Large">
+                                                        <MudImage Src="@team.Avatar" />
+                                                    </MudAvatar>
+                                                }
                                             </CardHeaderAvatar>
                                             <CardHeaderContent>
                                                 <MudText Typo="Typo.h6">Team @team.Name</MudText>
@@ -83,10 +90,10 @@ else
                                                     <UserProfile AvatarPath="@student.ProfileImagePath" Name="@student.Name" />
                                                 }
                                             </MudStack>
-                                            <MudPaper Class="mt-4 p-2" Elevation="0">
-                                                <MudChip T="string" Size="Size.Large" Label="true">Project</MudChip>
+                                            <MudPaper Class="mt-4 p-2" Elevation="0" Style="text-align:center">
+                                                <MudChip T="string" Size="Size.Large" Label="true">ATS Team Project</MudChip>
                                                 <MudLink Href="@($"/projects?highlight={@team.Project?.Id}")" Class="d-block ml-2">@(team.Project?.Title ?? "None")</MudLink>
-                                                <MudChip T="string" Size="Size.Large" Label="true">Repository</MudChip>
+                                                <MudChip T="string" Size="Size.Large" Label="true">Project Git Repository</MudChip>
                                                 <MudLink Href="@team.Project?.RepoUrl" Target="_blank" Class="d-block ml-2">@(team.Project?.RepoUrl ?? "None")</MudLink>
                                                 <MudChip T="string" Size="Size.Large" Label="true">Agile Board</MudChip>
                                                 <MudLink Href="@team.Project?.BoardUrl" Target="_blank" Class="d-block ml-2">@(team.Project?.BoardUrl ?? "None")</MudLink>

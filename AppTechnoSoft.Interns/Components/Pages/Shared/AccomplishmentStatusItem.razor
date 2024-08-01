@@ -1,0 +1,19 @@
+﻿<MudTimelineItem Color="@BubbleColor" Size="Size.Large" Variant="Variant.Outlined" Elevation="5">
+    <ItemDot>
+        <MudIcon Size="Size.Large" Icon="@BubbleIcon" />
+    </ItemDot>
+    <ItemContent>
+        <MudText Align="Align.Center">@Text</MudText>
+    </ItemContent>
+</MudTimelineItem>
+
+@code {
+    [Parameter]
+    public Color BubbleColor { get; set; } = Color.Default;
+
+    [Parameter]
+    public string BubbleIcon { get; set; }
+
+    [Parameter]
+    public string Text { get; set; }
+}

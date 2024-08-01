@@ -68,8 +68,8 @@ else
                             <MudText Typo="Typo.h6">
                                 Attendees
                                 <MudText>
-                                    <MudTooltip Text="@(string.Join(", " , traineeNames))" Arrow="true">
-                                        @traineeNames.Length Pax
+                                    <MudTooltip Text="@(string.Join(", " , trainees.Select(x => x.Name)))" Arrow="true">
+                                        @trainees.Length Pax
                                     </MudTooltip>
                                 </MudText>
 
@@ -181,6 +181,27 @@ else
                 </MudPaper>
             }
         </MudItem>
+        @if (model.Status == TrainingStatus.Completed)
+        {
+            <MudItem xs="12">
+                <MudTable Items="@trainees" Hover="true">
+                    <HeaderContent>
+                        <MudTh>Name</MudTh>
+                        <MudTh>Profile</MudTh>
+                    </HeaderContent>
+                    <RowTemplate>
+                        <MudTd DataLabel="Name">@context.Name</MudTd>
+                        <MudTd DataLabel="Profile">
+                            <MudLink Href="@($"/trainee/{context.Id}")">ATS Profile</MudLink>
+                        </MudTd>
+                    </RowTemplate>
+                    <PagerContent>
+                        <MudTablePager PageSizeOptions="new int[] { 10, 25, 50, 100 }" />
+                    </PagerContent>
+                </MudTable>
+            </MudItem>
+        }
+        <MudItem></MudItem>
     </MudGrid>
 }
 
@@ -190,7 +211,8 @@ else
     public Guid? Hash { get; set; }
 
     Training model = new();
-    string[] traineeNames = [];
+    List<Student> batchStudents = [];
+    (string Id, string Name)[] trainees = [];
     bool loading = false;
 
     protected override async Task OnInitializedAsync()
@@ -209,7 +231,9 @@ else
             .ThenInclude(y => y.Modules)
             .FirstOrDefaultAsync(x => x.Hash == Hash.ToString()) ?? new();
 
-        traineeNames = await Db.Students.Where(x => x.TrainingId == model.Id).Select(x => x.Name).ToArrayAsync();
+        var students = await Db.Students.Where(x => x.TrainingId == model.Id).Select(x => new { Id = x.Id, Name = x.Name }).ToArrayAsync();
+        trainees = students.Select(x => (x.Id, x.Name)).ToArray();
+
         loading = false;
     }
 }

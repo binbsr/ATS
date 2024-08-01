@@ -1,0 +1,71 @@
+﻿@page "/batchmates"
+
+@attribute [Authorize(Roles = Role.Employee)]
+@inject IDbContextFactory<ApplicationDbContext> DbFactory
+
+<PageTitle>Batch Mates</PageTitle>
+
+@if (loadingData)
+{
+    <MudText Align="Align.Center">
+        <MudProgressCircular Indeterminate Color="Color.Tertiary" Size="Size.Medium" />
+    </MudText>
+}
+else
+{
+    <MudPaper Class="pa-5 mb-5 border border-solid mud-border-tertiary" Elevation="0">
+        <MudText Typo="Typo.h5" Class="mb-5"><strong>@loggedInUserBatchName</strong></MudText>
+        <UserList Users="@batchMembers" LoggedInUserId="@loggedInUserId" />
+    </MudPaper>
+}
+
+@code
+{
+    [CascadingParameter]
+    private Task<AuthenticationState> AuthTask { get; set; } = null!;
+
+    bool loadingData = false;
+    private Student? student;
+    string loggedInUserBatchName = "Not assigned to any batch";
+    List<StudentLightViewModel> batchMembers = [];
+    public string loggedInUserId = string.Empty;
+
+    protected override async Task OnInitializedAsync()
+    {
+        loadingData = true;
+
+        var state = await AuthTask;
+        loggedInUserId = state.User.GetUserId();
+
+        using var Db = DbFactory.CreateDbContext();
+        student = await Db.Students
+            .Where(x => x.ApplicationUserId == loggedInUserId && x.BatchId != null)
+            .Include(b => b.Batch)
+            .Include(b => b.Training)
+            .FirstOrDefaultAsync();
+
+        if (student is null)
+        {
+            loadingData = false;
+            return;
+        }
+
+        loggedInUserBatchName = student?.Batch?.Name ?? "None";
+
+        var students = await Db.Students
+            .Where(x => x.BatchId == student!.BatchId)
+            .Select(x => new 
+                { 
+                    Name = x.Name, 
+                    UserId = x.ApplicationUserId, 
+                    ProfilePath = x.ProfileImagePath, 
+                    Training = x.Training.Title, 
+                    Batch = x.Batch.Name 
+                })
+            .ToArrayAsync();
+
+        batchMembers = students.Select(x => new StudentLightViewModel(x.Name, x.UserId, x.ProfilePath)).ToList();
+
+        loadingData = false;
+    }
+}

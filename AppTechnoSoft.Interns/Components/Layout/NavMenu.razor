@@ -23,16 +23,16 @@
 
         <AuthorizeView Roles="@Role.Trainees">
             <MudDivider Class="my-2" />
-            <MudNavLink Href="/timesheet" Icon="@Icons.Material.Sharp.AddTask" IconColor="Color.Secondary">My Timesheet</MudNavLink>
-            <MudNavLink Href="/classes/me" Icon="@Icons.Material.Sharp.Class" IconColor="Color.Secondary">My Classes</MudNavLink>
-            <MudNavLink Href="/assignments/me" Icon="@Icons.Material.Sharp.Assignment" IconColor="Color.Secondary">My Assignments</MudNavLink>
+            <MudNavLink Href="/my/timesheet" Icon="@Icons.Material.Sharp.AddTask" IconColor="Color.Secondary">My Timesheet</MudNavLink>
+            <MudNavLink Href="/my/classes" Icon="@Icons.Material.Sharp.Class" IconColor="Color.Secondary">My Classes</MudNavLink>
+            <MudNavLink Href="/my/assignments" Icon="@Icons.Material.Sharp.Assignment" IconColor="Color.Secondary">My Assignments</MudNavLink>
             <AuthorizeView Roles="@Role.Trainee" Context="trainee">
-                <MudNavLink Href="/members" Icon="@Icons.Material.Sharp.Groups3" IconColor="Color.Secondary">My Batch and Team</MudNavLink>
-                <MudNavLink Href="/project/me" Icon="@Icons.Material.Sharp.AppRegistration" IconColor="Color.Secondary">My Project Contribution</MudNavLink>
+                <MudNavLink Href="/my/batchnteam" Icon="@Icons.Material.Sharp.Groups3" IconColor="Color.Secondary">My Batch and Team</MudNavLink>
+                <MudNavLink Href="/my/project" Icon="@Icons.Material.Sharp.AppRegistration" IconColor="Color.Secondary">My Project Contribution</MudNavLink>
                 <MudNavLink Href="/accomplishments" Icon="@Icons.Material.Sharp.CardMembership" IconColor="Color.Secondary">My Accomplishments</MudNavLink>
             </AuthorizeView>
             <AuthorizeView Roles="@Role.Employee" Context="employee">
-                <MudNavLink Href="/batchmates" Icon="@Icons.Material.Sharp.Groups3" IconColor="Color.Secondary">My Batch Mates</MudNavLink>
+                <MudNavLink Href="/my/batchmates" Icon="@Icons.Material.Sharp.Groups3" IconColor="Color.Secondary">My Batch Mates</MudNavLink>
                 @* <MudNavLink Href="/my/accomplishments" Icon="@Icons.Material.Sharp.CardMembership" IconColor="Color.Secondary">My Accomplishments</MudNavLink> *@
             </AuthorizeView>
         </AuthorizeView>

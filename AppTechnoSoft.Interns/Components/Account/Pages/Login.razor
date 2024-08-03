@@ -92,14 +92,14 @@
 
             var enrollee = await Db.Students.FirstOrDefaultAsync(x => x.Email == Input.Email);
 
-            if (enrollee is not null && enrollee.ApplicantType == ApplicantType.Professional)
+            if (enrollee is null)
             {
-                RedirectManager.RedirectTo("/my/classes");
+                RedirectManager.RedirectTo(ReturnUrl);
             }
-
-
-
-            RedirectManager.RedirectTo(ReturnUrl);
+            else
+            {
+                RedirectManager.RedirectTo("/my/timesheet");
+            }
         }
         else if (result.RequiresTwoFactor)
         {

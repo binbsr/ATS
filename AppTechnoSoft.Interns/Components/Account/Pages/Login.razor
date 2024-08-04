@@ -9,6 +9,7 @@
 @inject ILogger<Login> Logger
 @inject NavigationManager NavigationManager
 @inject IdentityRedirectManager RedirectManager
+@inject ApplicationDbContext Db
 
 <PageTitle>Log in</PageTitle>
 
@@ -38,16 +39,16 @@
             <div>
                 <button type="submit" class="w-100 btn btn-lg btn-primary">Log in</button>
             </div>
-            
+
             <div class="alert alert-info mt-4 font-monospace" role="alert">
                 If you don't have appsoft login credentials, please <a href="/apply">apply</a> first and we will provide you username and password for the system.
             </div>
-           @*  <div>
-                <p>
-                    <a href="@(NavigationManager.GetUriWithQueryParameters("Account/Register", new Dictionary<string, object?> { ["ReturnUrl"] = ReturnUrl }))" class="w-100 btn btn-lg btn-warning mt-2">
-                        Register as a new user
-                    </a>
-                </p>
+            @*  <div>
+            <p>
+            <a href="@(NavigationManager.GetUriWithQueryParameters("Account/Register", new Dictionary<string, object?> { ["ReturnUrl"] = ReturnUrl }))" class="w-100 btn btn-lg btn-warning mt-2">
+            Register as a new user
+            </a>
+            </p>
             </div> *@
         </EditForm>
     </div>
@@ -88,7 +89,17 @@
         if (result.Succeeded)
         {
             Logger.LogInformation("User logged in.");
-            RedirectManager.RedirectTo(ReturnUrl);
+
+            var enrollee = await Db.Students.FirstOrDefaultAsync(x => x.Email == Input.Email);
+
+            if (enrollee is null)
+            {
+                RedirectManager.RedirectTo(ReturnUrl);
+            }
+            else
+            {
+                RedirectManager.RedirectTo("/my/timesheet");
+            }
         }
         else if (result.RequiresTwoFactor)
         {

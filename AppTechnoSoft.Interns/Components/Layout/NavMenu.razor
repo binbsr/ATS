@@ -23,16 +23,16 @@
 
         <AuthorizeView Roles="@Role.Trainees">
             <MudDivider Class="my-2" />
-            <MudNavLink Href="/timesheet" Icon="@Icons.Material.Sharp.AddTask" IconColor="Color.Secondary">My Timesheet</MudNavLink>
-            <MudNavLink Href="/classes/me" Icon="@Icons.Material.Sharp.Class" IconColor="Color.Secondary">My Classes</MudNavLink>
-            <MudNavLink Href="/assignments/me" Icon="@Icons.Material.Sharp.Assignment" IconColor="Color.Secondary">My Assignments</MudNavLink>
+            <MudNavLink Href="/my/timesheet" Icon="@Icons.Material.Sharp.AddTask" IconColor="Color.Secondary">My Timesheet</MudNavLink>
+            <MudNavLink Href="/my/classes" Icon="@Icons.Material.Sharp.Class" IconColor="Color.Secondary">My Classes</MudNavLink>
+            <MudNavLink Href="/my/assignments" Icon="@Icons.Material.Sharp.Assignment" IconColor="Color.Secondary">My Assignments</MudNavLink>
             <AuthorizeView Roles="@Role.Trainee" Context="trainee">
-                <MudNavLink Href="/members" Icon="@Icons.Material.Sharp.Groups3" IconColor="Color.Secondary">My Batch and Team</MudNavLink>
-                <MudNavLink Href="/project/me" Icon="@Icons.Material.Sharp.AppRegistration" IconColor="Color.Secondary">My Project Contribution</MudNavLink>
+                <MudNavLink Href="/my/batchnteam" Icon="@Icons.Material.Sharp.Groups3" IconColor="Color.Secondary">My Batch and Team</MudNavLink>
+                <MudNavLink Href="/my/project" Icon="@Icons.Material.Sharp.AppRegistration" IconColor="Color.Secondary">My Project Contribution</MudNavLink>
                 <MudNavLink Href="/accomplishments" Icon="@Icons.Material.Sharp.CardMembership" IconColor="Color.Secondary">My Accomplishments</MudNavLink>
             </AuthorizeView>
             <AuthorizeView Roles="@Role.Employee" Context="employee">
-                <MudNavLink Href="/batchmates" Icon="@Icons.Material.Sharp.Groups3" IconColor="Color.Secondary">My Batch Mates</MudNavLink>
+                <MudNavLink Href="/my/batchmates" Icon="@Icons.Material.Sharp.Groups3" IconColor="Color.Secondary">My Batch Mates</MudNavLink>
                 @* <MudNavLink Href="/my/accomplishments" Icon="@Icons.Material.Sharp.CardMembership" IconColor="Color.Secondary">My Accomplishments</MudNavLink> *@
             </AuthorizeView>
         </AuthorizeView>
@@ -48,21 +48,6 @@
             </MudNavGroup>
         </AuthorizeView>
 
-        <AuthorizeView Roles="@Role.AdminsAndInstructor">
-            <MudNavGroup Title="Assignments" Icon="@Icons.Material.Filled.Assignment" IconColor="Color.Tertiary">
-                <MudNavLink Href="/assignments/add" Icon="@Icons.Material.Sharp.Create" IconColor="Color.Tertiary">Create</MudNavLink>
-                <MudNavLink Href="/assignments" Match="NavLinkMatch.All" Icon="@Icons.Material.Sharp.AssignmentTurnedIn" IconColor="Color.Tertiary">Assign</MudNavLink>
-                <MudNavLink Href="/assignments/verify" Icon="@Icons.Material.Sharp.Check" IconColor="Color.Tertiary">Verify</MudNavLink>
-            </MudNavGroup>
-        </AuthorizeView>
-
-        <AuthorizeView Roles="@Role.AdminsAndInstructor">
-            <MudNavGroup Title="Instructor" Icon="@Icons.Material.Sharp.PersonalVideo" IconColor="Color.Success">
-                <MudNavLink Href="/schedules" Icon="@Icons.Material.Sharp.Schedule" IconColor="Color.Success">Schedules</MudNavLink>
-                <MudNavLink Href="/attendance" Icon="@Icons.Material.Sharp.Person2" IconColor="Color.Success">Attendance</MudNavLink>
-            </MudNavGroup>
-        </AuthorizeView>
-
         <AuthorizeView Roles="@Role.Admins">
             <MudNavGroup Title="Moderation" Icon="@Icons.Material.Filled.VerifiedUser" IconColor="Color.Error">
                 <MudNavLink Href="/applicants" Icon="@Icons.Material.Filled.Groups3" IconColor="Color.Error">Applicants</MudNavLink>
@@ -70,6 +55,21 @@
                 <MudNavLink Href="/timesheets" Icon="@Icons.Material.Filled.Checklist" IconColor="Color.Error">Timesheets</MudNavLink>
                 <MudNavLink Href="/projects" Icon="@Icons.Material.Sharp.Code" IconColor="Color.Error">Projects</MudNavLink>
                 <MudNavLink Href="/trainingplans" Icon="@Icons.Material.Sharp.RequestQuote" IconColor="Color.Error">Training Plans</MudNavLink>
+            </MudNavGroup>
+        </AuthorizeView>
+        
+        <AuthorizeView Roles="@Role.AdminsAndInstructor">
+            <MudNavGroup Title="Instructor" Icon="@Icons.Material.Sharp.PersonalVideo" IconColor="Color.Success">
+                <MudNavLink Href="/schedules" Icon="@Icons.Material.Sharp.Schedule" IconColor="Color.Success">Schedules</MudNavLink>
+                <MudNavLink Href="/attendance" Icon="@Icons.Material.Sharp.Person2" IconColor="Color.Success">Attendance</MudNavLink>
+            </MudNavGroup>
+        </AuthorizeView>
+        
+        <AuthorizeView Roles="@Role.AdminsAndInstructor">
+            <MudNavGroup Title="Assignments" Icon="@Icons.Material.Filled.Assignment" IconColor="Color.Tertiary">
+                <MudNavLink Href="/assignments/add" Icon="@Icons.Material.Sharp.Create" IconColor="Color.Tertiary">Create</MudNavLink>
+                <MudNavLink Href="/assignments" Match="NavLinkMatch.All" Icon="@Icons.Material.Sharp.AssignmentTurnedIn" IconColor="Color.Tertiary">Assign</MudNavLink>
+                <MudNavLink Href="/assignments/verify" Icon="@Icons.Material.Sharp.Check" IconColor="Color.Tertiary">Verify</MudNavLink>
             </MudNavGroup>
         </AuthorizeView>
 

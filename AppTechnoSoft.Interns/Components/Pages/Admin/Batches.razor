@@ -5,7 +5,7 @@
 
 <PageTitle>Learning Batches</PageTitle>
 
-<MudButton Href="/add-batch" StartIcon="@Icons.Material.Filled.Add" Color="Color.Tertiary" Variant="Variant.Filled" Size="Size.Large" Class="mb-4">New Batch</MudButton>
+<MudButton Href="/add-batch" StartIcon="@Icons.Material.Filled.Add" Color="Color.Tertiary" Variant="Variant.Filled" Size="Size.Large" Class="m-2">New Batch</MudButton>
 
 @if (loadingData)
 {
@@ -13,12 +13,12 @@
 }
 else
 {
-    <MudGrid>
+    <MudGrid Class="pa-3">
         @foreach (var batch in batches)
         {
             <MudItem md="12">
-                <MudCard Elevation="10">
-                    <MudCardHeader>
+                <MudCard Elevation="5" Class="pa-3">
+                    <MudCardHeader Class="pb-0">
                         <CardHeaderAvatar>
                             <MudAvatar Color="Color.Secondary" Size="Size.Large">B</MudAvatar>
                         </CardHeaderAvatar>
@@ -40,20 +40,18 @@ else
                         </CardHeaderActions>
                     </MudCardHeader>
                     <MudCardContent>
-                        <MudStack Row>
-                            <MudStack Spacing="3" Row Wrap="Wrap.Wrap">
-                                @foreach (var student in batch.Students ?? [])
-                                {
-                                    <UserProfile AvatarPath="@student.ProfileImagePath" Name="@student.Name" />
-                                }
-                            </MudStack>
+                        <MudStack Spacing="3" Row Wrap="Wrap.Wrap" Justify="Justify.Center">
+                            @foreach (var student in batch.Students ?? [])
+                            {
+                                <UserProfile AvatarPath="@student.ProfileImagePath" Name="@student.Name" />
+                            }
                         </MudStack>
 
-                        <MudGrid Class="mt-3">
+                        <MudGrid Class="mt-2">
                             @foreach (var team in batch.Teams ?? [])
                             {
-                                <MudItem md="6" xs="12">
-                                    <MudCard Elevation="0" Class="border-3 border-solid" Outlined>
+                                <MudItem lg="4" md="6" sm="12" xs="12">
+                                    <MudCard Elevation="0" Class="border-3 border-solid pa-3" Outlined>
                                         <MudCardHeader>
                                             <CardHeaderAvatar>
                                                 @if (team.Avatar is null or "")
@@ -84,7 +82,7 @@ else
                                             </CardHeaderActions>
                                         </MudCardHeader>
                                         <MudCardContent Class="py-0">
-                                            <MudStack Spacing="3" Row Wrap="Wrap.Wrap">
+                                            <MudStack Spacing="3" Row Wrap="Wrap.Wrap" Justify="Justify.Center">
                                                 @foreach (var student in team.Students ?? [])
                                                 {
                                                     <UserProfile AvatarPath="@student.ProfileImagePath" Name="@student.Name" />

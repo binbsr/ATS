@@ -1,4 +1,4 @@
-﻿@page "/modules/all"
+﻿@page "/course/modules"
 
 <PageTitle>All Training Modules</PageTitle>
 @attribute [Authorize(Roles = Role.AdminsAndInstructor)]
@@ -12,18 +12,7 @@
 
 @if (loadingData)
 {
-    <MudGrid>
-        <MudItem>
-            <MudSkeleton SkeletonType="SkeletonType.Rectangle" Height="100px" Class="mb-3" />
-            <MudSkeleton SkeletonType="SkeletonType.Rectangle" Height="100px" Class="mb-3" />
-            <MudSkeleton SkeletonType="SkeletonType.Rectangle" Height="100px" Class="mb-3" />
-        </MudItem>
-        <MudItem>
-            <MudSkeleton SkeletonType="SkeletonType.Rectangle" Height="100px" Class="mb-3" />
-            <MudSkeleton SkeletonType="SkeletonType.Rectangle" Height="100px" Class="mb-3" />
-            <MudSkeleton SkeletonType="SkeletonType.Rectangle" Height="100px" Class="mb-3" />
-        </MudItem>
-    </MudGrid>
+    <Loading Size="Size.Large" />
 
 }
 else

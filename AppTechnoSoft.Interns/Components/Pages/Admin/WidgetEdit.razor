@@ -35,7 +35,22 @@
     <MudText Style="font-weight:bold" Class="py-2">Content RichText (Markdown) and Live Preview on Right Panel</MudText>
     <RichTextEditor MarkdownValue="@model.HtmlContent" EditorValueChanged="OnMarkdownValueChanged" />
 
-    <MudButton ButtonType="ButtonType.Submit" Variant="Variant.Filled" Color="Color.Tertiary" Class="mt-3" StartIcon="@Icons.Material.Filled.Save">Save Widget</MudButton>
+    <MudStack Row Class="mt-2">
+        <MudButton ButtonType="ButtonType.Submit"
+                   Variant="Variant.Filled"
+                   Color="Color.Tertiary"
+                   StartIcon="@Icons.Material.Filled.Save">
+            Save Widget
+        </MudButton>
+        <MudButtonGroup Color="Color.Tertiary" Variant="Variant.Outlined">
+            <MudButton StartIcon="@Icons.Material.Sharp.ArrowBack">Back to</MudButton>
+            <MudMenu Icon="@Icons.Material.Filled.ArrowDropDown" Style="align-self: auto;">
+                <MudMenuItem Href="/course/modules">Modules</MudMenuItem>
+                <MudMenuItem Href="/">Home Page</MudMenuItem>
+                <MudMenuItem Href="/prospectus">Prospectus</MudMenuItem>
+            </MudMenu>
+        </MudButtonGroup>
+    </MudStack>
 </EditForm>
 @code {
 

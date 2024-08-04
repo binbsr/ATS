@@ -54,11 +54,11 @@ else
                     <MudItem md="6" xs="12">
                         <MudStack>
                             <MudText Typo="Typo.h6">
-                                Beneficiary Organization
+                                Beneficiary
                                 <MudText Typo="Typo.subtitle1">@(model?.Organization?.Name ?? "N/A")</MudText>
                             </MudText>
                             <MudText Typo="Typo.h6">
-                                Requested Resources
+                                Covered Resources
                                 <MudText>
                                     <strong>@((model?.CourseQuote?.Modules?.Count) ?? 0)</strong> Module(s)
                                     <strong>@((model?.Assignments?.Count) ?? 0)</strong> Assignment(s)

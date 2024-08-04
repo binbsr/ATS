@@ -6,5 +6,6 @@ public enum OrganizationType
     SemiGovernment,
     Government,
     College,
-    Institute
+    Institute,
+    Individuals
 }

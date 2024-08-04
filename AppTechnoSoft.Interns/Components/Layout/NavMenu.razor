@@ -48,21 +48,6 @@
             </MudNavGroup>
         </AuthorizeView>
 
-        <AuthorizeView Roles="@Role.AdminsAndInstructor">
-            <MudNavGroup Title="Assignments" Icon="@Icons.Material.Filled.Assignment" IconColor="Color.Tertiary">
-                <MudNavLink Href="/assignments/add" Icon="@Icons.Material.Sharp.Create" IconColor="Color.Tertiary">Create</MudNavLink>
-                <MudNavLink Href="/assignments" Match="NavLinkMatch.All" Icon="@Icons.Material.Sharp.AssignmentTurnedIn" IconColor="Color.Tertiary">Assign</MudNavLink>
-                <MudNavLink Href="/assignments/verify" Icon="@Icons.Material.Sharp.Check" IconColor="Color.Tertiary">Verify</MudNavLink>
-            </MudNavGroup>
-        </AuthorizeView>
-
-        <AuthorizeView Roles="@Role.AdminsAndInstructor">
-            <MudNavGroup Title="Instructor" Icon="@Icons.Material.Sharp.PersonalVideo" IconColor="Color.Success">
-                <MudNavLink Href="/schedules" Icon="@Icons.Material.Sharp.Schedule" IconColor="Color.Success">Schedules</MudNavLink>
-                <MudNavLink Href="/attendance" Icon="@Icons.Material.Sharp.Person2" IconColor="Color.Success">Attendance</MudNavLink>
-            </MudNavGroup>
-        </AuthorizeView>
-
         <AuthorizeView Roles="@Role.Admins">
             <MudNavGroup Title="Moderation" Icon="@Icons.Material.Filled.VerifiedUser" IconColor="Color.Error">
                 <MudNavLink Href="/applicants" Icon="@Icons.Material.Filled.Groups3" IconColor="Color.Error">Applicants</MudNavLink>
@@ -70,6 +55,21 @@
                 <MudNavLink Href="/timesheets" Icon="@Icons.Material.Filled.Checklist" IconColor="Color.Error">Timesheets</MudNavLink>
                 <MudNavLink Href="/projects" Icon="@Icons.Material.Sharp.Code" IconColor="Color.Error">Projects</MudNavLink>
                 <MudNavLink Href="/trainingplans" Icon="@Icons.Material.Sharp.RequestQuote" IconColor="Color.Error">Training Plans</MudNavLink>
+            </MudNavGroup>
+        </AuthorizeView>
+        
+        <AuthorizeView Roles="@Role.AdminsAndInstructor">
+            <MudNavGroup Title="Instructor" Icon="@Icons.Material.Sharp.PersonalVideo" IconColor="Color.Success">
+                <MudNavLink Href="/schedules" Icon="@Icons.Material.Sharp.Schedule" IconColor="Color.Success">Schedules</MudNavLink>
+                <MudNavLink Href="/attendance" Icon="@Icons.Material.Sharp.Person2" IconColor="Color.Success">Attendance</MudNavLink>
+            </MudNavGroup>
+        </AuthorizeView>
+        
+        <AuthorizeView Roles="@Role.AdminsAndInstructor">
+            <MudNavGroup Title="Assignments" Icon="@Icons.Material.Filled.Assignment" IconColor="Color.Tertiary">
+                <MudNavLink Href="/assignments/add" Icon="@Icons.Material.Sharp.Create" IconColor="Color.Tertiary">Create</MudNavLink>
+                <MudNavLink Href="/assignments" Match="NavLinkMatch.All" Icon="@Icons.Material.Sharp.AssignmentTurnedIn" IconColor="Color.Tertiary">Assign</MudNavLink>
+                <MudNavLink Href="/assignments/verify" Icon="@Icons.Material.Sharp.Check" IconColor="Color.Tertiary">Verify</MudNavLink>
             </MudNavGroup>
         </AuthorizeView>
 

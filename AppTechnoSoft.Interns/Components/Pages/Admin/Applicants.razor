@@ -58,14 +58,14 @@
             <MudItem md="12" Class="p-2">
                 <MudStack Row>
                     <MudButton Variant="Variant.Outlined"
-                               Disabled="context.Item.Email == string.Empty || loadingData"
+                               Disabled="context.Item.Email == string.Empty || loadingData || !string.IsNullOrEmpty(context.Item.Password)"
                                Color="Color.Warning"
-                               Class="my-3"                               
+                               Class="my-3"
                                StartIcon="@Icons.Material.Filled.Security"
-                               OnClick="() => GenerateUserCreds(context.Item)">                               
+                               OnClick="() => GenerateUserCreds(context.Item)">
                         @(context.Item.UserCreated ? "Reset Login Details" : "Generate Login Details")
                     </MudButton>
-                    
+
                     @if (!string.IsNullOrEmpty(context.Item.Password))
                     {
                         <MudAlert Severity="Severity.Info" Style="font-size:1rem">
@@ -200,35 +200,52 @@
     private async Task GenerateUserCreds(StudentViewModel studentViewModel)
     {
         loadingData = true;
-        // Register user programatically
-        var user = Activator.CreateInstance<ApplicationUser>();
-        await UserStore.SetUserNameAsync(user, studentViewModel.Email, CancellationToken.None);
-        var emailStore = (IUserEmailStore<ApplicationUser>)UserStore;
-        await emailStore.SetEmailAsync(user, studentViewModel.Email, CancellationToken.None);
         var password = PwdGenerator.NewPassword(8);
-        var result = await UserManager.CreateAsync(user, password);
-        _ = await UserManager.AddToRoleAsync(user,
-            studentViewModel.ApplicantType == ApplicantType.Professional
-            ? Role.Employee
-            : Role.Trainee);
 
-        // Save userid to students table
-        _ = await Db.Students
-               .Where(s => s.Id == studentViewModel.Id)
-               .ExecuteUpdateAsync(x => x
-                   .SetProperty(y => y.ApplicationUserId, user.Id)
-               );
-
-        if (result.Succeeded)
+        if (studentViewModel.UserCreated)
         {
-            SnackBar.Add($"User '{studentViewModel.Email}' registered successfully", Severity.Success);
+            // Reset password for existing user
+            var existingUser = await UserManager.FindByIdAsync(studentViewModel.ApplicationUserId);
+            if (existingUser is null)
+            {
+                loadingData = false;
+                return;
+            }
+
+            existingUser.PasswordHash = UserManager.PasswordHasher.HashPassword(existingUser, password);
+            var resultReset = await UserManager.UpdateAsync(existingUser);
+
+            _ = resultReset.Succeeded ?
+                SnackBar.Add($"Password reset for '{studentViewModel.Email}' successfully", Severity.Success) :
+                SnackBar.Add(string.Join(", ", resultReset.Errors.Select(error => error.Description)), Severity.Error);
         }
         else
         {
-            SnackBar.Add(string.Join(", ", result.Errors.Select(error => error.Description)), Severity.Error);
+            // Register new user programatically
+            var user = Activator.CreateInstance<ApplicationUser>();
+            await UserStore.SetUserNameAsync(user, studentViewModel.Email, CancellationToken.None);
+            var emailStore = (IUserEmailStore<ApplicationUser>)UserStore;
+            await emailStore.SetEmailAsync(user, studentViewModel.Email, CancellationToken.None);
+            var result = await UserManager.CreateAsync(user, password);
+
+            _ = await UserManager.AddToRoleAsync(user,
+                studentViewModel.ApplicantType == ApplicantType.Professional
+                ? Role.Employee
+                : Role.Trainee);
+
+            // Save userid to students table
+            _ = await Db.Students
+                   .Where(s => s.Id == studentViewModel.Id)
+                   .ExecuteUpdateAsync(x => x
+                       .SetProperty(y => y.ApplicationUserId, user.Id)
+                   );
+
+            _ = result.Succeeded ?
+                SnackBar.Add($"User '{studentViewModel.Email}' registered successfully", Severity.Success) :
+                SnackBar.Add(string.Join(", ", result.Errors.Select(error => error.Description)), Severity.Error);
         }
 
-        studentViewModel.Password = password;
+        studentViewModel.Password = password; // For UI
         loadingData = false;
     }
 

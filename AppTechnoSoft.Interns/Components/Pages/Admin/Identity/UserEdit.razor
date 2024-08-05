@@ -13,31 +13,39 @@
 <MudContainer>
     <EditForm Model="@model" OnValidSubmit="OnValidSubmit">
         <MudTextField Label="Title" @bind-Value="model.UserName" Disabled Variant="Variant.Outlined" />
-         <MudTextField Class="mt-3" Label="Email" @bind-Value="model.Email" Disabled Variant="Variant.Outlined" />
-         <MudTextField Class="mt-3" Label="EmailConfirmed" @bind-Value="model.EmailConfirmed" Disabled Variant="Variant.Outlined" />
-         <MudTextField Class="mt-3" Label="TwoFactorEnabled" @bind-Value="model.TwoFactorEnabled" Disabled Variant="Variant.Outlined" />
-         <MudTextField Class="mt-3" Label="AccessFailedCount" @bind-Value="model.AccessFailedCount" Disabled Variant="Variant.Outlined" />
-         <MudSelect T="string"
-                    Dense="true"
-                    Variant="Variant.Outlined"
-                    Label="Roles assigned"
-                    MultiSelection="true"
-                    @bind-SelectedValues="@selectedRoles"
-                    Class="my-3"
-                    AnchorOrigin="Origin.BottomCenter">
-             @foreach (var role in roles)
+        <MudTextField Class="mt-3" Label="Email" @bind-Value="model.Email" Disabled Variant="Variant.Outlined" />
+        <MudTextField Class="mt-3" Label="EmailConfirmed" @bind-Value="model.EmailConfirmed" Disabled Variant="Variant.Outlined" />
+        <MudTextField Class="mt-3" Label="TwoFactorEnabled" @bind-Value="model.TwoFactorEnabled" Disabled Variant="Variant.Outlined" />
+        <MudTextField Class="mt-3" Label="AccessFailedCount" @bind-Value="model.AccessFailedCount" Disabled Variant="Variant.Outlined" />
+        <MudSelect T="string"
+                   Dense="true"
+                   Variant="Variant.Outlined"
+                   Label="Roles assigned"
+                   MultiSelection="true"
+                   @bind-SelectedValues="@selectedRoles"
+                   Class="my-3"
+                   AnchorOrigin="Origin.BottomCenter">
+            @foreach (var role in roles)
             {
                 <MudSelectItem Value="@role" />
             }
         </MudSelect>
 
-        <MudButton ButtonType="ButtonType.Submit"
-                   Variant="Variant.Filled"
-                   Color="Color.Primary"
-                   Class="mt-3"
-                   StartIcon="@Icons.Material.Filled.Save">
-            Save User
-        </MudButton>
+        <MudStack Row Class="mt-2">
+            <MudButton ButtonType="ButtonType.Submit"
+                       Variant="Variant.Filled"
+                       Color="Color.Tertiary"
+                       StartIcon="@Icons.Material.Filled.Save">
+                Save User
+            </MudButton>
+            <MudButtonGroup Color="Color.Tertiary" Variant="Variant.Outlined">
+                <MudButton StartIcon="@Icons.Material.Sharp.ArrowBack">Back to</MudButton>
+                <MudMenu Icon="@Icons.Material.Filled.ArrowDropDown" Style="align-self: auto;">
+                    <MudMenuItem Href="/applicants">Applicants</MudMenuItem>
+                    <MudMenuItem Href="/identity/users">Login Users</MudMenuItem>
+                </MudMenu>
+            </MudButtonGroup>
+        </MudStack>
     </EditForm>
 </MudContainer>
 @code {

@@ -11,14 +11,9 @@
                 <MudNavLink Href="/coreteam" Icon="@Icons.Material.Sharp.PeopleOutline" IconColor="Color.Success">Core Team</MudNavLink>
                 <MudNavLink Href="/consultants" Icon="@Icons.Material.Sharp.AccountBox" IconColor="Color.Success">Consultants</MudNavLink>
             </MudNavGroup>
-            <MudNavGroup Title="Grooming Modules" Icon="@Icons.Material.Sharp.SettingsInputComponent" IconColor="Color.Success">
-                <MudNavLink Href="/modules/interns" Icon="@Icons.Material.Sharp.School" IconColor="Color.Success">For Trainees</MudNavLink>
-                <MudNavLink Href="/modules/professionals" Icon="@Icons.Material.Sharp.Laptop" IconColor="Color.Success">For Professionals</MudNavLink>
-                <MudNavLink Href="/modules/corporates" Icon="@Icons.Material.Sharp.CardTravel" IconColor="Color.Success">For Corporates</MudNavLink>
-                <AuthorizeView Roles="@Role.AdminsAndInstructor">
-                    <MudNavLink Href="/modules/all" Icon="@Icons.Material.Sharp.SelectAll" IconColor="Color.Success">All Modules</MudNavLink>
-                </AuthorizeView>
-            </MudNavGroup>
+            <AuthorizeView Roles="@Role.AdminsAndInstructor">
+                <MudNavLink Href="/course/modules" Icon="@Icons.Material.Sharp.SelectAll" IconColor="Color.Success">Modules</MudNavLink>
+            </AuthorizeView>
         </AuthorizeView>
 
         <AuthorizeView Roles="@Role.Trainees">
@@ -57,14 +52,14 @@
                 <MudNavLink Href="/trainingplans" Icon="@Icons.Material.Sharp.RequestQuote" IconColor="Color.Error">Training Plans</MudNavLink>
             </MudNavGroup>
         </AuthorizeView>
-        
+
         <AuthorizeView Roles="@Role.AdminsAndInstructor">
             <MudNavGroup Title="Instructor" Icon="@Icons.Material.Sharp.PersonalVideo" IconColor="Color.Success">
                 <MudNavLink Href="/schedules" Icon="@Icons.Material.Sharp.Schedule" IconColor="Color.Success">Schedules</MudNavLink>
                 <MudNavLink Href="/attendance" Icon="@Icons.Material.Sharp.Person2" IconColor="Color.Success">Attendance</MudNavLink>
             </MudNavGroup>
         </AuthorizeView>
-        
+
         <AuthorizeView Roles="@Role.AdminsAndInstructor">
             <MudNavGroup Title="Assignments" Icon="@Icons.Material.Filled.Assignment" IconColor="Color.Tertiary">
                 <MudNavLink Href="/assignments/add" Icon="@Icons.Material.Sharp.Create" IconColor="Color.Tertiary">Create</MudNavLink>

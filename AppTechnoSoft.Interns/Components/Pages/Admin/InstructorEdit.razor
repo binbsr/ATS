@@ -1,7 +1,7 @@
 ﻿@page "/add-instructor"
 @page "/edit-instructor/{Id:int}"
 
-@attribute [Authorize(Roles=Role.Admins)]
+@attribute [Authorize(Roles = Role.Admins)]
 
 @inject ApplicationDbContext Db
 @inject UserManager<ApplicationUser> UserManager
@@ -21,7 +21,7 @@
         </div>
 
         <MudTextField Label="Resume Summary" Lines="10" Class="my-3" @bind-Value="model.Resume" Variant="Variant.Outlined" />
-        <MudTextField Label="Other Details" Lines="2" Class="my-3" @bind-Value="model.OtherDetails" Variant="Variant.Outlined" Placeholder="Bank account details etc."/>
+        <MudTextField Label="Other Details" Lines="2" Class="my-3" @bind-Value="model.OtherDetails" Variant="Variant.Outlined" Placeholder="Bank account details etc." />
         <ImageUpload ExistingImagePath="@model.ProfilePath" ImageChanged="ProfileChanged" Label="Instructor Profile Image" />
         <MudSelect T="Tag"
                    Label="Tags"
@@ -40,7 +40,7 @@
 
         <MudField Label="Member Type" Variant="Variant.Text" InnerPadding="false">
             <MudRadioGroup T="MemberType" @bind-Value="@model.MemberType">
-                @foreach(var memberType in Enum.GetValues<MemberType>())
+                @foreach (var memberType in Enum.GetValues<MemberType>())
                 {
                     <MudRadio T="MemberType" Value="memberType">@memberType</MudRadio>
                 }
@@ -132,23 +132,34 @@
             SnackBar.Add("Instructor save failed", Severity.Error);
         }
 
-        if (password == string.Empty)
-            return;
-
-        // Create Instructor login and assign role
-        var user = Activator.CreateInstance<ApplicationUser>();
-        await UserStore.SetUserNameAsync(user, model.Email, CancellationToken.None);
-        var emailStore = (IUserEmailStore<ApplicationUser>)UserStore;
-        await emailStore.SetEmailAsync(user, model.Email, CancellationToken.None);
-        var result = await UserManager.CreateAsync(user, password);
-        _ = await UserManager.AddToRoleAsync(user, Role.Instructor);
-        if (result.Succeeded)
+        if (model.ApplicationUserId is null)
         {
-            SnackBar.Add("And instructor user registered successfully for login details.", Severity.Success);
+            // Create Instructor login and assign role
+            var user = Activator.CreateInstance<ApplicationUser>();
+            await UserStore.SetUserNameAsync(user, model.Email, CancellationToken.None);
+            var emailStore = (IUserEmailStore<ApplicationUser>)UserStore;
+            await emailStore.SetEmailAsync(user, model.Email, CancellationToken.None);
+            var result = await UserManager.CreateAsync(user, password);
+            _ = await UserManager.AddToRoleAsync(user, Role.Instructor);
+            _ = result.Succeeded ?
+                SnackBar.Add("And instructor user registered successfully for login details.", Severity.Success) :
+                SnackBar.Add(string.Join(", ", result.Errors.Select(error => error.Description)), Severity.Error);
+
         }
         else
         {
-            SnackBar.Add(string.Join(", ", result.Errors.Select(error => error.Description)), Severity.Error);
+            // Reset password for existing user
+            var existingUser = await UserManager.FindByIdAsync(model.ApplicationUserId);
+            if (existingUser is null)
+                return;
+
+            existingUser.PasswordHash = UserManager.PasswordHasher.HashPassword(existingUser, password);
+            var resultReset = await UserManager.UpdateAsync(existingUser);
+
+            _ = resultReset.Succeeded ?
+                SnackBar.Add($"Password reset for '{model.Email}' successfully", Severity.Success) :
+                SnackBar.Add(string.Join(", ", resultReset.Errors.Select(error => error.Description)), Severity.Error);
+
         }
     }
 

@@ -57,7 +57,7 @@ else
         if (student is null)
             return;
 
-        trainee = new TraineeViewModel(student.Id, student.Name, student.AvatarPath ?? "/favicon.png", student.Program, student.College)
+        trainee = new TraineeViewModel(student.Id, student.Name, student.AvatarPath ?? "/person.png", student.Program, student.College)
             {
                 Status = student.Status
             };
@@ -78,7 +78,7 @@ else
                 College = $"{x.College!.Name}, {x.College.Location}"
             }).ToListAsync(token);
 
-            trainees = students.Select(student => new TraineeViewModel(student.Id, student.Name, student.AvatarPath ?? "/favicon.png", student.Program, student.College)
+            trainees = students.Select(student => new TraineeViewModel(student.Id, student.Name, student.AvatarPath ?? "/person.png", student.Program, student.College)
                 {
                     Status = student.Status
                 });

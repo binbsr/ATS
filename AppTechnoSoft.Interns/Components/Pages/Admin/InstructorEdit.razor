@@ -144,7 +144,6 @@
             _ = result.Succeeded ?
                 SnackBar.Add("And instructor user registered successfully for login details.", Severity.Success) :
                 SnackBar.Add(string.Join(", ", result.Errors.Select(error => error.Description)), Severity.Error);
-
         }
         else
         {

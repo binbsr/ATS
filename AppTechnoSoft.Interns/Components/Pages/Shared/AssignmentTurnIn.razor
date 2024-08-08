@@ -127,26 +127,26 @@
 
         using var Db = DbFactory.CreateDbContext();
 
-        var batchStudents = await Db.Students.Where(x => x.BatchId == batchToAssign.Id).ToListAsync();
-
-        if (!batchStudents.Any())
-        {
-            errorMessage = "No students on this batch";
-        }
-
         // Sanity check if this assignment already assigned to this batch
-        var alreadyAssinedStudentCount = await Db.StudentAssignments.CountAsync(x => x.AssignmentId == Assignment.Id && x.Student!.BatchId == batchToAssign.Id);
+        var remainingStudents = await Db.Students
+            .Where(x => x.BatchId == batchToAssign.Id)
+            .Select(s => s.Id)
+            .Except(
+                Db.StudentAssignments
+                .Where(x => x.AssignmentId == Assignment.Id)
+                .Select(x => x.StudentId))
+            .ToArrayAsync();
 
-        if (alreadyAssinedStudentCount > 0)
+        if (remainingStudents == null || remainingStudents.Length == 0)
         {
-            errorMessage = "This assignment already been turned in for students of this batch";
+            errorMessage = "This assignment already been turned in for all students of this batch";
             return;
-        }
+        }        
 
-        var studemtsAssigment = batchStudents.Select(x => new StudentAssignment
+        var studemtsAssigment = remainingStudents.Select(x => new StudentAssignment
             {
                 AssignmentId = Assignment.Id,
-                StudentId = x.Id,
+                StudentId = x,
                 Status = AssignmentStatus.Assigned,
                 InstructorId = onBehalfOfInstructor.Id,
                 Deadline = deadlineDate + deadlineTime,
@@ -159,7 +159,7 @@
 
         if (rowsAffected > 0)
         {
-            SnackBar.Add($"'{Assignment.Title}' turned in for selected batch students", Severity.Success);
+            SnackBar.Add($"'{Assignment.Title}' turned in for {remainingStudents.Length} student(s)", Severity.Success);
         }
         else
         {

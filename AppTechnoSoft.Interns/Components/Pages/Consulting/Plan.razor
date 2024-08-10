@@ -135,16 +135,13 @@ else
             @if (model?.Assignments?.Any() ?? false)
             {
                 <MudText Typo="Typo.button" Style="font-size:1.1rem;">Assignment Details</MudText>
-                <MudPaper Elevation="0" Class="p-4 border" Square>
-                    @{
-                        byte i = 1;
-                    }
+                <MudPaper Elevation="0" Class="p-4 border" Square>                    
                     <MudStack Row Wrap="Wrap.Wrap" Spacing="5">
                         @foreach (var assignment in model?.Assignments?.OrderBy(x => x.Title).ToArray() ?? [])
                         {
                             <MudPaper Elevation="0" Class="p-4 border" Square Style="text-align:center;">
                                 <MudChip T="string" Label="true" Size="Size.Large" Class="mb-2">
-                                    <MudText Typo="Typo.h6">@($"Assignment {i++}")</MudText>
+                                    <MudText Typo="Typo.h6">Assignment</MudText>
                                 </MudChip>
                                 <MudText Typo="Typo.h6">
                                     @assignment.Title
@@ -161,15 +158,12 @@ else
             {
                 <MudText Typo="Typo.button" Style="font-size:1.1rem;">Project Details</MudText>
                 <MudPaper Elevation="0" Class="p-4 border" Square>
-                    <MudStack Row Wrap="Wrap.Wrap" Spacing="5">
-                        @{
-                            byte i = 1;
-                        }
+                    <MudStack Row Wrap="Wrap.Wrap" Spacing="5">                        
                         @foreach (var project in model?.Projects?.OrderBy(x => x.Title).ToArray() ?? [])
                         {
                             <MudPaper Elevation="0" Class="p-4 border" Square Style="text-align:center">
                                 <MudChip T="string" Label="true" Size="Size.Large" Class="mb-2">
-                                    <MudText Typo="Typo.h6">@($"Project {i++}")</MudText>
+                                    <MudText Typo="Typo.h6">Project</MudText>
                                 </MudChip>
                                 <MudText Typo="Typo.h6">
                                     @project.Title
@@ -231,7 +225,9 @@ else
             .ThenInclude(y => y.Modules)
             .FirstOrDefaultAsync(x => x.Hash == Hash.ToString()) ?? new();
 
-        var students = await Db.Students.Where(x => x.TrainingId == model.Id).Select(x => new { Id = x.Id, Name = x.Name }).ToArrayAsync();
+        var students = await Db.Students
+            .Where(x => x.TrainingId == model.Id).Select(x => new { Id = x.Id, Name = x.Name })
+            .ToArrayAsync();
         trainees = students.Select(x => (x.Id, x.Name)).ToArray();
 
         loading = false;

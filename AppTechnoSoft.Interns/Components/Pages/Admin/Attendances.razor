@@ -126,7 +126,7 @@ else
     Dictionary<(string Name, string? Profile), IEnumerable<StudentAttedance>> studentAttendances = [];
     bool loadingData = false;
     bool loadingAttendaceData = false;
-    Instructor? instructor = null;
+    Instructor instructor = new();
     DateTime[] headings = [];
     IEnumerable<IGrouping<Batch?, ClassSchedule>> classesByBatch = [];
     Batch selectedBatch = null!;
@@ -144,17 +144,22 @@ else
 
         using (var Db = DbFactory.CreateDbContext())
         {
-            instructor = await Db.Instructors.FirstOrDefaultAsync(x => x.ApplicationUserId == loggedInUserId);
-
-            if (instructor is null)
+            if (loggedInUser.IsInRole(Role.Instructor) && 
+                !(loggedInUser.IsInRole(Role.Admin) || loggedInUser.IsInRole(Role.Admin)))
             {
-                loadingData = false;
-                return;
-            }
+                instructor = await Db.Instructors.FirstOrDefaultAsync(x => x.ApplicationUserId == loggedInUserId);
 
-            var classes = await Db.ClassSchedules.Include(y => y.Batch).Where(x => x.InstructorId == instructor.Id).ToListAsync();
+                if (instructor is null)
+                {
+                    loadingData = false;
+                    return;
+                }
+            }            
 
-            classesByBatch = classes.GroupBy(x => x.Batch);
+            classesByBatch = await Db.ClassSchedules
+                .Include(y => y.Batch)
+                .GroupBy(x => x.Batch)
+                .ToArrayAsync();
         }
 
         loadingData = false;

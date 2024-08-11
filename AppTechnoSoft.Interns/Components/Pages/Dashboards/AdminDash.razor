@@ -92,6 +92,47 @@ else
             </MudPaper>
         </MudItem>
     </MudGrid>
+
+    <MudTabs Class="mt-8" Outlined="true" Rounded="true" ApplyEffectsToContainer="true">
+        <MudTabPanel Text="Trainee Profiles">
+            <MudTable Items="@allStudents.Where(x => x.Status != Status.Applied && (x.ApplicantType == ApplicantType.StudentInternship || x.ApplicantType == ApplicantType.SoftwareEngineeringAspirant))" Hover="true">
+                <HeaderContent>
+                    <MudTh>Name</MudTh>
+                    <MudTh>Batch</MudTh>
+                    <MudTh>Status</MudTh>
+                    <MudTh>ATS Profile</MudTh>
+                </HeaderContent>
+                <RowTemplate>
+                    <MudTd DataLabel="Name">@context.Name</MudTd>
+                    <MudTd DataLabel="Batch">@(context.Batch?.Name ?? "None")</MudTd>
+                    <MudTd DataLabel="Status">@context.Status</MudTd>
+                    <MudTd DataLabel="Profile">
+                        <MudLink Href="@($"/trainee/{context.Id}")">@context.Id</MudLink>
+                    </MudTd>
+                </RowTemplate>
+                <PagerContent>
+                    <MudTablePager PageSizeOptions="new int[] { 20, 50, 100 }" />
+                </PagerContent>
+            </MudTable>
+        </MudTabPanel>
+        <MudTabPanel Text="Professional Profiles">
+            <MudTable Items="@(allStudents.Where(x => x.ApplicantType == ApplicantType.Professional))" Hover="true">
+                <HeaderContent>
+                    <MudTh>Name</MudTh>
+                    <MudTh>Profile</MudTh>
+                </HeaderContent>
+                <RowTemplate>
+                    <MudTd DataLabel="Name">@context.Name</MudTd>
+                    <MudTd DataLabel="Profile">
+                        <MudLink Href="@($"/trainee/{context.Id}")">ATS Profile</MudLink>
+                    </MudTd>
+                </RowTemplate>
+                <PagerContent>
+                    <MudTablePager PageSizeOptions="new int[] { 20, 50, 100 }" />
+                </PagerContent>
+            </MudTable>
+        </MudTabPanel>
+    </MudTabs>
 }
 
 @code {
@@ -138,7 +179,11 @@ else
         optionsBatch.Legend = new Legend { Position = LegendPosition.Bottom };
 
         using var Db = DbFactory.CreateDbContext();
-        allStudents = await Db.Students.Include(x => x.TechProgram).Include(y => y.College).Include(z => z.Batch).ToListAsync();
+        allStudents = await Db.Students
+            .Include(x => x.TechProgram)
+            .Include(y => y.College)
+            .Include(z => z.Batch)
+            .ToListAsync();
 
         if (allStudents is null || !allStudents.Any())
         {

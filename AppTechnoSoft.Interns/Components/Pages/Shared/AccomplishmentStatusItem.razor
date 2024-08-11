@@ -1,4 +1,6 @@
-﻿<MudTimelineItem Color="@BubbleColor" Size="Size.Large" Variant="Variant.Outlined" Elevation="5">
+﻿<MudTimelineItem Color="@(Enabled ? Color.Success : Color.Default)"
+                 Size="Size.Large"
+                 Variant="Variant.Outlined" Elevation="5">
     <ItemDot>
         <MudIcon Size="Size.Large" Icon="@BubbleIcon" />
     </ItemDot>
@@ -9,7 +11,7 @@
 
 @code {
     [Parameter]
-    public Color BubbleColor { get; set; } = Color.Default;
+    public bool Enabled { get; set; }
 
     [Parameter]
     public string BubbleIcon { get; set; }

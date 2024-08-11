@@ -24,6 +24,7 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
     public DbSet<Assignment> Assignments { get; set; }
     public DbSet<StudentAssignment> StudentAssignments { get; set; }
     public DbSet<Expense> Expenses { get; set; }
+    public DbSet<Revenue> Revenues { get; set; }
     public DbSet<BatchBudget> BatchBudgets { get; set; }
     public DbSet<CourseQuote> CourseQuotes { get; set; }
     public DbSet<CourseQuoteModule> CourseQuoteModules { get; set; }

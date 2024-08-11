@@ -10,7 +10,7 @@
 
 <MudDataGrid T="StudentViewModel"
              MultiSelection="true"
-             Items="@studentList"
+             Items="@studentFilteredList"
              @bind-SelectedItems="selectedApplicants"
              SortMode="SortMode.Multiple"
              Filterable="true"
@@ -21,13 +21,59 @@
              Hideable="true"
              RowClassFunc="HighlightRow"
              Dense="true">
-
     <ToolBarContent>
-        <MudButton Disabled="@(!selectedApplicants.Any())" StartIcon="@Icons.Material.Sharp.AutoDelete" OnClick="RemoveFromBatch" Class="ml-2 mt-5" Variant="Variant.Filled" Color="Color.Warning">De-Batch</MudButton>
-        <MudButton Disabled="@(!selectedApplicants.Any())" StartIcon="@Icons.Material.Sharp.DeleteForever" OnClick="RemoveApplicants" Class="ml-2 mt-5" Variant="Variant.Filled" Color="Color.Error">Remove</MudButton>
+        <MudToolBar WrapContent="true">
+            <MudTooltip Text="Debatch trainees">
+                <MudIconButton Disabled="@(!selectedApplicants.Any())"
+                               Icon="@Icons.Material.Sharp.BatchPrediction"
+                               OnClick="RemoveFromBatch"
+                               Variant="Variant.Outlined"
+                               Color="Color.Warning" />
+            </MudTooltip>
+
+            <MudTooltip Text="Remove applicants">
+                <MudIconButton Disabled="@(!selectedApplicants.Any())"
+                               Icon="@Icons.Material.Sharp.Delete"
+                               Class="ml-1"
+                               OnClick="RemoveApplicants"
+                               Variant="Variant.Outlined"
+                               Color="Color.Error" />
+            </MudTooltip>
+            <MudInputLabel Class="ml-10">Status</MudInputLabel>
+            <MudSelect T="Status"
+                       Class="ml-2"
+                       Value="selectedStatus"
+                       Margin="Margin.Dense"
+                       Variant="Variant.Outlined"
+                       AnchorOrigin="Origin.BottomCenter"
+                       ValueChanged="StatusChanged">
+                @foreach (var item in Enum.GetValues<Status>())
+                {
+                    <MudSelectItem Value="@item">@item</MudSelectItem>
+                }
+            </MudSelect>
+
+            <MudInputLabel Class="ml-8">Batch</MudInputLabel>
+            <MudSelect T="int?"
+                       Class="ml-2"
+                       Value="selectedBatch"
+                       Placeholder="Select batch"
+                       Margin="Margin.Dense"
+                       Variant="Variant.Outlined"
+                       AnchorOrigin="Origin.BottomCenter"
+                       ValueChanged="BatchChanged">
+                @foreach (var item in batches)
+                {
+                    <MudSelectItem Value="@item.BatchId">@item.BatchName</MudSelectItem>
+                }
+            </MudSelect>
+        </MudToolBar>
         <MudSpacer />
-        <MudTextField @bind-Value="_searchString" Placeholder="@($"Search {studentList.Count} applicants by name, email, status or phone...")" Adornment="Adornment.Start" Immediate="true"
-                      AdornmentIcon="@Icons.Material.Filled.Search" IconSize="Size.Medium" Class="mt-0"></MudTextField>
+        <MudTextField @bind-Value="_searchString"
+                      Placeholder="@($"Search {studentFilteredList.Count} applicants by name, email, status or phone...")"
+                      Adornment="Adornment.Start"
+                      Immediate="true"
+                      AdornmentIcon="@Icons.Material.Filled.Search"></MudTextField>
     </ToolBarContent>
     <Columns>
         <SelectColumn ShowInFooter="false" ShowInHeader="false" />
@@ -48,10 +94,14 @@
         </TemplateColumn>
         <PropertyColumn Property="x => x.Name" Filterable="false" />
         <PropertyColumn Property="x => x.Phone" Filterable="false" />
-        <PropertyColumn Property="x => x.Email" Filterable="false" />
         <PropertyColumn Property="x => x.ApplicantType" Filterable="false" />
-        <PropertyColumn Property="x => x.TrainingTrack" Filterable="false" />
-        <PropertyColumn Property="x => x.Status" />
+        <PropertyColumn Property="x => x.Status" Filterable="false" />
+        <TemplateColumn Title="Applied">
+            <CellTemplate>
+                @context.Item.FormSubmitted.Humanize()
+            </CellTemplate>
+        </TemplateColumn>
+
     </Columns>
     <ChildRowContent>
         <MudGrid Class="px-6 pt-4">
@@ -101,29 +151,23 @@
                     }
                 </MudStack>
             </MudItem>
-            <MudItem md="3" sm="4" Class="p-2">
+            <MudItem lg="2" md="3" sm="4" Class="p-2">
                 <b>Name</b><MudText Typo="Typo.body1">@context.Item.Name</MudText>
             </MudItem>
-            <MudItem md="3" sm="4" Class="p-2">
+            <MudItem lg="2" md="3" sm="4" Class="p-2">
+                <b>Email</b><MudText Typo="Typo.body1">@context.Item.Email</MudText>
+            </MudItem>
+            <MudItem lg="2" md="3" sm="4" Class="p-2">
                 <b>College</b><MudText Typo="Typo.body1">@(context.Item.CollegeName ?? "N/A")</MudText>
             </MudItem>
-            <MudItem md="3" sm="4" Class="p-2">
+            <MudItem lg="2" md="3" sm="4" Class="p-2">
                 <b>Program</b><MudText Typo="Typo.body1">@(context.Item.ProgramName ?? "N/A")</MudText>
             </MudItem>
-            <MudItem md="3" sm="4" Class="p-2">
-                <b>Team</b><MudText Typo="Typo.body1">@(context.Item.TeamName ?? "Not Assigned")</MudText>
-            </MudItem>
-            <MudItem md="3" sm="4" Class="p-2">
-                <b>Applied</b><MudText Typo="Typo.body1">@context.Item.FormSubmitted.Humanize()</MudText>
-            </MudItem>
-            <MudItem md="3" sm="4" Class="p-2">
-                <b>General Programming</b><MudText Typo="Typo.body1">@context.Item.GeneralProgramming.GetGeneralProgText()</MudText>
-            </MudItem>
-            <MudItem md="3" sm="4" Class="p-2">
-                <b>Web Development Experience</b><MudText Typo="Typo.body1">@context.Item.WebExperience.GetWebExperienceText()</MudText>
-            </MudItem>
-            <MudItem md="3" sm="4" Class="p-2">
-                <b>Database Development Experience</b><MudText Typo="Typo.body1">@context.Item.DbExperience.GetDbExperienceText()</MudText>
+            <MudItem lg="2" md="3" sm="4" Class="p-2">
+                <b>Team</b><MudText Typo="Typo.body1">@(context.Item.TeamName ?? "N/A")</MudText>
+            </MudItem> 
+            <MudItem lg="2" md="3" sm="4" Class="p-2">
+                <b>Training Track</b><MudText Typo="Typo.body1">@context.Item.TrainingTrack</MudText>
             </MudItem>
         </MudGrid>
     </ChildRowContent>
@@ -136,11 +180,14 @@
     [SupplyParameterFromQuery]
     public string? Highlight { get; set; } = "";
 
-    private List<StudentViewModel> studentList = new();
+    private List<StudentViewModel> studentList = [];
+    private List<StudentViewModel> studentFilteredList = [];
     private HashSet<StudentViewModel> selectedApplicants = [];
     private string _searchString = string.Empty;
     private bool loadingData = false;
-
+    private Status selectedStatus = Status.Applied;
+    private int? selectedBatch;
+    private List<(string BatchName, int? BatchId)> batches = [];
     private Func<StudentViewModel, bool> _quickFilter => x =>
     {
         if (string.IsNullOrWhiteSpace(_searchString))
@@ -161,20 +208,68 @@
         return false;
     };
 
-    protected override async Task OnInitializedAsync()
+    protected override void OnInitialized()
     {
         loadingData = true;
-        var studentModels = await Db.Students
+
+        studentList = LoadAllTrainees();
+        studentFilteredList = studentList.Where(s => s.Status == Status.Applied).ToList();
+        batches = studentList.Where(x => x.BatchName != "None").Select(x => (x.BatchName, x.BatchId)).ToList();
+
+        loadingData = false;
+    }
+
+    private void StatusChanged(Status status)
+    {
+        loadingData = true;
+        selectedStatus = status;
+
+        if (!studentList.Any())
+        {
+            studentList = LoadAllTrainees();
+            studentFilteredList = studentList.Where(s => s.Status == status).ToList();
+        }
+        else
+        {
+            studentFilteredList = studentList.Where(s => s.Status == status).ToList();
+        }
+
+        loadingData = false;
+    }
+
+    private void BatchChanged(int? batchId)
+    {
+        loadingData = true;
+        selectedBatch = batchId;
+        selectedStatus = Status.Enrolled;
+
+        if (!studentList.Any())
+        {
+            studentList = LoadAllTrainees();
+            studentFilteredList = studentList.Where(s => s.BatchId == batchId).ToList();
+        }
+        else
+        {
+            studentFilteredList = studentList.Where(s => s.BatchId == batchId).ToList();
+        }
+
+        loadingData = false;
+    }
+
+    private List<StudentViewModel> LoadAllTrainees()
+    {
+        var studentModels = Db.Students
             .Include(s => s.College)
             .Include(t => t.TechProgram)
             .Include(t => t.Team)
+            .Include(b => b.Batch)
             .Include(u => u.User)
             .AsNoTracking()
             .OrderByDescending(x => x.FormSubmitted)
-            .ToListAsync();
+            .ToList() ?? [];
 
         studentList = studentModels.ToViewModel();
-        loadingData = false;
+        return studentList;
     }
 
     private async Task RemoveFromBatch()

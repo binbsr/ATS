@@ -55,78 +55,40 @@
         }
     }
 
-    <MudTimeline TimelineOrientation="TimelineOrientation.Horizontal" TimelinePosition="TimelinePosition.Top">
+    <MudTimeline TimelineOrientation="TimelineOrientation.Horizontal"
+                 TimelinePosition="TimelinePosition.Top">
+        <AccomplishmentStatusItem Enabled="@applied"
+                                  BubbleIcon="@Icons.Material.Sharp.PersonAddAlt1"
+                                  Text="Applied" />
 
-        <MudTimelineItem Color="@(applied ? Color.Success : Color.Default)" Size="Size.Large" Variant="Variant.Outlined" Elevation="5">
-            <ItemDot>
-                <MudIcon Size="Size.Large" Icon="@Icons.Material.Sharp.PersonAddAlt1" />
-            </ItemDot>
-            <ItemContent>
-                <MudText Align="Align.Center">Applied</MudText>
-            </ItemContent>
-        </MudTimelineItem>
+        <AccomplishmentStatusItem Enabled="@enrolled"
+                                  BubbleIcon="@Icons.Material.Sharp.BatchPrediction"
+                                  Text="Enrolled" />
 
+        <AccomplishmentStatusItem Enabled="@learning"
+                                  BubbleIcon="@Icons.Material.Sharp.ModelTraining"
+                                  Text="Learning" />
 
-        <MudTimelineItem Color="@(enrolled ? Color.Success : Color.Default)" Size="Size.Large" Variant="Variant.Outlined" Elevation="5">
-            <ItemDot>
-                <MudIcon Size="Size.Large" Icon="@Icons.Material.Sharp.BatchPrediction" />
-            </ItemDot>
-            <ItemContent>
-                <MudText Align="Align.Center">Enrolled</MudText>
-            </ItemContent>
-        </MudTimelineItem>
+        <AccomplishmentStatusItem Enabled="@contribution"
+                                  BubbleIcon="@Icons.Material.Sharp.Code"
+                                  Text="Contribution" />
 
+        <AccomplishmentStatusItem Enabled="@evaluated"
+                                  BubbleIcon="@Icons.Material.Sharp.CreditScore"
+                                  Text="Evaluation" />
 
-        <MudTimelineItem Color="@(learning ? Color.Success : Color.Default)" Size="Size.Large" Variant="Variant.Outlined" Elevation="5">
-            <ItemDot>
-                <MudIcon Size="Size.Large" Icon="@Icons.Material.Sharp.ModelTraining" />
-            </ItemDot>
-            <ItemContent>
-                <MudText Align="Align.Center">Learning</MudText>
-            </ItemContent>
-        </MudTimelineItem>
+        <AccomplishmentStatusItem Enabled="@docs"
+                                  BubbleIcon="@Icons.Material.Sharp.LibraryBooks"
+                                  Text="Documentation" />
 
-        <MudTimelineItem Color="@(contribution ? Color.Success : Color.Default)" Size="Size.Large" Variant="Variant.Outlined" Elevation="5">
-            <ItemDot>
-                <MudIcon Size="Size.Large" Icon="@Icons.Material.Sharp.Code" />
-            </ItemDot>
-            <ItemContent>
-                <MudText Align="Align.Center">Contribution</MudText>
-            </ItemContent>
-        </MudTimelineItem>
-
-        <MudTimelineItem Color="@(evaluated ? Color.Success : Color.Default)" Size="Size.Large" Variant="Variant.Outlined" Elevation="5">
-            <ItemDot>
-                <MudIcon Size="Size.Large" Icon="@Icons.Material.Sharp.CreditScore" />
-            </ItemDot>
-            <ItemContent>
-                <MudText Align="Align.Center">Evaluation</MudText>
-            </ItemContent>
-        </MudTimelineItem>
-
-        <MudTimelineItem Color="@(docs ? Color.Success : Color.Default)" Size="Size.Large" Variant="Variant.Outlined" Elevation="5">
-            <ItemDot>
-                <MudIcon Size="Size.Large" Icon="@Icons.Material.Sharp.LibraryBooks" />
-            </ItemDot>
-            <ItemContent>
-                <MudText Align="Align.Center">Documentation</MudText>
-            </ItemContent>
-        </MudTimelineItem>
-
-        <MudTimelineItem Color="@(completed ? Color.Success : Color.Default)" Size="Size.Large" Variant="Variant.Outlined" Elevation="5">
-            <ItemDot>
-                <MudIcon Size="Size.Large" Icon="@Icons.Material.Sharp.Done" />
-            </ItemDot>
-            <ItemContent>
-                <MudText Align="Align.Center">Completed</MudText>
-            </ItemContent>
-        </MudTimelineItem>
+        <AccomplishmentStatusItem Enabled="@completed"
+                                  BubbleIcon="@Icons.Material.Sharp.Done"
+                                  Text="Completed" />
     </MudTimeline>
-
 </MudPaper>
 
 <MudPaper Class="@panelClass" Elevation="0">
-    <MudText Typo="Typo.h6" Class="mb-3">@tasks.Count.ToWords().Pascalize() completed tasks (Training + Project)</MudText>
+    <MudText Typo="Typo.h6" Class="mb-3">@tasks.Count.ToWords().Pascalize() completed items (Daily learnings + Assignments + Project)</MudText>
 
     <MudTimeline TimelinePosition="TimelinePosition.Start">
         @foreach (var task in tasks)
@@ -135,7 +97,7 @@
                 <MudCard Outlined>
                     <MudCardContent Class="py-2">
                         <MudText Typo="Typo.button">@task.Date.ToLongDateString()</MudText>
-                        @if(task.TaskType == TaskType.Assignment)
+                        @if (task.TaskType == TaskType.Assignment)
                         {
                             <MudText Typo="Typo.body2">@task.Task - @task.Details</MudText>
                         }
@@ -154,11 +116,7 @@
 
     [Parameter]
     public TraineeViewModel TraineeData { get; set; } = null!;
-
     private List<TraineeTask> tasks = [];
-
-    private record TraineeTask(DateTime Date, string Task, string Details, TaskType TaskType);
-    enum TaskType { WorkLog, Assignment }
 
     protected override async Task OnInitializedAsync()
     {
@@ -168,7 +126,7 @@
         if (attendances is null || !attendances.Any())
             return;
 
-        if (attendances.Count > 4)   // 5 or more tasks logged
+        if (attendances.Count > 4 && TraineeData.Status == Status.Enrolled)   // 5 or more tasks logged and is in enrolled status
         {
             TraineeData.Status = Status.Learning;
         }

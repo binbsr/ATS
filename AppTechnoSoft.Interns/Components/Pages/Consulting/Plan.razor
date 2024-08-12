@@ -68,8 +68,8 @@ else
                             <MudText Typo="Typo.h6">
                                 Attendees
                                 <MudText>
-                                    <MudTooltip Text="@(string.Join(", " , trainees.Select(x => x.Name)))" Arrow="true">
-                                        @trainees.Length Pax
+                                    <MudTooltip Text="@(string.Join(", " , employeeProfiles.Select(x => x.Name)))" Arrow="true">
+                                        @employeeProfiles.Length Pax
                                     </MudTooltip>
                                 </MudText>
 
@@ -136,15 +136,12 @@ else
             {
                 <MudText Typo="Typo.button" Style="font-size:1.1rem;">Assignment Details</MudText>
                 <MudPaper Elevation="0" Class="p-4 border" Square>
-                    @{
-                        byte i = 1;
-                    }
                     <MudStack Row Wrap="Wrap.Wrap" Spacing="5">
                         @foreach (var assignment in model?.Assignments?.OrderBy(x => x.Title).ToArray() ?? [])
                         {
                             <MudPaper Elevation="0" Class="p-4 border" Square Style="text-align:center;">
                                 <MudChip T="string" Label="true" Size="Size.Large" Class="mb-2">
-                                    <MudText Typo="Typo.h6">@($"Assignment {i++}")</MudText>
+                                    <MudText Typo="Typo.h6">Assignment</MudText>
                                 </MudChip>
                                 <MudText Typo="Typo.h6">
                                     @assignment.Title
@@ -162,14 +159,11 @@ else
                 <MudText Typo="Typo.button" Style="font-size:1.1rem;">Project Details</MudText>
                 <MudPaper Elevation="0" Class="p-4 border" Square>
                     <MudStack Row Wrap="Wrap.Wrap" Spacing="5">
-                        @{
-                            byte i = 1;
-                        }
                         @foreach (var project in model?.Projects?.OrderBy(x => x.Title).ToArray() ?? [])
                         {
                             <MudPaper Elevation="0" Class="p-4 border" Square Style="text-align:center">
                                 <MudChip T="string" Label="true" Size="Size.Large" Class="mb-2">
-                                    <MudText Typo="Typo.h6">@($"Project {i++}")</MudText>
+                                    <MudText Typo="Typo.h6">Project</MudText>
                                 </MudChip>
                                 <MudText Typo="Typo.h6">
                                     @project.Title
@@ -184,20 +178,25 @@ else
         @if (model.Status == TrainingStatus.Completed)
         {
             <MudItem xs="12">
-                <MudTable Items="@trainees" Hover="true">
+                <MudText Typo="Typo.button" Style="font-size:1.1rem;">Attendees</MudText>
+                <MudTable Items="@employeeProfiles" Hover="true" Class="p-4 border" Elevation="0">
                     <HeaderContent>
                         <MudTh>Name</MudTh>
+                        <MudTh>Training Quotation</MudTh>
+                        <MudTh>Organization</MudTh>
                         <MudTh>Profile</MudTh>
                     </HeaderContent>
                     <RowTemplate>
                         <MudTd DataLabel="Name">@context.Name</MudTd>
+                        <MudTd DataLabel="Training">@context.Training</MudTd>
+                        <MudTd DataLabel="Organization">@context.Organization</MudTd>
                         <MudTd DataLabel="Profile">
-                            <MudLink Href="@($"/trainee/{context.Id}")">ATS Profile</MudLink>
+                            <MudLink Href="@($"/trainee/{context.Id}")" Target="_blank">
+                                <MudIcon Icon="@Icons.Material.Sharp.OpenInNew" />
+                                @context.Id
+                            </MudLink>
                         </MudTd>
                     </RowTemplate>
-                    <PagerContent>
-                        <MudTablePager PageSizeOptions="new int[] { 10, 25, 50, 100 }" />
-                    </PagerContent>
                 </MudTable>
             </MudItem>
         }
@@ -212,7 +211,7 @@ else
 
     Training model = new();
     List<Student> batchStudents = [];
-    (string Id, string Name)[] trainees = [];
+    ProfessionalViewModel[] employeeProfiles = [];
     bool loading = false;
 
     protected override async Task OnInitializedAsync()
@@ -231,8 +230,23 @@ else
             .ThenInclude(y => y.Modules)
             .FirstOrDefaultAsync(x => x.Hash == Hash.ToString()) ?? new();
 
-        var students = await Db.Students.Where(x => x.TrainingId == model.Id).Select(x => new { Id = x.Id, Name = x.Name }).ToArrayAsync();
-        trainees = students.Select(x => (x.Id, x.Name)).ToArray();
+        var students = await Db.Students
+            .Include(x => x.Training)
+            .ThenInclude(y => y.Organization)
+            .Where(x => x.TrainingId == model.Id).Select(x =>
+                new
+                {
+                    Id = x.Id,
+                    Name = x.Name,
+                    Avatar = x.ProfileImagePath,
+                    Training = x.Training.Title,
+                    Organization = x.Training.Organization.Name
+                })
+            .ToArrayAsync();
+
+        employeeProfiles = students
+            .Select(x => new ProfessionalViewModel(x.Id, x.Name, x.Avatar, x.Training, x.Organization))
+            .ToArray();
 
         loading = false;
     }

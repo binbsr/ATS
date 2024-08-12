@@ -26,6 +26,7 @@ else
             <MudTh>Evaluation</MudTh>
             <MudTh><MudTableSortLabel InitialDirection="SortDirection.Descending" SortBy="new Func<StudentAssignmentViewModel, object>(x=>x.Deadline!)">Deadline</MudTableSortLabel></MudTh>
             <MudTh><MudTableSortLabel SortBy="new Func<StudentAssignmentViewModel, object>(x=>x.Status.ToString())">Status</MudTableSortLabel></MudTh>
+            <MudTh><MudTableSortLabel SortBy="new Func<StudentAssignmentViewModel, object>(x=>x.ReturnDate)">Returned</MudTableSortLabel></MudTh>
             <MudTh>Comment</MudTh>
         </HeaderContent>
         <RowTemplate>
@@ -35,6 +36,7 @@ else
             <MudTd DataLabel="Evaluation">@((context.Evaluation / (double)100).ToString("P"))</MudTd>
             <MudTd DataLabel="Deadline" title="@context.Deadline">@context.Deadline.Humanize()</MudTd>
             <MudTd DataLabel="Status">@context.Status</MudTd>
+            <MudTd DataLabel="Returned">@context.ReturnDate</MudTd>
             <MudTd DataLabel="Comment">@context.Comment</MudTd>
         </RowTemplate>
         <RowEditingTemplate>

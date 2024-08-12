@@ -149,8 +149,9 @@
                 StudentId = x,
                 Status = AssignmentStatus.Assigned,
                 InstructorId = onBehalfOfInstructor.Id,
+                TurnInDate = DateTime.UtcNow,
                 Deadline = deadlineDate + deadlineTime,
-                Comment = $"{DateTime.UtcNow.ToNepalTime()}: {Assignment.Title} assigned to you."
+                Comment = $"{DateTime.UtcNow.ToNepalTime()}: {Assignment.Title} assigned."
             });
 
         Db.StudentAssignments.AddRange(studemtsAssigment);

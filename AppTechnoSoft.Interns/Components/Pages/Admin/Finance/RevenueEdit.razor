@@ -1,0 +1,65 @@
+﻿@page "/revenue/add"
+
+@attribute [Authorize(Roles = Role.SuperAdmin)]
+
+@inject ApplicationDbContext Db
+@inject ISnackbar SnackBar
+@inject NavigationManager Navigation
+
+<PageTitle>New Revenue Item</PageTitle>
+
+<MudContainer>
+    <EditForm Model="@model" OnValidSubmit="OnValidSubmit">
+
+        <MudTextField Variant="Variant.Outlined" Label="Particulars" Class="mt-4" @bind-Value="model.Particulars" />
+        <MudSelect Variant="Variant.Outlined"
+                   @bind-Value="model.Source"
+                   Label="Source"
+                   AnchorOrigin="Origin.BottomCenter"
+                   Class="mt-4">
+            @foreach (var item in Enum.GetValues<RevenueSource>())
+            {
+                <MudSelectItem Value="@item">@item</MudSelectItem>
+            }
+        </MudSelect>
+        <MudNumericField Variant="Variant.Outlined" Label="Amount" Class="mt-4" @bind-Value="model.Amount" />
+        <MudDatePicker Label="Date" @bind-Date="model.Date" Class="mt-4" Variant="Variant.Outlined" />
+
+        <MudButton ButtonType="ButtonType.Submit"
+                   Variant="Variant.Filled"
+                   Color="Color.Tertiary"
+                   Class="mt-4"
+                   StartIcon="@Icons.Material.Filled.Save">
+            Add Revenue
+        </MudButton>
+    </EditForm>
+</MudContainer>
+
+@code {
+
+    [CascadingParameter]
+    private Task<AuthenticationState> AuthTask { get; set; } = null!;
+
+    Revenue model = new() { Amount = 0.0f };
+
+    private async Task OnValidSubmit(EditContext context)
+    {        
+        var state = await AuthTask;
+        var userName = state.User.Identity?.Name;
+
+        model.AddCreatedStamps(userName);
+
+        Db.Revenues.Add(model);
+        var rowsAffected = await Db.SaveChangesAsync();
+
+        if (rowsAffected > 0)
+        {
+            SnackBar.Add("New revenue item added successfully", Severity.Success);
+            Navigation.NavigateTo("/revenues");
+        }
+        else
+        {
+            SnackBar.Add("New revenue item save failed", Severity.Error);
+        }
+    }
+}

@@ -82,7 +82,7 @@ else
 
         batchMembers = await Db.Students
             .Where(x => x.BatchId == student!.BatchId)
-            .Select(x => new StudentLightViewModel(x.Name, x.ApplicationUserId!, x.ProfileImagePath!, x!.Team!.Name, x!.Batch!.Name))
+            .Select(x => new StudentLightViewModel(x.Name, x.ApplicationUserId!, x.ProfileImagePath!, x.Status, x!.Team!.Name, x!.Batch!.Name))
             .ToListAsync();
         teamMembers = batchMembers.Where(x => x.TeamName == loggedInUserTeamName).ToList();
 

@@ -93,9 +93,9 @@ else
         </MudItem>
     </MudGrid>
 
-    <MudTabs Class="mt-8" Outlined="true" Rounded="true" ApplyEffectsToContainer="true">
-        <MudTabPanel Text="Trainee Profiles">
-            <MudTable Items="@allStudents.Where(x => x.Status != Status.Applied && (x.ApplicantType == ApplicantType.StudentInternship || x.ApplicantType == ApplicantType.SoftwareEngineeringAspirant))" Hover="true">
+    <MudTabs Class="mt-8 border-2" Outlined="true" Rounded="true" ApplyEffectsToContainer="true">
+        <MudTabPanel Text="Trainee Profiles" Style="font-size:1rem;padding:1rem;">
+            <MudTable Items="@traineeProfiles" Hover="true">
                 <HeaderContent>
                     <MudTh>Name</MudTh>
                     <MudTh>Batch</MudTh>
@@ -104,10 +104,13 @@ else
                 </HeaderContent>
                 <RowTemplate>
                     <MudTd DataLabel="Name">@context.Name</MudTd>
-                    <MudTd DataLabel="Batch">@(context.Batch?.Name ?? "None")</MudTd>
+                    <MudTd DataLabel="Batch">@context.BatchName</MudTd>
                     <MudTd DataLabel="Status">@context.Status</MudTd>
                     <MudTd DataLabel="Profile">
-                        <MudLink Href="@($"/trainee/{context.Id}")">@context.Id</MudLink>
+                        <MudLink Href="@($"/trainee/{context.UserId}")" Target="_blank">
+                            <MudIcon Icon="@Icons.Material.Sharp.OpenInNew" />
+                            @context.UserId
+                        </MudLink>
                     </MudTd>
                 </RowTemplate>
                 <PagerContent>
@@ -115,16 +118,23 @@ else
                 </PagerContent>
             </MudTable>
         </MudTabPanel>
-        <MudTabPanel Text="Professional Profiles">
-            <MudTable Items="@(allStudents.Where(x => x.ApplicantType == ApplicantType.Professional))" Hover="true">
+        <MudTabPanel Text="Professional Profiles" Style="font-size:1rem;padding:1rem;">
+            <MudTable Items="@employeeProfiles" Hover="true">
                 <HeaderContent>
                     <MudTh>Name</MudTh>
+                    <MudTh>Training Quotation</MudTh>
+                    <MudTh>Organization</MudTh>
                     <MudTh>Profile</MudTh>
                 </HeaderContent>
                 <RowTemplate>
                     <MudTd DataLabel="Name">@context.Name</MudTd>
+                    <MudTd DataLabel="Training">@context.Training</MudTd>
+                    <MudTd DataLabel="Organization">@context.Organization</MudTd>
                     <MudTd DataLabel="Profile">
-                        <MudLink Href="@($"/trainee/{context.Id}")">ATS Profile</MudLink>
+                        <MudLink Href="@($"/trainee/{context.Id}")" Target="_blank">
+                            <MudIcon Icon="@Icons.Material.Sharp.OpenInNew" />
+                            @context.Id
+                        </MudLink>
                     </MudTd>
                 </RowTemplate>
                 <PagerContent>
@@ -147,6 +157,8 @@ else
     private record StudentByCompetencyAggregate(string Competency, List<Student> Students);
 
     private List<Student> allStudents = [];
+    private StudentLightViewModel[]? traineeProfiles;
+    private ProfessionalViewModel[]? employeeProfiles;
     private IEnumerable<StudentByApplicationTypeAggregate> studentsByTypes = [];
     private IEnumerable<StudentByStatusAggregate> studentsByStatus = [];
     private IEnumerable<StudentByBatchAggregate> studentsByBatch = [];
@@ -183,6 +195,8 @@ else
             .Include(x => x.TechProgram)
             .Include(y => y.College)
             .Include(z => z.Batch)
+            .Include(a => a.Training)
+            .ThenInclude(b => b.Organization)
             .ToListAsync();
 
         if (allStudents is null || !allStudents.Any())
@@ -203,10 +217,42 @@ else
 
         // Group by batch
         studentsByBatch = allStudents
-           .GroupBy(x => x.Batch?.Name ?? "Not Batched")
+           .GroupBy(x => x.Batch?.Name ?? "No Batch")
            .Select(y => new StudentByBatchAggregate(y.Key, y.ToList()));
 
         lastnDaysIds = GetLastNDaysStudnets(days);
+
+        // Trainee profile list
+        traineeProfiles = allStudents
+            .Where(x => x.Status != Status.Applied &&
+                (x.ApplicantType == ApplicantType.StudentInternship ||
+                x.ApplicantType == ApplicantType.SoftwareEngineeringAspirant))
+            .Select(x => new StudentLightViewModel
+                    (
+                        x.Name,
+                        x.Id,
+                        x.ProfileImagePath ?? "/person.png",
+                        x.Status,
+                        "",
+                        x.Batch?.Name ?? "None"
+                    )
+                ).ToArray();
+
+        // professionals profile list
+        employeeProfiles = allStudents
+            .Where(x => x.Status != Status.Applied &&
+                x.ApplicantType == ApplicantType.Professional)
+            .Select(x => new ProfessionalViewModel
+                (
+                    x.Id,
+                    x.Name,
+                    x.ProfileImagePath ?? "/person.png",
+                    x.Training?.Title ?? "None",
+                    x.Training?.Organization?.Name ?? "None")
+                { Status = x.Status }
+            ).ToArray();
+
+            StateHasChanged();
 
         loadingData = false;
     }

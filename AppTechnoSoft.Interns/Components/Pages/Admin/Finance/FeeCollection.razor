@@ -14,6 +14,7 @@
              Hover="true"
              QuickFilter="@_quickFilter"
              Loading="loadingData"
+             Groupable="true"
              Hideable="true"
              ReadOnly="false"
              Dense="true"
@@ -27,7 +28,7 @@
                       AdornmentIcon="@Icons.Material.Filled.Search" IconSize="Size.Medium" Class="mt-0"></MudTextField>
     </ToolBarContent>
     <Columns>
-        <TemplateColumn Editable="false" Sortable="false" Filterable="false">
+        <TemplateColumn Editable="false" Sortable="false" Filterable="false" Groupable="false">
             <CellTemplate>
                 <MudAvatar>
                     @if (context.Item.ProfileImagePath is null or "")
@@ -41,19 +42,19 @@
                 </MudAvatar>
             </CellTemplate>
         </TemplateColumn>
-        <PropertyColumn Property="x => x.Name" Editable="false" />
-        <PropertyColumn Property="x => x.Phone" Editable="false">
+        <PropertyColumn Property="x => x.Name" Editable="false" Groupable="false" />
+        <PropertyColumn Property="x => x.Batch" Editable="false" Title="Batch" Grouping="true">
             <FooterTemplate>Total</FooterTemplate>
         </PropertyColumn>
         <PropertyColumn Property="x => x.FeeAmount" Title="Fee" Format="C2" Culture="@(new CultureInfo("ne-NP"))" AggregateDefinition="FeeAggregation" />
         <TemplateColumn AggregateDefinition="DiscountAggregation" Title="Discount">
-            <CellTemplate>                
+            <CellTemplate>
                 @($"{context.Item.DiscountAmount.AsCurrency()}({context.Item.Discount?.ToString("n2")}%)")
             </CellTemplate>
             <EditTemplate>
                 <MudNumericField Variant="Variant.Outlined" @bind-Value="@context.Item.Discount" Label="Discount" />
             </EditTemplate>
-        </TemplateColumn>       
+        </TemplateColumn>
         <PropertyColumn Property="x => x.TotalAmount" Title="Total" Format="C2" Culture="@(new CultureInfo("ne-NP"))" Editable="false" AggregateDefinition="TotalFeeToPayAggregation" />
         <PropertyColumn Property="x => x.PaidAmount" Title="Paid" Format="C2" Culture="@(new CultureInfo("ne-NP"))" AggregateDefinition="TotalFeePaidAggregation" />
         <TemplateColumn Title="Remaining" Editable="false" AggregateDefinition="TotalRemainingAggregation">
@@ -69,7 +70,7 @@
             <EditTemplate>
                 <MudRadioGroup T="bool" @bind-Value="@context.Item.Enabled">
                     <MudRadio Value="@true" Color="Color.Secondary">Enabled</MudRadio>
-                    <MudRadio Value="@false" Color="Color.Secondary">Disabled</MudRadio>                    
+                    <MudRadio Value="@false" Color="Color.Secondary">Disabled</MudRadio>
                 </MudRadioGroup>
             </EditTemplate>
         </TemplateColumn>
@@ -80,7 +81,7 @@
         </TemplateColumn>
     </Columns>
     <PagerContent>
-        <MudDataGridPager T="StudentFeeViewModel" PageSizeOptions="[15, 30, 50, 100, 200]" />
+        <MudDataGridPager T="StudentFeeViewModel" PageSizeOptions="[100, 200, 500]" />
     </PagerContent>
 </MudDataGrid>
 
@@ -166,9 +167,10 @@
 
         StudentFees = await db.FinAccounts
             .Include(s => s.Student)
+            .ThenInclude(b => b.Batch)
             .AsNoTracking()
             .Select(x => x.ToViewModel()).ToListAsync();
-            
+
         loadingData = false;
     }
 

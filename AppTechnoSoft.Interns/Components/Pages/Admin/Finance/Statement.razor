@@ -12,7 +12,7 @@
         <PropertyColumn Property="x => x.Title" Groupable="false" Filterable="false" />
         <PropertyColumn Property="x => x.Date" Title="Date">
             <CellTemplate>
-                @context.Item.Date.ToNepalTime()
+                @context.Item.Date.ToNepalTime().ToLongDateString()
             </CellTemplate>
         </PropertyColumn>
         <PropertyColumn Property="x => x.Credit" AggregateDefinition="CreditAggregation" Groupable="false" Filterable="false">
@@ -60,11 +60,11 @@
         var feeCollection = await Db.FinAccounts
             .Where(x => x.Enabled)
             .Select(y => new 
-                { 
-                    StudentName = y.Student.Name, 
-                    PaidTotal = y.PaidAmount, 
-                    DateAdded = y.Created 
-                })
+            { 
+                StudentName = y.Student.Name, 
+                PaidTotal = y.PaidAmount, 
+                DateAdded = y.Created 
+            })
             .ToListAsync();
 
         // Fee credits
@@ -79,6 +79,23 @@
                         Status = BudgetStatus.Paid,
                         Date = fee.DateAdded,
                         Notes = "Source: Fee Collection"
+                    });
+            }
+        }
+
+        // Other revenue source credits
+        var otherRevenues = await Db.Revenues.ToArrayAsync();
+        if (otherRevenues is not null)
+        {
+            foreach (var revenue in otherRevenues)
+            {
+                budgets.Add(new AccountViewModel
+                    {
+                        Title = revenue.Particulars,
+                        Credit = revenue.Amount,
+                        Status = BudgetStatus.Paid,
+                        Date = revenue.Date,
+                        Notes = revenue.Source.ToString()
                     });
             }
         }

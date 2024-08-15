@@ -28,6 +28,7 @@ public static class StudentFeeMapper
             Id = model.Id,
             StudentId = model.Student.Id,
             ProfileImagePath = model.Student.ProfileImagePath,
+            Batch = model.Student?.Batch?.Name ?? "No Batch",
             Name = model.Student.Name,
             Email = model.Student.Email,
             Phone = model.Student.Phone,

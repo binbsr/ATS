@@ -9,6 +9,7 @@ public class StudentFeeViewModel
     public string StudentId { get; set; } = string.Empty;
     public string? ProfileImagePath { get; set; }
     public string Name { get; set; } = string.Empty;
+    public string Batch { get; set; } = string.Empty;
     public string Phone { get; set; } = string.Empty;
     public string Email { get; set; } = string.Empty;
     public Status Status { get; set; }

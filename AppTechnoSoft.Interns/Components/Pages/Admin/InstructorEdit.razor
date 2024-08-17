@@ -79,6 +79,7 @@
     string pageTitle = string.Empty;
     bool IsAdd => Id is null or 0;
     string password = string.Empty;
+    bool credsInitiated = false;
 
     protected override async Task OnInitializedAsync()
     {
@@ -103,11 +104,7 @@
         if (success)
         {
             model.ProfilePath = message;
-        }
-        else
-        {
-            Console.WriteLine($"Error: {message}");
-        }
+        }        
 
         model.Tags = tagsSelected.ToList();
 
@@ -123,14 +120,12 @@
 
         var rowsAffected = await Db.SaveChangesAsync();
 
-        if (rowsAffected > 0)
-        {
-            SnackBar.Add("Instructor saved successfully", Severity.Success);
-        }
-        else
-        {
+        _ = rowsAffected > 0 ?
+            SnackBar.Add("Instructor saved successfully", Severity.Success) :
             SnackBar.Add("Instructor save failed", Severity.Error);
-        }
+
+        if (!credsInitiated)
+            return;
 
         if (model.ApplicationUserId is null)
         {
@@ -141,9 +136,28 @@
             await emailStore.SetEmailAsync(user, model.Email, CancellationToken.None);
             var result = await UserManager.CreateAsync(user, password);
             _ = await UserManager.AddToRoleAsync(user, Role.Instructor);
-            _ = result.Succeeded ?
-                SnackBar.Add("And instructor user registered successfully for login details.", Severity.Success) :
+
+            if (!result.Succeeded)
+            {
                 SnackBar.Add(string.Join(", ", result.Errors.Select(error => error.Description)), Severity.Error);
+                return;
+            }
+
+            // Update applicationuserid
+            var instrLoginUserUpdateRowsAffected = Db.Instructors
+                .Where(s => s.Id == model.Id)
+                .ExecuteUpdate(x => x
+                    .SetProperty(y => y.ApplicationUserId, user.Id)
+                );
+
+            if (instrLoginUserUpdateRowsAffected == 0)
+            {
+                // Not able to update instructor table for user just created, delete that
+                await UserManager.DeleteAsync(user);
+                return;
+            }
+
+            SnackBar.Add("And instructor user registered successfully with login details provided.", Severity.Success);
         }
         else
         {
@@ -180,5 +194,6 @@
     private void Generate()
     {
         password = PwdGenerator.NewPassword(8);
+        credsInitiated = true;
     }
 }

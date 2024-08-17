@@ -1,0 +1,43 @@
+﻿@switch (competency)
+{
+    case Competency.ATSLevelNovice:
+        <MudTooltip Text="New joinee, beginner or fresh graduate">
+            <MudChip Value="@competency" Style="background: #C8E6C9" Size="Size.Small" Label="true" />
+        </MudTooltip>
+        break;
+    case Competency.ATSLevel1:
+        <MudChip Value="@competency" Style="background: #A5D6A7" Size="Size.Small" Label="true" />
+        break;
+    case Competency.ATSLevel2:
+        <MudChip Value="@competency" Style="background: #81C784" Size="Size.Small" Label="true" />
+        break;
+    case Competency.ATSLevel3:
+        <MudChip Value="@competency" Style="background: #66BB6A" Size="Size.Small" Label="true" />
+        break;
+    case Competency.ATSLevel5:
+        <MudChip Value="@competency" Style="background: #43A047" Size="Size.Small" Label="true" />
+        break;
+    case Competency.ATSLevel8:
+        <MudChip Value="@competency" Style="background: #2E7D32" Size="Size.Small" Label="true" />
+        break;
+    case Competency.ATSLevel13:
+        <MudChip Value="@competency" Style="background: #1B5E20" Size="Size.Small" Label="true" />
+        break;
+    default:
+        <MudChip Value="@competency" Color="Color.Default" Size="Size.Small" Label="true" />
+        break;
+}
+
+@code {
+
+    [Parameter]
+    public byte Score { get; set; }
+
+    public Competency competency => Score switch
+    {
+        >= 90 => Competency.ATSLevel3,
+        >= 80 and < 90 => Competency.ATSLevel2,
+        >= 60 and < 80 => Competency.ATSLevel1,
+        < 60 => Competency.ATSLevelNovice,
+    };
+}

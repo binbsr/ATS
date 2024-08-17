@@ -165,7 +165,7 @@
             </MudItem>
             <MudItem lg="2" md="3" sm="4" Class="p-2">
                 <b>Team</b><MudText Typo="Typo.body1">@(context.Item.TeamName ?? "N/A")</MudText>
-            </MudItem> 
+            </MudItem>
             <MudItem lg="2" md="3" sm="4" Class="p-2">
                 <b>Training Track</b><MudText Typo="Typo.body1">@context.Item.TrainingTrack</MudText>
             </MudItem>
@@ -213,8 +213,16 @@
         loadingData = true;
 
         studentList = LoadAllTrainees();
-        studentFilteredList = studentList.Where(s => s.Status == Status.Applied).ToList();
-        batches = studentList.Where(x => x.BatchName != "None").Select(x => (x.BatchName, x.BatchId)).ToList();
+
+        studentFilteredList = studentList
+            .Where(s => s.Status == Status.Applied)
+            .ToList();
+
+        batches = studentList
+            .Where(x => x.BatchName != "None")
+            .Select(x => (x.BatchName, x.BatchId))
+            .DistinctBy(x => x.BatchId)
+            .ToList();
 
         loadingData = false;
     }

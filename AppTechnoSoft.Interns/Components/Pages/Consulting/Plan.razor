@@ -1,4 +1,5 @@
 ﻿@page "/consulting/plans/{Hash:guid}"
+@rendermode @(new InteractiveServerRenderMode(false))
 
 <PageTitle>@($"{model.Organization?.Name ?? ""} - {model.Title}")</PageTitle>
 
@@ -69,7 +70,7 @@ else
                                 Attendees
                                 <MudText>
                                     <MudTooltip Text="@(string.Join(", " , employeeProfiles.Select(x => x.Name)))" Arrow="true">
-                                        @employeeProfiles.Length Pax
+                                        @employeeProfiles.Count() Pax
                                     </MudTooltip>
                                 </MudText>
 
@@ -178,24 +179,45 @@ else
         @if (model.Status == TrainingStatus.Completed)
         {
             <MudItem xs="12">
-                <MudText Typo="Typo.button" Style="font-size:1.1rem;">Attendees</MudText>
-                <MudTable Items="@employeeProfiles" Hover="true" Class="p-4 border" Elevation="0">
+                <MudText Typo="Typo.button" Style="font-size:1.1rem;">Attendees Performance</MudText>
+                <MudTable Items="@employeeProfiles" Hover="true" Class="p-4 border" Elevation="0" Dense="true">
                     <HeaderContent>
-                        <MudTh>Name</MudTh>
-                        <MudTh>Training Quotation</MudTh>
-                        <MudTh>Organization</MudTh>
-                        <MudTh>Profile</MudTh>
+                        <MudTh></MudTh>
+                        <MudTh>Public Profile</MudTh>
+                        @if (employeeProfiles?.Any() ?? false)
+                        {
+                            var length = employeeProfiles.Select(x => x.Assignments?.Length)?.Max() ?? 0;
+                            for (byte j = 1; j <= length; j++)
+                            {
+                                var index = j;
+                                <MudTh>Assignment @index</MudTh>
+                            }
+                        }
                     </HeaderContent>
                     <RowTemplate>
-                        <MudTd DataLabel="Name">@context.Name</MudTd>
-                        <MudTd DataLabel="Training">@context.Training</MudTd>
-                        <MudTd DataLabel="Organization">@context.Organization</MudTd>
+                        <MudTd DataLabel="Name">
+                            <MudStack Row AlignItems="AlignItems.Center">                                
+                                <UserProfile AvatarPath="@context.AvatarPath" Name="@context.Name" Horizontal="true" />
+                            </MudStack>
+                        </MudTd>
                         <MudTd DataLabel="Profile">
                             <MudLink Href="@($"/trainee/{context.Id}")" Target="_blank">
                                 <MudIcon Icon="@Icons.Material.Sharp.OpenInNew" />
                                 @context.Id
                             </MudLink>
                         </MudTd>
+                        @{
+                            byte i = 1;
+                        }
+                        @foreach (var assignment in context.Assignments ?? [])
+                        {
+                            var assignmentLabel = $"Assignment {i++}";
+                            <MudTd DataLabel="@assignmentLabel">
+                                <ProblemSolverLabel Score="assignment.Evaluation" />
+                                <br />
+                                <StatusIndicator Assignment="assignment" />
+                            </MudTd>
+                        }
                     </RowTemplate>
                 </MudTable>
             </MudItem>
@@ -211,7 +233,7 @@ else
 
     Training model = new();
     List<Student> batchStudents = [];
-    ProfessionalViewModel[] employeeProfiles = [];
+    IEnumerable<ProfessionalViewModel> employeeProfiles = [];
     bool loading = false;
 
     protected override async Task OnInitializedAsync()
@@ -230,23 +252,33 @@ else
             .ThenInclude(y => y.Modules)
             .FirstOrDefaultAsync(x => x.Hash == Hash.ToString()) ?? new();
 
-        var students = await Db.Students
-            .Include(x => x.Training)
-            .ThenInclude(y => y.Organization)
-            .Where(x => x.TrainingId == model.Id).Select(x =>
-                new
+        if (model.Status == TrainingStatus.Completed)
+        {
+            var students = await Db.Students
+                .Where(x => x.TrainingId == model.Id)
+                .Select(x => new
                 {
                     Id = x.Id,
                     Name = x.Name,
-                    Avatar = x.ProfileImagePath,
-                    Training = x.Training.Title,
-                    Organization = x.Training.Organization.Name
+                    Avatar = x.ProfileImagePath
                 })
-            .ToArrayAsync();
+                .ToArrayAsync();
 
-        employeeProfiles = students
-            .Select(x => new ProfessionalViewModel(x.Id, x.Name, x.Avatar, x.Training, x.Organization))
-            .ToArray();
+            var studentAssignments = await Db.StudentAssignments
+                .Where(y => students.Select(x => x.Id).Contains(y.StudentId))
+                .OrderBy(y => y.TurnInDate)
+                .GroupBy(y => y.StudentId)
+                .ToArrayAsync();
+
+            employeeProfiles = from student in students
+                               join studentAssignment in studentAssignments on student.Id equals studentAssignment.Key
+                               select new ProfessionalViewModel(
+                                   student.Id,
+                                   student.Name,
+                                   student.Avatar,
+                                   Assignments: studentAssignment.OrderBy(x => x.TurnInDate).ToArray()
+                               );
+        }
 
         loading = false;
     }

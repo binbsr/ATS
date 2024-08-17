@@ -1,0 +1,34 @@
+﻿@if (Assignment is null)
+{
+    <Loading Size="Size.Small" />
+}
+else
+{
+    switch (Assignment.Status)
+    {
+        case AssignmentStatus.Complete:
+            <MudChip Value="Assignment.Status" Color="@Color.Success" Size="Size.Small" Label="true" />
+            break;
+
+        case AssignmentStatus.CompleteButMissedDeadline:
+            <MudTooltip Text="@($"Late by {(Assignment.ReturnDate - Assignment.Deadline)?.Humanize(2)}")">
+                <MudChip T="string" Color="@Color.Warning" Size="Size.Small" Label="true">
+                    Late Submission
+                </MudChip>
+            </MudTooltip>
+            break;
+        case AssignmentStatus.InComplete or AssignmentStatus.Assigned:
+            <MudChip T="string" Color="@Color.Error" Size="Size.Small" Label="true">Not Complete</MudChip>
+            break;
+
+        default:
+            <MudChip Value="@Assignment.Status" Color="@Color.Error" Size="Size.Small" Label="true" />
+            break;
+    }
+}
+
+@code {
+
+    [Parameter]
+    public StudentAssignment? Assignment { get; set; } = null;
+}

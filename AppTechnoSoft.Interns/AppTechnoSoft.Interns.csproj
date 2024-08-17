@@ -25,17 +25,5 @@
 		<PackageReference Include="Humanizer" Version="2.14.1" />
 		<PackageReference Include="Markdig" Version="0.35.0" />
 	</ItemGroup>
-
-	<ItemGroup>
-	  <Content Update="Components\Pages\Admin\Training\Add.razor">
-	    <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
-	  </Content>
-	  <Content Update="Components\Pages\Admin\Training\Edit.razor">
-	    <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
-	  </Content>
-	  <Content Update="Components\Pages\Admin\Training\Index.razor">
-	    <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
-	  </Content>
-	</ItemGroup>
-
+	
 </Project>

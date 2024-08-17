@@ -1,0 +1,43 @@
+﻿@switch (grade)
+{
+    case ProblemSolvingGrade.PreBasicSolver:
+        <MudTooltip Text="New joinee, beginner or fresh graduate">
+            <MudChip Value="@grade" Style="background: #C8E6C9" Size="Size.Small" Label="true" />
+        </MudTooltip>
+        break;
+    case ProblemSolvingGrade.BasicSolver:
+        <MudChip Value="@grade" Style="background: #A5D6A7" Size="Size.Small" Label="true" />
+        break;
+    case ProblemSolvingGrade.PreIntermediateSolver:
+        <MudChip Value="@grade" Style="background: #81C784" Size="Size.Small" Label="true" />
+        break;
+    case ProblemSolvingGrade.IntermediateSolver:
+        <MudChip Value="@grade" Style="background: #66BB6A" Size="Size.Small" Label="true" />
+        break;
+    case ProblemSolvingGrade.AdvancedSolver:
+        <MudChip Value="@grade" Style="background: #43A047" Size="Size.Small" Label="true" />
+        break;
+    case ProblemSolvingGrade.InnovativeSolver:
+        <MudChip Value="@grade" Style="background: #2E7D32" Size="Size.Small" Label="true" />
+        break;
+    case ProblemSolvingGrade.StrategicSolver:
+        <MudChip Value="@grade" Style="background: #1B5E20" Size="Size.Small" Label="true" />
+        break;
+    default:
+        <MudChip Value="@grade" Color="Color.Default" Size="Size.Small" Label="true" />
+        break;
+}
+
+@code {
+
+    [Parameter]
+    public byte Score { get; set; }
+
+    public ProblemSolvingGrade grade => Score switch
+    {
+        >= 90 => ProblemSolvingGrade.IntermediateSolver,
+        >= 80 and < 90 => ProblemSolvingGrade.PreIntermediateSolver,
+        >= 60 and < 80 => ProblemSolvingGrade.BasicSolver,
+        < 60 => ProblemSolvingGrade.PreBasicSolver,
+    };
+}

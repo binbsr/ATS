@@ -1,0 +1,109 @@
+﻿@inject IDbContextFactory<ApplicationDbContext> DbFactory
+
+@{
+    var panelClass = "pa-5 mb-5 border border-solid mud-border-tertiary";
+}
+
+@if (EmployeeId is null)
+{
+    <Loading />
+}
+else
+{
+    <MudGrid>
+        <MudItem md="6" sm="12" xs="12">
+            <MudText Typo="Typo.h6" Align="Align.Center">Daily Learnings & Class Works</MudText>
+            <MudPaper Class="@panelClass" Elevation="0">
+
+            </MudPaper>
+        </MudItem>
+        <MudItem md="6" sm="12" xs="12">
+            <MudText Typo="Typo.h6" Align="Align.Center">Assignment Performance</MudText>
+            <MudStack Class="@panelClass" Row Spacing="5">
+                @{
+                    int i = 1;
+                }
+                @foreach (var assignment in studentAssignments ?? [])
+                {
+                    var assignmentLabel = $"Assignment {i++}";
+                    <MudPaper Elevation="0">
+                        <MudChip Value="@assignmentLabel" Label="true" />
+                        <br />
+                        <ProblemSolverLabel Score="assignment.Score" />
+                        <br />
+                        <StatusIndicator Assignment="assignment" />
+                    </MudPaper>
+
+                }
+            </MudStack>
+        </MudItem>
+        <MudItem sm="12" xs="12">
+            <MudText Typo="Typo.h6" Align="Align.Center">Project Work</MudText>
+            <MudPaper Class="@panelClass" Elevation="0">
+
+            </MudPaper>
+        </MudItem>
+    </MudGrid>
+
+    <MudPaper Class="@panelClass" Elevation="0">
+        <MudText Typo="Typo.h6" Class="mb-3">@tasks.Count.ToWords().Pascalize() completed items (Daily learnings + Assignments + Project)</MudText>
+
+        <MudTimeline TimelinePosition="TimelinePosition.Start">
+            @foreach (var task in tasks)
+            {
+                <MudTimelineItem Color="@(task.TaskType == TaskType.WorkLog ? Color.Info: Color.Success)" Elevation="0" TimelineAlign="TimelineAlign.End" Class="pb-2">
+                    <MudCard Outlined>
+                        <MudCardContent Class="py-2">
+                            <MudText Typo="Typo.button">@task.Date.ToLongDateString()</MudText>
+                            @if (task.TaskType == TaskType.Assignment)
+                            {
+                                <MudText Typo="Typo.body2">@task.Task - @task.Details</MudText>
+                            }
+                            else
+                            {
+                                <MudText Typo="Typo.body2">@task.Task</MudText>
+                            }
+                        </MudCardContent>
+                    </MudCard>
+                </MudTimelineItem>
+            }
+        </MudTimeline>
+    </MudPaper>
+}
+
+@code {
+
+    [Parameter]
+    public string? EmployeeId { get; set; }
+
+    List<TraineeTask> tasks = [];
+    IEnumerable<StudentAssignmentLightViewModel> studentAssignments = [];
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (EmployeeId is null)
+            return;
+
+        using var Db = DbFactory.CreateDbContext();
+        // See if student is learning, if he/she has at least 5 entries for worklogs, treat it as learning
+        var attendances = await Db.Attendances.Where(x => x.StudentId == EmployeeId && x.WorkLog != null).ToListAsync();
+        if (attendances is not null && attendances.Any())
+        {
+            tasks.AddRange(attendances.Select(x => new TraineeTask(x.Date.ToDateTime(TimeOnly.MinValue), x.WorkLog!, "", TaskType.WorkLog)));
+        }
+
+        // pull assignments data
+        var assignments = await Db.StudentAssignments
+            .Where(x => x.StudentId == EmployeeId)
+            .Select(x => new { ReturnDate = x.ReturnDate, Deadline = x.Deadline, Title = x.Assignment!.Title, Score = x.Evaluation, Status = x.Status })
+            .ToListAsync();
+
+        if (assignments != null && assignments.Any())
+        {
+            studentAssignments = assignments.Select(x => new StudentAssignmentLightViewModel(x.Title, x.ReturnDate, x.Deadline, x.Score, x.Status));
+            tasks.AddRange(assignments.Select(x => new TraineeTask(x.ReturnDate ?? new(), $"Assignment: {x.Title}", $"Achieved {(x.Score / (double)100).ToString("P")}, Status: {x.Status}", TaskType.Assignment)));
+        }
+
+        tasks = tasks.OrderBy(x => x.Date).ToList();
+    }
+}

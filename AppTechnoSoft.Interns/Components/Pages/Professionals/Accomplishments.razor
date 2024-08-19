@@ -10,11 +10,11 @@
 }
 else
 {
-    <MudText Align="Align.Center">
-        <MudLink Href="@($"/professional/{employee.Id}")" Target="_blank" Style="font-size:1.5rem">Public Profile <MudIcon Icon="@Icons.Material.Sharp.OpenInNew" /></MudLink>
+    <MudText Align="Align.Center" Class="mt-2 mb-0">
+        <MudLink Href="@($"/profile/professional/{employee.Id}")" Target="_blank" Style="font-size:1.5rem">Public Profile <MudIcon Icon="@Icons.Material.Sharp.OpenInNew" /></MudLink>
     </MudText>
 
-    <ProAccomplishment EmployeeId="@employee.Id" />
+    <ProAccomplishment EmployeeId="@employee.Id" Batch="@batchId" />
 }
 
 @code {
@@ -24,6 +24,7 @@ else
 
     private ProfessionalViewModel employee = null!;
     private List<TraineeTask> tasks = [];
+    private int? batchId;
 
     protected override async Task OnInitializedAsync()
     {
@@ -35,6 +36,7 @@ else
             .Select(x => new
             {
                 Id = x.Id,
+                BatchId = x.BatchId,
                 Name = x.Name,
                 Status = x.Status,
                 AvatarPath = x.ProfileImagePath,
@@ -45,6 +47,8 @@ else
 
         if (student is null)
             return;
+
+        batchId = student.BatchId;
 
         employee = new ProfessionalViewModel(
             student.Id,

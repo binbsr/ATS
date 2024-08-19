@@ -28,7 +28,7 @@ else
         </MudText>
     </MudStack>
 
-    <ProAccomplishment EmployeeId="@trainee.Id" />
+    <ProAccomplishment EmployeeId="@trainee.Id" Batch="@batchId" />
 }
 
 @code {
@@ -37,6 +37,7 @@ else
     public string Id { get; set; } = null!;
 
     private ProfessionalViewModel trainee = null!;
+    int? batchId;
 
     protected override async Task OnInitializedAsync()
     {
@@ -46,9 +47,10 @@ else
             .Where(y => y.Id == Id)
             .Select(x => new
             {
-                Id = x.Id,
-                Name = x.Name,
-                Status = x.Status,
+                x.Id,
+                x.Name,
+                x.Status,
+                x.BatchId,
                 AvatarPath = x.ProfileImagePath,
                 Training = x.Training.Title,
                 TrainingHours = x.Training.DurationHours,
@@ -56,6 +58,8 @@ else
             })
             .FirstOrDefaultAsync();
 
+        batchId = student.BatchId;
+        
         trainee = new ProfessionalViewModel(
             student!.Id,
             student.Name,

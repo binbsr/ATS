@@ -201,7 +201,7 @@ else
                             </MudStack>
                         </MudTd>
                         <MudTd DataLabel="Profile">
-                            <MudLink Href="@($"/trainee/{context.Id}")" Target="_blank">
+                            <MudLink Href="@($"/profile/professional/{context.Id}")" Target="_blank">
                                 <MudIcon Icon="@Icons.Material.Sharp.OpenInNew" />
                                 @context.Id
                             </MudLink>
@@ -215,7 +215,7 @@ else
                             <MudTd DataLabel="@assignmentLabel">
                                 <ProblemSolverLabel Score="assignment.Evaluation" />
                                 <br />
-                                <StatusIndicator Assignment="@(new ("", assignment.ReturnDate, assignment.Deadline, assignment.Evaluation, assignment.Status))" />
+                                <StatusIndicator Assignment="@(new ("", "", assignment.ReturnDate, assignment.Deadline, assignment.Evaluation, assignment.Status))" />
                             </MudTd>
                         }
                     </RowTemplate>

@@ -5,15 +5,26 @@
 @inject NavigationManager Navigation
 @inject ApplicationDbContext Db
 
-<PageTitle>Edit Organization</PageTitle>
+<PageTitle>Edit Course Quote</PageTitle>
 
 <EditForm Model="@model" OnValidSubmit="OnValidSubmit">
-    <MudTextField Label="Title" @bind-Value="model.Name" Variant="Variant.Outlined" />
-    <MudTextField Class="mt-3" Lines="5" @bind-Value="model.Details" Variant="Variant.Outlined" />
-    <MudSelect @bind-Value="@model.OrganizationType">
-        @foreach (var org in Enum.GetValues<OrganizationType>())
+    <MudTextField Label="Course Code" @bind-Value="model.Code" Variant="Variant.Outlined" />
+    <MudTextField Label="Course Description" Class="mt-3" Lines="3" @bind-Value="model.Description" Variant="Variant.Outlined" />
+    <MudNumericField Label="Price per unit" Format="N2" Class="mt-3" @bind-Value="model.PricePerUnit" Variant="Variant.Outlined" />
+
+    <MudSelect T="Widget"
+               Label="Course Modules"
+               MultiSelection
+               Dense
+               Placeholder="Select course modules"
+               @bind-SelectedValues="@selectedModules"
+               AnchorOrigin="Origin.BottomCenter"
+               ToStringFunc="x => x.Description"
+               Variant="Variant.Outlined"
+               Class="my-3">
+        @foreach (var module in techModules)
         {
-            <MudSelectItem Value="@org">@org</MudSelectItem>
+            <MudSelectItem Value="@module" />
         }
     </MudSelect>
 
@@ -30,26 +41,31 @@
     [Parameter]
     public int Id { get; set; }
 
-    Organization model = new();
+    CourseQuote? model = new();
+    List<Widget> techModules = [];
+    IEnumerable<Widget> selectedModules = [];
 
     protected override async Task OnInitializedAsync()
     {
-        model = await Db.Organizations.FindAsync(Id) ?? new();
+        techModules = await Db.Widgets.Where(x => x.Title == nameof(WidgetFilter.Module)).ToListAsync();
+        model = await Db.CourseQuotes.Include(x => x.Modules).FirstOrDefaultAsync(x => x.Id == Id);
+        selectedModules = model.Modules;
     }
 
     private async Task OnValidSubmit(EditContext context)
     {
-        Db.Organizations.Update(model);
+        model.Modules = selectedModules.ToList();
+        Db.CourseQuotes.Update(model);
         var rowsAffected = await Db.SaveChangesAsync();
 
         if (rowsAffected > 0)
         {
-            SnackBar.Add("Organization saved successfully", Severity.Success);
+            SnackBar.Add("Quote saved successfully", Severity.Success);
             Navigation.NavigateTo("/admin/quotes");
         }
         else
         {
-            SnackBar.Add("Organization save failed", Severity.Error);
+            SnackBar.Add("Quote save failed", Severity.Error);
         }
     }
 }

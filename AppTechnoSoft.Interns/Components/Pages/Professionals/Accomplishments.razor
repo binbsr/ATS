@@ -10,121 +10,21 @@
 }
 else
 {
-    var panelClass = "pa-5 mb-5 border border-solid mud-border-tertiary";
-
-    <MudText Align="Align.Center">
-        <MudLink Href="@($"/trainee/{employee.Id}")" Target="_blank" Style="font-size:1.5rem">Public Profile <MudIcon Icon="@Icons.Material.Sharp.OpenInNew" /></MudLink>
+    <MudText Align="Align.Center" Class="mt-2 mb-0">
+        <MudLink Href="@($"/profile/professional/{employee.Id}")" Target="_blank" Style="font-size:1.5rem">Public Profile <MudIcon Icon="@Icons.Material.Sharp.OpenInNew" /></MudLink>
     </MudText>
-    
-    <MudPaper Class="@panelClass" Elevation="0">
-        <MudText Typo="Typo.h6" Class="mb-2">Progress with AppSoft</MudText>
-        @{
-            bool applied = false, enrolled = false, learning = false, contribution = false, evaluated = false, docs = false, completed = false;
-            switch (employee.Status)
-            {
-                case Status.Applied:
-                    applied = true;
-                    break;
-                case Status.Enrolled:
-                    applied = true;
-                    enrolled = true;
-                    break;
-                case Status.Learning:
-                    applied = true;
-                    enrolled = true;
-                    learning = true;
-                    break;
-                case Status.Contribution:
-                    applied = true;
-                    enrolled = true;
-                    learning = true;
-                    contribution = true;
-                    break;
-                case Status.Evaluated:
-                    applied = true;
-                    enrolled = true;
-                    learning = true;
-                    contribution = true;
-                    evaluated = true;
-                    break;
-                case Status.Documentation:
-                    applied = true;
-                    enrolled = true;
-                    learning = true;
-                    contribution = true;
-                    evaluated = true;
-                    docs = true;
-                    break;
-                case Status.Completed:
-                    applied = true;
-                    enrolled = true;
-                    learning = true;
-                    contribution = true;
-                    evaluated = true;
-                    docs = true;
-                    completed = true;
-                    break;
-            }
-        }
 
-        <MudTimeline TimelineOrientation="TimelineOrientation.Horizontal"
-                     TimelinePosition="TimelinePosition.Top">           
-
-            <AccomplishmentStatusItem Enabled="@enrolled"
-                                      BubbleIcon="@Icons.Material.Sharp.BatchPrediction"
-                                      Text="Enrolled" />
-
-            <AccomplishmentStatusItem Enabled="@learning"
-                                      BubbleIcon="@Icons.Material.Sharp.ModelTraining"
-                                      Text="Learning" />
-
-            <AccomplishmentStatusItem Enabled="@contribution"
-                                      BubbleIcon="@Icons.Material.Sharp.Code"
-                                      Text="Project" />
-
-            <AccomplishmentStatusItem Enabled="@evaluated"
-                                      BubbleIcon="@Icons.Material.Sharp.CreditScore"
-                                      Text="Evaluation" />
-
-            <AccomplishmentStatusItem Enabled="@completed"
-                                      BubbleIcon="@Icons.Material.Sharp.Done"
-                                      Text="Completed" />
-        </MudTimeline>
-    </MudPaper>
-
-    <MudPaper Class="@panelClass" Elevation="0">
-        <MudText Typo="Typo.h6" Class="mb-3">@tasks.Count.ToWords().Pascalize() completed items (Daily learnings + Assignments + Project)</MudText>
-
-        <MudTimeline TimelinePosition="TimelinePosition.Start">
-            @foreach (var task in tasks)
-            {
-                <MudTimelineItem Color="@(task.TaskType == TaskType.WorkLog ? Color.Info: Color.Success)" Elevation="0" TimelineAlign="TimelineAlign.End" Class="pb-2">
-                    <MudCard Outlined>
-                        <MudCardContent Class="py-2">
-                            <MudText Typo="Typo.button">@task.Date.ToLongDateString()</MudText>
-                            @if (task.TaskType == TaskType.Assignment)
-                            {
-                                <MudText Typo="Typo.body2">@task.Task - @task.Details</MudText>
-                            }
-                            else
-                            {
-                                <MudText Typo="Typo.body2">@task.Task</MudText>
-                            }
-                        </MudCardContent>
-                    </MudCard>
-                </MudTimelineItem>
-            }
-        </MudTimeline>
-    </MudPaper>
+    <ProAccomplishment EmployeeId="@employee.Id" Batch="@batchId" />
 }
 
 @code {
 
     [CascadingParameter]
-    private Task<AuthenticationState> AuthTask { get; set; } = null!;
+    private Task<AuthenticationState> AuthTask { get; set; }
 
     private ProfessionalViewModel employee = null!;
     private List<TraineeTask> tasks = [];
+    private int? batchId;
 
     protected override async Task OnInitializedAsync()
     {
@@ -136,6 +36,7 @@ else
             .Select(x => new
             {
                 Id = x.Id,
+                BatchId = x.BatchId,
                 Name = x.Name,
                 Status = x.Status,
                 AvatarPath = x.ProfileImagePath,
@@ -147,6 +48,8 @@ else
         if (student is null)
             return;
 
+        batchId = student.BatchId;
+
         employee = new ProfessionalViewModel(
             student.Id,
             student.Name,
@@ -156,31 +59,5 @@ else
             {
                 Status = student.Status
             };
-
-        // See if student is learning, if he/she has at least 5 entries for worklogs, treat it as learning
-        var attendances = await Db.Attendances.Where(x => x.StudentId == employee.Id && x.WorkLog != null).ToListAsync();
-
-        if (attendances is null || !attendances.Any())
-            return;
-
-        if (attendances.Count > 4 && employee.Status == Status.Enrolled)   // 5 or more tasks logged and is in enrolled status
-        {
-            employee.Status = Status.Learning;
-        }
-
-        tasks.AddRange(attendances.Select(x => new TraineeTask(x.Date.ToDateTime(TimeOnly.MinValue), x.WorkLog!, "", TaskType.WorkLog)));
-
-        // pull assignments data
-        var assignments = await Db.StudentAssignments
-            .Where(x => x.StudentId == employee.Id)
-            .Select(x => new { ReturnDate = x.ReturnDate, Title = x.Assignment!.Title, Score = x.Evaluation, Status = x.Status })
-            .ToListAsync();
-
-        if (assignments != null && assignments.Any())
-        {
-            tasks.AddRange(assignments.Select(x => new TraineeTask(x.ReturnDate!.Value, $"Assignment: {x.Title}", $"Achieved {(x.Score / (double)100).ToString("P")}, Status: {x.Status}", TaskType.Assignment)));
-        }
-
-        tasks = tasks.OrderBy(x => x.Date).ToList();
     }
 }

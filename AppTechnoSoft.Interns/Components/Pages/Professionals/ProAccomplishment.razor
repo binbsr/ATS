@@ -1,0 +1,173 @@
+﻿@inject IDbContextFactory<ApplicationDbContext> DbFactory
+
+@{
+    var panelClass = "pa-5 mb-5 border border-solid mud-border-tertiary";
+}
+
+@if (EmployeeId is null)
+{
+    <Loading />
+}
+else
+{
+    <MudGrid Class="m-0 p-0">
+        <MudItem md="6" sm="12" xs="12">
+            <MudText Typo="Typo.h6" Align="Align.Center">Attendance</MudText>
+            <MudPaper Class="@panelClass" Elevation="0">
+                @foreach (var att in attendance)
+                {
+                    <MudTooltip Text="@att.Date.ToString("D")">
+                        <MudChip Color="@(att.Present ? Color.Success : Color.Error)" Value="@(att.Present ? "P" : "A")" Label="true" />
+                    </MudTooltip>
+                }
+            </MudPaper>
+        </MudItem>
+        <MudItem md="6" sm="12" xs="12">
+            <MudText Typo="Typo.h6" Align="Align.Center">Assignment Performance</MudText>
+            <MudStack Class="@panelClass" Row>
+                @{
+                    int i = 1;
+                }
+                @foreach (var assignment in studentAssignments ?? [])
+                {
+                    var assignmentLabel = $"Assignment {i++}";
+                    <MudStack Spacing="1" AlignItems="AlignItems.Center">
+                        <MudChip Value="@assignmentLabel" Label="true" Icon="@Icons.Material.Sharp.Assignment" Style="font-weight:bolder" />
+                        <ProblemSolverLabel Score="assignment.Score" />
+                        <StatusIndicator Assignment="assignment" />
+                    </MudStack>
+                }
+            </MudStack>
+        </MudItem>
+        @* <MudItem sm="12" xs="12">
+    <MudText Typo="Typo.h6" Align="Align.Center">Project Work</MudText>
+    <MudPaper Class="@panelClass" Elevation="0">
+
+    </MudPaper>
+    </MudItem> *@
+    </MudGrid>
+
+    <MudPaper Class="@panelClass" Elevation="0">
+        <MudText Typo="Typo.h6" Class="mb-3">@studentAttendances.Count Learning Tasks + @studentAssignments.Count() Assignments</MudText>
+
+        <MudTimeline TimelinePosition="TimelinePosition.Start">
+            @foreach (var task in tasks)
+            {
+                <MudTimelineItem Elevation="0"
+                                 Size="Size.Medium"
+                                 Variant="Variant.Filled"
+                                 Color="@(task.TaskType == TaskType.WorkLog ? Color.Info : Color.Success)"
+                                 TimelineAlign="TimelineAlign.End"
+                                 Class="pb-2">
+                    <ItemDot>
+                        @if (task.TaskType == TaskType.WorkLog)
+                        {
+                            <MudIcon Size="Size.Medium"
+                                     Icon="@Icons.Material.Filled.TaskAlt" />
+                        }
+                        else if (task.TaskType == TaskType.Assignment)
+                        {
+                            <MudIcon Size="Size.Medium"
+                                     Icon="@Icons.Material.Filled.Assignment" />
+                        }
+                    </ItemDot>
+                    <ItemContent>
+                        <MudCard Outlined>
+                            <MudCardContent Class="py-2">
+                                <MudText Typo="Typo.button">@task.Date.ToLongDateString()</MudText>
+                                @if (task.TaskType == TaskType.Assignment)
+                                {
+                                    <MudText Typo="Typo.body2">@task.Task, @task.Details</MudText>
+                                }
+                                else
+                                {
+                                    <MudText Typo="Typo.body2">@task.Task</MudText>
+                                }
+                            </MudCardContent>
+                        </MudCard>
+                    </ItemContent>
+                </MudTimelineItem>
+            }
+        </MudTimeline>
+    </MudPaper>
+}
+
+@code {
+
+    [Parameter]
+    public string? EmployeeId { get; set; }
+
+    [Parameter]
+    public int? Batch { get; set; }
+
+    List<TraineeTask> tasks = [];
+    IEnumerable<StudentAssignmentLightViewModel> studentAssignments = [];
+    List<Attendance> studentAttendances = [];
+    List<(DateTime Date, bool Present)> attendance = [];
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (EmployeeId is null)
+            return;
+
+        using var Db = DbFactory.CreateDbContext();
+        // See if student is learning, if he/she has at least 5 entries for worklogs, treat it as learning
+        studentAttendances = await Db.Attendances.Where(x => x.StudentId == EmployeeId && x.WorkLog != null).ToListAsync();
+        if (studentAttendances is not null && studentAttendances.Any())
+        {
+            tasks.AddRange(studentAttendances.Select(x => new TraineeTask(x.Date.ToDateTime(TimeOnly.MinValue), x.WorkLog!, "", TaskType.WorkLog)));
+        }
+
+        var batchClasses = await Db.ClassSchedules
+            .Where(b => b.BatchId == Batch)
+            .Select(x => new { x.ClassStart, x.DurationHours })
+            .ToArrayAsync();
+
+        if (batchClasses is not null)
+        {
+            var total = batchClasses.Select(x => x.ClassStart.Date).ToArray();
+            var stPresentDays = studentAttendances.Select(x => x.Date.ToDateTime(default)).ToArray();
+
+            if (total != null && stPresentDays != null)
+            {
+                // Get user punchin dates which are within batch calendar dates
+                var presents = total.Intersect(stPresentDays).ToArray();
+                foreach (var t in total)
+                {
+                    attendance.Add((t, presents.Contains(t)));
+                }
+            }
+        }
+
+        // pull assignments data
+        var assignments = await Db.StudentAssignments
+            .Where(x => x.StudentId == EmployeeId)
+            .Select(x => new
+            {
+                Module = x.Assignment.Module.Description ?? "None",
+                ReturnDate = x.ReturnDate,
+                Deadline = x.Deadline,
+                Title = x.Assignment!.Title,
+                Score = x.Evaluation,
+                Status = x.Status
+            })
+            .ToListAsync();
+
+        if (assignments != null && assignments.Any())
+        {
+            studentAssignments = assignments.Select(x => new StudentAssignmentLightViewModel(x.Title,
+                x.Module,
+                x.ReturnDate,
+                x.Deadline,
+                x.Score,
+                x.Status));
+            tasks.AddRange(assignments.Select(x =>
+                new TraineeTask(x.ReturnDate ?? new(),
+                $"Assignment: {x.Title}",
+                $"Module: {x.Module}",
+                TaskType.Assignment)));
+        }
+
+        tasks = tasks.OrderBy(x => x.Date).ToList();
+    }
+}

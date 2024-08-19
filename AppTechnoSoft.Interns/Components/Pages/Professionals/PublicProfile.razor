@@ -1,0 +1,74 @@
+﻿@page "/profile/professional/{Id}"
+
+@inject ApplicationDbContext Db
+
+<PageTitle>ATS Profile - @(trainee?.Name ?? "Trainee")</PageTitle>
+
+@if (trainee is null)
+{
+    <Loading />
+}
+else
+{
+    <MudStack Row="true" Justify="Justify.Center" AlignItems="AlignItems.Center" Spacing="16" Class="mt-4 mb-10">
+        <MudText Typo="Typo.h5" Align="Align.Right">
+            @trainee.Name
+            <MudText Typo="Typo.body1">
+                @trainee.Organization
+            </MudText>
+        </MudText>
+        <MudAvatar Style="height:128px; width:128px;">
+            <MudImage Src="@trainee.AvatarPath" />
+        </MudAvatar>
+        <MudText Typo="Typo.h5" Align="Align.Left">
+            @trainee.Training
+            <MudText Typo="Typo.body1">
+                @trainee.TrainingHours Hours Training Plan
+            </MudText>
+        </MudText>
+    </MudStack>
+
+    <ProAccomplishment EmployeeId="@trainee.Id" Batch="@batchId" />
+}
+
+@code {
+
+    [Parameter]
+    public string Id { get; set; } = null!;
+
+    private ProfessionalViewModel trainee = null!;
+    int? batchId;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var student = await Db.Students
+            .Include(x => x.Training)
+            .ThenInclude(y => y.Organization)
+            .Where(y => y.Id == Id)
+            .Select(x => new
+            {
+                x.Id,
+                x.Name,
+                x.Status,
+                x.BatchId,
+                AvatarPath = x.ProfileImagePath,
+                Training = x.Training.Title,
+                TrainingHours = x.Training.DurationHours,
+                Organization = x.Training.Organization.Name
+            })
+            .FirstOrDefaultAsync();
+
+        batchId = student.BatchId;
+        
+        trainee = new ProfessionalViewModel(
+            student!.Id,
+            student.Name,
+            student.AvatarPath ?? "/person.png",
+            student.Training,
+            student.Organization,
+            student.TrainingHours)
+            {
+                Status = student.Status
+            };
+    }
+}

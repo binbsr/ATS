@@ -6,6 +6,9 @@
 @inject ISnackbar SnackBar
 @inject NavigationManager Navigation
 
+<PageTitle>Edit Class Calendar</PageTitle>
+
+
 <EditForm Model="@model" OnValidSubmit="OnValidSubmit">
     <MudCard>
         <MudCardContent>
@@ -47,7 +50,6 @@
                  <MudItem md="4" xs="12">
                      <MudText Align="Align.Center" Class="mt-4" Typo="Typo.body1">Choose a date</MudText>
                      <MudDatePicker PickerVariant="PickerVariant.Static"
-                                    IsDateDisabledFunc="date => date.Date < DateTime.Today"
                                     Color="Color.Secondary"
                                     @bind-Date="classStartDay" />
                 </MudItem>

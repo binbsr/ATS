@@ -1,10 +1,12 @@
 ﻿@page "/schedule/add"
 
-@attribute [Authorize(Roles = Role.Admins)]
+@attribute [Authorize(Roles = Role.AdminsAndInstructor)]
 
 @inject ApplicationDbContext Db
 @inject ISnackbar SnackBar
 @inject NavigationManager Navigation
+
+<PageTitle>New Class Calendar</PageTitle>
 
 <EditForm Model="@model" OnValidSubmit="OnValidSubmit">
     <MudCard>
@@ -48,7 +50,6 @@
                      <MudText Align="Align.Center" Class="mt-4" Typo="Typo.body1">Choose a date or multiple dates - <b>@selectedDayCount @(selectedDayCount == 1 ? $"day" : "days") selected</b></MudText>
                     <MudDateRangePicker PickerVariant="PickerVariant.Static"
                                         Color="Color.Secondary"
-                                        IsDateDisabledFunc="@(date => date.Date < DateTime.Today)"
                                         @bind-DateRange="@dateRange" />
                 </MudItem>
                 <MudItem md="3" xs="12">
@@ -175,11 +176,11 @@
 
         if (rowsAffected > 0)
         {
-            SnackBar.Add("Module schedules saved successfully", Severity.Success);
+            SnackBar.Add("Calendar saved successfully", Severity.Success);
         }
         else
         {
-            SnackBar.Add("Module schedules save failed", Severity.Error);
+            SnackBar.Add("Calendar save failed", Severity.Error);
         }
 
         Navigation.NavigateTo("/schedules");

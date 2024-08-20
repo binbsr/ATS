@@ -1,7 +1,7 @@
 ﻿@inject IDbContextFactory<ApplicationDbContext> DbFactory
 
 @{
-    var panelClass = "pa-5 mb-5 border border-solid mud-border-tertiary";
+    var panelClass = "pa-4 mb-5 border border-solid mud-border-tertiary";
 }
 
 @if (EmployeeId is null)
@@ -13,18 +13,28 @@ else
     <MudGrid Class="m-0 p-0">
         <MudItem md="6" sm="12" xs="12">
             <MudText Typo="Typo.h6" Align="Align.Center">Attendance</MudText>
-            <MudPaper Class="@panelClass" Elevation="0">
-                @foreach (var att in attendance)
-                {
-                    <MudTooltip Text="@att.Date.ToString("D")">
-                        <MudChip Color="@(att.Present ? Color.Success : Color.Error)" Value="@(att.Present ? "P" : "A")" Label="true" />
-                    </MudTooltip>
-                }
-            </MudPaper>
+            <MudStack Class="@panelClass" Spacing="2">
+                <MudStack Row>
+                    <MudChip T="string" Style="font-weight:bolder" Icon="@Icons.Material.Sharp.CalendarMonth" Label="true">
+                        @DaysCount.PresentDays / @DaysCount.TotalCalendarDays calendar days
+                    </MudChip>
+                    <MudChip T="string" Style="font-weight:bolder" Icon="@Icons.Material.Sharp.Timer" Label="true">
+                        @HoursCount.PresentHours / @HoursCount.TotalCalendarHours class hours
+                    </MudChip>
+                </MudStack>
+                <MudStack Row Wrap="Wrap.Wrap" Spacing="1">
+                    @foreach (var att in attendance)
+                    {
+                        <MudTooltip Text="@att.Date.ToString("D")">
+                            <MudChip Color="@(att.Present ? Color.Success : Color.Error)" Value="@(att.Present ? "P" : "A")" Label="true" />
+                        </MudTooltip>
+                    }
+                </MudStack>
+            </MudStack>
         </MudItem>
         <MudItem md="6" sm="12" xs="12">
             <MudText Typo="Typo.h6" Align="Align.Center">Assignment Performance</MudText>
-            <MudStack Class="@panelClass" Row>
+            <MudStack Class="@panelClass" Row Wrap="Wrap.Wrap">
                 @{
                     int i = 1;
                 }
@@ -104,6 +114,8 @@ else
     IEnumerable<StudentAssignmentLightViewModel> studentAssignments = [];
     List<Attendance> studentAttendances = [];
     List<(DateTime Date, bool Present)> attendance = [];
+    (int PresentDays, int TotalCalendarDays) DaysCount = (0, 0);
+    (float PresentHours, float TotalCalendarHours) HoursCount = (0.0f, 0.0f);
 
     protected override async Task OnInitializedAsync()
     {
@@ -132,6 +144,12 @@ else
             {
                 // Get user punchin dates which are within batch calendar dates
                 var presents = total.Intersect(stPresentDays).ToArray();
+
+                // Get total days and duration hours
+                DaysCount = (presents.Length, batchClasses.Length);
+                HoursCount = (batchClasses.Where(x => presents.Contains(x.ClassStart.Date)).Sum(y => y.DurationHours),
+                    batchClasses.Sum(x => x.DurationHours));
+
                 foreach (var t in total)
                 {
                     attendance.Add((t, presents.Contains(t)));

@@ -150,10 +150,7 @@ else
                 HoursCount = (batchClasses.Where(x => presents.Contains(x.ClassStart.Date)).Sum(y => y.DurationHours),
                     batchClasses.Sum(x => x.DurationHours));
 
-                foreach (var t in total)
-                {
-                    attendance.Add((t, presents.Contains(t)));
-                }
+                attendance = total.Select(x => (x, presents.Contains(x))).OrderBy(x => x.x).ToList();
             }
         }
 

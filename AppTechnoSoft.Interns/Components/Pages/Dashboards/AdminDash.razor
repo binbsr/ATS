@@ -107,7 +107,7 @@ else
                     <MudTd DataLabel="Batch">@context.BatchName</MudTd>
                     <MudTd DataLabel="Status">@context.Status</MudTd>
                     <MudTd DataLabel="Profile">
-                        <MudLink Href="@($"/trainee/{context.UserId}")" Target="_blank">
+                        <MudLink Href="@($"/profile/trainee/{context.UserId}")" Target="_blank">
                             <MudIcon Icon="@Icons.Material.Sharp.OpenInNew" />
                             @context.UserId
                         </MudLink>
@@ -131,7 +131,7 @@ else
                     <MudTd DataLabel="Training">@context.Training</MudTd>
                     <MudTd DataLabel="Organization">@context.Organization</MudTd>
                     <MudTd DataLabel="Profile">
-                        <MudLink Href="@($"/trainee/{context.Id}")" Target="_blank">
+                        <MudLink Href="@($"/profile/professional/{context.Id}")" Target="_blank">
                             <MudIcon Icon="@Icons.Material.Sharp.OpenInNew" />
                             @context.Id
                         </MudLink>

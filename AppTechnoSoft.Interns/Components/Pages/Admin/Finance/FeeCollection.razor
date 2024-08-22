@@ -49,7 +49,7 @@
         <PropertyColumn Property="x => x.FeeAmount" Title="Fee" Format="C2" Culture="@(new CultureInfo("ne-NP"))" AggregateDefinition="FeeAggregation" />
         <TemplateColumn AggregateDefinition="DiscountAggregation" Title="Discount">
             <CellTemplate>
-                @($"{context.Item.DiscountAmount.AsCurrency()}({context.Item.Discount?.ToString("n2")}%)")
+                @($"{context.Item.DiscountAmount?.AsCurrency()}({context.Item.Discount?.ToString("n2")}%)")
             </CellTemplate>
             <EditTemplate>
                 <MudNumericField Variant="Variant.Outlined" @bind-Value="@context.Item.Discount" Label="Discount" />
@@ -59,7 +59,7 @@
         <PropertyColumn Property="x => x.PaidAmount" Title="Paid" Format="C2" Culture="@(new CultureInfo("ne-NP"))" AggregateDefinition="TotalFeePaidAggregation" />
         <TemplateColumn Title="Remaining" Editable="false" AggregateDefinition="TotalRemainingAggregation">
             <CellTemplate>
-                @((context.Item.TotalAmount - context.Item.PaidAmount).AsCurrency())
+                @((context.Item.TotalAmount - context.Item.PaidAmount)?.AsCurrency())
             </CellTemplate>
         </TemplateColumn>
         <PropertyColumn Property="x => x.AddedBy" Title="Added By" Editable="false" />
@@ -100,7 +100,7 @@
             CustomAggregate = x =>
             {
                 var totalFee = x.Sum(y => y.FeeAmount);
-                return $"{totalFee.AsCurrency()}";
+                return $"{totalFee?.AsCurrency()}";
             }
         };
 
@@ -110,7 +110,7 @@
             CustomAggregate = x =>
             {
                 var totalDiscountAmount = x.Sum(y => y.FeeAmount * y.Discount / 100);
-                return $"{totalDiscountAmount.AsCurrency()}";
+                return $"{totalDiscountAmount?.AsCurrency()}";
             }
         };
 
@@ -120,7 +120,7 @@
             CustomAggregate = x =>
             {
                 var totalTotalFeeToPayAmount = x.Sum(y => y.TotalAmount);
-                return $"{totalTotalFeeToPayAmount.AsCurrency()}";
+                return $"{totalTotalFeeToPayAmount?.AsCurrency()}";
             }
         };
 
@@ -130,7 +130,7 @@
             CustomAggregate = x =>
             {
                 var totalTotalFeePaidAmount = x.Sum(y => y.PaidAmount);
-                return $"{totalTotalFeePaidAmount.AsCurrency()}";
+                return $"{totalTotalFeePaidAmount?.AsCurrency()}";
             }
         };
 
@@ -140,7 +140,7 @@
             CustomAggregate = x =>
             {
                 var totalRemainingAmount = x.Sum(y => y.RemainingAmount);
-                return $"{totalRemainingAmount.AsCurrency()}";
+                return $"{totalRemainingAmount?.AsCurrency()}";
             }
         };
 

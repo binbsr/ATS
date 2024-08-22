@@ -1,0 +1,60 @@
+﻿@page "/loan/add"
+
+@attribute [Authorize(Roles = Role.SuperAdmin)]
+
+@inject ApplicationDbContext Db
+@inject ISnackbar SnackBar
+@inject NavigationManager Navigation
+
+<PageTitle>Add Loan</PageTitle>
+
+<MudContainer>
+    <EditForm Model="@model" OnValidSubmit="OnValidSubmit">
+        <MudSwitch @bind-Value="model.CompanyLending" Color="Color.Primary" Label="Lending From Company?" />
+        <MudTextField Variant="Variant.Outlined" Label="Lender" Class="mt-3" @bind-Value="model.Lender" />
+        <MudTextField Variant="Variant.Outlined" Label="Borrower" Class="mt-3" @bind-Value="model.Borrower" />
+        <MudNumericField Variant="Variant.Outlined" Label="Principal" Class="mt-3" @bind-Value="model.Principal" />
+        <MudNumericField Variant="Variant.Outlined" Label="IntrestRate" Class="mt-3" @bind-Value="model.InterestRate" />
+        <MudDatePicker Variant="Variant.Outlined" Color="Color.Secondary" Label="Issue Date" @bind-Date="model.IssueDate" />
+        <MudDatePicker Variant="Variant.Outlined" Color="Color.Secondary" Label="Repayment Date" Class="mt-3" @bind-Date="model.RepaymentDate" />
+
+
+        <MudButton ButtonType="ButtonType.Submit"
+                   Variant="Variant.Filled"
+                   Color="Color.Tertiary"
+                   Class="mt-3"
+                   StartIcon="@Icons.Material.Filled.Save">
+            Add Loan
+        </MudButton>
+    </EditForm>
+</MudContainer>
+
+@code {
+
+    [CascadingParameter]
+    private Task<AuthenticationState> AuthTask { get; set; } = null!;
+
+    Loan model = new() { Lender = "AppTechnoSoft Pvt. Ltd." };
+
+
+    private async Task OnValidSubmit(EditContext context)
+    {
+        var state = await AuthTask;
+        var userName = state.User.Identity?.Name;
+
+        model.AddCreatedStamps(userName);
+        model.IssueDate = model.IssueDate?.ToUniversalTime();
+        Db.Loans.Add(model);
+        var rowsAffected = await Db.SaveChangesAsync();
+
+        if (rowsAffected > 0)
+        {
+            SnackBar.Add("New loan added successfully", Severity.Success);
+            Navigation.NavigateTo("/loan");
+        }
+        else
+        {
+            SnackBar.Add("New loan save failed", Severity.Error);
+        }
+    }
+}

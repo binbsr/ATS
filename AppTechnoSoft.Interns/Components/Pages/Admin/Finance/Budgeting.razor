@@ -19,7 +19,7 @@
         <PropertyColumn Property="x => x.Batch" />
         <PropertyColumn Property="x => x.Revenue" Title="Total Revenue" AggregateDefinition="RevenueAggregation" Groupable="false" Filterable="false">
             <CellTemplate>
-                @context.Item.Revenue.AsCurrency()
+                @context.Item.Revenue?.AsCurrency()
             </CellTemplate>
         </PropertyColumn>
     </Columns>
@@ -83,7 +83,7 @@
             CustomAggregate = x =>
             {
                 var totalRevenue = x.Sum(y => y.Revenue);
-                return $"{totalRevenue.AsCurrency()}";
+                return $"{totalRevenue?.AsCurrency()}";
             }
         };
 }

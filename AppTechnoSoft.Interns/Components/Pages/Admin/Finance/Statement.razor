@@ -23,7 +23,7 @@
                 @if (value is not null)
                 {
                     <MudIcon Icon="@Icons.Material.Sharp.ArrowUpward" Color="Color.Success" Size="Size.Small" />
-                    @value.AsCurrency()
+                    @value?.AsCurrency()
                 }
             </CellTemplate>
         </PropertyColumn>
@@ -35,12 +35,12 @@
                 @if (value is not null)
                 {
                     <MudIcon Icon="@Icons.Material.Sharp.ArrowDownward" Color="Color.Error" Size="Size.Small" />
-                    @value.AsCurrency()
+                    @value?.AsCurrency()
                 }
             </CellTemplate>
         </PropertyColumn>
         <PropertyColumn Property="x => x.Balance" AggregateDefinition="BalanceAggregation" Filterable="false" Groupable="false">
-            <CellTemplate>@context.Item.Balance.AsCurrency()</CellTemplate>
+            <CellTemplate>@context.Item.Balance?.AsCurrency()</CellTemplate>
         </PropertyColumn>
         <PropertyColumn Property="x => x.Status">
             <CellTemplate>
@@ -135,7 +135,7 @@
             CustomAggregate = x =>
             {
                 var totalBalance = x.LastOrDefault()?.Balance;
-                return $"{totalBalance.AsCurrency()}";
+                return $"{totalBalance?.AsCurrency()}";
             }
         };
 
@@ -145,7 +145,7 @@
             CustomAggregate = x =>
             {
                 var totalCredit = x.Sum(y => y.Credit);
-                return $"{totalCredit.AsCurrency()}";
+                return $"{totalCredit?.AsCurrency()}";
             }
         };
 
@@ -155,7 +155,7 @@
             CustomAggregate = x =>
             {
                 var totalDebit = x.Sum(y => y.Debit);
-                return $"{totalDebit.AsCurrency()}";
+                return $"{totalDebit?.AsCurrency()}";
             }
         };
 }

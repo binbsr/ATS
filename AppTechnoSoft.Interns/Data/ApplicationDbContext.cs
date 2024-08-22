@@ -30,6 +30,7 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
     public DbSet<CourseQuoteModule> CourseQuoteModules { get; set; }
     public DbSet<Organization> Organizations { get; set; }
     public DbSet<Training> Training { get; set; }
+    public DbSet<Loan> Loans { get; set; }
 
     protected override void OnModelCreating(ModelBuilder builder)
     {

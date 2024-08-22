@@ -1,12 +1,10 @@
 ﻿using System.Globalization;
+using System.Numerics;
 
 namespace AppTechnoSoft.Interns.Extensions;
 public static class NumberExtensions
-{
-    public static string AsCurrency(this float? value) =>
-        value?.ToString("C2", new CultureInfo("ne-NP")) ?? 0.ToString("C2", new CultureInfo("ne-NP"));
-
-    public static string AsCurrency(this float value) =>
+{    
+    public static string AsCurrency<T>(this T value) where T : INumber<T> =>
         value.ToString("C2", new CultureInfo("ne-NP"));
 
     public static string AsPercentage(this float? value) =>

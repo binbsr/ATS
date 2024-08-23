@@ -1,4 +1,4 @@
-﻿@page "/budgeting/add"
+﻿@page "/budgeting/adjust"
 
 @attribute [Authorize(Roles = Role.SuperAdmin)]
 
@@ -59,18 +59,18 @@
                    StartIcon="@Icons.Material.Filled.Save">
             Save
         </MudButton>
-        <MudText Color="Color.Error">@errorMessage</MudText>
+        <MudText Color="Color.Error" Inline>@errorMessage</MudText>
     </EditForm>
 </MudContainer>
 
 @code {
 
     List<BatchBudget> models = [];
+    List<BatchBudget> existingAllocations = [];
     List<Batch> batches = [];
     float totalRevenue = 0.0f;
     string errorMessage = "";
     Batch selectedBatch = null!;
-    bool allocationExists = false;
 
     protected override async Task OnInitializedAsync()
     {
@@ -94,12 +94,10 @@
         var allocations = await Db.BatchBudgets.Where(x => x.BatchId == batch.Id).ToListAsync();
 
         if (allocations == null || !allocations.Any())
-        {
-            allocationExists = false;
             return;
-        }
 
-        allocationExists = true;
+        existingAllocations = allocations;
+
         for (var counter = 0; counter < models.Count; counter++)
         {
             var allocation = allocations.FirstOrDefault(x => x.BudgetType == models[counter].BudgetType);
@@ -126,30 +124,34 @@
             return;
         }
 
-        if (allocationExists)
+        // Add new allocations and update existing ones
+        for (var counter = 0; counter < rowsToInsert.Count; counter++)
         {
-            Db.BatchBudgets.UpdateRange(rowsToInsert);
-        }
-        else
-        {
-            for (int i = 0; i < rowsToInsert.Count; i++)
+            var allocation = existingAllocations.FirstOrDefault(x => x.BudgetType == rowsToInsert[counter].BudgetType);
+            if (allocation is null)
             {
-                rowsToInsert[i].BatchId = selectedBatch.Id;
+                rowsToInsert[counter].BatchId = selectedBatch.Id;
+                Db.BatchBudgets.Add(rowsToInsert[counter]);
             }
-
-            Db.BatchBudgets.AddRange(rowsToInsert);
+            else
+            {
+                allocation.Allocation = rowsToInsert[counter].Allocation;
+                allocation.Amount = rowsToInsert[counter].Amount;
+                allocation.Notes = rowsToInsert[counter].Notes;
+                Db.BatchBudgets.Update(allocation);
+            }
         }
 
         var rowsAffected = await Db.SaveChangesAsync();
 
         if (rowsAffected > 0)
         {
-            SnackBar.Add("Budget allocations for batch added successfully", Severity.Success);
+            SnackBar.Add("Budget allocations for batch adjusted successfully", Severity.Success);
             Navigation.NavigateTo("/budgeting");
         }
         else
         {
-            SnackBar.Add("Budget allocations saving failed", Severity.Error);
+            SnackBar.Add("Budget allocations save failed", Severity.Error);
         }
     }
 }

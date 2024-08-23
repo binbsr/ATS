@@ -9,7 +9,7 @@
              Groupable
              Filterable>
     <ToolBarContent>
-        <MudFab Href="/budgeting/add" StartIcon="@Icons.Material.Filled.Add" title="Add Budget for Batch" Size="Size.Small" Color="Color.Tertiary"></MudFab>
+        <MudFab Href="/budgeting/adjust" StartIcon="@Icons.Material.Filled.Add" title="Adjust Batch Budgets" Size="Size.Small" Color="Color.Tertiary"></MudFab>
         <MudSpacer />
         <MudTextField @bind-Value="_searchString" Placeholder="Search" Adornment="Adornment.Start" Immediate="true"
                       AdornmentIcon="@Icons.Material.Filled.Search" IconSize="Size.Medium" Class="mt-0"></MudTextField>
@@ -31,7 +31,7 @@
                   Elevation="0"
                   Class="my-2 border-1">
             <HeaderContent>
-                <MudTh>Budget Type</MudTh>
+                <MudTh>Particulars</MudTh>
                 <MudTh>Allocation</MudTh>
                 <MudTh>Amount</MudTh>
                 <MudTh>Notes</MudTh>

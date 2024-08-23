@@ -1,50 +1,42 @@
 ﻿@page "/budgeting"
 
+@using ApexCharts
+
 @inject ApplicationDbContext Db
 
 <PageTitle>Batch Budgeting</PageTitle>
 
-<MudDataGrid Items="@budgets"
-             Dense
-             Groupable
-             Filterable>
-    <ToolBarContent>
-        <MudFab Href="/budgeting/adjust" StartIcon="@Icons.Material.Filled.Add" title="Adjust Batch Budgets" Size="Size.Small" Color="Color.Tertiary"></MudFab>
-        <MudSpacer />
-        <MudTextField @bind-Value="_searchString" Placeholder="Search" Adornment="Adornment.Start" Immediate="true"
-                      AdornmentIcon="@Icons.Material.Filled.Search" IconSize="Size.Medium" Class="mt-0"></MudTextField>
-    </ToolBarContent>
-    <Columns>
-        <HierarchyColumn T="BatchBudgetRoot" />
-        <PropertyColumn Property="x => x.Batch" />
-        <PropertyColumn Property="x => x.Revenue" Title="Total Revenue" AggregateDefinition="RevenueAggregation" Groupable="false" Filterable="false">
-            <CellTemplate>
-                @context.Item.Revenue?.AsCurrency()
-            </CellTemplate>
-        </PropertyColumn>
-    </Columns>
-    <ChildRowContent>
-        <MudTable T="BatchBudget"
-                  Items="@context.Item.Budgets"
-                  Context="batchBudget"
-                  Hover
-                  Elevation="0"
-                  Class="my-2 border-1">
-            <HeaderContent>
-                <MudTh>Particulars</MudTh>
-                <MudTh>Allocation</MudTh>
-                <MudTh>Amount</MudTh>
-                <MudTh>Notes</MudTh>
-            </HeaderContent>
-            <RowTemplate>
-                <MudTd DataLabel="Budget Type">@batchBudget.BudgetType</MudTd>
-                <MudTd DataLabel="Allocation">@((batchBudget.Allocation / 100).ToString("P"))</MudTd>
-                <MudTd DataLabel="Amount">@batchBudget.Amount.AsCurrency()</MudTd>
-                <MudTd DataLabel="Notes">@batchBudget.Notes</MudTd>
-            </RowTemplate>
-        </MudTable>
-    </ChildRowContent>
-</MudDataGrid>
+<MudGrid>
+    <MudItem md="12">
+        <MudFab Href="/budgeting/adjust"
+                Class="mt-2"
+                StartIcon="@Icons.Material.Filled.Add"
+                title="Adjust Batch Budgets"
+                Size="MudBlazor.Size.Small"
+                Color="MudBlazor.Color.Tertiary">
+        </MudFab>
+    </MudItem>
+    @foreach (var batchBudget in batchBudgets)
+    {
+        <MudItem md="4">
+            <MudPaper Elevation="5" Class="pa-5">
+                <ApexChart TItem="BatchBudget"
+                           Title="@batchBudget.Key"
+                           Options="options">
+
+                    <ApexPointSeries TItem="BatchBudget"
+                                     Items="batchBudget"
+                                     SeriesType="SeriesType.Donut"
+                                     Name="Type"
+                                     XValue="@(e => e.BudgetType)"
+                                     YAggregate="@(e => (decimal)e.Sum(d => d.Amount))"
+                                     OrderByDescending="e=>e.Y" />
+                </ApexChart>
+            </MudPaper>
+        </MudItem>
+    }
+
+</MudGrid>
 
 @code {
 
@@ -55,26 +47,38 @@
 
     private string _searchString = string.Empty;
     private List<BatchBudgetRoot> budgets = [];
+    private List<IGrouping<string, BatchBudget>> batchBudgets = [];
+
+    private ApexChartOptions<BatchBudget> options => new ApexChartOptions<BatchBudget>
+        {
+            Title = new() { Align = ApexCharts.Align.Center },
+            Legend = new() { Position = LegendPosition.Bottom },
+            PlotOptions = new()
+            {
+                Pie = new()
+                {
+                    Donut = new()
+                    {
+                        Labels = new()
+                        {
+                            Total = new()
+                            {
+                                FontSize = "20px",
+                                Color = "#D807B8",
+                                Formatter = @"function (w) {return w.globals.seriesTotals.reduce((a, b) => { return (a + b) }, 0)}"
+                            }
+                        }
+                    }
+                }
+            }
+        };
 
     protected override async Task OnInitializedAsync()
     {
-        var batchBudgets = await Db.BatchBudgets.Include(x => x.Batch).ToListAsync();
-
-        if (batchBudgets is null)
-            return;
-
-        var finBudgets = await Db.FinAccounts
-            .GroupBy(x => x.Student.Batch)
-            .Select(y => new { BatchName = y.Key!.Name, Revenue = y.Sum(x => x.PaidAmount) })
+        batchBudgets = await Db.BatchBudgets
+            .Include(x => x.Batch)
+            .GroupBy(x => x.Batch.Name)
             .ToListAsync();
-
-        foreach (var budget in finBudgets)
-        {
-            budgets.Add(new BatchBudgetRoot(budget.BatchName, budget.Revenue)
-                {
-                    Budgets = batchBudgets.Where(z => z.Batch.Name == budget.BatchName)
-                });
-        }
     }
 
     AggregateDefinition<BatchBudgetRoot> RevenueAggregation = new()

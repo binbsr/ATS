@@ -1,0 +1,91 @@
+﻿@page "/reviewforms"
+
+@using System.Globalization
+@using AppTechnoSoft.Interns.Mappers
+@using AppTechnoSoft.Interns.ViewModels
+@attribute [Authorize(Roles = Role.SuperAdmin)]
+@inject ApplicationDbContext db
+@inject ISnackbar SnackBar
+
+<PageTitle>Reviews</PageTitle>
+
+<MudDataGrid T="ReviewForm"
+             MultiSelection="true"
+             Items="@reviews"
+             SortMode="SortMode.Multiple"
+             Hover="true"
+             Loading="loadingData"
+             ReadOnly="false"
+             Dense="true"
+             EditMode="DataGridEditMode.Form"
+             EditTrigger="DataGridEditTrigger.Manual">
+    <ToolBarContent>
+        <MudFab Href="/reviewForm/add" StartIcon="@Icons.Material.Filled.Add" title="Add loan" Size="Size.Small" Color="Color.Tertiary"></MudFab>
+        <MudSpacer />
+        <MudTextField @bind-Value="_searchString" Placeholder="Search" Adornment="Adornment.Start" Immediate="true"
+                      AdornmentIcon="@Icons.Material.Filled.Search" IconSize="Size.Medium" Class="mt-0"></MudTextField>
+    </ToolBarContent>
+    <Columns>
+        <PropertyColumn Property="x => x.Title" Title="Title" />
+             <TemplateColumn Title="Expiration">
+            <CellTemplate>
+                @context.Item.Expiration?.ToLongDateString()
+            </CellTemplate>
+        </TemplateColumn>
+        <PropertyColumn Property="x => x.Instructor.Name" Title="Instructor" />
+        <PropertyColumn Property="x => x.Training.Title" Title="Training" />
+        <TemplateColumn>
+            <CellTemplate>
+                <MudLink Href="@($"/ats/feedback/{context.Item.Id}")">Review Form</MudLink>
+            </CellTemplate>
+        </TemplateColumn>
+        <MudLink></MudLink>
+
+    </Columns>
+    <PagerContent>
+        <MudDataGridPager T="ReviewForm" PageSizeOptions="[30, 50, 100, 200]" />
+    </PagerContent>
+</MudDataGrid>
+
+@code {
+
+    [CascadingParameter]
+    private Task<AuthenticationState> AuthTask { get; set; } = null!;
+
+    private List<ReviewForm> reviews = [];
+
+    private string _searchString = string.Empty;
+    private bool loadingData = false;
+
+   
+
+    private Func<ReviewForm, bool> _quickFilter => x =>
+    {
+        if (string.IsNullOrWhiteSpace(_searchString))
+            return true;
+
+        if (x.Title.Contains(_searchString, StringComparison.OrdinalIgnoreCase))
+            return true;
+
+        if (x.Instructor.Name.Contains(_searchString, StringComparison.OrdinalIgnoreCase))
+            return true;
+
+        return false;
+    };
+
+    protected override async Task OnInitializedAsync()
+    {
+        loadingData = true;
+
+        reviews = await db.Reviews
+        .Include(x => x.Training)
+        .Include(x => x.Instructor)
+            .AsNoTracking()
+            .ToListAsync();
+
+        loadingData = false;
+    }
+
+    
+
+}

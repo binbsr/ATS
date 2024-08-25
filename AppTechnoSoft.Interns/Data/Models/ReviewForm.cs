@@ -6,7 +6,7 @@ public class ReviewForm : BaseEntity
 
     public string Id { get; set; }
     public string Title { get; set; } = "";
-    public DateTime Expiration { get; set; }
+    public DateTime? Expiration { get; set; }
 
     public int InstructorId { get; set; }
     public Instructor? Instructor { get; set; }

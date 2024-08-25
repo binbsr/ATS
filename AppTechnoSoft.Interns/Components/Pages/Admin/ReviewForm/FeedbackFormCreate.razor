@@ -1,0 +1,120 @@
+﻿@page "/reviewForm/add"
+
+@attribute [Authorize(Roles = Role.SuperAdmin)]
+
+@inject ApplicationDbContext Db
+@inject ISnackbar SnackBar
+@inject NavigationManager Navigation
+
+<PageTitle>Add Review Form</PageTitle>
+
+<MudContainer>
+    <EditForm Model="@model" OnValidSubmit="OnValidSubmit">
+        <MudAutocomplete T="Instructor"
+                         Label="Select Instructor"
+                         Variant="Variant.Outlined"
+                         Class="mt-4"
+                         SearchFunc="@SearchInstructors"
+                         ToStringFunc="@(e=> e==null ? null : $"{e.Name} ({e.Email})")"
+                         ShowProgressIndicator="true"
+                         ProgressIndicatorColor="Color.Default"
+                         MaxItems="null"
+                         ValueChanged="InstructorChanged"/>
+        <MudAutocomplete T="Training"
+                         Label="Select Training"
+                         Variant="Variant.Outlined"
+                         Class="mt-4"
+                         SearchFunc="@SearchTrainings"
+                         ToStringFunc="@(e=> e==null ? null : $"{e.Title} ({e.DurationHours} Hours)")"
+                         ShowProgressIndicator="true"
+                         ProgressIndicatorColor="Color.Default"
+                         MaxItems="null"
+                         ValueChanged="TrainingChanged"/>
+        <MudTextField Variant="Variant.Outlined" Label="Title" Class="mt-3" @bind-Value="model.Title" Disabled="true" />
+        <MudDatePicker Variant="Variant.Outlined" Color="Color.Secondary" Label="Expiration" @bind-Date="model.Expiration" />
+        <MudButton ButtonType="ButtonType.Submit"
+                   Variant="Variant.Filled"
+                   Color="Color.Tertiary"
+                   Class="mt-3"
+                   StartIcon="@Icons.Material.Filled.Save">
+            Add Review Form
+        </MudButton>
+    </EditForm>
+</MudContainer>
+
+@code {
+
+    [CascadingParameter]
+    private Task<AuthenticationState> AuthTask { get; set; } = null!;
+
+    ReviewForm model = new();
+    List<Instructor> instructors = [];
+    List<Training> trainings = [];
+
+    private async Task OnValidSubmit(EditContext context)
+    {
+        var state = await AuthTask;
+        var userName = state.User.Identity?.Name;
+
+        model.AddCreatedStamps(userName);
+        model.Expiration = model.Expiration?.ToUniversalTime();
+        Db.Reviews.Add(model);
+        var rowsAffected = await Db.SaveChangesAsync();
+
+        if (rowsAffected > 0)
+        {
+            SnackBar.Add("New review form added successfully", Severity.Success);
+            Navigation.NavigateTo("/reviewForm");
+        }
+        else
+        {
+            SnackBar.Add("New review form save failed", Severity.Error);
+        }
+    }
+    private async Task<IEnumerable<Instructor>> SearchInstructors(string value, CancellationToken token)
+    {
+        if (!instructors.Any())
+        {
+            instructors = await Db.Instructors.ToListAsync(token);
+        }
+
+        if (value is null or "")
+        {
+            return instructors;
+        }
+
+        return instructors.Where(x => x.Name.Contains(value, StringComparison.OrdinalIgnoreCase));
+    }
+    private async Task<IEnumerable<Training>> SearchTrainings(string value, CancellationToken token)
+    {
+        if (!trainings.Any())
+        {
+            trainings = await Db.Training.ToListAsync(token);
+        }
+
+        if (value is null or "")
+        {
+            return trainings;
+        }
+
+        return trainings.Where(x => x.Title.Contains(value, StringComparison.OrdinalIgnoreCase));
+    }
+    private void InstructorChanged(Instructor value)
+    {
+        model.Instructor = value;
+
+        model.Title = CreateTitle(model.Instructor.Name, model.Training?.Title ?? "");
+    }
+    private void TrainingChanged(Training value)
+    {
+        model.Training = value;
+
+        model.Title = CreateTitle(model.Instructor?.Name ?? "", model.Training.Title);
+        // String[] name = (model.Instructor.Name.Split(" "));
+
+    }
+
+    private string CreateTitle(string instructorName, string trainingTitle) =>
+        $"{instructorName} {"-"} {trainingTitle}";
+
+}

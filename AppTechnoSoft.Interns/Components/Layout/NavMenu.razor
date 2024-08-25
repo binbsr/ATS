@@ -67,6 +67,14 @@
                 <MudNavLink Href="/assignments/verify" Icon="@Icons.Material.Sharp.Check" IconColor="Color.Tertiary">Verify</MudNavLink>
             </MudNavGroup>
         </AuthorizeView>
+        
+        <AuthorizeView Roles="@Role.AdminsAndInstructor">
+            <MudNavGroup Title="Feedbacks" Icon="@Icons.Material.Filled.Assignment" IconColor="Color.Tertiary">
+                <MudNavLink Href="/reviewforms" Icon="@Icons.Material.Sharp.Create" IconColor="Color.Tertiary">Create</MudNavLink>
+                @* <MudNavLink Href="/assignments" Match="NavLinkMatch.All" Icon="@Icons.Material.Sharp.AssignmentTurnedIn" IconColor="Color.Tertiary">Assign</MudNavLink>
+                <MudNavLink Href="/assignments/verify" Icon="@Icons.Material.Sharp.Check" IconColor="Color.Tertiary">Verify</MudNavLink> *@
+            </MudNavGroup>
+        </AuthorizeView>
 
         <AuthorizeView Roles="@Role.SuperAdmin">
             <MudNavGroup Title="Finance" Icon="@Icons.Material.Filled.Money" IconColor="Color.Tertiary">

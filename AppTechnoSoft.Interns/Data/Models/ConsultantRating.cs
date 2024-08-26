@@ -3,8 +3,8 @@
 public class ConsultantRating
 {
     public int Id { get; set; }
-    public bool IsAnonymous { get; set; }
-    public bool RecommendToOthers { get; set; }
+    public bool IsAnonymous { get; set; } = false;
+    public bool RecommendToOthers { get; set; } = true;
     public byte CourseContentScore { get; set; }
     public byte TimeManagementScore { get; set; }
     public byte GuidingApproachScore { get; set; }

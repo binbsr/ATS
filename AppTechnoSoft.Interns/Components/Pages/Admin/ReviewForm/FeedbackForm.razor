@@ -1,10 +1,187 @@
 ﻿@page "/ats/feedback/{Id}"
 
-<h3>FeedbackForm</h3>
+@inject ApplicationDbContext Db
+@inject ISnackbar SnackBar
+@inject NavigationManager Navigation
+
+<PageTitle>@review.Title</PageTitle>
+
+<MudContainer>
+    <EditForm Model="@model" OnValidSubmit="OnValidSubmit">
+        <div class="d-flex flex-column align-center">
+            <MudText Typo="Typo.h2">@review.Title</MudText>
+        </div>
+
+        <MudSwitch T="bool" Color="Color.Primary" UncheckedColor="Color.Dark" Label="Send Anonymously?"
+                   class="align-center"
+                   ValueChanged="AnonymousToggle"/>
+
+        <MudTextField Variant="Variant.Outlined" Label="Username"  @bind-Value="model.Reviewer"  />        
+
+        <div class="d-flex flex-column align-center">
+            <MudText Typo="Typo.h4" Class="deep-purple-text mt-4 pt-4" >Course Content</MudText>
+            <MudRating @bind-SelectedValue="courseContentScore" HoveredValueChanged="HandleHoveredValueChanged1" Size="Size.Large"/>
+            <MudText Typo="Typo.subtitle2" Class="deep-purple-text mt-2">@LabelText1</MudText>
+        </div>
+        <div class="d-flex flex-column align-center">
+            <MudText Typo="Typo.h4" Class="deep-purple-text mt-2 pt-4">Time Management</MudText>
+            <MudRating @bind-SelectedValue="timeManagementScore" HoveredValueChanged="HandleHoveredValueChanged2" Size="Size.Large" />
+            <MudText Typo="Typo.subtitle2" Class="deep-purple-text mt-2">@LabelText2</MudText>
+        </div>
+        <div class="d-flex flex-column align-center">
+            <MudText Typo="Typo.h4" Class="deep-purple-text mt-2 pt-4">Guiding Approach</MudText>
+            <MudRating @bind-SelectedValue="guidingApproachScore" HoveredValueChanged="HandleHoveredValueChanged3" Size="Size.Large"/>
+            <MudText Typo="Typo.subtitle2" Class="deep-purple-text mt-2">@LabelText3</MudText>
+        </div>
+        <div class="d-flex flex-column align-center">
+            <MudText Typo="Typo.h4" Class="deep-purple-text mt-2 pt-4">Assignment Quality</MudText>
+            <MudRating @bind-SelectedValue="assignmentsQualityScore" HoveredValueChanged="HandleHoveredValueChanged4" Size="Size.Large"/>
+            <MudText Typo="Typo.subtitle2" Class="deep-purple-text mt-2">@LabelText4</MudText>
+        </div>
+        <div class="d-flex flex-column align-center">
+            <MudText Typo="Typo.h4" Class="deep-purple-text mt-2 pt-4">Projects Quality</MudText>
+            <MudRating @bind-SelectedValue="projectsQualityScore" HoveredValueChanged="HandleHoveredValueChanged5" Size="Size.Large" />
+            <MudText Typo="Typo.subtitle2" Class="deep-purple-text mt-2">@LabelText5</MudText>
+        </div> 
+        <div class="d-flex flex-column align-center">
+            <MudText Typo="Typo.h4"  class="pt-4">Recommend To Others</MudText>
+        <MudRadioGroup @bind-Value="model.RecommendToOthers">
+    <MudRadio Value="true" Color="Color.Primary" Dense="true">Yes</MudRadio>
+    <MudRadio Value="false" Color="Color.Secondary" Dense="false">No</MudRadio>
+</MudRadioGroup>
+            </div>
+        <MudTextField AutoGrow MaxLines="4" Variant="Variant.Outlined" Label="Comment"  @bind-Value="model.Comments"/>
+
+
+        <MudButton ButtonType="ButtonType.Submit"
+                   Variant="Variant.Filled"
+                   Color="Color.Tertiary"
+                   Class="mt-3"
+                   StartIcon="@Icons.Material.Filled.Save"
+                   style=" display:block; margin:auto; width:400px">
+            Submit
+        </MudButton>
+    </EditForm>
+</MudContainer>
 
 @code {
 
     [Parameter]
     public string Id { get; set; }
+    public ReviewForm review=new();
+    protected override async Task OnInitializedAsync()
+    {
+        review = Db.Reviews.Find(Id);
+    }       
+ 
 
+    [CascadingParameter]
+    private Task<AuthenticationState> AuthTask { get; set; } = null!;
+
+    ConsultantRating model = new() ;
+
+
+    private async Task OnValidSubmit(EditContext context)
+    {
+        var state = await AuthTask;
+        var userName = state.User.Identity?.Name;
+
+        // model.AddCreatedStamps(userName);
+        model.CourseContentScore = (byte)courseContentScore;
+        model.TimeManagementScore = (byte)timeManagementScore;
+        model.GuidingApproachScore = (byte)guidingApproachScore;
+        model.AssignmentsQualityScore = (byte)assignmentsQualityScore;
+        model.ProjectsQualityScore = (byte)projectsQualityScore;
+        model.ReviewFormId = Id;
+        Db.ConsultantRatings.Add(model);
+        var rowsAffected = await Db.SaveChangesAsync();
+
+        if (rowsAffected > 0)
+        {
+            SnackBar.Add("Form submitted successfully", Severity.Success);
+            Navigation.NavigateTo("/expenses");
+        }
+        else
+        {
+            SnackBar.Add("Form submit failed", Severity.Error);
+        }
+    }
+
+    private int courseContentScore = 0;
+    private int timeManagementScore=0;
+    private int guidingApproachScore = 0;
+    private int assignmentsQualityScore = 0;
+    private int projectsQualityScore = 0;
+    private int? activeVal1;
+    private int? activeVal2;
+    private int? activeVal3;
+    private int? activeVal4;
+    private int? activeVal5;
+
+    private void HandleHoveredValueChanged1(int? val1) => activeVal1 = val1;
+    private void HandleHoveredValueChanged2(int? val2) => activeVal2= val2;
+    private void HandleHoveredValueChanged3(int? val3) => activeVal3 = val3;
+    private void HandleHoveredValueChanged4(int? val4) => activeVal4 = val4;
+    private void HandleHoveredValueChanged5(int? val5) => activeVal5 = val5;
+
+    private string LabelText1 => (activeVal1 ?? courseContentScore) switch
+    {
+        1 => "Very bad",
+        2 => "Bad",
+        3 => "Sufficient",
+        4 => "Good",
+        5 => "Awesome!",
+        _ => "Rate our product!"
+    };
+    private string LabelText2 => (activeVal2 ?? timeManagementScore) switch
+    {
+        1 => "Very bad",
+        2 => "Bad",
+        3 => "Sufficient",
+        4 => "Good",
+        5 => "Awesome!",
+        _ => "Rate our product!"
+    };
+    private string LabelText3 => (activeVal3 ?? guidingApproachScore) switch
+    {
+        1 => "Very bad",
+        2 => "Bad",
+        3 => "Sufficient",
+        4 => "Good",
+        5 => "Awesome!",
+        _ => "Rate our product!"
+    };
+    private string LabelText4 => (activeVal4 ?? assignmentsQualityScore) switch
+    {
+        1 => "Very bad",
+        2 => "Bad",
+        3 => "Sufficient",
+        4 => "Good",
+        5 => "Awesome!",
+        _ => "Rate our product!"
+    };
+    private string LabelText5 => (activeVal5 ?? projectsQualityScore) switch
+    {
+        1 => "Very bad",
+        2 => "Bad",
+        3 => "Sufficient",
+        4 => "Good",
+        5 => "Awesome!",
+        _ => "Rate our product!"
+    };
+
+    private async Task AnonymousToggle(bool value){
+        if(value){
+            model.Reviewer = "Anonymous User";
+            model.IsAnonymous=true;
+        }
+        else{
+            model.Reviewer = "";
+            model.IsAnonymous = false;
+        }
+
+        // model.Reviewer = "Anonymous User";
+
+    }
+   
 }

@@ -138,7 +138,7 @@ namespace AppTechnoSoft.Interns.Data.Migrations
 
                     b.HasIndex("ModuleId");
 
-                    b.ToTable("Assignments");
+                    b.ToTable("Assignments", (string)null);
                 });
 
             modelBuilder.Entity("AppTechnoSoft.Interns.Data.Models.Attendance", b =>
@@ -169,7 +169,7 @@ namespace AppTechnoSoft.Interns.Data.Migrations
 
                     b.HasIndex("StudentId");
 
-                    b.ToTable("Attendances");
+                    b.ToTable("Attendances", (string)null);
                 });
 
             modelBuilder.Entity("AppTechnoSoft.Interns.Data.Models.Batch", b =>
@@ -209,7 +209,7 @@ namespace AppTechnoSoft.Interns.Data.Migrations
 
                     b.HasIndex("TrainingId");
 
-                    b.ToTable("Batches");
+                    b.ToTable("Batches", (string)null);
                 });
 
             modelBuilder.Entity("AppTechnoSoft.Interns.Data.Models.BatchBudget", b =>
@@ -239,7 +239,7 @@ namespace AppTechnoSoft.Interns.Data.Migrations
 
                     b.HasIndex("BatchId");
 
-                    b.ToTable("BatchBudgets");
+                    b.ToTable("BatchBudgets", (string)null);
                 });
 
             modelBuilder.Entity("AppTechnoSoft.Interns.Data.Models.ClassSchedule", b =>
@@ -288,7 +288,7 @@ namespace AppTechnoSoft.Interns.Data.Migrations
 
                     b.HasIndex("WidgetId");
 
-                    b.ToTable("ClassSchedules");
+                    b.ToTable("ClassSchedules", (string)null);
                 });
 
             modelBuilder.Entity("AppTechnoSoft.Interns.Data.Models.College", b =>
@@ -321,7 +321,7 @@ namespace AppTechnoSoft.Interns.Data.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Colleges");
+                    b.ToTable("Colleges", (string)null);
 
                     b.HasData(
                         new
@@ -515,7 +515,7 @@ namespace AppTechnoSoft.Interns.Data.Migrations
 
                     b.HasIndex("ReviewFormId");
 
-                    b.ToTable("ConsultantRatings");
+                    b.ToTable("ConsultantRatings", (string)null);
                 });
 
             modelBuilder.Entity("AppTechnoSoft.Interns.Data.Models.CourseQuote", b =>
@@ -539,7 +539,7 @@ namespace AppTechnoSoft.Interns.Data.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("CourseQuotes");
+                    b.ToTable("CourseQuotes", (string)null);
                 });
 
             modelBuilder.Entity("AppTechnoSoft.Interns.Data.Models.CourseQuoteModule", b =>
@@ -554,7 +554,7 @@ namespace AppTechnoSoft.Interns.Data.Migrations
 
                     b.HasIndex("ModulesId");
 
-                    b.ToTable("CourseQuoteModules");
+                    b.ToTable("CourseQuoteModules", (string)null);
                 });
 
             modelBuilder.Entity("AppTechnoSoft.Interns.Data.Models.Expense", b =>
@@ -593,7 +593,7 @@ namespace AppTechnoSoft.Interns.Data.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Expenses");
+                    b.ToTable("Expenses", (string)null);
                 });
 
             modelBuilder.Entity("AppTechnoSoft.Interns.Data.Models.FinAccount", b =>
@@ -637,7 +637,7 @@ namespace AppTechnoSoft.Interns.Data.Migrations
                     b.HasIndex("StudentId")
                         .IsUnique();
 
-                    b.ToTable("FinAccounts");
+                    b.ToTable("FinAccounts", (string)null);
                 });
 
             modelBuilder.Entity("AppTechnoSoft.Interns.Data.Models.Instructor", b =>
@@ -689,7 +689,7 @@ namespace AppTechnoSoft.Interns.Data.Migrations
 
                     b.HasIndex("ApplicationUserId");
 
-                    b.ToTable("Instructors");
+                    b.ToTable("Instructors", (string)null);
                 });
 
             modelBuilder.Entity("AppTechnoSoft.Interns.Data.Models.Loan", b =>
@@ -737,7 +737,7 @@ namespace AppTechnoSoft.Interns.Data.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Loans");
+                    b.ToTable("Loans", (string)null);
                 });
 
             modelBuilder.Entity("AppTechnoSoft.Interns.Data.Models.Organization", b =>
@@ -761,7 +761,7 @@ namespace AppTechnoSoft.Interns.Data.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Organizations");
+                    b.ToTable("Organizations", (string)null);
                 });
 
             modelBuilder.Entity("AppTechnoSoft.Interns.Data.Models.Project", b =>
@@ -800,7 +800,7 @@ namespace AppTechnoSoft.Interns.Data.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Projects");
+                    b.ToTable("Projects", (string)null);
                 });
 
             modelBuilder.Entity("AppTechnoSoft.Interns.Data.Models.Revenue", b =>
@@ -838,7 +838,7 @@ namespace AppTechnoSoft.Interns.Data.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Revenues");
+                    b.ToTable("Revenues", (string)null);
                 });
 
             modelBuilder.Entity("AppTechnoSoft.Interns.Data.Models.ReviewForm", b =>
@@ -877,7 +877,7 @@ namespace AppTechnoSoft.Interns.Data.Migrations
 
                     b.HasIndex("TrainingId");
 
-                    b.ToTable("Reviews");
+                    b.ToTable("Reviews", (string)null);
                 });
 
             modelBuilder.Entity("AppTechnoSoft.Interns.Data.Models.Student", b =>
@@ -965,7 +965,7 @@ namespace AppTechnoSoft.Interns.Data.Migrations
 
                     b.HasIndex("TrainingId");
 
-                    b.ToTable("Students");
+                    b.ToTable("Students", (string)null);
                 });
 
             modelBuilder.Entity("AppTechnoSoft.Interns.Data.Models.StudentAssignment", b =>
@@ -1015,7 +1015,7 @@ namespace AppTechnoSoft.Interns.Data.Migrations
 
                     b.HasIndex("StudentId");
 
-                    b.ToTable("StudentAssignments");
+                    b.ToTable("StudentAssignments", (string)null);
                 });
 
             modelBuilder.Entity("AppTechnoSoft.Interns.Data.Models.Tag", b =>
@@ -1051,7 +1051,7 @@ namespace AppTechnoSoft.Interns.Data.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Tags");
+                    b.ToTable("Tags", (string)null);
                 });
 
             modelBuilder.Entity("AppTechnoSoft.Interns.Data.Models.Team", b =>
@@ -1093,7 +1093,7 @@ namespace AppTechnoSoft.Interns.Data.Migrations
 
                     b.HasIndex("ProjectId");
 
-                    b.ToTable("Teams");
+                    b.ToTable("Teams", (string)null);
                 });
 
             modelBuilder.Entity("AppTechnoSoft.Interns.Data.Models.TechProgram", b =>
@@ -1126,7 +1126,7 @@ namespace AppTechnoSoft.Interns.Data.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("TechPrograms");
+                    b.ToTable("TechPrograms", (string)null);
 
                     b.HasData(
                         new
@@ -1201,7 +1201,7 @@ namespace AppTechnoSoft.Interns.Data.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("TraineeTimelines");
+                    b.ToTable("TraineeTimelines", (string)null);
                 });
 
             modelBuilder.Entity("AppTechnoSoft.Interns.Data.Models.Training", b =>
@@ -1257,7 +1257,7 @@ namespace AppTechnoSoft.Interns.Data.Migrations
 
                     b.HasIndex("OrganizationId");
 
-                    b.ToTable("Training");
+                    b.ToTable("Training", (string)null);
                 });
 
             modelBuilder.Entity("AppTechnoSoft.Interns.Data.Models.Widget", b =>
@@ -1294,7 +1294,7 @@ namespace AppTechnoSoft.Interns.Data.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Widgets");
+                    b.ToTable("Widgets", (string)null);
 
                     b.HasData(
                         new
@@ -1374,7 +1374,7 @@ namespace AppTechnoSoft.Interns.Data.Migrations
 
                     b.HasIndex("TagsId");
 
-                    b.ToTable("InstructorTag");
+                    b.ToTable("InstructorTag", (string)null);
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole", b =>
@@ -1562,7 +1562,7 @@ namespace AppTechnoSoft.Interns.Data.Migrations
 
                     b.HasIndex("WidgetsId");
 
-                    b.ToTable("TagWidget");
+                    b.ToTable("TagWidget", (string)null);
                 });
 
             modelBuilder.Entity("TrainingAssignments", b =>
@@ -1577,7 +1577,7 @@ namespace AppTechnoSoft.Interns.Data.Migrations
 
                     b.HasIndex("TrainingId");
 
-                    b.ToTable("TrainingAssignments");
+                    b.ToTable("TrainingAssignments", (string)null);
                 });
 
             modelBuilder.Entity("TrainingProjects", b =>
@@ -1592,7 +1592,7 @@ namespace AppTechnoSoft.Interns.Data.Migrations
 
                     b.HasIndex("TrainingId");
 
-                    b.ToTable("TrainingProjects");
+                    b.ToTable("TrainingProjects", (string)null);
                 });
 
             modelBuilder.Entity("AppTechnoSoft.Interns.Data.Models.Assignment", b =>

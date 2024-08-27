@@ -1,0 +1,171 @@
+﻿@page "/ats/feedback/{Id}"
+
+@inject ApplicationDbContext Db
+@inject ISnackbar SnackBar
+@inject NavigationManager Navigation
+
+<PageTitle>@review.Title</PageTitle>
+
+<MudContainer>
+    <EditForm Model="@model" OnValidSubmit="OnValidSubmit">
+        <MudGrid>
+            <MudItem md="12">
+                <MudText Typo="Typo.h2" Align="Align.Center">@review.Title</MudText>
+            </MudItem>
+            <MudItem md="12">
+                <MudSwitch T="bool" Color="Color.Primary" LabelPosition="LabelPosition.Start" 
+                    UncheckedColor="Color.Dark" Label="Send Anonymously?" ValueChanged="AnonymousToggle" />
+                <MudTextField Variant="Variant.Outlined" Label="Username" @bind-Value="model.Reviewer" />
+            </MudItem>
+            <MudItem md="6">
+                <MudText Align="Align.Right" Typo="Typo.h4" Class="deep-purple-text">Course Content</MudText>
+            </MudItem>
+            <MudItem md="2" class="d-flex flex-column align-center ">
+                <MudRating @bind-SelectedValue="courseContentScore" HoveredValueChanged="HandleHoveredValueChanged1"
+                    Size="Size.Large" />
+                <MudText Typo="Typo.subtitle2" Class="deep-purple-text">@LabelText1</MudText>
+            </MudItem>    
+            <MudItem md="6">
+                <MudText Align="Align.Right" Typo="Typo.h4" Class="deep-purple-text">Time Management</MudText>
+            </MudItem>
+            <MudItem md="2" class="d-flex flex-column align-center ">
+                <MudRating @bind-SelectedValue="timeManagementScore" HoveredValueChanged="HandleHoveredValueChanged2"
+                    Size="Size.Large" />
+                <MudText Typo="Typo.subtitle2" Class="deep-purple-text">@LabelText2</MudText>
+            </MudItem>    
+            <MudItem md="6">
+                <MudText Align="Align.Right" Typo="Typo.h4" Class="deep-purple-text">Guiding Approach</MudText>
+            </MudItem>
+            <MudItem md="2" class="d-flex flex-column align-center ">
+                <MudRating @bind-SelectedValue="guidingApproachScore" HoveredValueChanged="HandleHoveredValueChanged3"
+                    Size="Size.Large" />
+                <MudText Typo="Typo.subtitle2" Class="deep-purple-text">@LabelText3</MudText>
+            </MudItem>    
+            <MudItem md="6">
+                <MudText Align="Align.Right" Typo="Typo.h4" Class="deep-purple-text">Assignments Quality</MudText>
+            </MudItem>
+            <MudItem md="2" class="d-flex flex-column align-center ">
+                <MudRating @bind-SelectedValue="assignmentsQualityScore" HoveredValueChanged="HandleHoveredValueChanged4"
+                    Size="Size.Large" />
+                <MudText Typo="Typo.subtitle2" Class="deep-purple-text">@LabelText4</MudText>
+            </MudItem>    
+             <MudItem md="6">
+                <MudText Align="Align.Right" Typo="Typo.h4" Class="deep-purple-text">Recommend To Others</MudText>
+            </MudItem>
+            <MudItem md="2" class="d-flex flex-column align-center ">
+                <MudRadioGroup @bind-Value="model.RecommendToOthers">
+                <MudRadio Value="true" Color="Color.Success" Dense="true">Yes</MudRadio>
+                <MudRadio Value="false" Color="Color.Error" Dense="false">No</MudRadio>
+            </MudRadioGroup>
+            </MudItem>   
+        </MudGrid>
+        <MudTextField AutoGrow MaxLines="4" Variant="Variant.Outlined" Label="Comment" @bind-Value="model.Comments" />
+        <MudButton ButtonType="ButtonType.Submit" Variant="Variant.Filled" Color="Color.Tertiary" Class="mt-3"
+            StartIcon="@Icons.Material.Filled.Save" style=" display:block; margin:auto; width:400px">
+            Submit
+        </MudButton>
+    </EditForm>
+</MudContainer>
+
+@code {
+
+    [Parameter]
+    public string Id { get; set; }
+    public ReviewForm review = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        review = Db.Reviews.Find(Id);
+    }
+
+    ConsultantRating model = new();
+    private async Task OnValidSubmit(EditContext context)
+    {
+        model.CourseContentScore = (byte)courseContentScore;
+        model.TimeManagementScore = (byte)timeManagementScore;
+        model.GuidingApproachScore = (byte)guidingApproachScore;
+        model.AssignmentsQualityScore = (byte)assignmentsQualityScore;
+        model.ReviewFormId = Id;
+        Db.ConsultantRatings.Add(model);
+        var rowsAffected = await Db.SaveChangesAsync();
+
+        if (rowsAffected > 0)
+        {
+            SnackBar.Add("Form submitted successfully", Severity.Success);
+            Navigation.NavigateTo("/");
+        }
+        else
+        {
+            SnackBar.Add("Form submit failed", Severity.Error);
+        }
+    }
+
+    private int courseContentScore = 0;
+    private int timeManagementScore = 0;
+    private int guidingApproachScore = 0;
+    private int assignmentsQualityScore = 0;
+    private int? activeVal1;
+    private int? activeVal2;
+    private int? activeVal3;
+    private int? activeVal4;
+
+    private void HandleHoveredValueChanged1(int? val1) => activeVal1 = val1;
+    private void HandleHoveredValueChanged2(int? val2) => activeVal2 = val2;
+    private void HandleHoveredValueChanged3(int? val3) => activeVal3 = val3;
+    private void HandleHoveredValueChanged4(int? val4) => activeVal4 = val4;
+
+    private string LabelText1 => (activeVal1 ?? courseContentScore) switch
+    {
+        1 => "Very bad",
+        2 => "Bad",
+        3 => "Sufficient",
+        4 => "Good",
+        5 => "Awesome",
+        _ => "Rate Course Content "
+    };
+    private string LabelText2 => (activeVal2 ?? timeManagementScore) switch
+    {
+        1 => "Very bad",
+        2 => "Bad",
+        3 => "Sufficient",
+        4 => "Good",
+        5 => "Awesome",
+        _ => "Rate Time Management"
+    };
+    private string LabelText3 => (activeVal3 ?? guidingApproachScore) switch
+    {
+        1 => "Very bad",
+        2 => "Bad",
+        3 => "Sufficient",
+        4 => "Good",
+        5 => "Awesome",
+        _ => "Rate Guiding Approach"
+    };
+    private string LabelText4 => (activeVal4 ?? assignmentsQualityScore) switch
+    {
+        1 => "Very bad",
+        2 => "Bad",
+        3 => "Sufficient",
+        4 => "Good",
+        5 => "Awesome",
+        _ => "Rate Assignments Quality"
+    };
+
+    private async Task AnonymousToggle(bool value)
+    {
+        if (value)
+        {
+            model.Reviewer = "Anonymous User";
+            model.IsAnonymous = true;
+        }
+        else
+        {
+            model.Reviewer = "";
+            model.IsAnonymous = false;
+        }
+
+        // model.Reviewer = "Anonymous User";
+
+    }
+
+}

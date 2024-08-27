@@ -67,6 +67,12 @@
                 <MudNavLink Href="/assignments/verify" Icon="@Icons.Material.Sharp.Check" IconColor="Color.Tertiary">Verify</MudNavLink>
             </MudNavGroup>
         </AuthorizeView>
+        
+        <AuthorizeView Roles="@Role.AdminsAndInstructor">
+            <MudNavGroup Title="Feedbacks" Icon="@Icons.Material.Filled.Feedback" IconColor="Color.Tertiary">
+                <MudNavLink Href="/reviewforms" Icon="@Icons.Material.Sharp.Create" IconColor="Color.Tertiary">Create</MudNavLink>
+            </MudNavGroup>
+        </AuthorizeView>
 
         <AuthorizeView Roles="@Role.SuperAdmin">
             <MudNavGroup Title="Finance" Icon="@Icons.Material.Filled.Money" IconColor="Color.Tertiary">

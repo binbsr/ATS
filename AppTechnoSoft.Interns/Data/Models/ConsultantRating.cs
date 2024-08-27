@@ -9,7 +9,6 @@ public class ConsultantRating
     public byte TimeManagementScore { get; set; }
     public byte GuidingApproachScore { get; set; }
     public byte AssignmentsQualityScore { get; set; }
-    public byte ProjectsQualityScore { get; set; }
 
     public string Reviewer { get; set; } = string.Empty;
     public string Comments { get; set; } = string.Empty;

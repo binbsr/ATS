@@ -8,57 +8,60 @@
 
 <MudContainer>
     <EditForm Model="@model" OnValidSubmit="OnValidSubmit">
-        <div class="d-flex flex-column align-center">
-            <MudText Typo="Typo.h2">@review.Title</MudText>
-        </div>
-
-        <MudSwitch T="bool" Color="Color.Primary" UncheckedColor="Color.Dark" Label="Send Anonymously?"
-                   class="align-center"
-                   ValueChanged="AnonymousToggle"/>
-
-        <MudTextField Variant="Variant.Outlined" Label="Username"  @bind-Value="model.Reviewer"  />        
-
-        <div class="d-flex flex-column align-center">
-            <MudText Typo="Typo.h4" Class="deep-purple-text mt-4 pt-4" >Course Content</MudText>
-            <MudRating @bind-SelectedValue="courseContentScore" HoveredValueChanged="HandleHoveredValueChanged1" Size="Size.Large"/>
-            <MudText Typo="Typo.subtitle2" Class="deep-purple-text mt-2">@LabelText1</MudText>
-        </div>
-        <div class="d-flex flex-column align-center">
-            <MudText Typo="Typo.h4" Class="deep-purple-text mt-2 pt-4">Time Management</MudText>
-            <MudRating @bind-SelectedValue="timeManagementScore" HoveredValueChanged="HandleHoveredValueChanged2" Size="Size.Large" />
-            <MudText Typo="Typo.subtitle2" Class="deep-purple-text mt-2">@LabelText2</MudText>
-        </div>
-        <div class="d-flex flex-column align-center">
-            <MudText Typo="Typo.h4" Class="deep-purple-text mt-2 pt-4">Guiding Approach</MudText>
-            <MudRating @bind-SelectedValue="guidingApproachScore" HoveredValueChanged="HandleHoveredValueChanged3" Size="Size.Large"/>
-            <MudText Typo="Typo.subtitle2" Class="deep-purple-text mt-2">@LabelText3</MudText>
-        </div>
-        <div class="d-flex flex-column align-center">
-            <MudText Typo="Typo.h4" Class="deep-purple-text mt-2 pt-4">Assignment Quality</MudText>
-            <MudRating @bind-SelectedValue="assignmentsQualityScore" HoveredValueChanged="HandleHoveredValueChanged4" Size="Size.Large"/>
-            <MudText Typo="Typo.subtitle2" Class="deep-purple-text mt-2">@LabelText4</MudText>
-        </div>
-        <div class="d-flex flex-column align-center">
-            <MudText Typo="Typo.h4" Class="deep-purple-text mt-2 pt-4">Projects Quality</MudText>
-            <MudRating @bind-SelectedValue="projectsQualityScore" HoveredValueChanged="HandleHoveredValueChanged5" Size="Size.Large" />
-            <MudText Typo="Typo.subtitle2" Class="deep-purple-text mt-2">@LabelText5</MudText>
-        </div> 
-        <div class="d-flex flex-column align-center">
-            <MudText Typo="Typo.h4"  class="pt-4">Recommend To Others</MudText>
-        <MudRadioGroup @bind-Value="model.RecommendToOthers">
-    <MudRadio Value="true" Color="Color.Primary" Dense="true">Yes</MudRadio>
-    <MudRadio Value="false" Color="Color.Secondary" Dense="false">No</MudRadio>
-</MudRadioGroup>
-            </div>
-        <MudTextField AutoGrow MaxLines="4" Variant="Variant.Outlined" Label="Comment"  @bind-Value="model.Comments"/>
-
-
-        <MudButton ButtonType="ButtonType.Submit"
-                   Variant="Variant.Filled"
-                   Color="Color.Tertiary"
-                   Class="mt-3"
-                   StartIcon="@Icons.Material.Filled.Save"
-                   style=" display:block; margin:auto; width:400px">
+        <MudGrid>
+            <MudItem md="12">
+                <MudText Typo="Typo.h2" Align="Align.Center">@review.Title</MudText>
+            </MudItem>
+            <MudItem md="12">
+                <MudSwitch T="bool" Color="Color.Primary" LabelPosition="LabelPosition.Start" Class="ml-auto px-0"
+                    UncheckedColor="Color.Dark" Label="Send Anonymously?" ValueChanged="AnonymousToggle" />
+                <MudTextField Variant="Variant.Outlined" Label="Username" @bind-Value="model.Reviewer" />
+            </MudItem>
+            <MudItem md="6">
+                <MudText Align="Align.Right" Typo="Typo.h4" Class="deep-purple-text">Course Content</MudText>
+            </MudItem>
+            <MudItem md="2" class="d-flex flex-column align-center ">
+                <MudRating @bind-SelectedValue="courseContentScore" HoveredValueChanged="HandleHoveredValueChanged1"
+                    Size="Size.Large" />
+                <MudText Typo="Typo.subtitle2" Class="deep-purple-text">@LabelText1</MudText>
+            </MudItem>    
+            <MudItem md="6">
+                <MudText Align="Align.Right" Typo="Typo.h4" Class="deep-purple-text">Time Management</MudText>
+            </MudItem>
+            <MudItem md="2" class="d-flex flex-column align-center ">
+                <MudRating @bind-SelectedValue="timeManagementScore" HoveredValueChanged="HandleHoveredValueChanged2"
+                    Size="Size.Large" />
+                <MudText Typo="Typo.subtitle2" Class="deep-purple-text">@LabelText2</MudText>
+            </MudItem>    
+            <MudItem md="6">
+                <MudText Align="Align.Right" Typo="Typo.h4" Class="deep-purple-text">Guiding Approach</MudText>
+            </MudItem>
+            <MudItem md="2" class="d-flex flex-column align-center ">
+                <MudRating @bind-SelectedValue="guidingApproachScore" HoveredValueChanged="HandleHoveredValueChanged3"
+                    Size="Size.Large" />
+                <MudText Typo="Typo.subtitle2" Class="deep-purple-text">@LabelText3</MudText>
+            </MudItem>    
+            <MudItem md="6">
+                <MudText Align="Align.Right" Typo="Typo.h4" Class="deep-purple-text">Assignments Quality</MudText>
+            </MudItem>
+            <MudItem md="2" class="d-flex flex-column align-center ">
+                <MudRating @bind-SelectedValue="assignmentsQualityScore" HoveredValueChanged="HandleHoveredValueChanged4"
+                    Size="Size.Large" />
+                <MudText Typo="Typo.subtitle2" Class="deep-purple-text">@LabelText4</MudText>
+            </MudItem>    
+             <MudItem md="6">
+                <MudText Align="Align.Right" Typo="Typo.h4" Class="deep-purple-text">Recommend To Others</MudText>
+            </MudItem>
+            <MudItem md="2" class="d-flex flex-column align-center ">
+                <MudRadioGroup @bind-Value="model.RecommendToOthers">
+                <MudRadio Value="true" Color="Color.Success" Dense="true">Yes</MudRadio>
+                <MudRadio Value="false" Color="Color.Error" Dense="false">No</MudRadio>
+            </MudRadioGroup>
+            </MudItem>   
+        </MudGrid>
+        <MudTextField AutoGrow MaxLines="4" Variant="Variant.Outlined" Label="Comment" @bind-Value="model.Comments" />
+        <MudButton ButtonType="ButtonType.Submit" Variant="Variant.Filled" Color="Color.Tertiary" Class="mt-3"
+            StartIcon="@Icons.Material.Filled.Save" style=" display:block; margin:auto; width:400px">
             Submit
         </MudButton>
     </EditForm>
@@ -68,30 +71,20 @@
 
     [Parameter]
     public string Id { get; set; }
-    public ReviewForm review=new();
+    public ReviewForm review = new();
+
     protected override async Task OnInitializedAsync()
     {
         review = Db.Reviews.Find(Id);
-    }       
- 
+    }
 
-    [CascadingParameter]
-    private Task<AuthenticationState> AuthTask { get; set; } = null!;
-
-    ConsultantRating model = new() ;
-
-
+    ConsultantRating model = new();
     private async Task OnValidSubmit(EditContext context)
     {
-        var state = await AuthTask;
-        var userName = state.User.Identity?.Name;
-
-        // model.AddCreatedStamps(userName);
         model.CourseContentScore = (byte)courseContentScore;
         model.TimeManagementScore = (byte)timeManagementScore;
         model.GuidingApproachScore = (byte)guidingApproachScore;
         model.AssignmentsQualityScore = (byte)assignmentsQualityScore;
-        model.ProjectsQualityScore = (byte)projectsQualityScore;
         model.ReviewFormId = Id;
         Db.ConsultantRatings.Add(model);
         var rowsAffected = await Db.SaveChangesAsync();
@@ -108,21 +101,18 @@
     }
 
     private int courseContentScore = 0;
-    private int timeManagementScore=0;
+    private int timeManagementScore = 0;
     private int guidingApproachScore = 0;
     private int assignmentsQualityScore = 0;
-    private int projectsQualityScore = 0;
     private int? activeVal1;
     private int? activeVal2;
     private int? activeVal3;
     private int? activeVal4;
-    private int? activeVal5;
 
     private void HandleHoveredValueChanged1(int? val1) => activeVal1 = val1;
-    private void HandleHoveredValueChanged2(int? val2) => activeVal2= val2;
+    private void HandleHoveredValueChanged2(int? val2) => activeVal2 = val2;
     private void HandleHoveredValueChanged3(int? val3) => activeVal3 = val3;
     private void HandleHoveredValueChanged4(int? val4) => activeVal4 = val4;
-    private void HandleHoveredValueChanged5(int? val5) => activeVal5 = val5;
 
     private string LabelText1 => (activeVal1 ?? courseContentScore) switch
     {
@@ -130,8 +120,8 @@
         2 => "Bad",
         3 => "Sufficient",
         4 => "Good",
-        5 => "Awesome!",
-        _ => "Rate our product!"
+        5 => "Awesome",
+        _ => "Rate Course Content "
     };
     private string LabelText2 => (activeVal2 ?? timeManagementScore) switch
     {
@@ -139,8 +129,8 @@
         2 => "Bad",
         3 => "Sufficient",
         4 => "Good",
-        5 => "Awesome!",
-        _ => "Rate our product!"
+        5 => "Awesome",
+        _ => "Rate Time Management"
     };
     private string LabelText3 => (activeVal3 ?? guidingApproachScore) switch
     {
@@ -148,8 +138,8 @@
         2 => "Bad",
         3 => "Sufficient",
         4 => "Good",
-        5 => "Awesome!",
-        _ => "Rate our product!"
+        5 => "Awesome",
+        _ => "Rate Guiding Approach"
     };
     private string LabelText4 => (activeVal4 ?? assignmentsQualityScore) switch
     {
@@ -157,25 +147,19 @@
         2 => "Bad",
         3 => "Sufficient",
         4 => "Good",
-        5 => "Awesome!",
-        _ => "Rate our product!"
-    };
-    private string LabelText5 => (activeVal5 ?? projectsQualityScore) switch
-    {
-        1 => "Very bad",
-        2 => "Bad",
-        3 => "Sufficient",
-        4 => "Good",
-        5 => "Awesome!",
-        _ => "Rate our product!"
+        5 => "Awesome",
+        _ => "Rate Assignments Quality"
     };
 
-    private async Task AnonymousToggle(bool value){
-        if(value){
+    private async Task AnonymousToggle(bool value)
+    {
+        if (value)
+        {
             model.Reviewer = "Anonymous User";
-            model.IsAnonymous=true;
+            model.IsAnonymous = true;
         }
-        else{
+        else
+        {
             model.Reviewer = "";
             model.IsAnonymous = false;
         }
@@ -183,5 +167,5 @@
         // model.Reviewer = "Anonymous User";
 
     }
-   
+
 }

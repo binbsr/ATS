@@ -9,9 +9,9 @@
 
 <PageTitle>Reviews</PageTitle>
 
-<MudDataGrid T="ReviewForm"
+<MudDataGrid T="ReviewFormViewModel"
              MultiSelection="true"
-             Items="@reviews"
+             Items="@reviewFormViewModels"
              SortMode="SortMode.Multiple"
              Hover="true"
              Loading="loadingData"
@@ -20,7 +20,7 @@
              EditMode="DataGridEditMode.Form"
              EditTrigger="DataGridEditTrigger.Manual">
     <ToolBarContent>
-        <MudFab Href="/reviewForm/add" StartIcon="@Icons.Material.Filled.Add" title="Add loan" Size="Size.Small" Color="Color.Tertiary"></MudFab>
+        <MudFab Href="/reviewForm/add" StartIcon="@Icons.Material.Filled.Add" title="Add Review Form" Size="Size.Small" Color="Color.Tertiary"></MudFab>
         <MudSpacer />
         <MudTextField @bind-Value="_searchString" Placeholder="Search" Adornment="Adornment.Start" Immediate="true"
                       AdornmentIcon="@Icons.Material.Filled.Search" IconSize="Size.Medium" Class="mt-0"></MudTextField>
@@ -34,16 +34,19 @@
         </TemplateColumn>
         <PropertyColumn Property="x => x.Instructor.Name" Title="Instructor" />
         <PropertyColumn Property="x => x.Training.Title" Title="Training" />
-        <TemplateColumn>
+
+        <TemplateColumn  Title="Link">
             <CellTemplate>
                 <MudLink Href="@($"/ats/feedback/{context.Item.Id}")" >Review Form</MudLink>
+                 <MudLink Href=@context.Item.Link >Review Form from VM</MudLink>
+
             </CellTemplate>
         </TemplateColumn>
         <MudLink></MudLink>
 
     </Columns>
     <PagerContent>
-        <MudDataGridPager T="ReviewForm" PageSizeOptions="[30, 50, 100, 200]" />
+        <MudDataGridPager T="ReviewFormViewModel" PageSizeOptions="[30, 50, 100, 200]" />
     </PagerContent>
 </MudDataGrid>
 
@@ -51,15 +54,15 @@
 
     [CascadingParameter]
     private Task<AuthenticationState> AuthTask { get; set; } = null!;
-
-    private List<ReviewForm> reviews = [];
+    private List<ReviewForm> reviewForms=[];
+    private List<ReviewFormViewModel> reviewFormViewModels = [];
 
     private string _searchString = string.Empty;
     private bool loadingData = false;
 
    
 
-    private Func<ReviewForm, bool> _quickFilter => x =>
+    private Func<ReviewFormViewModel, bool> _quickFilter => x =>
     {
         if (string.IsNullOrWhiteSpace(_searchString))
             return true;
@@ -77,12 +80,12 @@
     {
         loadingData = true;
 
-        reviews = await db.Reviews
+        reviewForms = await db.Reviews
         .Include(x => x.Training)
         .Include(x => x.Instructor)
             .AsNoTracking()
             .ToListAsync();
-
+        reviewFormViewModels=reviewForms.ToViewModel();
         loadingData = false;
     }
 

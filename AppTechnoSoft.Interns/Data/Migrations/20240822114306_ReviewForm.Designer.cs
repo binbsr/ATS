@@ -4,6 +4,7 @@ using AppTechnoSoft.Interns.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace AppTechnoSoft.Interns.Data.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20240822114306_ReviewForm")]
+    partial class ReviewForm
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -89,16 +92,16 @@ namespace AppTechnoSoft.Interns.Data.Migrations
                     b.HasData(
                         new
                         {
-                            Id = "2e940745-391f-4e2c-aea4-26ee766387b5",
+                            Id = "792a7946-c15e-4776-9116-68989ed2a3d2",
                             AccessFailedCount = 0,
-                            ConcurrencyStamp = "1087851e-716e-4b12-9d9b-a7d11e89fd53",
+                            ConcurrencyStamp = "0539bf1e-7d5d-4032-86ed-ba9a54497969",
                             Email = "rawal.bishnu@live.com",
                             EmailConfirmed = true,
                             LockoutEnabled = false,
                             NormalizedUserName = "RAWAL.BISHNU@LIVE.COM",
-                            PasswordHash = "AQAAAAIAAYagAAAAEOpq3BMnoZNO/s8/HquKeOYzuJokyXGgzrH6kxGdGm/b9WCWNZAJYyLNXH5blAxqsQ==",
+                            PasswordHash = "AQAAAAIAAYagAAAAEDfOPjVNlTNiyNpSiUo8K1XnWXJw6VtIO1RGMVcCLlA4akYQLlToZ+qxnPXNI6FGyg==",
                             PhoneNumberConfirmed = false,
-                            SecurityStamp = "9bea8133-057d-4b6f-8651-841d68aa98e8",
+                            SecurityStamp = "c074dbef-61fd-46df-a92d-aeb2690de81d",
                             TwoFactorEnabled = false,
                             UserName = "rawal.bishnu@live.com"
                         });
@@ -494,6 +497,9 @@ namespace AppTechnoSoft.Interns.Data.Migrations
                     b.Property<bool>("IsAnonymous")
                         .HasColumnType("bit");
 
+                    b.Property<byte>("ProjectsQualityScore")
+                        .HasColumnType("tinyint");
+
                     b.Property<bool>("RecommendToOthers")
                         .HasColumnType("bit");
 
@@ -849,7 +855,7 @@ namespace AppTechnoSoft.Interns.Data.Migrations
                     b.Property<string>("CreatedBy")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<DateTime?>("Expiration")
+                    b.Property<DateTime>("Expiration")
                         .HasColumnType("datetime2");
 
                     b.Property<int>("InstructorId")
@@ -1297,7 +1303,7 @@ namespace AppTechnoSoft.Interns.Data.Migrations
                         new
                         {
                             Id = 1,
-                            Created = new DateTime(2024, 8, 27, 14, 49, 22, 527, DateTimeKind.Local).AddTicks(3372),
+                            Created = new DateTime(2024, 8, 22, 17, 28, 5, 140, DateTimeKind.Local).AddTicks(8420),
                             CreatedBy = "Seed",
                             Description = "An display item in home page",
                             HtmlContent = "Welcome to AppTechnoSoft! An initiative for students and freshers.",
@@ -1306,7 +1312,7 @@ namespace AppTechnoSoft.Interns.Data.Migrations
                         new
                         {
                             Id = 2,
-                            Created = new DateTime(2024, 8, 27, 14, 49, 22, 527, DateTimeKind.Local).AddTicks(3385),
+                            Created = new DateTime(2024, 8, 22, 17, 28, 5, 140, DateTimeKind.Local).AddTicks(8440),
                             CreatedBy = "Seed",
                             Description = "An display item in home page",
                             HtmlContent = "Bridging the gap between academia and industry!",
@@ -1315,7 +1321,7 @@ namespace AppTechnoSoft.Interns.Data.Migrations
                         new
                         {
                             Id = 3,
-                            Created = new DateTime(2024, 8, 27, 14, 49, 22, 527, DateTimeKind.Local).AddTicks(3387),
+                            Created = new DateTime(2024, 8, 22, 17, 28, 5, 140, DateTimeKind.Local).AddTicks(8442),
                             CreatedBy = "Seed",
                             Description = "An display item in home page",
                             HtmlContent = "We guide you on software R&D and SDLC to kickstart your career!",
@@ -1324,7 +1330,7 @@ namespace AppTechnoSoft.Interns.Data.Migrations
                         new
                         {
                             Id = 4,
-                            Created = new DateTime(2024, 8, 27, 14, 49, 22, 527, DateTimeKind.Local).AddTicks(3389),
+                            Created = new DateTime(2024, 8, 22, 17, 28, 5, 140, DateTimeKind.Local).AddTicks(8445),
                             CreatedBy = "Seed",
                             Description = "An display item in home page",
                             HtmlContent = "Replacement Opportunities!",
@@ -1333,7 +1339,7 @@ namespace AppTechnoSoft.Interns.Data.Migrations
                         new
                         {
                             Id = 5,
-                            Created = new DateTime(2024, 8, 27, 14, 49, 22, 527, DateTimeKind.Local).AddTicks(3391),
+                            Created = new DateTime(2024, 8, 22, 17, 28, 5, 140, DateTimeKind.Local).AddTicks(8460),
                             CreatedBy = "Seed",
                             Description = "An display item in home page",
                             HtmlContent = "From basics to professional touches!",
@@ -1342,7 +1348,7 @@ namespace AppTechnoSoft.Interns.Data.Migrations
                         new
                         {
                             Id = 6,
-                            Created = new DateTime(2024, 8, 27, 14, 49, 22, 527, DateTimeKind.Local).AddTicks(3394),
+                            Created = new DateTime(2024, 8, 22, 17, 28, 5, 140, DateTimeKind.Local).AddTicks(8462),
                             CreatedBy = "Seed",
                             Description = "GIT and GitHub Essentials",
                             HtmlContent = "todo",
@@ -1351,7 +1357,7 @@ namespace AppTechnoSoft.Interns.Data.Migrations
                         new
                         {
                             Id = 7,
-                            Created = new DateTime(2024, 8, 27, 14, 49, 22, 527, DateTimeKind.Local).AddTicks(3396),
+                            Created = new DateTime(2024, 8, 22, 17, 28, 5, 140, DateTimeKind.Local).AddTicks(8465),
                             CreatedBy = "Seed",
                             Description = "Training + Internship Combo",
                             HtmlContent = "todo",
@@ -1403,22 +1409,22 @@ namespace AppTechnoSoft.Interns.Data.Migrations
                     b.HasData(
                         new
                         {
-                            Id = "331fd546-8f67-42a5-a534-f8866e1f7779",
-                            ConcurrencyStamp = "331fd546-8f67-42a5-a534-f8866e1f7779",
+                            Id = "5881a89c-6e0b-4d6a-b1ac-9e46d5a6f820",
+                            ConcurrencyStamp = "5881a89c-6e0b-4d6a-b1ac-9e46d5a6f820",
                             Name = "SuperAdmin",
                             NormalizedName = "SUPERADMIN"
                         },
                         new
                         {
-                            Id = "28011165-162d-456f-8964-d876fd1c42f5",
-                            ConcurrencyStamp = "28011165-162d-456f-8964-d876fd1c42f5",
+                            Id = "3fd00c9c-8a77-46c7-9b25-bc324667a880",
+                            ConcurrencyStamp = "3fd00c9c-8a77-46c7-9b25-bc324667a880",
                             Name = "Admin",
                             NormalizedName = "ADMIN"
                         },
                         new
                         {
-                            Id = "7aa85389-8615-453b-93df-ef50f32c6578",
-                            ConcurrencyStamp = "7aa85389-8615-453b-93df-ef50f32c6578",
+                            Id = "eb09e578-8191-469b-89e5-afad50dd66f1",
+                            ConcurrencyStamp = "eb09e578-8191-469b-89e5-afad50dd66f1",
                             Name = "Trainee",
                             NormalizedName = "TRAINEE"
                         });
@@ -1513,18 +1519,18 @@ namespace AppTechnoSoft.Interns.Data.Migrations
                     b.HasData(
                         new
                         {
-                            UserId = "2e940745-391f-4e2c-aea4-26ee766387b5",
-                            RoleId = "331fd546-8f67-42a5-a534-f8866e1f7779"
+                            UserId = "792a7946-c15e-4776-9116-68989ed2a3d2",
+                            RoleId = "5881a89c-6e0b-4d6a-b1ac-9e46d5a6f820"
                         },
                         new
                         {
-                            UserId = "2e940745-391f-4e2c-aea4-26ee766387b5",
-                            RoleId = "28011165-162d-456f-8964-d876fd1c42f5"
+                            UserId = "792a7946-c15e-4776-9116-68989ed2a3d2",
+                            RoleId = "3fd00c9c-8a77-46c7-9b25-bc324667a880"
                         },
                         new
                         {
-                            UserId = "2e940745-391f-4e2c-aea4-26ee766387b5",
-                            RoleId = "7aa85389-8615-453b-93df-ef50f32c6578"
+                            UserId = "792a7946-c15e-4776-9116-68989ed2a3d2",
+                            RoleId = "eb09e578-8191-469b-89e5-afad50dd66f1"
                         });
                 });
 

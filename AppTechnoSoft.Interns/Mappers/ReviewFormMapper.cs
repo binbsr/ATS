@@ -20,8 +20,9 @@ public static class ReviewFormMapper
             Created = model?.Created?.Humanize() ?? "N/A",
             CreatedBy = model?.CreatedBy ?? "N/A",
         };
-        viewModel.Link=$"/ats/feedback/{model.Id}";
+        viewModel.Link=$"/ats/feedback/{model?.Id}";
         // viewModel.ReviewCount=
+        
         return viewModel;
     }
     

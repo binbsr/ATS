@@ -1,23 +1,23 @@
-﻿using AppTechnoSoft.Interns.Data.Models;
-
-namespace AppTechnoSoft.Core.ViewModels;
+﻿namespace AppTechnoSoft.Core.ViewModels;
 public class ReviewFormViewModel
 {
-    public ReviewFormViewModel() => Id = Guid.NewGuid().ToString();
-
-    public string Id { get; set; }
+    public string Id { get; set; } = string.Empty;
     public string Title { get; set; } = "";
-    public DateTime? Expiration { get; set; }
+    public string Expiration { get; set; } = string.Empty;
 
     public int InstructorId { get; set; }
-    public Instructor? Instructor { get; set; }
+    public string? InstructorName { get; set; }
+    public string? InstructorOrg { get; set; }
+    public string? InstructorRole { get; set; }
 
     public int TrainingId { get; set; }
-    public Training? Training { get; set; }
+    public string? TrainingName { get; set; }
+    public string? TrainingOrgName { get; set; }
     public string Link { get; set; } = "";
-    public int ReviewCount { get; set; }
-    public string Created { get; set; } = string.Empty;
-    public string CreatedBy { get; set; } = string.Empty;
-    public DateTime LastUpdated { get; set; }
-    public string LastUpdatedBy { get; set; } = string.Empty;
+    public int ResponseCount { get; set; }
+    public int RecommendToOthersCount { get; set; }
+    public double CourseContentScoreAverage { get; set; }
+    public double TimeManagementScoreAverage { get; set; }
+    public double GuidingApproachScoreAverage { get; set; }
+    public double AssignmentsQualityScoreAverage { get; set; }
 }

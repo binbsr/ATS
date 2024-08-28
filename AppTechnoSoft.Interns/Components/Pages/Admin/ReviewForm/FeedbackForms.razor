@@ -34,25 +34,35 @@
                       Class="mt-0"></MudTextField>
     </ToolBarContent>
     <Columns>
+        <HierarchyColumn T="ReviewFormViewModel" ButtonDisabledFunc="x => x.ResponseCount == 0" />
         <PropertyColumn Property="x => x.Title" Title="Title" />
         <TemplateColumn Title="Expiration">
             <CellTemplate>
-                @context.Item.Expiration?.ToLongDateString()
+                @context.Item.Expiration
             </CellTemplate>
         </TemplateColumn>
-        <PropertyColumn Property="x => x.Instructor.Name" Title="Instructor" />
-        <PropertyColumn Property="x => x.Training.Title" Title="Training" />
+        <PropertyColumn Property="x => x.InstructorName" Title="Instructor" />
+        <PropertyColumn Property="x => x.TrainingName" Title="Training" />
+        <PropertyColumn Property="x => x.ResponseCount" Title="Responses" />
 
         <TemplateColumn Title="Share">
             <CellTemplate>
-                <MudLink Href="@context.Item.Link" Target="_blank">                    
+                <MudLink Href="@context.Item.Link" Target="_blank">
                     <MudIcon Icon="@Icons.Material.Sharp.Share" />
                 </MudLink>
             </CellTemplate>
         </TemplateColumn>
         <MudLink></MudLink>
-
     </Columns>
+    <ChildRowContent>
+        <MudStack Class="p-3" Row="true" Spacing="20" Wrap="Wrap.Wrap">
+            <Statistic Label="Course Content" Value="@context.Item.CourseContentScoreAverage" />
+            <Statistic Label="Time Management" Value="@context.Item.TimeManagementScoreAverage" />
+            <Statistic Label="Guiding Approach" Value="@context.Item.GuidingApproachScoreAverage" />
+            <Statistic Label="Assignment Quality" Value="@context.Item.AssignmentsQualityScoreAverage" />
+            <Statistic Label="Recommend Others?" ShowStar="false" Value="@($"{context.Item.RecommendToOthersCount}/{context.Item.ResponseCount}")" />
+        </MudStack>
+    </ChildRowContent>
     <PagerContent>
         <MudDataGridPager T="ReviewFormViewModel" PageSizeOptions="[30, 50, 100, 200]" />
     </PagerContent>
@@ -75,7 +85,7 @@
         if (x.Title.Contains(_searchString, StringComparison.OrdinalIgnoreCase))
             return true;
 
-        if (x.Instructor.Name.Contains(_searchString, StringComparison.OrdinalIgnoreCase))
+        if (x.InstructorName.Contains(_searchString, StringComparison.OrdinalIgnoreCase))
             return true;
 
         return false;
@@ -86,12 +96,14 @@
         loadingData = true;
 
         var reviewForms = await db.Reviews
+            .Include(x => x.ConsultantRatings)
             .Include(x => x.Training)
             .Include(x => x.Instructor)
-            .AsNoTracking()
+            .OrderByDescending(x => x.Created)
             .ToListAsync() ?? [];
 
         reviewFormViewModels = reviewForms.ToViewModel();
+
         loadingData = false;
     }
 }

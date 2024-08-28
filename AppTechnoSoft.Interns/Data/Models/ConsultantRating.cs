@@ -1,5 +1,4 @@
 ﻿namespace AppTechnoSoft.Interns.Data.Models;
-
 public class ConsultantRating
 {
     public int Id { get; set; }

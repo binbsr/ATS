@@ -13,4 +13,6 @@ public class ReviewForm : BaseEntity
 
     public int TrainingId { get; set; }
     public Training? Training { get; set; }
+
+    public List<ConsultantRating> ConsultantRatings { get; set; }
 }

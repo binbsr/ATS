@@ -1,8 +1,7 @@
 ﻿@page "/loan"
 
 @using System.Globalization
-@using AppTechnoSoft.Interns.Mappers
-@using AppTechnoSoft.Interns.ViewModels
+
 @attribute [Authorize(Roles = Role.SuperAdmin)]
 @inject ApplicationDbContext db
 @inject ISnackbar SnackBar

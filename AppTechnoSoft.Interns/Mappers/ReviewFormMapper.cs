@@ -1,11 +1,10 @@
 ﻿using AppTechnoSoft.Interns.Data.Models;
-using AppTechnoSoft.Interns.ViewModels;
+using AppTechnoSoft.Core.ViewModels;
 using Humanizer;
 
-namespace AppTechnoSoft.Interns.Mappers;
+namespace AppTechnoSoft.Core.Mappers;
 public static class ReviewFormMapper
 {
- 
     public static ReviewFormViewModel ToViewModel(this ReviewForm model)
     {
         var viewModel = new ReviewFormViewModel
@@ -19,13 +18,12 @@ public static class ReviewFormMapper
             Training = model.Training,
             Created = model?.Created?.Humanize() ?? "N/A",
             CreatedBy = model?.CreatedBy ?? "N/A",
+            Link = $"/ats/feedback/{model?.Id}"
         };
-        viewModel.Link=$"/ats/feedback/{model?.Id}";
-        // viewModel.ReviewCount=
-        
+
         return viewModel;
     }
     
-    public static List<ReviewFormViewModel> ToViewModel(this List<ReviewForm> models)
-    => models.Select(x => x.ToViewModel()).ToList();
+    public static List<ReviewFormViewModel> ToViewModel(this List<ReviewForm> models) => 
+        models.Select(x => x.ToViewModel()).ToList();
 }

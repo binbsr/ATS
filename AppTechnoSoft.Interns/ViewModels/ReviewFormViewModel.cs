@@ -1,7 +1,6 @@
 ﻿using AppTechnoSoft.Interns.Data.Models;
 
-namespace AppTechnoSoft.Interns.ViewModels;
-
+namespace AppTechnoSoft.Core.ViewModels;
 public class ReviewFormViewModel
 {
     public ReviewFormViewModel() => Id = Guid.NewGuid().ToString();

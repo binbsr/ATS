@@ -68,9 +68,10 @@
             </MudNavGroup>
         </AuthorizeView>
         
-        <AuthorizeView Roles="@Role.AdminsAndInstructor">
-            <MudNavGroup Title="Feedbacks" Icon="@Icons.Material.Filled.Feedback" IconColor="Color.Tertiary">
-                <MudNavLink Href="/reviewforms" Icon="@Icons.Material.Sharp.Create" IconColor="Color.Tertiary">Create</MudNavLink>
+        <AuthorizeView Roles="@Role.Admins">
+            <MudNavGroup Title="Reviews" Icon="@Icons.Material.Filled.Reviews" IconColor="Color.Tertiary">
+                <MudNavLink Href="/review/forms" Icon="@Icons.Material.Sharp.Star" IconColor="Color.Tertiary">Forms</MudNavLink>
+                <MudNavLink Href="/review/create" Icon="@Icons.Material.Sharp.Create" IconColor="Color.Tertiary">Create</MudNavLink>
             </MudNavGroup>
         </AuthorizeView>
 

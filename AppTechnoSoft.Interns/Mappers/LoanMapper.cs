@@ -1,8 +1,8 @@
 ﻿using AppTechnoSoft.Interns.Data.Models;
-using AppTechnoSoft.Interns.ViewModels;
+using AppTechnoSoft.Core.ViewModels;
 using Humanizer;
 
-namespace AppTechnoSoft.Interns.Mappers;
+namespace AppTechnoSoft.Core.Mappers;
 public static class LoanMapper
 {
     public static Loan ToModel(this LoanViewModel viewModel)

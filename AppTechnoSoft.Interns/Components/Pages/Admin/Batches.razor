@@ -27,8 +27,9 @@ else
                             <MudText Typo="Typo.body1" title="@batch.Created">Added @batch.Created.Humanize()</MudText>
                         </CardHeaderContent>
                         <CardHeaderActions>
-                            <MudIconButton Class="mt-5" Icon="@Icons.Material.Filled.Edit" Size="Size.Small" Color="Color.Warning" Href="@("/edit-batch/" + batch.Id)" />
-                            <MudIconButton Class="mt-5" Icon="@Icons.Material.Sharp.Delete" Size="Size.Small" Color="Color.Error" OnClick="() => ConfirmDelete(batch)" />
+                            <MudText Typo="Typo.h6" Inline>@(batch.Students?.Count ?? 0) Members</MudText>
+                            <MudIconButton Icon="@Icons.Material.Filled.Edit" Size="Size.Small" Color="Color.Warning" Href="@("/edit-batch/" + batch.Id)" />
+                            <MudIconButton Icon="@Icons.Material.Sharp.Delete" Size="Size.Small" Color="Color.Error" OnClick="() => ConfirmDelete(batch)" />
                             <MudMessageBox @ref="mbox" Title="Warning" CancelText="Cancel">
                                 <MessageContent>
                                     Are you sure to delete this batch? It can't be undone.

@@ -13,17 +13,21 @@
     }
     <EditForm Model="@model" OnValidSubmit="OnValidSubmit">
         <MudGrid Spacing="10">
-            <MudItem md="12">
-                <MudText Typo="Typo.h2" Align="Align.Center">@review.Title</MudText>
+            <MudItem md="12" Class="mt-3">
+                <MudText Typo="Typo.h3" Align="Align.Center">Consultant Feedback Form</MudText>
+                <MudText Typo="Typo.h4" Align="Align.Center">@review.Title</MudText>
             </MudItem>
             <MudItem md="12">
-                <MudSwitch T="bool" Color="Color.Primary" LabelPosition="LabelPosition.Start"
-                           UncheckedColor="Color.Dark" Label="Send Anonymously?" ValueChanged="ToggleAnonymous" />
-                <MudTextField Variant="Variant.Outlined" Label="Your Name" @bind-Value="model.Reviewer" />
+                <MudSwitch T="bool"
+                           Color="Color.Success"
+                           LabelPosition="LabelPosition.Start"
+                           UncheckedColor="Color.Dark" Label="Send Anonymously?"
+                           ValueChanged="ToggleAnonymous" />
+                <MudTextField AutoFocus="true" Variant="Variant.Outlined" Label="Your Name" @bind-Value="model.Reviewer" />
             </MudItem>
 
             <MudItem md="6" Class="mt-3">
-                <MudText Align="Align.Right" Typo="Typo.h4" Color="Color.Primary">Course Content</MudText>
+                <MudText Align="Align.Right" Typo="Typo.h4">Course Content</MudText>
             </MudItem>
             <MudItem md="6" Class="d-flex justify-start pl-16 mt-3">
                 <MudRating @bind-SelectedValue="courseContentScore"
@@ -36,7 +40,7 @@
                 <MudText Typo="Typo.h5">@LabelText1</MudText>
             </MudItem>
             <MudItem md="6" Class="mt-3">
-                <MudText Align="Align.Right" Typo="Typo.h4" Color="Color.Primary">Time Management</MudText>
+                <MudText Align="Align.Right" Typo="Typo.h4">Time Management</MudText>
             </MudItem>
             <MudItem md="6" Class="d-flex justify-start pl-16 mt-3">
                 <MudRating @bind-SelectedValue="timeManagementScore"
@@ -48,9 +52,9 @@
                            Size="Size.Large" />
                 <MudText Typo="Typo.h5">@LabelText2</MudText>
             </MudItem>
-            
+
             <MudItem md="6" Class="mt-3">
-                <MudText Align="Align.Right" Typo="Typo.h4" Color="Color.Primary">Guiding Approach</MudText>
+                <MudText Align="Align.Right" Typo="Typo.h4">Guiding Approach</MudText>
             </MudItem>
             <MudItem md="6" Class="d-flex justify-start pl-16 mt-3">
                 <MudRating @bind-SelectedValue="guidingApproachScore"
@@ -64,7 +68,7 @@
             </MudItem>
 
             <MudItem md="6" Class="mt-3">
-                <MudText Align="Align.Right" Typo="Typo.h4" Color="Color.Primary">Assignments Quality</MudText>
+                <MudText Align="Align.Right" Typo="Typo.h4">Assignments Quality</MudText>
             </MudItem>
             <MudItem md="6" Class="d-flex justify-start pl-16 mt-3">
                 <MudRating @bind-SelectedValue="assignmentsQualityScore"
@@ -76,9 +80,9 @@
                            Size="Size.Large" />
                 <MudText Typo="Typo.h5">@LabelText4</MudText>
             </MudItem>
-                        
+
             <MudItem md="6" Class="mt-3">
-                <MudText Align="Align.Right" Typo="Typo.h4" Color="Color.Primary">Recommend To Others</MudText>
+                <MudText Align="Align.Right" Typo="Typo.h4">Recommend To Others</MudText>
             </MudItem>
             <MudItem md="6" Class="d-flex justify-start pl-16 mt-2">
                 <MudRadioGroup @bind-Value="model.RecommendToOthers">
@@ -87,13 +91,13 @@
                 </MudRadioGroup>
             </MudItem>
         </MudGrid>
-        <MudTextField Lines="4" Variant="Variant.Outlined" Label="Any Comments" @bind-Value="model.Comments" Class="mt-8" />
+        <MudTextField Lines="3" Variant="Variant.Outlined" Label="Any Comments" @bind-Value="model.Comments" Class="mt-8" />
         <MudButton ButtonType="ButtonType.Submit"
                    Variant="Variant.Filled"
                    Color="Color.Tertiary"
                    Class="mt-5"
                    StartIcon="@Icons.Material.Filled.Save"
-                   Disabled="submitDisabled"
+                   Disabled="(submitDisabled || ValidationError)"
                    FullWidth>
             Submit
         </MudButton>
@@ -107,15 +111,17 @@
 
     public ReviewForm review = new();
     ConsultantRating model = new();
+    public bool expired = false;
     public bool submitDisabled = false;
     public string message = string.Empty;
+    public string expiredMessage = string.Empty;
 
     protected override async Task OnInitializedAsync()
     {
         review = await Db.Reviews.FindAsync(Id) ?? new();
-        submitDisabled = DateTime.UtcNow > review.Expiration;
 
-        message = submitDisabled ?
+        expired = DateTime.UtcNow > review.Expiration;
+        expiredMessage = submitDisabled ?
             $"Feedback form already expired on {review.Expiration?.ToLongDateString()}" :
             string.Empty;
     }
@@ -151,6 +157,12 @@
     private int? activeVal3;
     private int? activeVal4;
 
+    public bool ValidationError => courseContentScore == 0 ||
+        timeManagementScore == 0 ||
+        guidingApproachScore == 0 ||
+        assignmentsQualityScore == 0 ||
+        model.Reviewer == "";
+
     private void HandleHoveredValueChanged1(int? val1) => activeVal1 = val1;
     private void HandleHoveredValueChanged2(int? val2) => activeVal2 = val2;
     private void HandleHoveredValueChanged3(int? val3) => activeVal3 = val3;
@@ -165,7 +177,7 @@
         5 => "Amazing",
         _ => ""
     };
-    
+
     private string LabelText2 => (activeVal2 ?? timeManagementScore) switch
     {
         1 => "Very Poor",
@@ -185,7 +197,7 @@
         5 => "Amazing",
         _ => ""
     };
-    
+
     private string LabelText4 => (activeVal4 ?? assignmentsQualityScore) switch
     {
         1 => "Bad",

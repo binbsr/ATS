@@ -1,14 +1,22 @@
 ﻿@typeparam T
 <MudStack Row Spacing="0">
-    <MudText Typo="Typo.h4" Style="font-weight: bolder">@Value</MudText>
-    @if(ShowStar)
+    @if (Value is double val)
+    {
+        <MudText Typo="Typo.h4" Style="font-weight: bolder">@(val.ToString("F1"))</MudText>
+    }
+    else
+    {
+        <MudText Typo="Typo.h4" Style="font-weight: bolder">@Value</MudText>
+    }
+
+    @if (ShowStar)
     {
         <MudIcon Icon="@Icons.Material.Sharp.Star" Color="Color.Warning" Size="Size.Large" />
     }
     <MudText Typo="Typo.body1" Class="ml-2">@Label</MudText>
 </MudStack>
 
-@code{
+@code {
     [Parameter]
     public string Label { get; set; } = "";
 

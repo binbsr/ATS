@@ -5,25 +5,36 @@
 <PageTitle>@review.Title</PageTitle>
 
 <MudContainer>
-    @if (submitDisabled)
+    @if (expired)
     {
-        <MudAlert Square="true" Severity="Severity.Success" Style="text-align:center" NoIcon>
+        <MudAlert Square="true" Severity="Severity.Error" Style="text-align:center" NoIcon Class="border-2">
+            <MudText Typo="Typo.h4" Color="Color.Error">@expiredMessage</MudText>
+        </MudAlert>
+    }
+    else if (submitted)
+    {
+        <MudAlert Square="true" Severity="Severity.Success" Style="text-align:center" NoIcon Class="border-2">
             <MudText Typo="Typo.h4" Color="Color.Tertiary">@message</MudText>
         </MudAlert>
     }
     <EditForm Model="@model" OnValidSubmit="OnValidSubmit">
-        <MudGrid Spacing="10">
+        <MudGrid Spacing="8">
             <MudItem md="12" Class="mt-3">
                 <MudText Typo="Typo.h3" Align="Align.Center">Consultant Feedback Form</MudText>
                 <MudText Typo="Typo.h4" Align="Align.Center">@review.Title</MudText>
             </MudItem>
             <MudItem md="12">
                 <MudSwitch T="bool"
+                           Class="d-flex align-end"
                            Color="Color.Success"
-                           LabelPosition="LabelPosition.Start"
-                           UncheckedColor="Color.Dark" Label="Send Anonymously?"
+                           UncheckedColor="Color.Dark"
+                           Label="Send Anonymously?"
                            ValueChanged="ToggleAnonymous" />
-                <MudTextField AutoFocus="true" Variant="Variant.Outlined" Label="Your Name" @bind-Value="model.Reviewer" />
+                <MudTextField AutoFocus="true"
+                              Immediate="true"
+                              Variant="Variant.Outlined"
+                              Label="Your Name"
+                              @bind-Value="model.Reviewer" />
             </MudItem>
 
             <MudItem md="6" Class="mt-3">
@@ -91,13 +102,13 @@
                 </MudRadioGroup>
             </MudItem>
         </MudGrid>
-        <MudTextField Lines="3" Variant="Variant.Outlined" Label="Any Comments" @bind-Value="model.Comments" Class="mt-8" />
+        <MudTextField Lines="2" Variant="Variant.Outlined" Label="Any Comments" @bind-Value="model.Comments" Class="mt-8" Immediate="true" />
         <MudButton ButtonType="ButtonType.Submit"
                    Variant="Variant.Filled"
                    Color="Color.Tertiary"
                    Class="mt-5"
                    StartIcon="@Icons.Material.Filled.Save"
-                   Disabled="(submitDisabled || ValidationError)"
+                   Disabled="(submitted || ValidationError || expired || string.IsNullOrEmpty(model.Comments))"
                    FullWidth>
             Submit
         </MudButton>
@@ -112,7 +123,7 @@
     public ReviewForm review = new();
     ConsultantRating model = new();
     public bool expired = false;
-    public bool submitDisabled = false;
+    public bool submitted = false;
     public string message = string.Empty;
     public string expiredMessage = string.Empty;
 
@@ -121,8 +132,8 @@
         review = await Db.Reviews.FindAsync(Id) ?? new();
 
         expired = DateTime.UtcNow > review.Expiration;
-        expiredMessage = submitDisabled ?
-            $"Feedback form already expired on {review.Expiration?.ToLongDateString()}" :
+        expiredMessage = expired ?
+            $"Feedback form already expired on {review.Expiration?.ToLongDateString()}. Thanks for your interest on giving us valuable feedbacks." :
             string.Empty;
     }
 
@@ -138,12 +149,12 @@
 
         if (rowsAffected > 0)
         {
-            submitDisabled = true;
+            submitted = true;
             message = "Thanks for taking time for feedback. We will keep on improving ourselves for better professional results.";
         }
         else
         {
-            submitDisabled = false;
+            submitted = false;
             message = string.Empty;
         }
     }

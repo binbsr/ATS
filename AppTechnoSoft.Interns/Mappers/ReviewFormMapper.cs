@@ -34,6 +34,7 @@ public static class ReviewFormMapper
             viewModel.GuidingApproachScoreAverage = ratings.Average(x => x.GuidingApproachScore);
             viewModel.AssignmentsQualityScoreAverage = ratings.Average(x => x.AssignmentsQualityScore);
             viewModel.RecommendToOthersCount = ratings.Count(x => x.RecommendToOthers);
+            viewModel.Comments = ratings.Select(x => (x.Reviewer, x.Comments)).ToList();
         }
 
         return viewModel;

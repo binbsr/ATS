@@ -20,4 +20,5 @@ public class ReviewFormViewModel
     public double TimeManagementScoreAverage { get; set; }
     public double GuidingApproachScoreAverage { get; set; }
     public double AssignmentsQualityScoreAverage { get; set; }
+    public List<(string, string)> Comments { get; set; } = [];
 }

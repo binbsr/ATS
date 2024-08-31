@@ -46,7 +46,7 @@
                    AnchorOrigin="Origin.BottomCenter">
             @foreach (var student in students)
             {
-                <MudSelectItem Value="@student.Id">@student.Name</MudSelectItem>
+                <MudSelectItem Value="@student.Id">@student.DisplayName</MudSelectItem>
             }
         </MudSelect>
 
@@ -71,7 +71,7 @@
     Batch model = new();
     IEnumerable<string> studentsSelected = [];
     List<ListItem> students = new();
-    record ListItem(string Id, string Name, int? BatchId);
+    record ListItem(string Id, string DisplayName, int? BatchId);
     string pageTitle = string.Empty;
     bool IsAdd => Id is null or 0;
     DateRange batchRange = null!;
@@ -81,7 +81,13 @@
 
     protected override async Task OnInitializedAsync()
     {
-        students = await Db.Students.Select(x => new ListItem(x.Id, $"{x.Name} ({x.Email})", x.BatchId)).ToListAsync();
+        var stnds = await Db.Students
+            .Where(x => x.Status == Status.Applied)
+            .Select(x => new { x.Id, x.Name, x.Email, x.FormSubmitted, x.BatchId })
+            .ToListAsync();
+
+        students = stnds.Select(x => new ListItem(x.Id, $"{x.Name} ({x.Email} - {x.FormSubmitted.Humanize()})", x.BatchId)).ToList();
+
         trainingPlans = await Db.Training.Include(x => x.Organization).ToArrayAsync();
 
         if (IsAdd)

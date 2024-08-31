@@ -1,4 +1,4 @@
-﻿@page "/attendance"
+﻿@page "/attendance/batches/{BatchId:int}"
 
 @attribute [Authorize(Roles = Role.AdminsAndInstructor)]
 
@@ -8,7 +8,7 @@
 
 @if (loadingData)
 {
-    <MudProgressCircular Indeterminate Color="Color.Tertiary" />
+    <Loading />
 }
 else if (instructor is null)
 {
@@ -16,104 +16,78 @@ else if (instructor is null)
 }
 else
 {
-    <MudPaper Class="p-2 mb-2" Elevation="10">
-        <MudChipSet T="Batch" SelectionMode="SelectionMode.SingleSelection" SelectedValueChanged="BatchChanged">
-            @foreach (var group in classesByBatch)
-            {
-                <MudChip Variant="Variant.Outlined"
-                         Color="Color.Tertiary"
-                         Value="group.Key"
-                         Label="true"
-                         Class="p-4"
-                         Style="font-size:1.3rem;">
-                    @group.Key!.Name
-                </MudChip>
-            }
-        </MudChipSet>
-    </MudPaper>
-
-    @if (loadingAttendaceData)
-    {
-        <MudProgressCircular Indeterminate Color="Color.Tertiary" />
-    }
-    else
-    {
-        <MudSimpleTable Style="overflow-x: auto;" Dense Outlined>
-            <thead>
-                <tr>
-                    <th style="position:sticky;left:0;background:#4DB6AC;font-size:1.3rem;text-align:center;">Trainees</th>
-                    @foreach (var h in headings)
-                    {
-                        <th style="@(!h.IsOfficeDay() ? $"background: {Colors.DeepOrange.Lighten2}" : $"background: {Colors.Teal.Lighten2}")">@h.ToString("dddd, MMM d")</th>
-                    }
-                </tr>
-            </thead>
-            <tbody>
-                @foreach (var row in studentAttendances)
+    <MudSimpleTable Style="overflow-x: auto;" Dense Outlined>
+        <thead>
+            <tr>
+                <th style="position:sticky;left:0;background:#4DB6AC;font-size:1.3rem;text-align:center;"></th>
+                @foreach (var h in headingDates)
                 {
-                    <tr>
-                        <td style="position:sticky;left:0;background:#4DB6AC;z-index:10;">
-                            <MudStack Row>
-                                <MudAvatar>
-                                    <MudImage Src="@row.Key.Profile" />
-                                </MudAvatar>
-                                <MudText>@row.Key.Name</MudText>
-                            </MudStack>
+                    <th style="@(!h.IsOfficeDay() ? $"background: {Colors.DeepOrange.Lighten2}" : $"background: {Colors.Teal.Lighten2}")">@h.ToString("dddd, MMM d")</th>
+                }
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var row in studentAttendances)
+            {
+                <tr>
+                    <td style="position:sticky;left:0;background:#4DB6AC;z-index:10;">
+                        <MudStack Row>
+                            <MudAvatar>
+                                <MudImage Src="@row.Key.Profile" />
+                            </MudAvatar>
+                            <MudText>@row.Key.Name</MudText>
+                        </MudStack>
 
-                        </td>
-                        @foreach (var date in headings)
+                    </td>
+                    @foreach (var date in headingDates)
+                    {
+                        var hasClassSchdeule = batchCalendarDates.Any(y => y.Date == date.Date);
+
+                        if (!date.IsOfficeDay())
                         {
-                            var hasClassSchdeule = classesByBatch
-                            .FirstOrDefault(x => x.Key == selectedBatch)
-                            ?.Any(y => y.ClassStart.Date == date.Date) ?? false;
+                            <td style="@($"background: {Colors.DeepOrange.Lighten2}")" title="Weekend"></td>
+                        }
+                        else if (date > DateTime.Today)
+                        {
+                            <td style="@($"background: {Colors.Gray.Lighten1}")" title="Upcoming classes"></td>
+                        }
+                        else if (!hasClassSchdeule)
+                        {
+                            <td style="@($"background: {Colors.DeepOrange.Lighten3}")" title="No classes"></td>
+                        }
+                        else
+                        {
+                            var attendance = row.Value.FirstOrDefault(x => x.Date.ToShortDateString() == date.ToShortDateString());
 
-
-                            if (!date.IsOfficeDay())
-                            {
-                                <td style="@($"background: {Colors.DeepOrange.Lighten2}")" title="Weekend"></td>
-                            }
-                            else if (date > DateTime.Today)
-                            {
-                                <td style="@($"background: {Colors.Gray.Lighten1}")" title="Upcoming classes"></td>
-                            }
-                            else if (!hasClassSchdeule)
-                            {
-                                <td style="@($"background: {Colors.DeepOrange.Lighten3}")" title="No classes"></td>
-                            }
-                            else
-                            {
-                                var attendance = row.Value.FirstOrDefault(x => x.Date.ToShortDateString() == date.ToShortDateString());
-
-                                <td style="text-align:center">
-                                    @if (attendance is null)
+                            <td style="text-align:center">
+                                @if (attendance is null)
+                                {
+                                    <MudAvatar Color="Color.Error">A</MudAvatar>
+                                }
+                                else
+                                {
+                                    if (attendance.PunchOut == null || attendance.PunchOut == TimeOnly.MinValue)
                                     {
-                                        <MudAvatar Color="Color.Error">A</MudAvatar>
+                                        <MudBadge Color="Color.Error" Icon="@Icons.Material.Sharp.CallMissed" Overlap Bordered>
+                                            <MudTooltip Text="@($"Punchin - {attendance.PunchIn} Punchout - Missed")">
+                                                <MudAvatar Color="Color.Tertiary">P</MudAvatar>
+                                            </MudTooltip>
+                                        </MudBadge>
                                     }
                                     else
                                     {
-                                        if (attendance.PunchOut == null || attendance.PunchOut == TimeOnly.MinValue)
-                                        {
-                                            <MudBadge Color="Color.Error" Icon="@Icons.Material.Sharp.CallMissed" Overlap Bordered>
-                                                <MudTooltip Text="@($"Punchin - {attendance.PunchIn} Punchout - Missed")">
-                                                    <MudAvatar Color="Color.Tertiary">P</MudAvatar>
-                                                </MudTooltip>
-                                            </MudBadge>
-                                        }
-                                        else
-                                        {
-                                            <MudTooltip Text="@($"Punchin - {attendance.PunchIn} Punchout - {attendance.PunchOut}")">
-                                                <MudAvatar Color="Color.Tertiary">P</MudAvatar>
-                                            </MudTooltip>
-                                        }
+                                        <MudTooltip Text="@($"Punchin - {attendance.PunchIn} Punchout - {attendance.PunchOut}")">
+                                            <MudAvatar Color="Color.Tertiary">P</MudAvatar>
+                                        </MudTooltip>
                                     }
-                                </td>
-                            }
+                                }
+                            </td>
                         }
-                    </tr>
-                }
-            </tbody>
-        </MudSimpleTable>
-    }
+                    }
+                </tr>
+            }
+        </tbody>
+    </MudSimpleTable>
 }
 
 @code {
@@ -121,17 +95,18 @@ else
     [CascadingParameter]
     private Task<AuthenticationState> AuthTask { get; set; } = null!;
 
+    [Parameter]
+    public int? BatchId { get; set; }
+
     private record StudentAttedance(DateOnly Date, TimeOnly? PunchIn, TimeOnly? PunchOut);
 
     Dictionary<(string Name, string? Profile), IEnumerable<StudentAttedance>> studentAttendances = [];
+    IEnumerable<DateTime> batchCalendarDates = [];
     bool loadingData = false;
-    bool loadingAttendaceData = false;
-    Instructor instructor = new();
-    DateTime[] headings = [];
-    IEnumerable<IGrouping<Batch?, ClassSchedule>> classesByBatch = [];
-    Batch selectedBatch = null!;
+    Instructor? instructor = new();
+    DateTime[] headingDates = [];
 
-    protected override async Task OnInitializedAsync()
+    protected override async Task OnParametersSetAsync()
     {
         loadingData = true;
 
@@ -142,56 +117,64 @@ else
         if (loggedInUserId == string.Empty)
             return;
 
-        using (var Db = DbFactory.CreateDbContext())
+        if (BatchId is null)
+            return;
+
+        studentAttendances = [];
+
+        Batch? batch = null;
+        using (var db = DbFactory.CreateDbContext())
         {
-            if (loggedInUser.IsInRole(Role.Instructor) && 
-                !(loggedInUser.IsInRole(Role.Admin) || loggedInUser.IsInRole(Role.Admin)))
+            if (loggedInUser.IsInRole(Role.Instructor) &&
+                !(loggedInUser.IsInRole(Role.Admin) || loggedInUser.IsInRole(Role.SuperAdmin)))
             {
-                instructor = await Db.Instructors.FirstOrDefaultAsync(x => x.ApplicationUserId == loggedInUserId);
+                instructor = await db.Instructors
+                    .FirstOrDefaultAsync(x => x.ApplicationUserId == loggedInUserId);
 
                 if (instructor is null)
                 {
                     loadingData = false;
                     return;
                 }
-            }            
+            }
 
-            classesByBatch = await Db.ClassSchedules
-                .Include(y => y.Batch)
-                .GroupBy(x => x.Batch)
+            batch = await db.Batches
+                .FindAsync(BatchId);
+            batchCalendarDates = await db.ClassSchedules
+                .Where(x => x.BatchId == BatchId)
+                .Select(x => x.ClassStart)
                 .ToArrayAsync();
-        }
 
-        loadingData = false;
-    }
+            if (batch is null)
+                return;
 
-    private async Task BatchChanged(Batch batch)
-    {
-        //fetch students and attendances for this batch selection
-        if (batch is null)
-            return;
+            headingDates = batch.Start.Until(batch.End);
 
-        selectedBatch = batch;
-        var batchId = batch.Id;
-        headings = batch.Start.Until(batch.End);
+            var attendances = await db.Attendances
+                .Where(x => x.Student.BatchId == BatchId)
+                .Select(x => new
+                {
+                    Name = x.Student.Name,
+                    Profile = x.Student.ProfileImagePath,
+                    Date = x.Date,
+                    PunchIn = x.PunchIn,
+                    PunchOut = x.PunchOut
+                })
+                .GroupBy(y => new { y.Name, y.Profile })
+                .ToListAsync();
 
-        loadingAttendaceData = true;
-        using var Db = DbFactory.CreateDbContext();
-
-        var attendances = await Db.Attendances
-            .Where(x => x.Student.BatchId == batchId)
-            .Select(x => new
+            foreach (var x in attendances)
             {
-                Name = x.Student.Name,
-                Profile = x.Student.ProfileImagePath,
-                Date = x.Date,
-                PunchIn = x.PunchIn,
-                PunchOut = x.PunchOut
-            })
-            .GroupBy(y => new { y.Name, y.Profile })
-            .ToListAsync();
+                var key = (x.Key.Name, x.Key.Profile);
+                if (studentAttendances.ContainsKey(key))
+                    continue;
 
-        attendances.ForEach(x => studentAttendances.Add((x.Key.Name, x.Key.Profile), x.Select(y => new StudentAttedance(y.Date, y.PunchIn, y.PunchOut))));
-        loadingAttendaceData = false;
+                studentAttendances.Add(key, x.Select(y => new StudentAttedance(y.Date, y.PunchIn, y.PunchOut)));
+            }
+        }
+        
+        loadingData = false;
+
+        StateHasChanged();
     }
 }

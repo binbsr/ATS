@@ -36,7 +36,7 @@
                       Variant="Variant.Outlined"
                       Class="mt-4"
                       Immediate="true"
-                      Label="Email" Disabled="true" />
+                      Label="Email (Auto Generated)" Disabled="true" />
 
         <MudTextField @bind-Value="model.Phone"
                       Variant="Variant.Outlined"
@@ -47,7 +47,7 @@
                       ErrorText="You have already applied at Appsoft with this number, please call us if you have any queries."
                       TextChanged="PhoneChanged" />
 
-        @if (model.ApplicantType == ApplicantType.StudentInternship)
+        @if (model.ApplicantType != ApplicantType.Professional)
         {
             <MudAutocomplete T="College"
                              Label="Select College"
@@ -70,19 +70,19 @@
                              ShowProgressIndicator="true"
                              ProgressIndicatorColor="Color.Default"
                              MaxItems="null" />
-        }
-        else if (model.ApplicantType == ApplicantType.SoftwareEngineeringAspirant)
-        {
-            <MudSelect T="TrainingTrack" Variant="Variant.Outlined" Label="Track" @bind-Value="model.TrainingTrack" Class="mt-4" AnchorOrigin="Origin.BottomCenter">
-                <MudSelectItem T="TrainingTrack" Value="@TrainingTrack.None">No idea, need consulting</MudSelectItem>
-                <MudSelectItem T="TrainingTrack" Value="@TrainingTrack.NETWeb">.NET Web Development</MudSelectItem>
-                <MudSelectItem T="TrainingTrack" Value="@TrainingTrack.JavaWeb">Java Web Development</MudSelectItem>
-                <MudSelectItem T="TrainingTrack" Value="@TrainingTrack.PythonWeb">Python Web Development</MudSelectItem>
-                <MudSelectItem T="TrainingTrack" Value="@TrainingTrack.NodeWeb">Node.js Web Development</MudSelectItem>
-            </MudSelect>
+            if (model.ApplicantType == ApplicantType.SoftwareEngineeringAspirant)
+            {
+                <MudSelect T="TrainingTrack" Variant="Variant.Outlined" Label="Track" @bind-Value="model.TrainingTrack" Class="mt-4" AnchorOrigin="Origin.BottomCenter">
+                    <MudSelectItem T="TrainingTrack" Value="@TrainingTrack.None">No idea, need consulting</MudSelectItem>
+                    <MudSelectItem T="TrainingTrack" Value="@TrainingTrack.NETWeb">.NET Full-Stack</MudSelectItem>
+                    <MudSelectItem T="TrainingTrack" Value="@TrainingTrack.JavaWeb">Java Full-Stack</MudSelectItem>
+                    <MudSelectItem T="TrainingTrack" Value="@TrainingTrack.PythonWeb">Python Full-Stack</MudSelectItem>
+                    <MudSelectItem T="TrainingTrack" Value="@TrainingTrack.NodeWeb">Node.js Full-Stack</MudSelectItem>
+                </MudSelect>
+            }
         }
 
-        <ImageUpload Class="mt-4" ExistingImagePath="@model.ProfileImagePath" ImageChanged="ProfileChanged" Label="Upload Profile Image (<100kb)" />        
+        <ImageUpload Class="mt-4" ExistingImagePath="@model.ProfileImagePath" ImageChanged="ProfileChanged" Label="Upload Profile Image (<100kb)" />
 
         <MudButton ButtonType="ButtonType.Submit"
                    Variant="Variant.Filled"
@@ -108,15 +108,14 @@
     private bool profileSuccess = false;
     private string message = "";
 
-    private bool isSaveDisabled => model.ApplicantType == ApplicantType.StudentInternship ?
+    private bool isSaveDisabled =>
+    model.ApplicantType == ApplicantType.StudentInternship || model.ApplicantType == ApplicantType.SoftwareEngineeringAspirant ?
         (model.Name is ""
         || model.Phone is ""
-        || model.Email is ""
         || model.College is null
         || model.TechProgram is null) :
         (model.Name is ""
-        || model.Phone is ""
-        || model.Email is "")
+        || model.Phone is "")
         ;
 
     protected override async Task OnInitializedAsync()
@@ -148,36 +147,24 @@
         if (alreadyApplied)
         {
             // User updating his/her details
-            if (model.ApplicantType == ApplicantType.StudentInternship)
-            {
-                rowsAffected = await Db.Students
-                .Where(x => x.Id == model.Id)
-                .ExecuteUpdateAsync(o => o
-                    .SetProperty(x => x.Name, model.Name)
-                    .SetProperty(x => x.Email, model.Email)
-                    .SetProperty(x => x.Phone, model.Phone)
-                    .SetProperty(x => x.CollegeId, model.College.Id)
-                    .SetProperty(x => x.TechProgramId, model.TechProgram.Id)
-                    .SetProperty(x => x.ProfileImagePath, model.ProfileImagePath)
-                );
-            }
-            else if (model.ApplicantType == ApplicantType.SoftwareEngineeringAspirant)
-            {
-                rowsAffected = await Db.Students
-                .Where(x => x.Id == model.Id)
-                .ExecuteUpdateAsync(o => o
-                    .SetProperty(x => x.Name, model.Name)
-                    .SetProperty(x => x.Email, model.Email)
-                    .SetProperty(x => x.Phone, model.Phone)
-                    .SetProperty(x => x.TrainingTrack, model.TrainingTrack)
-                    .SetProperty(x => x.ProfileImagePath, model.ProfileImagePath)
-                );
-            }
+            var collegeId = model.College?.Id ?? null;
+            var techProgramId = model.TechProgram?.Id ?? null;
+
+            rowsAffected = await Db.Students
+            .Where(x => x.Id == model.Id)
+            .ExecuteUpdateAsync(o => o
+                .SetProperty(x => x.Name, model.Name)
+                .SetProperty(x => x.Email, model.Email)
+                .SetProperty(x => x.Phone, model.Phone)
+                .SetProperty(x => x.CollegeId, collegeId)
+                .SetProperty(x => x.TechProgramId, techProgramId)
+                .SetProperty(x => x.TrainingTrack, model.TrainingTrack)
+                .SetProperty(x => x.ProfileImagePath, model.ProfileImagePath)
+            );
         }
         else
         {
-            if (model.ApplicantType == ApplicantType.SoftwareEngineeringAspirant 
-                || model.ApplicantType == ApplicantType.Professional)
+            if (model.ApplicantType == ApplicantType.Professional)
             {
                 model.College = null;
                 model.TechProgram = null;

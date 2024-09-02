@@ -1,0 +1,139 @@
+@page "/college-tracker"
+
+@attribute [Authorize(Roles = Role.Admins)]
+
+@inject ApplicationDbContext Db
+@inject UserManager<ApplicationUser> UserManager
+@inject IUserStore<ApplicationUser> UserStore
+@inject ISnackbar SnackBar
+
+<PageTitle>College Tracker</PageTitle>
+
+<MudDataGrid T="CollegeTracker"
+             MultiSelection="true"
+             Items="@collegeTrackerList"
+             SortMode="SortMode.Multiple"
+             Filterable="true"
+             FilterMode="DataGridFilterMode.ColumnFilterRow"
+             FilterCaseSensitivity="DataGridFilterCaseSensitivity.CaseInsensitive"
+             Hover="true"
+             QuickFilter="@_quickFilter"
+             Loading="loadingData"
+             ReadOnly="true"
+             Hideable="true"
+             Dense="true">
+    <ToolBarContent>
+        
+        <MudSpacer />
+        <MudTextField @bind-Value="_searchString"
+                      Placeholder="@($"Search {collegeTrackerList.Count} applicants by name, email, status or phone...")"
+                      Adornment="Adornment.Start"
+                      Immediate="true"
+                      AdornmentIcon="@Icons.Material.Filled.Search"></MudTextField>
+    </ToolBarContent>
+    <Columns>
+        <SelectColumn ShowInFooter="false" ShowInHeader="false" />
+        <HierarchyColumn T="CollegeTracker" />
+        <PropertyColumn Property="x => x.College.Name" Title="College Name"  />
+        <PropertyColumn Property="x => x.Phone"  />
+        <PropertyColumn Property="x => x.Email" />
+        <PropertyColumn Property="x => x.Status" />
+        <PropertyColumn Property="x => x.Notes"  />
+        <PropertyColumn Property="x => x.PointOfContact" />
+
+        
+    </Columns>
+    <ChildRowContent>
+        <MudGrid Class="px-6 pt-4">
+            <MudItem md="12" Class="p-2">
+                <MudStack Row>
+                    <MudButton Variant="Variant.Filled"
+                                        OnClick="() => InsertCollegeStatus(context.Item,CollegeTrackerStatus.Phoned)">
+                                        Default
+                    </MudButton>
+                    <MudButton Variant="Variant.Filled">Default</MudButton>
+                    <MudButton Variant="Variant.Filled">Default</MudButton>
+                    <MudButton Variant="Variant.Filled">Default</MudButton>
+                    <MudButton Variant="Variant.Filled">Default</MudButton>
+
+                </MudStack>
+            </MudItem>
+
+        </MudGrid>
+    </ChildRowContent>
+    <PagerContent>
+        <MudDataGridPager T="CollegeTracker" PageSizeOptions="[20, 50, 100, 200]" />
+    </PagerContent>
+</MudDataGrid>
+
+@code {
+  
+
+    private List<IGrouping<College, CollegeTracker>> collegeTrackerList = [];
+    private string _searchString = string.Empty;
+    private bool loadingData = false;
+    private Func<CollegeTracker, bool> _quickFilter => x =>
+    {
+        if (string.IsNullOrWhiteSpace(_searchString))
+            return true;
+
+        if (x.Email.Contains(_searchString, StringComparison.OrdinalIgnoreCase))
+            return true;
+
+        if (x.Status.ToString().Contains(_searchString, StringComparison.OrdinalIgnoreCase))
+            return true;
+
+        if (x.Phone.Contains(_searchString, StringComparison.OrdinalIgnoreCase))
+            return true;
+
+        return false;
+    };
+
+     protected override async Task OnInitializedAsync()
+    {
+        loadingData = true;
+
+        var collegeTrackers = await Db.CollegeTrackers
+            .Include(x => x.College)
+            .GroupBy(x => x.College)
+            .OrderByDescending(x => x.Created)
+            .ToListAsync() ?? [];
+        
+
+
+
+
+
+
+        loadingData = false;
+    }
+
+      [CascadingParameter]
+    private Task<AuthenticationState> AuthTask { get; set; } = null!;
+
+      private async Task InsertCollegeStatus(CollegeTracker collegeTracker, CollegeTrackerStatus ctStatus)
+    {
+        var state = await AuthTask;
+        var cTracker= new CollegeTracker();
+        
+        cTracker.Phone = collegeTracker.Phone;
+        cTracker.Email = collegeTracker.Email;
+        cTracker.PointOfContact = collegeTracker.PointOfContact;
+        cTracker.Notes = collegeTracker.Notes;
+        cTracker.CollegeId = collegeTracker.CollegeId;
+        cTracker.Status = ctStatus;
+        Db.CollegeTrackers.Add(cTracker);
+        var rowsAffected = await Db.SaveChangesAsync();
+
+        if (rowsAffected > 0)
+        {
+            SnackBar.Add("New data added successfully", Severity.Success);
+        }
+        else
+        {
+            SnackBar.Add("Data add failed", Severity.Error);
+        }
+    }
+   
+
+}

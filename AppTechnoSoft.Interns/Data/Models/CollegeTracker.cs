@@ -6,8 +6,9 @@ public class CollegeTracker : BaseEntity
 {
     public int Id { get; set; }
     public CollegeTrackerStatus Status { get; set; }
-    public string Contact { get; set; }
-    public string ContactPerson { get; set; }
+    public string Phone { get; set; }
+    public string? Email { get; set; }
+    public string PointOfContact { get; set; }
     public string Notes { get; set; } = string.Empty;
 
     public int CollegeId { get; set; }

@@ -33,6 +33,7 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
     public DbSet<Loan> Loans { get; set; }
     public DbSet<ReviewForm> Reviews { get; set; }
     public DbSet<ConsultantRating> ConsultantRatings { get; set; }
+    public DbSet<CollegeTracker> CollegeTrackers { get; set; }
 
     protected override void OnModelCreating(ModelBuilder builder)
     {

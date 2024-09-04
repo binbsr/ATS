@@ -11,12 +11,18 @@
 }
 else
 {
-    <MudTable Items="@studentAssignments" Hover CanCancelEdit IsEditRowSwitchingBlocked
-              @bind-SelectedItem="selectedStudentAssignment" CommitEditTooltip="Save Edit"
-              RowEditPreview="BackupItem" RowEditCancel="ResetItemToOriginalValues"
+    <MudTable Items="@studentAssignments"
+              RowStyle="cursor: pointer;"
+              Dense="true"
+              CanCancelEdit="true"
+              IsEditRowSwitchingBlocked="true"
+              @bind-SelectedItem="selectedStudentAssignment"
+              CommitEditTooltip="Save Edit"
+              RowEditPreview="BackupItem"
+              RowEditCancel="ResetItemToOriginalValues"
               RowEditCommit="async (obj) => await SaveChanges(obj)">
         <ToolBarContent>
-            <MudText Typo="Typo.h6">Assignments returned from students (Click on row to edit evaluation score)</MudText>
+            <MudText Typo="Typo.h6">Returned Assignments (Click row to edit)</MudText>
         </ToolBarContent>
 
         <HeaderContent>
@@ -41,25 +47,42 @@ else
         </RowTemplate>
         <RowEditingTemplate>
             <MudTd DataLabel="Assignment">
-                <MudTextField Value="@context.AssignmentTitle" Disabled />
+                <MudInputLabel>@context.AssignmentTitle</MudInputLabel>
             </MudTd>
             <MudTd DataLabel="Student">
-                <MudTextField Value="@context.StudentName" Disabled />
+                <MudInputLabel>@context.StudentName</MudInputLabel>
             </MudTd>
             <MudTd DataLabel="SolutionUrl">
                 <MudLink Target="_blank" Href="@context.SolutionUrl">Solution</MudLink>
             </MudTd>
             <MudTd DataLabel="Evaluation">
-                <MudTextField @bind-Value="@context.Evaluation" Required Label="Marks out of 100" />
+                <MudTextField @bind-Value="@context.Evaluation" Variant="Variant.Outlined" Margin="Margin.Dense" Required Label="Marks out of 100" />
             </MudTd>
             <MudTd DataLabel="Deadline">
-                <MudTextField Value="@context.Deadline" Disabled />
+                <MudInputLabel>@context.Deadline.Humanize()</MudInputLabel>
             </MudTd>
             <MudTd DataLabel="Status">
-                <MudTextField Value="@context.Status" Disabled />
+                <MudSelect T="AssignmentStatus"
+                           Dense="true"
+                           @bind-Value="@context.Status"
+                           Variant="Variant.Outlined"
+                           Margin="Margin.Dense"
+                           AnchorOrigin="Origin.BottomCenter">
+                    @foreach (var item in Enum.GetValues<AssignmentStatus>())
+                    {
+                        <MudSelectItem Value="@item" />
+                    }
+                </MudSelect>
+            </MudTd>
+            <MudTd DataLabel="Returned">
+                <MudTooltip Text="@($"By {(context.Deadline - context.ReturnDate)?.Humanize(3)}")">
+                    <MudInputLabel> 
+                        @(context.Deadline > context.ReturnDate ? AssignmentStatus.Complete : AssignmentStatus.CompleteButMissedDeadline)
+                    </MudInputLabel>
+                </MudTooltip>                
             </MudTd>
             <MudTd DataLabel="Comment">
-                <MudTextField Lines="3" Value="@context.Comment" />
+                <MudTextField Lines="3" Variant="Variant.Outlined" Margin="Margin.Dense" Value="@context.Comment" />
             </MudTd>
         </RowEditingTemplate>
         <PagerContent>
@@ -130,6 +153,7 @@ else
         assignmentBeforeEdit = new()
             {
                 Evaluation = ((StudentAssignmentViewModel)assignment).Evaluation,
+                Status = ((StudentAssignmentViewModel)assignment).Status,
                 Comment = ((StudentAssignmentViewModel)assignment).Comment
             };
     }
@@ -146,10 +170,7 @@ else
                 .ExecuteUpdateAsync(x => x
                     .SetProperty(y => y.Evaluation, studentAssignment.Evaluation)
                     .SetProperty(y => y.Comment, studentAssignment.Comment)
-                    .SetProperty(y => y.Status,
-                        studentAssignment.Deadline > studentAssignment.ReturnDate
-                        ? AssignmentStatus.Complete
-                        : AssignmentStatus.CompleteButMissedDeadline)
+                    .SetProperty(y => y.Status, studentAssignment.Status)
                 );
 
         if (rowsUpdated > 0)

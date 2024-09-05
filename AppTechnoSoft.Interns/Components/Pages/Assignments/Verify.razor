@@ -5,9 +5,13 @@
 
 <PageTitle>Verify Assignments</PageTitle>
 
-@if (instructor is null)
+@if (loading)
 {
-    <ApplicationAlert Text="Looks like you are not yet assigned 'Instructor' role, please let admin know about it." />
+    <Loading />
+}
+else if (instructor is null)
+{
+    <ApplicationAlert Text="We can't find you in instructor pool, please let appsoft admin know about it." />
 }
 else
 {
@@ -76,17 +80,17 @@ else
             </MudTd>
             <MudTd DataLabel="Returned">
                 <MudTooltip Text="@($"By {(context.Deadline - context.ReturnDate)?.Humanize(3)}")">
-                    <MudInputLabel> 
+                    <MudInputLabel>
                         @(context.Deadline > context.ReturnDate ? AssignmentStatus.Complete : AssignmentStatus.CompleteButMissedDeadline)
                     </MudInputLabel>
-                </MudTooltip>                
+                </MudTooltip>
             </MudTd>
             <MudTd DataLabel="Comment">
                 <MudTextField Lines="3" Variant="Variant.Outlined" Margin="Margin.Dense" Value="@context.Comment" />
             </MudTd>
         </RowEditingTemplate>
         <PagerContent>
-            <MudTablePager />
+            <MudTablePager PageSizeOptions="[15, 50, 100, 200]" />
         </PagerContent>
         <EditButtonContent Context="button">
             <MudIconButton Size="@Size.Small" Icon="@Icons.Material.Outlined.Edit" Class="pa-0" OnClick="@button.ButtonAction" Disabled="@button.ButtonDisabled" />
@@ -100,6 +104,7 @@ else
     private Task<AuthenticationState> AuthTask { get; set; } = null!;
 
     private string searchString = string.Empty;
+    private bool loading = false;
     private Instructor? instructor = null;
     private List<StudentAssignmentViewModel> studentAssignments = [];
     private StudentAssignmentViewModel selectedStudentAssignment = null!;
@@ -107,6 +112,7 @@ else
 
     protected override async Task OnInitializedAsync()
     {
+        loading = true;
         var userTask = await AuthTask;
         var loggedInUser = userTask.User;
         var loggedInUserId = loggedInUser.GetUserId();
@@ -115,7 +121,10 @@ else
         instructor = await Db.Instructors.FirstOrDefaultAsync(x => x.ApplicationUserId == loggedInUserId);
 
         if (instructor is null)
+        {
+            loading = false;
             return;
+        }
 
         var studentAssignmentsModels = await Db.StudentAssignments
             .Where(x => x.InstructorId == instructor.Id)
@@ -146,6 +155,8 @@ else
                     Status = x.Status,
                     Comment = x.Comment
                 }).ToList();
+
+        loading = false;
     }
 
     private void BackupItem(object assignment)

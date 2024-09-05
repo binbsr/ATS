@@ -4,6 +4,7 @@ public class ClassSchedule: BaseEntity
     public int Id { get; set; }
     public DateTime ClassStart { get; set; }
     public float DurationHours { get; set; } = 1.0f;
+    //public float? ConsultationFee { get; set; }
     public string? MeetingDetails { get; set; }
 
     public Batch? Batch { get; set; }

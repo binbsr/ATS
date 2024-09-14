@@ -258,9 +258,10 @@ else
                 .Where(x => x.TrainingId == model.Id)
                 .Select(x => new
                 {
-                    Id = x.Id,
-                    Name = x.Name,
-                    Avatar = x.ProfileImagePath
+                    x.Id,
+                    x.Name,
+                    Avatar = x.ProfileImagePath,
+                    x.Status
                 })
                 .ToArrayAsync();
 
@@ -276,6 +277,7 @@ else
                                    student.Id,
                                    student.Name,
                                    student.Avatar,
+                                   student.Status,
                                    Assignments: studentAssignment.OrderBy(x => x.TurnInDate).ToArray()
                                );
         }

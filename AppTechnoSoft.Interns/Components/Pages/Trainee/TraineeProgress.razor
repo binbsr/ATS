@@ -1,0 +1,89 @@
+﻿
+<MudPaper Class="mt-3 mb-10" Elevation="0">
+    @{
+        bool applied = false, enrolled = false, learning = false, contribution = false, evaluated = false, docs = false, completed = false;
+        switch (Status)
+        {
+            case Status.Applied:
+                applied = true;
+                break;
+            case Status.Enrolled:
+                applied = true;
+                enrolled = true;
+                break;
+            case Status.Learning:
+                applied = true;
+                enrolled = true;
+                learning = true;
+                break;
+            case Status.Contribution:
+                applied = true;
+                enrolled = true;
+                learning = true;
+                contribution = true;
+                break;
+            case Status.Evaluated:
+                applied = true;
+                enrolled = true;
+                learning = true;
+                contribution = true;
+                evaluated = true;
+                break;
+            case Status.Documentation:
+                applied = true;
+                enrolled = true;
+                learning = true;
+                contribution = true;
+                evaluated = true;
+                docs = true;
+                break;
+            case Status.Completed:
+                applied = true;
+                enrolled = true;
+                learning = true;
+                contribution = true;
+                evaluated = true;
+                docs = true;
+                completed = true;
+                break;
+        }
+    }
+
+    <MudTimeline TimelineOrientation="TimelineOrientation.Horizontal"
+                 TimelinePosition="TimelinePosition.Top">
+        <AccomplishmentStatusItem Enabled="@applied"
+                                  BubbleIcon="@Icons.Material.Sharp.PersonAddAlt1"
+                                  Text="Applied" />
+
+        <AccomplishmentStatusItem Enabled="@enrolled"
+                                  BubbleIcon="@Icons.Material.Sharp.BatchPrediction"
+                                  Text="Enrolled" />
+
+        <AccomplishmentStatusItem Enabled="@learning"
+                                  BubbleIcon="@Icons.Material.Sharp.ModelTraining"
+                                  Text="Learning" />
+
+        <AccomplishmentStatusItem Enabled="@contribution"
+                                  BubbleIcon="@Icons.Material.Sharp.Code"
+                                  Text="Contribution" />
+
+        <AccomplishmentStatusItem Enabled="@evaluated"
+                                  BubbleIcon="@Icons.Material.Sharp.CreditScore"
+                                  Text="Evaluation" />
+
+        <AccomplishmentStatusItem Enabled="@docs"
+                                  BubbleIcon="@Icons.Material.Sharp.LibraryBooks"
+                                  Text="Documentation" />
+
+        <AccomplishmentStatusItem Enabled="@completed"
+                                  BubbleIcon="@Icons.Material.Sharp.Done"
+                                  Text="Completed" />
+    </MudTimeline>
+</MudPaper>
+
+@code {
+
+    [Parameter]
+    public Status Status { get; set; }
+
+}

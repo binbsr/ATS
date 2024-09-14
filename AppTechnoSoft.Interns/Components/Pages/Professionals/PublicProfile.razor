@@ -28,7 +28,7 @@ else
         </MudText>
     </MudStack>
 
-    <ProAccomplishment EmployeeId="@trainee.Id" Batch="@batchId" />
+    <Accomplishment TraineeId="@trainee.Id" Batch="@batchId" />
 }
 
 @code {
@@ -59,16 +59,14 @@ else
             .FirstOrDefaultAsync();
 
         batchId = student.BatchId;
-        
+
         trainee = new ProfessionalViewModel(
             student!.Id,
             student.Name,
             student.AvatarPath ?? "/person.png",
+            student.Status,
             student.Training,
             student.Organization,
-            student.TrainingHours)
-            {
-                Status = student.Status
-            };
+            student.TrainingHours);
     }
 }

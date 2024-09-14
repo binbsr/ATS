@@ -14,7 +14,7 @@ else
         <MudLink Href="@($"/profile/professional/{employee.Id}")" Target="_blank" Style="font-size:1.5rem">Public Profile <MudIcon Icon="@Icons.Material.Sharp.OpenInNew" /></MudLink>
     </MudText>
 
-    <ProAccomplishment EmployeeId="@employee.Id" Batch="@batchId" />
+    <Accomplishment TraineeId="@employee.Id" Batch="@batchId" />
 }
 
 @code {
@@ -54,10 +54,8 @@ else
             student.Id,
             student.Name,
             student.AvatarPath ?? "/person.png",
+            student.Status,
             student.Training,
-            student.Organization)
-            {
-                Status = student.Status
-            };
+            student.Organization);
     }
 }

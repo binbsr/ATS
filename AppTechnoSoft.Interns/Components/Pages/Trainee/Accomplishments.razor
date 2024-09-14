@@ -3,17 +3,23 @@
 @inject ApplicationDbContext Db
 
 <PageTitle>Accomplishments</PageTitle>
-
-@if (trainee is null)
+@if (loading)
+{
+    <Loading />
+}
+else if (trainee is null)
 {
     <ApplicationAlert Text="You have not yet applied for AppSoft traineeship." Navigation="/join" />
 }
 else
 {
-    <MudText Align="Align.Center">
-        <MudLink Href="@($"/profile/trainee/{trainee.Id}")" Target="_blank" Style="font-size:1.5rem">Share Profile <MudIcon Icon="@Icons.Material.Sharp.OpenInNew" /></MudLink>
-    </MudText>
-    <Accomplishment TraineeData="@trainee" />
+    <div class="mx-5">
+        <MudText Align="Align.Center">
+            <MudLink Href="@($"/profile/trainee/{trainee.Id}")" Target="_blank" Style="font-size:1.5rem">Share Profile <MudIcon Icon="@Icons.Material.Sharp.OpenInNew" /></MudLink>
+        </MudText>
+        <TraineeProgress Status="@trainee.Status" />
+        <Accomplishment TraineeId="@trainee.Id" Batch="@trainee.BatchId" />
+    </div>
 }
 
 @code {
@@ -23,9 +29,11 @@ else
 
     private TraineeViewModel trainee = null!;
     private IEnumerable<TraineeViewModel> trainees = [];
+    bool loading;
 
     protected override async Task OnInitializedAsync()
     {
+        loading = true;
         var state = await AuthTask;
         var loggedInUserId = state.User.GetUserId();
 
@@ -37,17 +45,19 @@ else
                 Name = x.Name,
                 Status = x.Status,
                 AvatarPath = x.ProfileImagePath,
+                BatchId = x.BatchId,
                 Program = $"{x.TechProgram!.Name} ({x.TechProgram.Affliation})",
                 College = $"{x.College!.Name}, {x.College.Location}"
             })
             .FirstOrDefaultAsync();
 
         if (student is null)
+        {
+            loading = false;
             return;
+        }
 
-        trainee = new TraineeViewModel(student.Id, student.Name, student.AvatarPath ?? "/person.png", student.Program, student.College)
-            {
-                Status = student.Status
-            };
+        trainee = new TraineeViewModel(student.Id, student.Name, student.BatchId, student.Status, student.AvatarPath ?? "/person.png", student.Program, student.College);
+        loading = false;
     }
 }

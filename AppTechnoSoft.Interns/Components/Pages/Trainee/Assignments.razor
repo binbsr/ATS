@@ -20,8 +20,9 @@ else
 }
 
 <MudTable Items="@assignments"
+          Dense="true"
           Hover="true"
-          Outlined
+          Outlined="true"
           Loading="@loadingData">
     <HeaderContent>
         <MudTh></MudTh>
@@ -70,7 +71,7 @@ else
         }
     </ChildRowContent>
     <PagerContent>
-        <MudTablePager PageSizeOptions="[10, 30, 50, 100]" />
+        <MudTablePager PageSizeOptions="[15, 30, 50, 100]" />
     </PagerContent>
     <NoRecordsContent>
         <MudText Typo="Typo.h6" Color="Color.Success">No assignments so far</MudText>

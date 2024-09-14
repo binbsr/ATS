@@ -247,12 +247,11 @@ else
                     x.Id,
                     x.Name,
                     x.ProfileImagePath ?? "/person.png",
+                    x.Status,
                     x.Training?.Title ?? "None",
-                    x.Training?.Organization?.Name ?? "None")
-                { Status = x.Status }
+                    x.Training?.Organization?.Name ?? "None"
+                )
             ).ToArray();
-
-            StateHasChanged();
 
         loadingData = false;
     }

@@ -1,6 +1,6 @@
 ﻿@page "/projects"
 
-@attribute [Authorize(Roles = Role.Admins)]
+@attribute [Authorize(Roles = Role.AdminsAndInstructor)]
 @inject ApplicationDbContext Db
 @inject ISnackbar SnackBar
 

@@ -133,6 +133,7 @@ else
             .ThenInclude(y => y.Students)
             .Include(z => z.Teams)
             .ThenInclude(y => y.Project)
+            .OrderByDescending(x => x.Created)
             .ToListAsync();
 
         loadingData = false;

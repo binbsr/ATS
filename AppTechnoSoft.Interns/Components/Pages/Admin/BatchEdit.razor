@@ -82,8 +82,8 @@
     protected override async Task OnInitializedAsync()
     {
         var stnds = await Db.Students
-            .Where(x => x.Status == Status.Applied)
             .Select(x => new { x.Id, x.Name, x.Email, x.FormSubmitted, x.BatchId })
+            .OrderByDescending(x => x.FormSubmitted)
             .ToListAsync();
 
         students = stnds.Select(x => new ListItem(x.Id, $"{x.Name} ({x.Email} - {x.FormSubmitted.Humanize()})", x.BatchId)).ToList();

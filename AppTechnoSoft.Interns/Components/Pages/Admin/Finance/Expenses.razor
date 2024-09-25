@@ -26,6 +26,7 @@
                       AdornmentIcon="@Icons.Material.Filled.Search" IconSize="Size.Medium" Class="mt-0"></MudTextField>
     </ToolBarContent>
     <Columns>
+        <PropertyColumn Property="x => x.Created.ToNepalTime()" Title="Date" />
         <PropertyColumn Property="x => x.Title" Title="Title" />
         <PropertyColumn Property="x => x.Description" Title="Description" />
         <PropertyColumn Property="x => x.ExpenseType" Title="Expense Type" />
@@ -90,6 +91,7 @@
 
         expenses = await db.Expenses
             .AsNoTracking()
+            .OrderByDescending(x => x.Created)
             .ToListAsync();
 
         loadingData = false;

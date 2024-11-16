@@ -1,4 +1,6 @@
-﻿namespace AppTechnoSoft.Interns.Data.Models;
+﻿using AppTechnoSoft.Interns.Data.Models.Consultant;
+
+namespace AppTechnoSoft.Interns.Data.Models;
 
 public class ReviewForm : BaseEntity
 {

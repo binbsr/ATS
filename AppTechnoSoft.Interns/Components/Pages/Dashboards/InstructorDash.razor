@@ -6,23 +6,18 @@
 
 <PageTitle>Consultant Dashboard</PageTitle>
 
-<MudGrid>
+<MudGrid Class="pt-2">
     <MudItem md="6">
-        <MudPaper Elevation="5" Class="mt-3">
-            <MudText Typo="Typo.h6" Class="py-4" Align="Align.Center">Your Classes: Last 5 Schedules</MudText>
+        <MudPaper Elevation="5">
+            <MudText Typo="Typo.h6" Class="py-4" Align="Align.Center">Your Calendar</MudText>
             <MudTable Items="consultantClasses"
                       Hover="true"
                       Dense="true"
                       Loading="@loadingData"
                       GroupBy="@_groupDefinition"
                       GroupHeaderStyle="background-color:var(--mud-palette-background-gray);height:50px;"
-                      LoadingProgressColor="Color.Secondary"
-                      FixedHeader="true">
-                <HeaderContent>
-                    <MudTh>Module</MudTh>
-                    <MudTh>Timing</MudTh>
-                    <MudTh>Meeting</MudTh>
-                </HeaderContent>
+                      LoadingProgressColor="Color.Tertiary"
+                      FixedHeader="true">                
                 <GroupHeaderTemplate>
                     <MudTh Style="font-weight:500" colspan="5">@($"{context.GroupName}: {context.Key}")</MudTh>
                 </GroupHeaderTemplate>
@@ -47,7 +42,38 @@
         </MudPaper>
     </MudItem>
     <MudItem md="6">
-
+        <MudPaper Elevation="5">
+            <MudText Typo="Typo.h6" Class="py-4" Align="Align.Center">Your Class Payables</MudText>
+            <MudTable Items="consultantClasses"
+                      Hover="true"
+                      Dense="true"
+                      Loading="@loadingData"
+                      GroupBy="@_groupDefinition"
+                      GroupHeaderStyle="background-color:var(--mud-palette-background-gray);height:50px;"
+                      LoadingProgressColor="Color.Tertiary"
+                      FixedHeader="true">                
+                <GroupHeaderTemplate>
+                    <MudTh Style="font-weight:500" colspan="5">@($"{context.GroupName}: {context.Key}")</MudTh>
+                </GroupHeaderTemplate>
+                <RowTemplate>
+                    <MudTd DataLabel="Module">@context.Module</MudTd>
+                    <MudTd DataLabel="ClassTiming">@context.ClassTiming</MudTd>
+                    <MudTd DataLabel="Link">
+                        <MudButton Size="@Size.Small"
+                                   Variant="@Variant.Filled"
+                                   Color="@Color.Tertiary"
+                                   StartIcon="@Icons.Material.Sharp.VideoCall"
+                                   Href="@context.MeetingDetails"
+                                   Target="_blank">
+                            Start
+                        </MudButton>
+                    </MudTd>
+                </RowTemplate>
+                <PagerContent>
+                    <MudTablePager HideRowsPerPage="true" PageSizeOptions="[5, 20, 50]" />
+                </PagerContent>
+            </MudTable>
+        </MudPaper>
     </MudItem>
 </MudGrid>
 
@@ -61,6 +87,7 @@
     bool loadingData = false;
     record ConsultantClass(string Batch, string Module, DateTime ClassTiming, string MeetingDetails);
     List<ConsultantClass> consultantClasses = [];
+    List<ConsultantPayable> consultantPayables = [];
     Dictionary<int, float> consultantBatchEarningLimit = [];
 
     private TableGroupDefinition<ConsultantClass> _groupDefinition = new()
@@ -110,14 +137,17 @@
                 consultantClasses.AddRange(schedule.Select(x => new ConsultantClass(x.Batch, x.Module, x.ClassStart, x.MeetingDetails)));
             }
 
+            // Calculate payables
             // Fetch consultant batch allocation limits
             var batchIds = classes.Select(x => x.Key);
             var batchLimits = await db.BatchBudgets
-                .Where(x => batchIds.Contains(x.Batch.Id) && x.BudgetType == BudgetType.Training)
-                .Select(x => new { x.Batch.Id, x.Allocation })
+                .Where(x => batchIds.Contains(x.BatchId) && x.BudgetType == BudgetType.Training)
+                .Select(x => new { x.BatchId, x.Allocation })
                 .ToArrayAsync();
 
-            consultantBatchEarningLimit = batchLimits.ToDictionary(x => x.Id, y => y.Allocation);
+            consultantBatchEarningLimit = batchLimits.ToDictionary(x => x.BatchId, y => y.Allocation);
+
+
         }
 
         loadingData = false;

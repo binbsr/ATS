@@ -1,6 +1,5 @@
 using AppTechnoSoft.Interns.Components.Account.Pages;
 using AppTechnoSoft.Interns.Components.Account.Pages.Manage;
-using AppTechnoSoft.Interns.Data;
 using AppTechnoSoft.Interns.Data.Models;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Components.Authorization;
@@ -43,7 +42,7 @@ namespace Microsoft.AspNetCore.Routing
 
             accountGroup.MapPost("/Logout", async (
                 ClaimsPrincipal user,
-                SignInManager<ApplicationUser> signInManager,
+                [FromServices] SignInManager<ApplicationUser> signInManager,
                 [FromForm] string returnUrl) =>
             {
                 await signInManager.SignOutAsync();

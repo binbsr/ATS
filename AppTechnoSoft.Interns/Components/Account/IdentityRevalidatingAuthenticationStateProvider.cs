@@ -1,4 +1,3 @@
-using AppTechnoSoft.Interns.Data;
 using AppTechnoSoft.Interns.Data.Models;
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Components.Server;

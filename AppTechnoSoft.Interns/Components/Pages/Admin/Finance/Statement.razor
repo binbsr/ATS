@@ -76,7 +76,7 @@
                     {
                         Title = $"{fee.StudentName} - Tution Fee",
                         Credit = fee.PaidTotal,
-                        Status = BudgetStatus.Paid,
+                        Status = FundStatus.Paid,
                         Date = fee.DateAdded,
                         Notes = "Source: Fee Collection"
                     });
@@ -93,7 +93,7 @@
                     {
                         Title = revenue.Particulars,
                         Credit = revenue.Amount,
-                        Status = BudgetStatus.Paid,
+                        Status = FundStatus.Paid,
                         Date = revenue.Date,
                         Notes = revenue.Source.ToString()
                     });
@@ -112,7 +112,7 @@
                     {
                         Title = expense.Title,
                         Debit = expense.Amount,
-                        Status = BudgetStatus.Paid,
+                        Status = FundStatus.Paid,
                         Date = expense.Created,
                         Notes = expense.Description
                     });

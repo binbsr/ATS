@@ -1,5 +1,6 @@
 using AppTechnoSoft.Interns.Data.Constants;
 using AppTechnoSoft.Interns.Data.Models;
+using AppTechnoSoft.Interns.Data.Models.Consultant;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;

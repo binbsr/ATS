@@ -4,7 +4,7 @@
 
 @inject IDbContextFactory<ApplicationDbContext> DbFactory
 
-<PageTitle>Batch attendances</PageTitle>
+<PageTitle>Attendance - @batch?.Name</PageTitle>
 
 @if (loadingData)
 {
@@ -31,13 +31,7 @@ else
             {
                 <tr>
                     <td style="position:sticky;left:0;background:#4DB6AC;z-index:10;">
-                        <MudStack Row>
-                            <MudAvatar>
-                                <MudImage Src="@row.Key.Profile" />
-                            </MudAvatar>
-                            <MudText>@row.Key.Name</MudText>
-                        </MudStack>
-
+                        <UserProfile AvatarPath="@row.Key.Profile" Name="@row.Key.Name" Horizontal />
                     </td>
                     @foreach (var date in headingDates)
                     {
@@ -100,6 +94,7 @@ else
 
     private record StudentAttedance(DateOnly Date, TimeOnly? PunchIn, TimeOnly? PunchOut);
 
+    Batch? batch;
     Dictionary<(string Name, string? Profile), IEnumerable<StudentAttedance>> studentAttendances = [];
     IEnumerable<DateTime> batchCalendarDates = [];
     bool loadingData = false;
@@ -121,8 +116,7 @@ else
             return;
 
         studentAttendances = [];
-
-        Batch? batch = null;
+                
         using (var db = DbFactory.CreateDbContext())
         {
             if (loggedInUser.IsInRole(Role.Instructor) &&
@@ -172,7 +166,7 @@ else
                 studentAttendances.Add(key, x.Select(y => new StudentAttedance(y.Date, y.PunchIn, y.PunchOut)));
             }
         }
-        
+
         loadingData = false;
 
         StateHasChanged();

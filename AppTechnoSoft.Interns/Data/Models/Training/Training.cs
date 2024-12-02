@@ -1,4 +1,5 @@
 ﻿using AppTechnoSoft.Interns.Data.Enums;
+using AppTechnoSoft.Interns.Data.Models.Consultant;
 
 namespace AppTechnoSoft.Interns.Data.Models;
 public class Training : BaseEntity

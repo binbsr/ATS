@@ -1,6 +1,5 @@
 ﻿@using Microsoft.AspNetCore.Authentication
 @using Microsoft.AspNetCore.Identity
-@using AppTechnoSoft.Interns.Data
 
 @inject SignInManager<ApplicationUser> SignInManager
 @inject IdentityRedirectManager RedirectManager
@@ -9,10 +8,8 @@
 {
     <div>
         <p>
-            There are no external authentication services configured. See this <a href="https://go.microsoft.com/fwlink/?LinkID=532715">
-                article
-                about setting up this ASP.NET application to support logging in via external services
-            </a>.
+            There are no external authentication services configured. See this <a href="https://go.microsoft.com/fwlink/?LinkID=532715">article
+            about setting up this ASP.NET application to support logging in via external services</a>.
         </p>
     </div>
 }
@@ -25,19 +22,7 @@ else
             <p>
                 @foreach (var provider in externalLogins)
                 {
-                    if(provider.DisplayName == "Google")
-                    {
-                        <button type="submit" class="btn btn-lg btn-info" name="provider" value="@provider.Name" title="Log in using your @provider.DisplayName account">
-                            <MudIcon Icon="@Icons.Custom.Brands.Google" Color="Color.Info"></MudIcon>
-                            @provider.DisplayName account
-                        </button>
-                    }
-                    else
-                    {
-                        <button type="submit" class="btn btn-info" name="provider" value="@provider.Name" title="Log in using your @provider.DisplayName account">
-                            Sign in with your @provider.DisplayName account
-                        </button>
-                    }                    
+                    <button type="submit" class="btn btn-primary" name="provider" value="@provider.Name" title="Log in using your @provider.DisplayName account">@provider.DisplayName</button>
                 }
             </p>
         </div>

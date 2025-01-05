@@ -1,0 +1,17 @@
+﻿using AppTechnoSoft.Interns.Data.Models.Gatherings;
+
+namespace AppTechnoSoft.Interns.Data.Models;
+public class Certificate
+{
+    public Certificate() => Id = Guid.NewGuid();
+    public Guid Id { get; set; }
+    public string Title { get; set; } = string.Empty;
+    public string Description { get; set; } = string.Empty;
+    public string Signataire1 { get; set; } = string.Empty;
+    public string Signataire1SignPath { get; set; } = string.Empty;
+    public string Signataire2 { get; set; } = string.Empty;
+    public string Signataire2SignPath { get; set; } = string.Empty;
+
+    public Guid AttendeeId { get; set; }
+    public Attendee? Attendee { get; set; }
+}

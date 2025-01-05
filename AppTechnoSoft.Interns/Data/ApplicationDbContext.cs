@@ -37,6 +37,7 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
     public DbSet<ConsultantRating> ConsultantRatings { get; set; }
     public DbSet<Gathering> Gatherings { get; set; }
     public DbSet<GatheringCalendar> GatheringCalendars { get; set; }
+    public DbSet<Certificate> Certificates { get; set; }
 
     protected override void OnModelCreating(ModelBuilder builder)
     {
@@ -131,9 +132,8 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
 
         optionsBuilder.UseSeeding((context, _) =>
          {
-
-             var hasRoles = context.Set<IdentityRole>().Any();
-             if (!hasRoles)
+             var roles = context.Set<IdentityRole>().ToList();
+             if (roles == null || roles.Count == 0)
              {
                  context.Set<IdentityRole>().AddRange(
                      [
@@ -163,10 +163,16 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
                  context.SaveChanges();
              }
 
-             var hasUsers = context.Set<ApplicationUser>().Any();
-             if (!hasUsers)
+             adminRoleId = roles?.FirstOrDefault(x => x.Name == Role.Admin)?.Id ?? adminRoleId;
+             superAdminId = roles?.FirstOrDefault(x => x.Name == Role.SuperAdmin)?.Id ?? superAdminId;
+             traineeRoleId = roles?.FirstOrDefault(x => x.Name == Role.Trainee)?.Id ?? traineeRoleId;
+
+             var appUserAdmin = context.Set<ApplicationUser>().FirstOrDefault(x => x.UserName == appUser.UserName);
+             if (appUserAdmin is null)
              {
                  context.Set<ApplicationUser>().Add(appUser);
+                 context.SaveChanges();
+
                  context.Set<IdentityUserRole<string>>().AddRange(
                      [
                         new IdentityUserRole<string>

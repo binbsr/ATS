@@ -1,6 +1,7 @@
 using AppTechnoSoft.Interns.Data.Constants;
 using AppTechnoSoft.Interns.Data.Models;
 using AppTechnoSoft.Interns.Data.Models.Consultant;
+using AppTechnoSoft.Interns.Data.Models.Gatherings;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
@@ -34,6 +35,8 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
     public DbSet<Loan> Loans { get; set; }
     public DbSet<ReviewForm> Reviews { get; set; }
     public DbSet<ConsultantRating> ConsultantRatings { get; set; }
+    public DbSet<Gathering> Gatherings { get; set; }
+    public DbSet<GatheringCalendar> GatheringCalendars { get; set; }
 
     protected override void OnModelCreating(ModelBuilder builder)
     {
@@ -66,6 +69,10 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
         .WithMany()
         .UsingEntity("TrainingProjects");
 
+        builder.Entity<GatheringCalendar>()
+        .HasMany(e => e.Consultants)
+        .WithMany();
+
         builder.Entity<College>()
             .HasData([
                 new College { Id = 1, Name = "Mechi Multiple Campus", Location = "Bhadrapur, Jhapa" },
@@ -81,11 +88,6 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
                 new College { Id = 11, Name = "SidhaNath Science Campus", Location = "Mahendranagar" },
                 new College { Id = 12, Name = "Mahendra Multiple Campus", Location = "Nepalgunj" },
                 new College { Id = 13, Name = "Butwal Multiple Campus", Location = "Butwal" },
-                new College { Id = 14, Name = "Tribhuvan Multiple Campus", Location = "Palpa" },
-                new College { Id = 15, Name = "Tri-Chandra Multiple Campus", Location = "Ghantaghar" },
-                new College { Id = 16, Name = "Amrit Science Campus", Location = "Lainchour" },
-                new College { Id = 17, Name = "Patan Multiple Campus", Location = "Patan" },
-                new College { Id = 18, Name = "Bhaktapur Multiple Campus", Location = "Bhaktapur" },
                 new College { Id = 19, Name = "Padma Kanya Multiple Campus", Location = "Bagbazar" },
                 new College { Id = 20, Name = "Mahendra Multiple Campus", Location = "Ghorahi, Dang" },
                 new College { Id = 21, Name = "Dhaulagiri Campus", Location = "Baglung" },
@@ -104,106 +106,17 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
                 new TechProgram { Id = 6, Name = "BScIT", Affliation = "TU" },
                 new TechProgram { Id = 7, Name = "BScIT", Affliation = "PU" },
             ]);
+    }
 
-
-        builder.Entity<Widget>()
-            .HasData([
-                new Widget
-                {
-                    Id = 1,
-                    Title = "CarouselItem",
-                    Description = "An display item in home page",
-                    HtmlContent = "Welcome to AppTechnoSoft! An initiative for students and freshers.",
-                    Created = DateTime.Now,
-                    CreatedBy = "Seed"
-                },
-                new Widget
-                {
-                    Id = 2,
-                    Title = "CarouselItem",
-                    Description = "An display item in home page",
-                    HtmlContent = "Bridging the gap between academia and industry!",
-                    Created = DateTime.Now,
-                    CreatedBy = "Seed"
-                },
-                new Widget
-                {
-                    Id = 3,
-                    Title = "CarouselItem",
-                    Description = "An display item in home page",
-                    HtmlContent = "We guide you on software R&D and SDLC to kickstart your career!",
-                    Created = DateTime.Now,
-                    CreatedBy = "Seed"
-                },
-                new Widget
-                {
-                    Id = 4,
-                    Title = "CarouselItem",
-                    Description = "An display item in home page",
-                    HtmlContent = "Replacement Opportunities!",
-                    Created = DateTime.Now,
-                    CreatedBy = "Seed"
-                },
-                new Widget
-                {
-                    Id = 5,
-                    Title = "CarouselItem",
-                    Description = "An display item in home page",
-                    HtmlContent = "From basics to professional touches!",
-                    Created = DateTime.Now,
-                    CreatedBy = "Seed"
-                },
-                new Widget
-                {
-                    Id = 6,
-                    Title = "Module",
-                    Description = "GIT and GitHub Essentials",
-                    HtmlContent = "todo",
-                    Created = DateTime.Now,
-                    CreatedBy = "Seed"
-                },
-                new Widget
-                {
-                    Id = 7,
-                    Title = "HomeIntro",
-                    Description = "Training + Internship Combo",
-                    HtmlContent = "todo",
-                    Created = DateTime.Now,
-                    CreatedBy = "Seed"
-                }
-            ]);
+    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+    {
+        base.OnConfiguring(optionsBuilder);
 
         // Seed roles and admin user
         string superAdminId = Guid.NewGuid().ToString();
         string superAdminRoleId = Guid.NewGuid().ToString();
         string adminRoleId = Guid.NewGuid().ToString();
         string traineeRoleId = Guid.NewGuid().ToString();
-
-        builder.Entity<IdentityRole>()
-            .HasData([
-                new IdentityRole
-                {
-                    Name = Role.SuperAdmin,
-                    NormalizedName = "SUPERADMIN",
-                    Id = superAdminRoleId,
-                    ConcurrencyStamp = superAdminRoleId
-                },
-                new IdentityRole
-                {
-                    Name = Role.Admin,
-                    NormalizedName = "ADMIN",
-                    Id = adminRoleId,
-                    ConcurrencyStamp = adminRoleId
-                },
-                new IdentityRole
-                {
-                    Name = Role.Trainee,
-                    NormalizedName = "TRAINEE",
-                    Id = traineeRoleId,
-                    ConcurrencyStamp = traineeRoleId
-                }
-            ]);
-
         var appUser = new ApplicationUser
         {
             Id = superAdminId,
@@ -212,30 +125,68 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
             UserName = "rawal.bishnu@live.com",
             NormalizedUserName = "RAWAL.BISHNU@LIVE.COM"
         };
-
         //set user password
         PasswordHasher<ApplicationUser> ph = new();
         appUser.PasswordHash = ph.HashPassword(appUser, "~Someone1");
 
-        builder.Entity<ApplicationUser>().HasData(appUser);
+        optionsBuilder.UseSeeding((context, _) =>
+         {
 
-        builder.Entity<IdentityUserRole<string>>()
-            .HasData([
-                new IdentityUserRole<string>
-                {
-                    RoleId = superAdminRoleId,
-                    UserId = superAdminId
-                },
-                new IdentityUserRole<string>
-                {
-                    RoleId = adminRoleId,
-                    UserId = superAdminId
-                },
-                new IdentityUserRole<string>
-                {
-                    RoleId = traineeRoleId,
-                    UserId = superAdminId
-                }
-            ]);
+             var hasRoles = context.Set<IdentityRole>().Any();
+             if (!hasRoles)
+             {
+                 context.Set<IdentityRole>().AddRange(
+                     [
+                        new IdentityRole
+                        {
+                            Name = Role.SuperAdmin,
+                            NormalizedName = "SUPERADMIN",
+                            Id = superAdminRoleId,
+                            ConcurrencyStamp = superAdminRoleId
+                        },
+                        new IdentityRole
+                        {
+                            Name = Role.Admin,
+                            NormalizedName = "ADMIN",
+                            Id = adminRoleId,
+                            ConcurrencyStamp = adminRoleId
+                        },
+                        new IdentityRole
+                        {
+                            Name = Role.Trainee,
+                            NormalizedName = "TRAINEE",
+                            Id = traineeRoleId,
+                            ConcurrencyStamp = traineeRoleId
+                        }
+                    ]);
+
+                 context.SaveChanges();
+             }
+
+             var hasUsers = context.Set<ApplicationUser>().Any();
+             if (!hasUsers)
+             {
+                 context.Set<ApplicationUser>().Add(appUser);
+                 context.Set<IdentityUserRole<string>>().AddRange(
+                     [
+                        new IdentityUserRole<string>
+                        {
+                            RoleId = superAdminRoleId,
+                            UserId = superAdminId
+                        },
+                        new IdentityUserRole<string>
+                        {
+                            RoleId = adminRoleId,
+                            UserId = superAdminId
+                        },
+                        new IdentityUserRole<string>
+                        {
+                            RoleId = traineeRoleId,
+                            UserId = superAdminId
+                        }
+                    ]);
+                 context.SaveChanges();
+             }
+         });
     }
 }

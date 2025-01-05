@@ -44,6 +44,14 @@
             </MudNavGroup>
         </AuthorizeView>
 
+        <AuthorizeView Roles="@Role.Admins">
+            <MudNavGroup Title="Event Gathering" Icon="@Icons.Material.Filled.Event" IconColor="Color.Warning">
+                <MudNavLink Href="/gatherings/create" Icon="@Icons.Material.Sharp.GroupAdd" IconColor="Color.Warning">New Gathering</MudNavLink>
+                <MudNavLink Href="/gatherings/index" Icon="@Icons.Material.Sharp.EventNote" IconColor="Color.Warning">All Gatherings</MudNavLink>
+                <MudNavLink Href="/gatherings/calendar" Icon="@Icons.Material.Sharp.EventSeat" IconColor="Color.Warning">Set Gathering Calendar</MudNavLink>
+            </MudNavGroup>
+        </AuthorizeView>
+
         <AuthorizeView Roles="@Role.AdminsAndInstructor">
             <MudNavGroup Title="Consultant" Icon="@Icons.Material.Sharp.PersonalVideo" IconColor="Color.Success">
                 <MudNavLink Href="/dashboard/consultant" Icon="@Icons.Material.Sharp.Dashboard" IconColor="Color.Success">Dashboard</MudNavLink>

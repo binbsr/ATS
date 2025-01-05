@@ -21,7 +21,7 @@
     </MudButton>
 </EditForm>
 
-    @code {
+@code {
 
     [Parameter]
     public int? Id { get; set; }
@@ -47,7 +47,7 @@
     }
 
     private async Task OnValidSubmit(EditContext context)
-    {     
+    {
         if (model.Requirements is null or "")
         {
             return;

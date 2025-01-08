@@ -6,7 +6,7 @@
 @inject ISnackbar SnackBar
 @inject NavigationManager Navigation
 
-<PageTitle>New Workshop Details</PageTitle>
+<PageTitle>New Gathering</PageTitle>
 
 <EditForm Model="@model" OnValidSubmit="OnValidSubmit">
     <MudGrid Class="d-flex align-center justify-center">
@@ -39,7 +39,7 @@
                Color="Color.Tertiary"
                Class="mt-3"
                StartIcon="@Icons.Material.Filled.Save">
-        Save Gathering Event
+        Save Event
     </MudButton>
 </EditForm>
 
@@ -62,7 +62,7 @@
         if (rowsAffected > 0)
         {
             SnackBar.Add("New gathering event added successfully", Severity.Success);
-            Navigation.NavigateTo("/gatherings/index");
+            Navigation.NavigateTo("/gatherings");
         }
         else
         {

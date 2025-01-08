@@ -1,12 +1,13 @@
-﻿@page "/gatherings/index"
+﻿@page "/gatherings"
 
 @attribute [Authorize(Roles = Role.Admins)]
 @inject ApplicationDbContext Db
 @inject ISnackbar SnackBar
+@inject IDialogService DialogService
 
 <PageTitle>All Events and Gatherings</PageTitle>
 
-<MudDataGrid Items="@gatherings"
+@* <MudDataGrid Items="@gatherings"
              Hover="true"
              Outlined
              Class="mt-2"
@@ -17,7 +18,7 @@
         <MudChip Text="All Events" Label="true" Size="Size.Large" />
     </ToolBarContent>
     <Columns>
-        <HierarchyColumn T="Training" ButtonDisabledFunc="@(x => (x.CourseQuote?.Modules?.Count ?? 0) == 0)" />
+        <HierarchyColumn T="Gathering" />
         <PropertyColumn Property="x => x.Title" />
         <PropertyColumn Property="x => x.Type" />
         <PropertyColumn Property="x => x.Quote" />
@@ -52,7 +53,49 @@
     <PagerContent>
         <MudDataGridPager PageSizeOptions="[20, 50, 100, 200]" />
     </PagerContent>
-</MudDataGrid>
+</MudDataGrid> *@
+
+@if (loadingData)
+{
+    <Loading />
+}
+else
+{
+    <MudGrid>
+        @foreach (var gathering in gatherings)
+        {
+            <MudItem xl="3" lg="4" md="4" sm="6" xs="12">
+                <MudCard Elevation="5">
+                    <MudCardHeader>
+                        <CardHeaderAvatar>
+                            <MudIcon Size="Size.Large" Color="Color.Secondary" Icon="@Icons.Material.Sharp.Event" />
+                        </CardHeaderAvatar>
+                        <CardHeaderContent>
+                            <MudText Typo="Typo.body1">@gathering.Type</MudText>
+                            <MudText Typo="Typo.body2">@gathering.Title</MudText>
+                        </CardHeaderContent>
+                        <CardHeaderActions>
+                            <MudButton Variant="Variant.Filled"
+                                       Size="Size.Small"
+                                       @onclick="() => OpenDialogAsync(gathering)"
+                                       StartIcon="@Icons.Material.Filled.ScheduleSend"
+                                       Color="Color.Secondary">
+                                Request
+                            </MudButton>
+                        </CardHeaderActions>
+                    </MudCardHeader>
+                    <MudCardContent>
+                        <MudText Typo="Typo.body2">@((MarkupString)gathering.Agenda.ToHtmlString())</MudText>
+                    </MudCardContent>
+                    <MudCardActions>
+                        <MudIconButton Icon="@Icons.Material.Filled.Favorite" Color="Color.Default" />
+                        <MudIconButton Icon="@Icons.Material.Filled.Share" Color="Color.Default" />
+                    </MudCardActions>
+                </MudCard>
+            </MudItem>
+        }
+    </MudGrid>
+}
 
 @code {
 
@@ -71,6 +114,13 @@
             .ToListAsync();
 
         loadingData = false;
+    }
+
+    private Task OpenDialogAsync(Gathering gathering)
+    {
+        var options = new DialogOptions { CloseOnEscapeKey = true, CloseButton = true, MaxWidth=MaxWidth.Medium, };
+        var parameters = new DialogParameters<RequestDialog> { { x => x.Gathering, gathering } };
+        return DialogService.ShowAsync<RequestDialog>($"Request for the {gathering.Type}", parameters, options);
     }
 
     private async Task ConfirmDelete(Gathering gathering)

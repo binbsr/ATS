@@ -2,8 +2,10 @@
 public enum GatheringStatus
 {
     Requested = 1,
+    Created,
     Scheduled,
     Ongoing,
+    PaymentDue,
     Completed,
     Cancelled
 }

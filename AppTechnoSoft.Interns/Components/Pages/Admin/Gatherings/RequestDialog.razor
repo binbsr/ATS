@@ -1,0 +1,108 @@
+﻿@inject ApplicationDbContext Db
+
+<MudDialog Style="height:380px;">
+    <DialogContent>
+        <MudGrid>
+            <MudItem sm="6">
+                <MudTextField Label="Your Name"
+                @bind-Value="userName"
+                Required="true"
+                RequiredError="Please provide your name."
+                Adornment="Adornment.Start"
+                AdornmentIcon="@Icons.Material.Sharp.Person" />
+            </MudItem>
+            <MudItem sm="6">
+                <MudNumericField Label="Contact Phone"
+                @bind-Value="phone"
+                Required="true"
+                RequiredError="Please provide your Contact."
+                Adornment="Adornment.Start"
+                AdornmentIcon="@Icons.Material.Sharp.Phone" />
+            </MudItem>
+            <MudItem sm="12">
+                <MudAutocomplete T="Organization"
+                Label="Your Organization/Institution"
+                @bind-Value="model.Organization"
+                SearchFunc="@SearchOrganizations"
+                ResetValueOnEmptyText="true"
+                ToStringFunc="@(e=> e==null ? null : $"{e.Name} ({e.Details})")"
+                ShowProgressIndicator="true"
+                ProgressIndicatorColor="Color.Default"
+                MaxItems="null"
+                AdornmentIcon="@Icons.Material.Filled.Search" 
+                AdornmentColor="Color.Secondary" />
+            </MudItem>
+            <MudItem sm="6">
+                <MudDatePicker Label="When"
+                @bind-Value="model.RequestedDate"
+                AnchorOrigin="Origin.BottomLeft"
+                Color="Color.Secondary"
+                Date="model.RequestedDate"
+                Required="true"
+                RequiredError="Please select when you want to organize this event." />
+            </MudItem>
+            <MudItem sm="6">
+                <MudTimePicker Label="Time"
+                @bind-Value="model.RequestedDate"
+                AnchorOrigin="Origin.BottomLeft"
+                Color="Color.Secondary"
+                Time="new TimeSpan(8, 00, 00)"
+                AmPm="true"
+                Required="true"
+                RequiredError="Please select time." />
+            </MudItem>
+        </MudGrid>
+    </DialogContent>
+    <DialogActions>
+        <MudButton Variant="Variant.Filled" OnClick="Cancel">Cancel</MudButton>
+        <MudButton Variant="Variant.Filled"
+        Color="Color.Secondary"
+        Disabled="userName == string.Empty || phone == string.Empty"
+        StartIcon="@Icons.Material.Sharp.ScheduleSend"
+        OnClick="Submit">Request</MudButton>
+    </DialogActions>
+</MudDialog>
+
+@code {
+
+    [CascadingParameter]
+    private MudDialogInstance? MudDialog { get; set; }
+
+    [Parameter]
+    public Gathering? Gathering { get; set; }
+
+    GatheringCalendar model = new() { RequestedDate = DateTime.Now.AddDays(2) };
+    string userName = string.Empty;
+    string phone = string.Empty;
+
+    List<Organization> organizations = [];
+
+    private async Task<IEnumerable<Organization>> SearchOrganizations(string value, CancellationToken token)
+    {
+        if (!organizations.Any())
+        {
+            organizations = await Db.Organizations.ToListAsync();
+        }
+
+        if (value is null or "")
+        {
+            return organizations;
+        }
+
+        return organizations.Where(x => x.Name.Contains(value, StringComparison.OrdinalIgnoreCase));
+    }
+
+    private async Task Submit()
+    {
+        model.RequestedBy = $"{userName} ({phone})";
+        model.Gathering = Gathering;
+        model.Status = GatheringStatus.Requested;
+
+        Db.GatheringCalendars.Add(model);
+        var rowsAffected = await Db.SaveChangesAsync();
+
+        MudDialog?.Close(DialogResult.Ok(true));
+    }
+
+    private void Cancel() => MudDialog?.Cancel();
+}

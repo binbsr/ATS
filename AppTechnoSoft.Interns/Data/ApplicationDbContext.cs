@@ -37,6 +37,7 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
     public DbSet<ConsultantRating> ConsultantRatings { get; set; }
     public DbSet<Gathering> Gatherings { get; set; }
     public DbSet<GatheringCalendar> GatheringCalendars { get; set; }
+    public DbSet<GatheringRequest> GatheringRequests { get; set; }
     public DbSet<Certificate> Certificates { get; set; }
 
     protected override void OnModelCreating(ModelBuilder builder)

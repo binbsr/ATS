@@ -8,6 +8,10 @@
 	</PropertyGroup>
 
 	<ItemGroup>
+	  <None Include="Data\Models\Gatherings\GatheringRequest.cs" />
+	</ItemGroup>
+
+	<ItemGroup>
 
 		<PackageReference Include="Blazor-ApexCharts" Version="4.0.0" />
 		<PackageReference Include="Microsoft.AspNetCore.Authentication.Google" Version="9.0.0" />

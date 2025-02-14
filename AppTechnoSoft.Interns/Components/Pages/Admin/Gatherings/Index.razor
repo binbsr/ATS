@@ -7,54 +7,6 @@
 
 <PageTitle>All Events and Gatherings</PageTitle>
 
-@* <MudDataGrid Items="@gatherings"
-             Hover="true"
-             Outlined
-             Class="mt-2"
-             Loading="@loadingData">
-    <ToolBarContent>
-        <MudFab Size="Size.Small" StartIcon="@Icons.Material.Outlined.Add" title="Add New Event" Href="/gatherings/create" Color="Color.Tertiary" />
-        <MudSpacer />
-        <MudChip Text="All Events" Label="true" Size="Size.Large" />
-    </ToolBarContent>
-    <Columns>
-        <HierarchyColumn T="Gathering" />
-        <PropertyColumn Property="x => x.Title" />
-        <PropertyColumn Property="x => x.Type" />
-        <PropertyColumn Property="x => x.Quote" />
-        <PropertyColumn Property="x => x.MaxAttendees" Title="Max" />
-        <PropertyColumn Property="x => x.Created">
-            <CellTemplate>
-                @context.Item.Created.ToNepalTime().ToLongDateString()
-            </CellTemplate>
-        </PropertyColumn>
-
-        <TemplateColumn>
-            <CellTemplate>
-                <MudIconButton Icon="@Icons.Material.Filled.Edit" Size="Size.Small" Color="Color.Warning" Href="@("/admin/quotes/edit/" + context.Item.Id)" />
-                <MudIconButton Icon="@Icons.Material.Sharp.Delete" Size="Size.Small" Color="Color.Error" OnClick="() => ConfirmDelete(context.Item)" />
-                <MudMessageBox @ref="mbox" Title="Warning" CancelText="Cancel">
-                    <MessageContent>
-                        Are you sure to delete this event? It can't be undone.
-                    </MessageContent>
-                    <YesButton>
-                        <MudButton Variant="Variant.Filled" Color="Color.Error" Class="ml-2 mb-2 mr-3" StartIcon="@Icons.Material.Filled.DeleteForever">Delete</MudButton>
-                    </YesButton>
-                </MudMessageBox>
-            </CellTemplate>
-        </TemplateColumn>
-    </Columns>
-
-    <ChildRowContent>
-        <MudContainer Style="font-size: 1.3em">
-            @((MarkupString)context.Item.Agenda.ToHtmlString())
-        </MudContainer>
-    </ChildRowContent>
-    <PagerContent>
-        <MudDataGridPager PageSizeOptions="[20, 50, 100, 200]" />
-    </PagerContent>
-</MudDataGrid> *@
-
 @if (loadingData)
 {
     <Loading />
@@ -79,6 +31,7 @@ else
                                        Size="Size.Small"
                                        @onclick="() => OpenDialogAsync(gathering)"
                                        StartIcon="@Icons.Material.Filled.ScheduleSend"
+                                       Disabled="@(requestedEvent == gathering.Id)"
                                        Color="Color.Secondary">
                                 Request
                             </MudButton>
@@ -88,8 +41,8 @@ else
                         <MudText Typo="Typo.body2">@((MarkupString)gathering.Agenda.ToHtmlString())</MudText>
                     </MudCardContent>
                     <MudCardActions>
-                        <MudIconButton Icon="@Icons.Material.Filled.Favorite" Color="Color.Default" />
-                        <MudIconButton Icon="@Icons.Material.Filled.Share" Color="Color.Default" />
+                        <MudIconButton Icon="@Icons.Material.Filled.Favorite" Color="Color.Error" />
+                        <MudIconButton Icon="@Icons.Material.Filled.Share" Color="Color.Info" />
                     </MudCardActions>
                 </MudCard>
             </MudItem>
@@ -104,6 +57,7 @@ else
     private bool loadingData = false;
     private string searchString = string.Empty;
     private MudMessageBox mbox { get; set; } = null!;
+    Guid requestedEvent = Guid.Empty;
 
     protected override async Task OnInitializedAsync()
     {
@@ -116,11 +70,18 @@ else
         loadingData = false;
     }
 
-    private Task OpenDialogAsync(Gathering gathering)
+    private async Task OpenDialogAsync(Gathering gathering)
     {
-        var options = new DialogOptions { CloseOnEscapeKey = true, CloseButton = true, MaxWidth=MaxWidth.Medium, };
+        var options = new DialogOptions { CloseOnEscapeKey = true, CloseButton = true, MaxWidth = MaxWidth.Medium, };
         var parameters = new DialogParameters<RequestDialog> { { x => x.Gathering, gathering } };
-        return DialogService.ShowAsync<RequestDialog>($"Request for the {gathering.Type}", parameters, options);
+        var dialogReturned = await DialogService.ShowAsync<RequestDialog>($"Request for the {gathering.Type}", parameters, options);
+        var result = await dialogReturned.Result;
+        requestedEvent = (Guid)(result?.Data ?? Guid.Empty);
+
+        if (result != null && !result.Canceled && requestedEvent != Guid.Empty)
+        {
+            SnackBar.Add($"We received your request successfully for {gathering.Type} : '{gathering.Title}'", Severity.Success);
+        }
     }
 
     private async Task ConfirmDelete(Gathering gathering)

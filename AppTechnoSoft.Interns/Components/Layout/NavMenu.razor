@@ -46,9 +46,10 @@
 
         <AuthorizeView Roles="@Role.Admins">
             <MudNavGroup Title="Event Gathering" Icon="@Icons.Material.Filled.Event" IconColor="Color.Warning">
-                <MudNavLink Match="NavLinkMatch.All" Href="/gatherings" Icon="@Icons.Material.Sharp.EventSeat" IconColor="Color.Warning">All Gatherings</MudNavLink>
-                <MudNavLink Href="/gatherings/create" Icon="@Icons.Material.Sharp.GroupAdd" IconColor="Color.Warning">New Gathering</MudNavLink>
-                <MudNavLink Href="/gatherings/calendar" Icon="@Icons.Material.Sharp.EventAvailable" IconColor="Color.Warning">Set Gathering Calendar</MudNavLink>
+                <MudNavLink Match="NavLinkMatch.All" Href="/gatherings" Icon="@Icons.Material.Sharp.EventSeat" IconColor="Color.Warning">List</MudNavLink>
+                <MudNavLink Href="/gathering/requests" Icon="@Icons.Material.Sharp.RequestQuote" IconColor="Color.Warning">Requests</MudNavLink>
+                <MudNavLink Href="/gatherings/create" Icon="@Icons.Material.Sharp.GroupAdd" IconColor="Color.Warning">New</MudNavLink>
+                <MudNavLink Href="/gatherings/calendar" Icon="@Icons.Material.Sharp.EventAvailable" IconColor="Color.Warning">Set Calendar</MudNavLink>
             </MudNavGroup>
         </AuthorizeView>
 

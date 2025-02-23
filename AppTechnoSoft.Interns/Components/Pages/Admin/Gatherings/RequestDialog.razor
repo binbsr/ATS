@@ -5,61 +5,61 @@
         <MudGrid>
             <MudItem sm="6">
                 <MudTextField Label="Your Name"
-                              @bind-Value="model.UserName"
-                              Required="true"
-                              RequiredError="Please provide your name."
-                              Adornment="Adornment.Start"
-                              AdornmentIcon="@Icons.Material.Sharp.Person" />
+                @bind-Value="model.UserName"
+                Required="true"
+                RequiredError="Please provide your name."
+                Adornment="Adornment.Start"
+                AdornmentIcon="@Icons.Material.Sharp.Person" />
             </MudItem>
             <MudItem sm="6">
                 <MudNumericField Label="Contact Phone"
-                                 @bind-Value="model.Phone"
-                                 Required="true"
-                                 RequiredError="Please provide your Contact."
-                                 Adornment="Adornment.Start"
-                                 AdornmentIcon="@Icons.Material.Sharp.Phone" />
+                @bind-Value="model.Phone"
+                Required="true"
+                RequiredError="Please provide your Contact."
+                Adornment="Adornment.Start"
+                AdornmentIcon="@Icons.Material.Sharp.Phone" />
             </MudItem>
             <MudItem sm="12">
                 <MudAutocomplete T="Organization"
-                                 Label="Your Organization/Institution"
-                                 @bind-Value="model.Organization"
-                                 SearchFunc="@SearchOrganizations"
-                                 ResetValueOnEmptyText="true"
-                                 ToStringFunc="@(e=> e==null ? null : $"{e.Name} ({e.Details})")"
-                                 ShowProgressIndicator="true"
-                                 ProgressIndicatorColor="Color.Default"
-                                 MaxItems="null"
-                                 AdornmentIcon="@Icons.Material.Filled.Search"
-                                 AdornmentColor="Color.Secondary" />
+                Label="Your Organization/Institution"
+                @bind-Value="model.Organization"
+                SearchFunc="@SearchOrganizations"
+                ResetValueOnEmptyText="true"
+                ToStringFunc="@(e=> e==null ? null : $"{e.Name} ({e.Details})")"
+                ShowProgressIndicator="true"
+                ProgressIndicatorColor="Color.Default"
+                MaxItems="null"
+                AdornmentIcon="@Icons.Material.Filled.Search"
+                AdornmentColor="Color.Secondary" />
             </MudItem>
             <MudItem sm="6">
                 <MudDatePicker Label="When"
-                               @bind-Value="model.When"
-                               AnchorOrigin="Origin.BottomLeft"
-                               Color="Color.Secondary"
-                               Date="model.When"
-                               Required="true"
-                               RequiredError="Please select when you want to organize this event." />
+                @bind-Value="model.When"
+                AnchorOrigin="Origin.BottomLeft"
+                Color="Color.Secondary"
+                Date="model.When"
+                Required="true"
+                RequiredError="Please select when you want to organize this event." />
             </MudItem>
             <MudItem sm="6">
                 <MudTimePicker Label="Time"
-                               @bind-Value="model.When"
-                               AnchorOrigin="Origin.BottomLeft"
-                               Color="Color.Secondary"
-                               Time="new TimeSpan(8, 00, 00)"
-                               AmPm="true"
-                               Required="true"
-                               RequiredError="Please select time." />
+                @bind-Value="model.When"
+                AnchorOrigin="Origin.BottomLeft"
+                Color="Color.Secondary"
+                Time="new TimeSpan(8, 00, 00)"
+                AmPm="true"
+                Required="true"
+                RequiredError="Please select time." />
             </MudItem>
         </MudGrid>
     </DialogContent>
     <DialogActions>
         <MudButton Variant="Variant.Filled" OnClick="Cancel">Cancel</MudButton>
         <MudButton Variant="Variant.Filled"
-                   Color="Color.Secondary"
-                   Disabled="model.UserName == string.Empty || model.Phone == string.Empty"
-                   StartIcon="@Icons.Material.Sharp.ScheduleSend"
-                   OnClick="Submit">Request</MudButton>
+        Color="Color.Secondary"
+        Disabled="model.UserName == string.Empty || model.Phone == string.Empty"
+        StartIcon="@Icons.Material.Sharp.ScheduleSend"
+        OnClick="Submit">Request</MudButton>
     </DialogActions>
 </MudDialog>
 
@@ -93,6 +93,8 @@
     private async Task Submit()
     {
         model.Gathering = Gathering;
+        model.RequestedDate = DateTime.UtcNow;
+        model.When = model.When.ToUniversalTime();
 
         Db.GatheringRequests.Add(model);
         var rowsAffected = await Db.SaveChangesAsync();

@@ -1,7 +1,5 @@
 ﻿@page "/budgeting"
 
-@using ApexCharts
-
 @inject ApplicationDbContext Db
 
 <PageTitle>Batch Budgeting</PageTitle>
@@ -25,23 +23,19 @@ else
         @foreach (var batchBudget in batchBudgets)
         {
             <MudItem md="4">
-                <MudPaper Elevation="5" Class="pa-5">
-                    <ApexChart TItem="BatchBudget"
-                               Title="@batchBudget.Key"
-                               Options="options">
-
-                        <ApexPointSeries TItem="BatchBudget"
-                                         Items="batchBudget"
-                                         SeriesType="SeriesType.Donut"
-                                         Name="Type"
-                                         XValue="@(e => e.BudgetType)"
-                                         YAggregate="@(e => (decimal)e.Sum(d => d.Amount))"
-                                         OrderByDescending="e=>e.Y" />
-                    </ApexChart>
+                <MudPaper Elevation="5" Class="pa-5" Style="text-align:center">
+                    <MudText Typo="Typo.h6" Class="mb-3">@batchBudget.Key</MudText>
+                    <MudChart  ChartType="ChartType.Donut" Width="350px" Height="350px" LegendPosition="Position.Right"
+                              InputData="@batchBudget.Value.Values"
+                              InputLabels="@batchBudget.Value.Labels">
+                        <CustomGraphics>
+                            <text class="donut-inner-text" x="50%" y="35%" dominant-baseline="middle" text-anchor="middle" fill="black" font-family="Helvetica" font-size="25">Total</text>
+                            <text class="donut-inner-text" x="50%" y="50%" dominant-baseline="middle" text-anchor="middle" fill="black" font-family="Helvetica" font-size="50">@batchBudget.Value.Values.Sum().ToString()</text>
+                        </CustomGraphics>
+                    </MudChart>
                 </MudPaper>
             </MudItem>
         }
-
     </MudGrid>
 }
 
@@ -53,37 +47,16 @@ else
     }
 
     private string _searchString = string.Empty;
-    private List<IGrouping<string, BatchBudget>> batchBudgets = [];
+    private KeyValuePair<string, (string[] Labels, double[] Values)>[] batchBudgets = [];
 
-    private ApexChartOptions<BatchBudget> options => new ApexChartOptions<BatchBudget>
-        {
-            Title = new() { Align = ApexCharts.Align.Center },
-            Legend = new() { Position = LegendPosition.Bottom },
-            PlotOptions = new()
-            {
-                Pie = new()
-                {
-                    Donut = new()
-                    {
-                        Labels = new()
-                        {
-                            Total = new()
-                            {
-                                FontSize = "20px",
-                                Color = "#D807B8",
-                                Formatter = @"function (w) {return w.globals.seriesTotals.reduce((a, b) => { return (a + b) }, 0)}"
-                            }
-                        }
-                    }
-                }
-            }
-        };
 
     protected override async Task OnInitializedAsync()
     {
-        batchBudgets = await Db.BatchBudgets
+        var batchBudgetsDb = await Db.BatchBudgets
             .Include(x => x.Batch)
             .GroupBy(x => x.Batch.Name)
             .ToListAsync();
+
+        batchBudgets = batchBudgetsDb.Select(x => new KeyValuePair<string, (string[], double[])>(x.Key, (x.Select(y => y.BudgetType.ToString()).ToArray(), x.Select(y => (double)y.Allocation).ToArray()))).ToArray();
     }
 }

@@ -1,7 +1,5 @@
 ﻿@page "/dashboard/admin"
 
-@using ApexCharts
-
 @attribute [Authorize(Roles = Role.Admins)]
 @inject IDbContextFactory<ApplicationDbContext> DbFactory
 
@@ -18,52 +16,40 @@ else
     <MudGrid>
         <MudItem md="4">
             <MudPaper Elevation="5" Class="pa-5">
-                <ApexChart TItem="StudentByApplicationTypeAggregate"
-                           Title="Trainees by type"
-                           Options="options">
-
-                    <ApexPointSeries TItem="StudentByApplicationTypeAggregate"
-                                     Items="studentsByTypes"
-                                     SeriesType="SeriesType.Donut"
-                                     Name="Type"
-                                     XValue="@(e => e.ApplicationType)"
-                                     YAggregate="@(e => e.Sum(d => d.Students.Count))"
-                                     OrderByDescending="e=>e.Y" />
-                </ApexChart>
+                <MudChart ChartType="ChartType.Donut" Width="350px" Height="350px" LegendPosition="Position.Right"
+                          InputData="@studentByTypesCount"
+                          InputLabels="@studentByTypesKeys">
+                    <CustomGraphics>
+                        <text class="donut-inner-text" x="50%" y="35%" dominant-baseline="middle" text-anchor="middle" fill="black" font-family="Helvetica" font-size="25">Total</text>
+                        <text class="donut-inner-text" x="50%" y="50%" dominant-baseline="middle" text-anchor="middle" fill="black" font-family="Helvetica" font-size="50">@studentByTypesCount.Sum().ToString()</text>
+                    </CustomGraphics>
+                </MudChart>
             </MudPaper>
         </MudItem>
 
         <MudItem md="4">
             <MudPaper Elevation="5" Class="pa-5">
-                <ApexChart TItem="StudentByStatusAggregate"
-                           Title="Trainees by status"
-                           Options="optionsStatus">
-
-                    <ApexPointSeries TItem="StudentByStatusAggregate"
-                                     Items="studentsByStatus"
-                                     SeriesType="SeriesType.Donut"
-                                     Name="Student Status"
-                                     XValue="@(e => e.Status)"
-                                     YAggregate="@(e => e.Sum(d => d.Students.Count))"
-                                     OrderByDescending="e=>e.Y" />
-                </ApexChart>
+                <MudChart ChartType="ChartType.Donut" Width="350px" Height="350px" LegendPosition="Position.Right"
+                          InputData="@studentByStatusCount"
+                          InputLabels="@studentByStatusKeys">
+                    <CustomGraphics>
+                        <text class="donut-inner-text" x="50%" y="35%" dominant-baseline="middle" text-anchor="middle" fill="black" font-family="Helvetica" font-size="25">Total</text>
+                        <text class="donut-inner-text" x="50%" y="50%" dominant-baseline="middle" text-anchor="middle" fill="black" font-family="Helvetica" font-size="50">@studentByStatusCount.Sum().ToString()</text>
+                    </CustomGraphics>
+                </MudChart>                
             </MudPaper>
         </MudItem>
 
         <MudItem md="4">
             <MudPaper Elevation="5" Class="pa-5">
-                <ApexChart TItem="StudentByBatchAggregate"
-                           Title="Trainees by batch"
-                           Options="optionsBatch">
-
-                    <ApexPointSeries TItem="StudentByBatchAggregate"
-                                     Items="studentsByBatch"
-                                     SeriesType="SeriesType.Donut"
-                                     Name="Student Batch"
-                                     XValue="@(e => e.Batch)"
-                                     YAggregate="@(e => e.Sum(d => d.Students.Count))"
-                                     OrderByDescending="e=>e.Y" />
-                </ApexChart>
+                <MudChart ChartType="ChartType.Donut" Width="350px" Height="350px" LegendPosition="Position.Right"
+                          InputData="@studentByBatchCount"
+                          InputLabels="@studentByBatchKeys">
+                    <CustomGraphics>
+                        <text class="donut-inner-text" x="50%" y="35%" dominant-baseline="middle" text-anchor="middle" fill="black" font-family="Helvetica" font-size="25">Total</text>
+                        <text class="donut-inner-text" x="50%" y="50%" dominant-baseline="middle" text-anchor="middle" fill="black" font-family="Helvetica" font-size="50">@studentByBatchCount.Sum().ToString()</text>
+                    </CustomGraphics>
+                </MudChart>               
             </MudPaper>
         </MudItem>
 
@@ -151,44 +137,21 @@ else
 
     private int days = 7;
     private IEnumerable<string> lastnDaysIds = [];
-    private record StudentByApplicationTypeAggregate(ApplicantType ApplicationType, List<Student> Students);
-    private record StudentByStatusAggregate(string Status, List<Student> Students);
-    private record StudentByBatchAggregate(string Batch, List<Student> Students);
-    private record StudentByCompetencyAggregate(string Competency, List<Student> Students);
+    private record StudentAggregate(string Label, double Count);
 
     private List<Student> allStudents = [];
     private StudentLightViewModel[]? traineeProfiles;
     private ProfessionalViewModel[]? employeeProfiles;
-    private IEnumerable<StudentByApplicationTypeAggregate> studentsByTypes = [];
-    private IEnumerable<StudentByStatusAggregate> studentsByStatus = [];
-    private IEnumerable<StudentByBatchAggregate> studentsByBatch = [];
-    private ApexChartOptions<StudentByApplicationTypeAggregate> options { get; set; } = new();
-    private ApexChartOptions<StudentByStatusAggregate> optionsStatus { get; set; } = new();
-    private ApexChartOptions<StudentByBatchAggregate> optionsBatch { get; set; } = new();
+    string[] studentByTypesKeys = [];
+    double[] studentByTypesCount = [];
+    string[] studentByStatusKeys = [];
+    double[] studentByStatusCount = [];
+    string[] studentByBatchKeys = [];
+    double[] studentByBatchCount = [];
 
     protected override async Task OnInitializedAsync()
     {
         loadingData = true;
-        var plotOptions = new PlotOptions
-            {
-                Pie = new PlotOptionsPie
-                {
-                    Donut = new PlotOptionsDonut
-                    {
-                        Labels = new DonutLabels
-                        {
-                            Total = new DonutLabelTotal { FontSize = "24px", Color = "#D807B8", Formatter = @"function (w) {return w.globals.seriesTotals.reduce((a, b) => { return (a + b) }, 0)}" }
-                        }
-                    }
-                }
-            };
-
-        options.PlotOptions = plotOptions;
-        optionsStatus.PlotOptions = plotOptions;
-        optionsBatch.PlotOptions = plotOptions;
-        options.Legend = new Legend { Position = LegendPosition.Bottom };
-        optionsStatus.Legend = new Legend { Position = LegendPosition.Bottom };
-        optionsBatch.Legend = new Legend { Position = LegendPosition.Bottom };
 
         using var Db = DbFactory.CreateDbContext();
         allStudents = await Db.Students
@@ -206,19 +169,28 @@ else
         }
 
         // Group by application type
-        studentsByTypes = allStudents
+        var studentsByTypes = allStudents
            .GroupBy(x => x.ApplicantType)
-           .Select(y => new StudentByApplicationTypeAggregate(y.Key, y.ToList()));
+           .Select(y => new StudentAggregate(y.Key.ToString(), y.Count()));
+
+        studentByTypesKeys = studentsByTypes.Select(x => x.Label).ToArray();
+        studentByTypesCount = studentsByTypes.Select(x => x.Count).ToArray();
 
         // Group students by stage
-        studentsByStatus = allStudents
+        var studentsByStatus = allStudents
             .GroupBy(x => x.Status)
-            .Select(y => new StudentByStatusAggregate(y.Key.ToString(), y.ToList()));
+            .Select(y => new StudentAggregate(y.Key.ToString(), y.Count()));
+
+        studentByStatusKeys = studentsByStatus.Select(x => x.Label).ToArray();
+        studentByStatusCount = studentsByStatus.Select(x => x.Count).ToArray();
 
         // Group by batch
-        studentsByBatch = allStudents
+        var studentsByBatch = allStudents
            .GroupBy(x => x.Batch?.Name ?? "No Batch")
-           .Select(y => new StudentByBatchAggregate(y.Key, y.ToList()));
+           .Select(y => new StudentAggregate(y.Key, y.Count()));
+
+        studentByBatchKeys = studentsByBatch.Select(x => x.Label).ToArray();
+        studentByBatchCount = studentsByBatch.Select(x => x.Count).ToArray();
 
         lastnDaysIds = GetLastNDaysStudnets(days);
 

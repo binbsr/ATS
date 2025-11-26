@@ -4,6 +4,7 @@ using AppTechnoSoft.Interns.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace AppTechnoSoft.Interns.Data.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250105070531_GatheringTablesDefaults")]
+    partial class GatheringTablesDefaults
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -223,53 +226,6 @@ namespace AppTechnoSoft.Interns.Data.Migrations
                     b.HasIndex("BatchId");
 
                     b.ToTable("BatchBudgets");
-                });
-
-            modelBuilder.Entity("AppTechnoSoft.Interns.Data.Models.Certificate", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<Guid>("AttendeeId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<string>("Description")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("EventDate")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTime>("IssueDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("Signataire1")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Signataire1SignPath")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Signataire2")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Signataire2SignPath")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Title")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("AttendeeId");
-
-                    b.ToTable("Certificates");
                 });
 
             modelBuilder.Entity("AppTechnoSoft.Interns.Data.Models.ClassSchedule", b =>
@@ -689,37 +645,6 @@ namespace AppTechnoSoft.Interns.Data.Migrations
                     b.ToTable("FinAccounts");
                 });
 
-            modelBuilder.Entity("AppTechnoSoft.Interns.Data.Models.Gatherings.Attendee", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<string>("Email")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("FullName")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<int?>("OrganizationId")
-                        .HasColumnType("int");
-
-                    b.Property<string>("Phone")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("ProfileImagePath")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("OrganizationId");
-
-                    b.ToTable("Attendee");
-                });
-
             modelBuilder.Entity("AppTechnoSoft.Interns.Data.Models.Gatherings.Gathering", b =>
                 {
                     b.Property<Guid>("Id")
@@ -803,43 +728,6 @@ namespace AppTechnoSoft.Interns.Data.Migrations
                     b.HasIndex("OrganizationId");
 
                     b.ToTable("GatheringCalendars");
-                });
-
-            modelBuilder.Entity("AppTechnoSoft.Interns.Data.Models.Gatherings.GatheringRequest", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<Guid>("GatheringId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<int>("OrganizationId")
-                        .HasColumnType("int");
-
-                    b.Property<string>("Phone")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTime>("RequestedDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("UserName")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTime>("When")
-                        .HasColumnType("datetime2");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("GatheringId");
-
-                    b.HasIndex("OrganizationId");
-
-                    b.ToTable("GatheringRequests");
                 });
 
             modelBuilder.Entity("AppTechnoSoft.Interns.Data.Models.Loan", b =>
@@ -1697,17 +1585,6 @@ namespace AppTechnoSoft.Interns.Data.Migrations
                     b.Navigation("Batch");
                 });
 
-            modelBuilder.Entity("AppTechnoSoft.Interns.Data.Models.Certificate", b =>
-                {
-                    b.HasOne("AppTechnoSoft.Interns.Data.Models.Gatherings.Attendee", "Attendee")
-                        .WithMany("Certificates")
-                        .HasForeignKey("AttendeeId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Attendee");
-                });
-
             modelBuilder.Entity("AppTechnoSoft.Interns.Data.Models.ClassSchedule", b =>
                 {
                     b.HasOne("AppTechnoSoft.Interns.Data.Models.Batch", "Batch")
@@ -1777,35 +1654,7 @@ namespace AppTechnoSoft.Interns.Data.Migrations
                     b.Navigation("Student");
                 });
 
-            modelBuilder.Entity("AppTechnoSoft.Interns.Data.Models.Gatherings.Attendee", b =>
-                {
-                    b.HasOne("AppTechnoSoft.Interns.Data.Models.Organization", "Organization")
-                        .WithMany()
-                        .HasForeignKey("OrganizationId");
-
-                    b.Navigation("Organization");
-                });
-
             modelBuilder.Entity("AppTechnoSoft.Interns.Data.Models.Gatherings.GatheringCalendar", b =>
-                {
-                    b.HasOne("AppTechnoSoft.Interns.Data.Models.Gatherings.Gathering", "Gathering")
-                        .WithMany()
-                        .HasForeignKey("GatheringId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("AppTechnoSoft.Interns.Data.Models.Organization", "Organization")
-                        .WithMany()
-                        .HasForeignKey("OrganizationId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Gathering");
-
-                    b.Navigation("Organization");
-                });
-
-            modelBuilder.Entity("AppTechnoSoft.Interns.Data.Models.Gatherings.GatheringRequest", b =>
                 {
                     b.HasOne("AppTechnoSoft.Interns.Data.Models.Gatherings.Gathering", "Gathering")
                         .WithMany()
@@ -2082,11 +1931,6 @@ namespace AppTechnoSoft.Interns.Data.Migrations
                     b.Navigation("Students");
 
                     b.Navigation("Teams");
-                });
-
-            modelBuilder.Entity("AppTechnoSoft.Interns.Data.Models.Gatherings.Attendee", b =>
-                {
-                    b.Navigation("Certificates");
                 });
 
             modelBuilder.Entity("AppTechnoSoft.Interns.Data.Models.ReviewForm", b =>

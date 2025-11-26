@@ -1,0 +1,95 @@
+﻿@page "/gatherings/calendar"
+
+@attribute [Authorize(Roles = Role.Admins)]
+
+@inject ApplicationDbContext Db
+@inject ISnackbar SnackBar
+@inject NavigationManager Navigation
+
+<PageTitle>Gathering Calendar</PageTitle>
+
+<EditForm Model="@model" OnValidSubmit="OnValidSubmit">
+    <MudSelect T="Gathering"
+               Label="Gathering"
+               @bind-Value="model.Gathering"
+               AnchorOrigin="Origin.BottomCenter"
+               Variant="Variant.Outlined">
+        @foreach (var gathering in gatherings)
+        {
+            <MudSelectItem Value="@gathering">@gathering.ToString()</MudSelectItem>
+        }
+    </MudSelect>
+
+    <MudSelect T="DropdownViewModel"
+               Label="Consultants"
+               Dense="true"
+               Variant="Variant.Outlined"
+               MultiSelection="true"
+               ToStringFunc="x => x.Text"
+               @bind-SelectedValues="@consultantsSelected"
+               AnchorOrigin="Origin.BottomCenter">
+        @foreach (var consultant in consultants)
+        {
+            <MudSelectItem Value="@consultant">@consultant.Text</MudSelectItem>
+        }
+    </MudSelect>
+
+    <MudDateRangePicker @bind-DateRange="@dateRange" PickerVariant="PickerVariant.Static" Variant="Variant.Outlined" Color="Color.Tertiary" />
+
+    <MudNumericField Variant="Variant.Outlined"
+                     Label="Per Day Duration"
+                     @bind-Value="model.DurationHoursPerDay"
+                     Adornment="Adornment.Start"
+                     AdornmentText="Hours" />
+
+    <MudButton ButtonType="ButtonType.Submit"
+               Variant="Variant.Filled"
+               Color="Color.Tertiary"
+               Class="mt-3"
+               StartIcon="@Icons.Material.Filled.Save">
+        Save Calendar
+    </MudButton>
+</EditForm>
+
+@code {
+
+    [CascadingParameter]
+    private Task<AuthenticationState> AuthTask { get; set; } = null!;
+
+    GatheringCalendar model = new();
+    IEnumerable<Gathering> gatherings = [];
+    IEnumerable<DropdownViewModel> consultantsSelected = [];
+    IEnumerable<DropdownViewModel> consultants = [];
+    private DateRange dateRange { get; set; }
+
+    protected async override Task OnInitializedAsync()
+    {
+        gatherings = await Db.Gatherings.ToListAsync();
+        consultants = await Db.Instructors.Select(x =>
+            new DropdownViewModel
+                {
+                    Value = x.Id,
+                    Text = x.Name
+                }).ToListAsync();
+    }
+
+    private async Task OnValidSubmit(EditContext context)
+    {
+        // var state = await AuthTask;
+        // var userName = state.User.Identity?.Name;
+
+        // model.AddCreatedStamps(userName);
+        // Db.Gatherings.Add(model);
+        // var rowsAffected = await Db.SaveChangesAsync();
+
+        // if (rowsAffected > 0)
+        // {
+        //     SnackBar.Add("New workshop added successfully", Severity.Success);
+        //     Navigation.NavigateTo("/gatherings/index");
+        // }
+        // else
+        // {
+        //     SnackBar.Add("New workshop save failed", Severity.Error);
+        // }
+    }
+}

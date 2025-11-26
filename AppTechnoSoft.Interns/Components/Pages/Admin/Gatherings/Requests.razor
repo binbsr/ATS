@@ -1,0 +1,101 @@
+﻿@page "/gathering/requests"
+
+@attribute [Authorize(Roles = Role.Admins)]
+@inject ApplicationDbContext Db
+@inject ISnackbar SnackBar
+
+<MudTable Items="@model"
+          Hover
+          Loading="loadingData"
+          Dense
+          Filter="_quickFilter">
+
+    <ToolBarContent>
+        <MudTextField @bind-Value="_searchString" Placeholder="Search by college name and location" Adornment="Adornment.Start"
+                      AdornmentIcon="@Icons.Material.Filled.Search" IconSize="Size.Medium" Class="mt-0"></MudTextField>
+    </ToolBarContent>
+    <HeaderContent>
+        <MudTh>#</MudTh>
+        <MudTh>POC</MudTh>
+        <MudTh>Phone</MudTh>
+        <MudTh>Organization</MudTh>
+        <MudTh>Event Date</MudTh>
+        <MudTh>Request Date</MudTh>
+        <MudTh></MudTh>
+    </HeaderContent>
+    <RowTemplate>
+        <MudTd DataLabel="#">@(model.IndexOf(context) + 1)</MudTd>
+        <MudTd DataLabel="Name">@context.UserName</MudTd>
+        <MudTd DataLabel="Phone">@context.Phone</MudTd>
+        <MudTd DataLabel="Organization">@context.Organization?.Name</MudTd>
+        <MudTd DataLabel="When">@context.When.ToNepalTime()</MudTd>
+        <MudTd DataLabel="RequestedDate">@context.RequestedDate.Humanize()</MudTd>
+
+        <MudTd>
+            <MudIconButton Icon="@Icons.Material.Sharp.Delete" Size="Size.Small" Color="Color.Error" OnClick="() => ConfirmDelete(context)" />
+            <MudMessageBox @ref="mbox" Title="Warning" CancelText="Cancel">
+                <MessageContent>
+                    Are you sure to delete this request? It can't be undone.
+                </MessageContent>
+                <YesButton>
+                    <MudButton Variant="Variant.Filled" Color="Color.Error" StartIcon="@Icons.Material.Filled.DeleteForever">Delete</MudButton>
+                </YesButton>
+            </MudMessageBox>
+        </MudTd>
+    </RowTemplate>
+    <PagerContent>
+        <MudTablePager PageSizeOptions="[30, 50, 100, 200]" />
+    </PagerContent>
+</MudTable>
+
+@code {
+    private List<GatheringRequest> model = new List<GatheringRequest>();
+    private string _searchString = string.Empty;
+    private bool loadingData = false;
+    MudMessageBox mbox { get; set; } = null!;
+
+    private Func<GatheringRequest, bool> _quickFilter => x =>
+    {
+        if (string.IsNullOrWhiteSpace(_searchString))
+            return true;
+
+        if (x.UserName.Contains(_searchString, StringComparison.OrdinalIgnoreCase))
+            return true;
+
+        if (x.Phone.Contains(_searchString, StringComparison.OrdinalIgnoreCase))
+            return true;
+
+        return false;
+    };
+
+    protected override async Task OnInitializedAsync()
+    {
+        loadingData = true;
+        model = await Db.GatheringRequests
+            .Include(x => x.Organization)
+            .OrderByDescending(x => x.RequestedDate)
+            .ToListAsync();
+        loadingData = false;
+    }
+
+    private async Task ConfirmDelete(GatheringRequest gatheringRequest)
+    {
+        bool? result = await mbox.ShowAsync();
+        if (result == null)
+            return;
+
+        Db.GatheringRequests.Remove(gatheringRequest);
+
+        var rowsAffected = await Db.SaveChangesAsync();
+
+        if (rowsAffected > 0)
+        {
+            SnackBar.Add("Request Deleted successfully", Severity.Success);
+            model.Remove(gatheringRequest);
+        }
+        else
+        {
+            SnackBar.Add("Request Delete failed", Severity.Error);
+        }
+    }
+}

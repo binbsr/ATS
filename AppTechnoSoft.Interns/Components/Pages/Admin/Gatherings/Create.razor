@@ -1,0 +1,77 @@
+﻿@page "/gatherings/create"
+
+@attribute [Authorize(Roles = Role.Admins)]
+
+@inject ApplicationDbContext Db
+@inject ISnackbar SnackBar
+@inject NavigationManager Navigation
+
+<PageTitle>New Gathering</PageTitle>
+
+<EditForm Model="@model" OnValidSubmit="OnValidSubmit">
+    <MudGrid Class="d-flex align-center justify-center">
+        <MudItem md="6" sm="12">
+            <MudSelect T="GatheringType" Label="Event Type" @bind-Value="model.Type" AnchorOrigin="Origin.BottomCenter" Variant="Variant.Outlined">
+                @foreach (GatheringType type in Enum.GetValues<GatheringType>())
+                {
+                    <MudSelectItem Value="@type">@type</MudSelectItem>
+                }
+            </MudSelect>
+        </MudItem>
+        <MudItem md="6" sm="12">
+            <MudTextField Variant="Variant.Outlined" Label="Title" @bind-Value="model.Title" />
+        </MudItem>       
+        <MudItem md="4" sm="12">
+            <MudNumericField Step="500" Variant="Variant.Outlined" Label="Price Quotation" @bind-Value="model.Quote" />
+        </MudItem>
+        <MudItem md="4" sm="12">
+            <MudSwitch Size="Size.Large" Label="Quotation per attendee?" @bind-Value="model.QuotePerAttendee" Color="Color.Success" />
+        </MudItem>
+        <MudItem md="4" sm="12">
+            <MudNumericField Step="5" Variant="Variant.Outlined" Label="Maximum Guests" @bind-Value="model.MaxAttendees" />
+        </MudItem>
+        <MudItem md="12">
+            <RichTextEditor PlaceHolder="Agenda for the event..." MarkdownValue="@model.Agenda" EditorValueChanged="OnMarkdownValueChanged" />
+        </MudItem>
+    </MudGrid>
+    <MudButton ButtonType="ButtonType.Submit"
+               Variant="Variant.Filled"
+               Color="Color.Tertiary"
+               Class="mt-3"
+               StartIcon="@Icons.Material.Filled.Save">
+        Save Event
+    </MudButton>
+</EditForm>
+
+@code {
+
+    [CascadingParameter]
+    private Task<AuthenticationState> AuthTask { get; set; } = null!;
+
+    Gathering model = new();
+
+    private async Task OnValidSubmit(EditContext context)
+    {
+        var state = await AuthTask;
+        var userName = state.User.Identity?.Name;
+
+        model.AddCreatedStamps(userName);
+        Db.Gatherings.Add(model);
+        var rowsAffected = await Db.SaveChangesAsync();
+
+        if (rowsAffected > 0)
+        {
+            SnackBar.Add("New gathering event added successfully", Severity.Success);
+            Navigation.NavigateTo("/gatherings");
+        }
+        else
+        {
+            SnackBar.Add("New gathering event save failed", Severity.Error);
+        }
+    }
+
+    void OnMarkdownValueChanged(string value)
+    {
+        model.Agenda = value;
+    }
+}

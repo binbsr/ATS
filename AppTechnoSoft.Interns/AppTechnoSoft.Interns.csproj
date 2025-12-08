@@ -8,7 +8,6 @@
 	</PropertyGroup>	
 
 	<ItemGroup>
-		<PackageReference Include="Blazor-ApexCharts" Version="4.0.0" />
 		<PackageReference Include="Microsoft.AspNetCore.Authentication.Google" Version="10.0.0" />
 		<PackageReference Include="Microsoft.AspNetCore.Diagnostics.EntityFrameworkCore" Version="10.0.0" />
 		<PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="10.0.0" />
@@ -19,9 +18,9 @@
 			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
 		</PackageReference>
 		<PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="10.0.0-rc.1.25458.5" />		
-		<PackageReference Include="MudBlazor" Version="7.15.0" />
+		<PackageReference Include="MudBlazor" Version="8.15.0" />
 		<PackageReference Include="PasswordGenerator" Version="2.1.0" />
-		<PackageReference Include="PSC.Blazor.Components.MarkdownEditor" Version="8.0.5" />
+		<PackageReference Include="PSC.Blazor.Components.MarkdownEditor" Version="8.0.8" />
 		<PackageReference Include="Humanizer" Version="3.0.1" />
 		<PackageReference Include="Markdig" Version="0.44.0" />
 	</ItemGroup>

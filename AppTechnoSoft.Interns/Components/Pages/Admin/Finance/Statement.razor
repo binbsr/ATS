@@ -12,7 +12,7 @@
         <PropertyColumn Property="x => x.Title" Groupable="false" Filterable="false" />
         <PropertyColumn Property="x => x.Date" Title="Date">
             <CellTemplate>
-                @context.Item.Date.ToNepalTime().ToLongDateString()
+                @context.Item.Date.Value.ToLongDateString()
             </CellTemplate>
         </PropertyColumn>
         <PropertyColumn Property="x => x.Credit" AggregateDefinition="CreditAggregation" Groupable="false" Filterable="false">

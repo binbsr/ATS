@@ -78,21 +78,6 @@ GO
 CREATE NONCLUSTERED INDEX [IX_GatheringCalendarInstructor_GatheringCalendarId]
     ON [dbo].[GatheringCalendarInstructor]([GatheringCalendarId] ASC);
 
--- Gatthering Requests
-
-CREATE TABLE [GatheringRequests] (
-          [Id] int NOT NULL IDENTITY,
-          [UserName] nvarchar(max) NOT NULL,
-          [Phone] nvarchar(max) NOT NULL,
-          [When] datetime2 NOT NULL,
-          [RequestedDate] datetime2 NOT NULL,
-          [GatheringId] uniqueidentifier NOT NULL,
-          [OrganizationId] int NOT NULL,
-          CONSTRAINT [PK_GatheringRequests] PRIMARY KEY ([Id]),
-          CONSTRAINT [FK_GatheringRequests_Gatherings_GatheringId] FOREIGN KEY ([GatheringId]) REFERENCES [Gatherings] ([Id]) ON DELETE CASCADE,
-          CONSTRAINT [FK_GatheringRequests_Organizations_OrganizationId] FOREIGN KEY ([OrganizationId]) REFERENCES [Organizations] ([Id]) ON DELETE CASCADE
-      );
-
 
 -- Attendees
 CREATE TABLE [dbo].[Attendee] (

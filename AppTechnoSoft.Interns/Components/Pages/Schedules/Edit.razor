@@ -98,7 +98,7 @@
 
         model = modelFromDb ?? new();
 
-        model.ClassStart = model.ClassStart.ToNepalTime();
+        model.ClassStart = model.ClassStart;
         classStartDay = model.ClassStart;
         classStartTimeSpan = model.ClassStart.TimeOfDay;
         meetingDurationTimeSpan = TimeSpan.FromHours(model.DurationHours);

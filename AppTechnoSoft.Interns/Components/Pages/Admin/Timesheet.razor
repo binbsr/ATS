@@ -31,10 +31,10 @@
                 </span>
             </GroupTemplate>
         </PropertyColumn>
-        <PropertyColumn Property="x => x.PunchIn.ToNepalTime(x.Date)" Filterable="false"/>
+        <PropertyColumn Property="x => x.PunchIn" Filterable="false"/>
         <TemplateColumn Title="Punchout" Filterable="false">
             <CellTemplate>
-                @(IsPunchOutEmpty(context.Item.PunchOut) ? "No Punch Out" : context.Item.PunchOut.ToNepalTime(context.Item.Date))
+                @(IsPunchOutEmpty(context.Item.PunchOut) ? "No Punch Out" : context.Item.PunchOut)
             </CellTemplate>
         </TemplateColumn>
         <TemplateColumn Title="Duration" Filterable="false">

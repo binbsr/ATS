@@ -151,7 +151,7 @@
                 InstructorId = onBehalfOfInstructor.Id,
                 TurnInDate = DateTime.UtcNow,
                 Deadline = deadlineDate + deadlineTime,
-                Comment = $"{DateTime.UtcNow.ToNepalTime()}: {Assignment.Title} assigned."
+                Comment = $"{DateTime.UtcNow}: {Assignment.Title} assigned."
             });
 
         Db.StudentAssignments.AddRange(studemtsAssigment);

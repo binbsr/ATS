@@ -23,8 +23,7 @@ public static class DateTimeExtensions
     public static TimeOnly ToNepalTime(this TimeOnly? time, DateOnly date)
     {
         var dateTime = new DateTime(date, time!.Value, DateTimeKind.Utc);        
-        DateTime nepalTime = dateTime.ToNepalTime();
-        var timeStampNepal = TimeOnly.FromDateTime(nepalTime);
+        var timeStampNepal = TimeOnly.FromDateTime(dateTime);
 
         return timeStampNepal;
     }

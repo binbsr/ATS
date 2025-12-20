@@ -27,7 +27,7 @@ else
             <MudTd DataLabel="Module">@context.Module!.Description</MudTd>
             <MudTd DataLabel="Instructor">@(context.Instructor?.Name ?? "N/A")</MudTd>
             <MudTd DataLabel="Time">
-                <MudTooltip Text="@context.ClassStart.ToNepalTime().ToString("f")">
+                <MudTooltip Text="@context.ClassStart.ToString("f")">
                     @context.ClassStart.Humanize()
                 </MudTooltip>
             </MudTd>

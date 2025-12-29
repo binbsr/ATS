@@ -2,11 +2,13 @@ using AppTechnoSoft.Interns.Data.Constants;
 using AppTechnoSoft.Interns.Data.Models;
 using AppTechnoSoft.Interns.Data.Models.Consultant;
 using AppTechnoSoft.Interns.Data.Models.Gatherings;
+using AppTechnoSoft.Interns.Data.Models.Sites;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 
 namespace AppTechnoSoft.Interns.Data;
+
 public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
     : IdentityDbContext<ApplicationUser>(options)
 {
@@ -39,6 +41,10 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
     public DbSet<GatheringCalendar> GatheringCalendars { get; set; }
     public DbSet<GatheringRequest> GatheringRequests { get; set; }
     public DbSet<Certificate> Certificates { get; set; }
+    public DbSet<Site> Sites { get; set; }
+    public DbSet<Section> Sections { get; set; }
+    public DbSet<SiteSection> SiteSections { get; set; }
+    public DbSet<SectionWidget> SectionWidgets { get; set; }
 
     protected override void OnModelCreating(ModelBuilder builder)
     {
@@ -75,64 +81,88 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
         .HasMany(e => e.Consultants)
         .WithMany();
 
-        builder.Entity<College>()
-            .HasData([
-                new College { Id = 1, Name = "Mechi Multiple Campus", Location = "Bhadrapur, Jhapa" },
-                new College { Id = 2, Name = "Dhankuta Multiple Campus", Location = "Dhankuta" },
-                new College { Id = 3, Name = "Central Campus of Technology", Location = "Dharan" },
-                new College { Id = 4, Name = "Mahendra Morang Adarsha Multiple Campus", Location = "Biratnagar" },
-                new College { Id = 5, Name = "Mahendra Bindeshwori Multiple Campus", Location = "Rajbiraj" },
-                new College { Id = 6, Name = "Surya Narayan Satya Na. Mo. Yadav Campus", Location = "Siraha" },
-                new College { Id = 7, Name = "Ramsorup Ramsagar Multiple Campus", Location = "Janakpur" },
-                new College { Id = 8, Name = "Thakur Ram Multiple Campus", Location = "Birgunj" },
-                new College { Id = 9, Name = "Birendra Multiple Campus", Location = "Bharatpur" },
-                new College { Id = 10, Name = "Prithivi Narayan Multiple Campus", Location = "Pokhara" },
-                new College { Id = 11, Name = "SidhaNath Science Campus", Location = "Mahendranagar" },
-                new College { Id = 12, Name = "Mahendra Multiple Campus", Location = "Nepalgunj" },
-                new College { Id = 13, Name = "Butwal Multiple Campus", Location = "Butwal" },
-                new College { Id = 19, Name = "Padma Kanya Multiple Campus", Location = "Bagbazar" },
-                new College { Id = 20, Name = "Mahendra Multiple Campus", Location = "Ghorahi, Dang" },
-                new College { Id = 21, Name = "Dhaulagiri Campus", Location = "Baglung" },
-                new College { Id = 22, Name = "Gorkha Campus", Location = "Gorkha" },
-                new College { Id = 23, Name = "Bhairahawa Multiple Campus", Location = "Bhairahawa" },
-                new College { Id = 24, Name = "Degree Campus", Location = "Biratnagar" }
-        ]);
+        builder.Entity<Site>()
+        .HasMany(e => e.Sections)
+        .WithMany()
+        .UsingEntity<SiteSection>();
 
-        builder.Entity<TechProgram>()
-            .HasData([
-                    new TechProgram { Id = 1, Name = "BCA", Affliation = "TU" },
-                new TechProgram { Id = 2, Name = "BCA", Affliation = "PU" },
-                new TechProgram { Id = 3, Name = "BIT", Affliation = "TU" },
-                new TechProgram { Id = 4, Name = "BIT", Affliation = "PU" },
-                new TechProgram { Id = 5, Name = "BIM", Affliation = "TU" },
-                new TechProgram { Id = 6, Name = "BScIT", Affliation = "TU" },
-                new TechProgram { Id = 7, Name = "BScIT", Affliation = "PU" },
-            ]);
+        builder.Entity<Section>()
+        .HasMany(e => e.Widgets)
+        .WithMany()
+        .UsingEntity<SectionWidget>();
     }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
         base.OnConfiguring(optionsBuilder);
 
-        // Seed roles and admin user
-        string superAdminId = Guid.NewGuid().ToString();
-        string superAdminRoleId = Guid.NewGuid().ToString();
-        string adminRoleId = Guid.NewGuid().ToString();
-        string traineeRoleId = Guid.NewGuid().ToString();
-        var appUser = new ApplicationUser
-        {
-            Id = superAdminId,
-            Email = "rawal.bishnu@live.com",
-            EmailConfirmed = true,
-            UserName = "rawal.bishnu@live.com",
-            NormalizedUserName = "RAWAL.BISHNU@LIVE.COM"
-        };
-        //set user password
-        PasswordHasher<ApplicationUser> ph = new();
-        appUser.PasswordHash = ph.HashPassword(appUser, "~Someone1");
-
         optionsBuilder.UseSeeding((context, _) =>
          {
+             var colleges = context.Set<College>().ToList();
+
+             if (colleges == null || colleges.Count == 0)
+             {
+                 context.Set<College>().AddRange(
+                     [
+                         new College { Name = "Mechi Multiple Campus", Location = "Bhadrapur, Jhapa" },
+                        new College { Name = "Dhankuta Multiple Campus", Location = "Dhankuta" },
+                        new College { Name = "Central Campus of Technology", Location = "Dharan" },
+                        new College { Name = "Mahendra Morang Adarsha Multiple Campus", Location = "Biratnagar" },
+                        new College { Name = "Mahendra Bindeshwori Multiple Campus", Location = "Rajbiraj" },
+                        new College { Name = "Surya Narayan Satya Na. Mo. Yadav Campus", Location = "Siraha" },
+                        new College { Name = "Ramsorup Ramsagar Multiple Campus", Location = "Janakpur" },
+                        new College { Name = "Thakur Ram Multiple Campus", Location = "Birgunj" },
+                        new College { Name = "Birendra Multiple Campus", Location = "Bharatpur" },
+                        new College { Name = "Prithivi Narayan Multiple Campus", Location = "Pokhara" },
+                        new College { Name = "SidhaNath Science Campus", Location = "Mahendranagar" },
+                        new College { Name = "Mahendra Multiple Campus", Location = "Nepalgunj" },
+                        new College { Name = "Butwal Multiple Campus", Location = "Butwal" },
+                        new College { Name = "Padma Kanya Multiple Campus", Location = "Bagbazar" },
+                        new College { Name = "Mahendra Multiple Campus", Location = "Ghorahi, Dang" },
+                        new College { Name = "Dhaulagiri Campus", Location = "Baglung" },
+                        new College { Name = "Gorkha Campus", Location = "Gorkha" },
+                        new College { Name = "Bhairahawa Multiple Campus", Location = "Bhairahawa" },
+                        new College { Name = "Degree Campus", Location = "Biratnagar" }
+                     ]);
+
+                 context.SaveChanges();
+             }
+
+             var programs = context.Set<TechProgram>().ToList();
+
+             if (programs == null || programs.Count == 0)
+             {
+                 context.Set<TechProgram>().AddRange(
+                     [
+                         new TechProgram { Name = "BCA", Affliation = "TU" },
+                        new TechProgram { Name = "BCA", Affliation = "PU" },
+                        new TechProgram { Name = "BIT", Affliation = "TU" },
+                        new TechProgram { Name = "BIT", Affliation = "PU" },
+                        new TechProgram { Name = "BIM", Affliation = "TU" },
+                        new TechProgram { Name = "BScIT", Affliation = "TU" },
+                        new TechProgram { Name = "BScIT", Affliation = "PU" },
+                    ]);
+
+                 context.SaveChanges();
+             }
+
+             // Seed roles and admin user
+             string superAdminId = Guid.NewGuid().ToString();
+             string superAdminRoleId = Guid.NewGuid().ToString();
+             string adminRoleId = Guid.NewGuid().ToString();
+             string traineeRoleId = Guid.NewGuid().ToString();
+             var appUser = new ApplicationUser
+             {
+                 Id = superAdminId,
+                 Email = "rawal.bishnu@live.com",
+                 EmailConfirmed = true,
+                 UserName = "rawal.bishnu@live.com",
+                 NormalizedUserName = "RAWAL.BISHNU@LIVE.COM"
+             };
+             //set user password
+             PasswordHasher<ApplicationUser> ph = new();
+             appUser.PasswordHash = ph.HashPassword(appUser, "~Someone1");
+
              var roles = context.Set<IdentityRole>().ToList();
              if (roles == null || roles.Count == 0)
              {

@@ -30,7 +30,7 @@ else
                 <MudLink Href="@project.BoardUrl" Target="_blank" Style="font-size:1.5rem">Github agile board <MudIcon Icon="@Icons.Material.Sharp.OpenInNew" /></MudLink>
             </MudText>
         </MudStack>
-        <MudText Typo="Typo.body1" Class="my-4">@((MarkupString)project.Requirements.ToHtmlString())</MudText>
+        <MudText Typo="Typo.body1" Class="my-4">@((MarkupString)project.Requirements)</MudText>
     </MudPaper>
 }
 

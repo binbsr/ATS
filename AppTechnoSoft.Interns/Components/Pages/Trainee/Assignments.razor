@@ -52,7 +52,7 @@ else
             <td colspan="7">
                 <MudTabs ApplyEffectsToContainer="true" PanelClass="pa-6" Outlined SliderColor="Color.Tertiary">
                     <MudTabPanel Text="Assignmet Ask">
-                        @((MarkupString)(context.AssignmentBody?.ToHtmlString() ?? ""))
+                        @((MarkupString)(context.AssignmentBody ?? ""))
                     </MudTabPanel>
                     <MudTabPanel Text="My Solution">
                         <MudTextField AutoFocus Clearable @bind-Value="@context.SolutionUrl" Label="Github Url" Variant="Variant.Outlined" />

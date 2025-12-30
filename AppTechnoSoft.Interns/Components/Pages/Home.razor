@@ -19,7 +19,7 @@ else
                 <MudIconButton Icon="@Icons.Material.Filled.Edit" Color="Color.Warning" Size="Size.Small" Class="ml-auto" Href="@("/edit-widget/" + homeTitle.Id)" />
             </AuthorizeView>
         </MudText>
-        @((MarkupString)homeTitle.HtmlContent.ToHtmlString())
+        @((MarkupString)homeTitle.HtmlContent)
     }
 
     <MudText Align="Align.Center" Typo="Typo.h3" Class="my-16">Our Products</MudText>
@@ -32,7 +32,7 @@ else
                         <MudIconButton Icon="@Icons.Material.Filled.Edit" Color="Color.Warning" Size="Size.Small" Class="ml-auto" Href="@("/edit-widget/" + item.Id)" />
                     </AuthorizeView>
                     <MudText Typo="Typo.h4" Class="my-10">@item.Description</MudText>
-                    @((MarkupString)item.HtmlContent.ToHtmlString())
+                    @((MarkupString)item.HtmlContent)
                 </MudPaper>
             </MudItem>
         }
@@ -48,7 +48,7 @@ else
                         <MudIconButton Icon="@Icons.Material.Filled.Edit" Color="Color.Warning" Size="Size.Small" Class="ml-auto" Href="@("/edit-widget/" + item.Id)" />
                     </AuthorizeView>
                     <MudText Typo="Typo.h4" Class="my-10">@item.Description</MudText>
-                    @((MarkupString)item.HtmlContent.ToHtmlString())
+                    @((MarkupString)item.HtmlContent)
                 </MudPaper>
             </MudItem>
         }
@@ -64,7 +64,7 @@ else
                         <MudIconButton Icon="@Icons.Material.Filled.Edit" Color="Color.Warning" Size="Size.Small" Class="ml-auto" Href="@("/edit-widget/" + item.Id)" />
                     </AuthorizeView>
                     <MudText Typo="Typo.h4" Class="my-10">@item.Description</MudText>
-                    @((MarkupString)item.HtmlContent.ToHtmlString())
+                    @((MarkupString)item.HtmlContent)
                 </MudPaper>
             </MudItem>
         }

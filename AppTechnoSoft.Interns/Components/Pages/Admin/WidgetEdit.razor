@@ -7,7 +7,7 @@
 <PageTitle>@pageTitle</PageTitle>
 
 <EditForm Model="@model" OnValidSubmit="OnValidSubmit">
-    <MudSelect T="string" Label="Widget Type" @bind-Value="model.Title" AnchorOrigin="Origin.BottomCenter" Variant="Variant.Outlined">
+    <MudSelect T="string" Label="Widget Type" @bind-Value="model.Title" Variant="Variant.Outlined">
         @foreach (var filter in widgetFilters)
         {
             <MudSelectItem Value="@filter.Key">@filter.Value</MudSelectItem>
@@ -23,17 +23,21 @@
                HelperText="Check all tags that apply to this widget"
                MultiSelection="true"
                @bind-SelectedValues="@tagsSelected"
-               Class="mb-3"
-               MultiSelectionTextFunc="@(new Func<List<string>, string>(GetMultiSelectionText))"
-               AnchorOrigin="Origin.BottomCenter">
+               Class="mb-4"
+               MultiSelectionTextFunc="@(new Func<List<string>, string>(GetMultiSelectionText))">
         @foreach (var tag in tags)
         {
             <MudSelectItem Value="@tag">@tag.Name</MudSelectItem>
         }
     </MudSelect>
 
-    <MudText Style="font-weight:bold" Class="py-2">Content RichText (Markdown) and Live Preview on Right Panel</MudText>
-    <RichTextEditor MarkdownValue="@model.HtmlContent" EditorValueChanged="OnMarkdownValueChanged" />
+    <MudExRichTextEdit Height="450"                      
+                       @bind-Value="@model.HtmlContent"
+                       Tools="@_tools"
+                       Modules="@_modules"                       
+                       Placeholder="Add Widget Contents...">
+    </MudExRichTextEdit>
+
 
     <MudStack Row Class="mt-2">
         <MudButton ButtonType="ButtonType.Submit"
@@ -59,6 +63,35 @@
 
     [CascadingParameter]
     private Task<AuthenticationState> AuthTask { get; set; } = null!;
+
+    private QuillTool[] _tools =
+    [
+        QuillTools.Header(group: 1),
+        QuillTools.Bold(),
+        QuillTools.Italic(),
+        QuillTools.Underline(),
+        QuillTools.Strike(),
+        QuillTools.Color(),
+        QuillTools.Background(),
+        QuillTools.OrderedList(),
+        QuillTools.BulletList(),
+        QuillTools.IndentDecrease(),
+        QuillTools.IndentIncrease(),
+        QuillTools.Align(),
+        QuillTools.Blockquote(),
+        QuillTools.CodeBlock(),
+        QuillTools.Link(),
+        QuillTools.Image(),
+        QuillTools.Video(),
+        QuillTools.TableButton(),
+    ];
+
+    private IQuillModule[] _modules =
+    [
+        new QuillTableBetterModule(),
+        new QuillBlotFormatterModule(),
+        new QuillImageCompressorModule(),
+    ];
 
     Widget model = new Widget();
     List<Tag> tags = new();
@@ -98,6 +131,7 @@
     {
         if (model.HtmlContent is null or "")
         {
+            SnackBar.Add("No content provided for the widget", Severity.Warning);
             return;
         }
 
@@ -133,10 +167,5 @@
     private string GetMultiSelectionText(List<string> selectedValues)
     {
         return $"{selectedValues.Count} tag{(selectedValues.Count > 1 ? "s have" : " has")} been selected";
-    }
-
-    void OnMarkdownValueChanged(string value)
-    {
-        model.HtmlContent = value;
     }
 }

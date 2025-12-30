@@ -89,11 +89,11 @@
     private Instructor[] instructors = [];
     private Batch[] batches = [];
     private DateRange dateRange = new DateRange(DateTime.Today, DateTime.Today);
-    private TimeSpan? classStartTime = DateTime.UtcNow.ToNepalTime().TimeOfDay;
+    private TimeSpan? classStartTime = DateTime.UtcNow.TimeOfDay;
     private TimeSpan? meetingDurationTimeSpan = new TimeSpan(1, 0, 0);
     private IEnumerable<DayOfWeek> selectedRangeWeekDays = Enum.GetValues<DayOfWeek>();
     private int selectedDayCount => (dateRange.End - dateRange.Start)!.Value.Days + 1;
-    private IEnumerable<DayOfWeek> selectedDaysOfWeek = [DateTime.UtcNow.ToNepalTime().DayOfWeek];
+    private IEnumerable<DayOfWeek> selectedDaysOfWeek = [DateTime.UtcNow.DayOfWeek];
 
     private async Task<IEnumerable<Widget>> SearchModules(string value, CancellationToken token)
     {

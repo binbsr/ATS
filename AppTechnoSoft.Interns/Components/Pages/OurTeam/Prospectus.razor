@@ -18,7 +18,7 @@ else
                 <MudIconButton Icon="@Icons.Material.Filled.Edit" Color="Color.Warning" Size="Size.Small" Class="ml-auto" Href="@("/edit-widget/" + prospectus.Id)" />
             </AuthorizeView>
         </MudText>
-        @((MarkupString)prospectus.HtmlContent.ToHtmlString())
+        @((MarkupString)prospectus.HtmlContent)
     }
 }
 

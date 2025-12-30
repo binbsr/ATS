@@ -1,7 +1,7 @@
 # Docs for the Azure Web Apps Deploy action: https://github.com/Azure/webapps-deploy
 # More GitHub Actions for Azure: https://github.com/Azure/actions
 
-name: Build and deploy ASP.Net Core app to Azure Web App - appsoft
+name: Build and deploy ASP.Net Core app to Azure Web App - appsoft1
 
 on:
   push:
@@ -12,15 +12,16 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read #This is required for actions/checkout
 
     steps:
       - uses: actions/checkout@v4
 
       - name: Set up .NET Core
-        uses: actions/setup-dotnet@v1
+        uses: actions/setup-dotnet@v4
         with:
-          dotnet-version: '8.x'
-          include-prerelease: true
+          dotnet-version: '10.x'
 
       - name: Build with dotnet
         run: dotnet build --configuration Release
@@ -29,7 +30,7 @@ jobs:
         run: dotnet publish -c Release -o ${{env.DOTNET_ROOT}}/myapp
 
       - name: Upload artifact for deployment job
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: .net-app
           path: ${{env.DOTNET_ROOT}}/myapp
@@ -37,30 +38,28 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     needs: build
-    environment:
-      name: 'Production'
-      url: ${{ steps.deploy-to-webapp.outputs.webapp-url }}
     permissions:
       id-token: write #This is required for requesting the JWT
+      contents: read #This is required for actions/checkout
 
     steps:
       - name: Download artifact from build job
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: .net-app
       
       - name: Login to Azure
-        uses: azure/login@v1
+        uses: azure/login@v2
         with:
-          client-id: ${{ secrets.AZUREAPPSERVICE_CLIENTID_577948729459410FB8E8C9330E8744EA }}
-          tenant-id: ${{ secrets.AZUREAPPSERVICE_TENANTID_2B6EE3C329704EC48144E2EEFA023ED7 }}
-          subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_5CA85171A7DC4ABF8D9814C60779E67A }}
+          client-id: ${{ secrets.AZUREAPPSERVICE_CLIENTID_BA9EFFCCB83B4E9AB12279EE7712F301 }}
+          tenant-id: ${{ secrets.AZUREAPPSERVICE_TENANTID_49C8CFC7DF1449809C7F57FFEB6F31A9 }}
+          subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_27C9C3A1E23C43F8A02EEB3903ABAAF5 }}
 
       - name: Deploy to Azure Web App
         id: deploy-to-webapp
-        uses: azure/webapps-deploy@v2
+        uses: azure/webapps-deploy@v3
         with:
-          app-name: 'appsoft'
+          app-name: 'appsoft1'
           slot-name: 'Production'
           package: .
           

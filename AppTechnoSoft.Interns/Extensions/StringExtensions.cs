@@ -1,6 +1,4 @@
-﻿using Markdig;
-using Markdig.Extensions.MediaLinks;
-
+﻿
 namespace AppTechnoSoft.Interns.Extensions;
 public static class StringExtensions
 {
@@ -11,17 +9,7 @@ public static class StringExtensions
         var output = $"{value} {guid}";
         return output;
     }
-
-    public static string ToHtmlString(this string mdValue)
-    {
-        var pipeline = new MarkdownPipelineBuilder()
-            .UseBootstrap()
-            .UsePipeTables()
-            .Build();
-        var htmlMarkup = Markdown.ToHtml(mdValue, pipeline);
-        return htmlMarkup;
-    }
-
+        
     public static string ToEmail(this string userName)
     {
         if (userName is null or "")

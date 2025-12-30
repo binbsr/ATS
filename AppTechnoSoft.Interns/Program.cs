@@ -2,6 +2,7 @@ using AppTechnoSoft.Interns.Components;
 using AppTechnoSoft.Interns.Components.Account;
 using AppTechnoSoft.Interns.Data;
 using AppTechnoSoft.Interns.Data.Models;
+using AppTechnoSoft.Interns.Extensions;
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -40,8 +41,9 @@ builder.Services.AddIdentityCore<ApplicationUser>(options => options.SignIn.Requ
     .AddSignInManager()
     .AddDefaultTokenProviders();
 
-builder.Services.AddSingleton<IEmailSender<ApplicationUser>, IdentityNoOpEmailSender>();
+//builder.Services.AddSingleton<IEmailSender<ApplicationUser>, IdentityNoOpEmailSender>();
 builder.Services.AddMudServices();
+builder.Services.AddBrowserTimeProvider();
 
 var app = builder.Build();
 

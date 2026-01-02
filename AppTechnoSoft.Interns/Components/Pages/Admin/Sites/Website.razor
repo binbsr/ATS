@@ -1,35 +1,44 @@
 ﻿@page "/sites/{Id}/manage"
 @inject ApplicationDbContext Db
 
+<PageTitle>@(site?.Name ?? "Site Details")</PageTitle>
+
 @if (site is null)
 {
     <Loading />
 }
-else if (site.Sections is null or [])
-{
-    <ApplicationAlert Text=@($"No web site sections found for {site.Name}.") />
-}
 else
 {
-    <MudLink Href=@($"/admin/website/edit/{site.Id}")>Edit Site</MudLink>
-    <MudExpansionPanels MultiExpansion="true">
-        @foreach (var section in site.Sections)
-        {
-            <MudExpansionPanel Text="@(section.Title)" Expanded="@true">
-                @foreach (var widget in section.Widgets ?? [])
-                {
-                    <MudCard>
-                        <MudCardContent>
-                            @((MarkupString)widget.HtmlContent)
-                        </MudCardContent>
-                        <MudCardActions>
-                            <MudButton Variant="Variant.Text" Color="Color.Info">Edit</MudButton>
-                        </MudCardActions>
-                    </MudCard>
-                }
-            </MudExpansionPanel>
-        }
-    </MudExpansionPanels>
+    <MudPaper Outlined="true" Class="d-flex align-center justify-center flex-grow-1 gap-4 p-3">
+        <MudText Typo="Typo.h5" Align="Align.Center">@site.Name</MudText>
+        <MudLink Typo="Typo.h5" Href="@site.Domain" Color="Color.Info" Target="_blank">@site.Domain <MudIcon Icon="@Icons.Material.Sharp.OpenInNew" /></MudLink>
+        <MudIconButton Color="Color.Warning" Href=@($"/admin/website/edit/{site.Id}") Icon="@Icons.Material.Sharp.Edit" />
+    </MudPaper>
+    @if (site.Sections is null or [])
+    {
+        <ApplicationAlert Text=@($"No web site sections found for {site.Name}.") />
+    }
+    else
+    {
+        <MudExpansionPanels MultiExpansion="true">
+            @foreach (var section in site.Sections)
+            {
+                <MudExpansionPanel Text="@(section.Title)" Expanded="@true">
+                    @foreach (var widget in section.Widgets ?? [])
+                    {
+                        <MudCard>
+                            <MudCardContent>
+                                @((MarkupString)widget.HtmlContent)
+                            </MudCardContent>
+                            <MudCardActions>
+                                <MudButton Variant="Variant.Text" Color="Color.Info">Edit</MudButton>
+                            </MudCardActions>
+                        </MudCard>
+                    }
+                </MudExpansionPanel>
+            }
+        </MudExpansionPanels>
+    }
 }
 
 @code {

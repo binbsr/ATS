@@ -104,7 +104,8 @@
 
         <AuthorizeView Roles="@Role.Admins">
             <MudNavGroup Title="Site Manager" Icon="@Icons.Material.Filled.Web" IconColor="Color.Warning">
-                <MudNavLink Href="/admin/website/new" Icon="@Icons.Material.Sharp.PlusOne" IconColor="Color.Warning">New Website</MudNavLink>                
+                <MudNavLink Href="/admin/website/new" Icon="@Icons.Material.Sharp.DomainAdd" IconColor="Color.Warning">New Website</MudNavLink>
+                <MudNavLink Href="/admin/sitesection/new" Icon="@Icons.Material.Sharp.PostAdd" IconColor="Color.Warning">New Site Section</MudNavLink>
                 @foreach (var site in sites)
                 {
                     <MudNavLink Href="@($"/sites/{site.Id}/manage")" Icon="@Icons.Material.Sharp.WebAsset" IconColor="Color.Warning">@site.Name</MudNavLink>

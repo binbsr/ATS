@@ -1,0 +1,68 @@
+﻿@page "/admin/sitesection/new"
+@page "/admin/sitesection/edit/{Id:int}"
+
+@attribute [Authorize(Roles = Role.Admins)]
+
+@inject ApplicationDbContext Db
+@inject ISnackbar SnackBar
+
+<PageTitle>@pageTitle</PageTitle>
+
+<EditForm Model="@model" OnValidSubmit="OnValidSubmit">
+    <MudTextField Label="Section Title" @bind-Value="model.Title" />
+    <MudExRichTextEdit @bind-Value="@model.Content"
+                       Height="450"
+                       Class="mt-3"
+                       PlaceHolder="Website Section Content (If Any)..." />
+
+    <MudButton ButtonType="ButtonType.Submit" Variant="Variant.Filled" Color="Color.Primary" Class="mt-3" StartIcon="@Icons.Material.Filled.Save">
+        Save Site Section
+    </MudButton>
+</EditForm>
+
+@code {
+
+    [Parameter]
+    public int? Id { get; set; }
+
+    Section model = new();
+    string pageTitle = string.Empty;
+    bool IsAdd => Id is null or 0;
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (IsAdd)
+        {
+            pageTitle = "New Website Section";
+        }
+        else
+        {
+            pageTitle = "Edit Website Section";
+            model = await Db.Sections.FindAsync(Id) ?? new();
+        }
+    }
+
+    private async Task OnValidSubmit(EditContext context)
+    {
+        if (IsAdd)
+        {
+            Db.Sections.Add(model);
+        }
+        else
+        {
+            model.Id = Id.Value;
+            Db.Sections.Update(model);
+        }
+
+        var rowsAffected = await Db.SaveChangesAsync();
+
+        if (rowsAffected > 0)
+        {
+            SnackBar.Add("Site section saved successfully", Severity.Success);
+        }
+        else
+        {
+            SnackBar.Add("Site section save failed", Severity.Error);
+        }
+    }
+}

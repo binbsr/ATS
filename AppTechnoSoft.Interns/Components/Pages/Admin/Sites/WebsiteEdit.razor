@@ -1,0 +1,79 @@
+﻿@page "/admin/website/new"
+@page "/admin/website/edit/{Id}"
+
+@attribute [Authorize(Roles = Role.Admins)]
+
+@inject ApplicationDbContext Db
+@inject ISnackbar SnackBar
+
+<PageTitle>@pageTitle</PageTitle>
+
+<EditForm Model="@model" OnValidSubmit="OnValidSubmit">
+    <MudTextField Label="Name" @bind-Value="model.Name" />
+    <MudTextField Label="Domain" Class="mt-3" @bind-Value="model.Domain" />
+    <MudTextField Label="Customer" Class="mt-3" @bind-Value="model.Client" />
+    <MudText Class="mb-1" Typo="Typo.body1">Site Level Content (If Any)</MudText>
+    <MudExRichTextEdit @bind-Value="@model.Content"
+                       EnableResize="true"
+                       Height="450"
+                       PlaceHolder="Very detailed description of project" />
+
+    <MudButton ButtonType="ButtonType.Submit" Variant="Variant.Filled" Color="Color.Primary" Class="mt-3" StartIcon="@Icons.Material.Filled.Save">
+        Save Site
+    </MudButton>
+</EditForm>
+
+@code {
+
+    [Parameter]
+    public string? Id { get; set; }
+
+    [CascadingParameter]
+    private Task<AuthenticationState> AuthTask { get; set; } = null!;
+
+    Site model = new();
+    string pageTitle = string.Empty;
+    bool IsAdd => Id is null or "";
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (IsAdd)
+        {
+            pageTitle = "New Website";
+        }
+        else
+        {
+            pageTitle = "Edit Website";
+            model = await Db.Sites.FindAsync(Id) ?? new();
+        }
+    }
+
+    private async Task OnValidSubmit(EditContext context)
+    {
+        var state = await AuthTask;
+        var userName = state.User.Identity?.Name;
+
+        if (IsAdd)
+        {
+            model.AddCreatedStamps(userName);
+            Db.Sites.Add(model);
+        }
+        else
+        {
+            model.Id = Id;
+            model.AddLastUpdatedStamps(userName);
+            Db.Sites.Update(model);
+        }
+
+        var rowsAffected = await Db.SaveChangesAsync();
+
+        if (rowsAffected > 0)
+        {
+            SnackBar.Add("Site saved successfully", Severity.Success);
+        }
+        else
+        {
+            SnackBar.Add("Site save failed", Severity.Error);
+        }
+    }
+}

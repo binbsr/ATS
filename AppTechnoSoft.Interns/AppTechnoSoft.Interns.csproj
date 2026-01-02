@@ -23,8 +23,11 @@
 		<PackageReference Include="MudBlazor" Version="8.15.0" />		
 		<PackageReference Include="MudExRichTextEditor" Version="8.14.0" />
 		<PackageReference Include="PasswordGenerator" Version="2.1.0" />
-		<PackageReference Include="PSC.Blazor.Components.MarkdownEditor" Version="8.0.8" />
 		<PackageReference Include="Humanizer" Version="3.0.1" />
+	</ItemGroup>	
+
+	<ItemGroup>
+	  <Folder Include="wwwroot\img\" />
 	</ItemGroup>
 	
 </Project>

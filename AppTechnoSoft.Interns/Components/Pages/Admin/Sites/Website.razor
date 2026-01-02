@@ -1,0 +1,49 @@
+﻿@page "/sites/{Id}/manage"
+@inject ApplicationDbContext Db
+
+@if (site is null)
+{
+    <Loading />
+}
+else if (site.Sections is null or [])
+{
+    <ApplicationAlert Text=@($"No web site sections found for {site.Name}.") />
+}
+else
+{
+    <MudLink Href=@($"/admin/website/edit/{site.Id}")>Edit Site</MudLink>
+    <MudExpansionPanels MultiExpansion="true">
+        @foreach (var section in site.Sections)
+        {
+            <MudExpansionPanel Text="@(section.Title)" Expanded="@true">
+                @foreach (var widget in section.Widgets ?? [])
+                {
+                    <MudCard>
+                        <MudCardContent>
+                            @((MarkupString)widget.HtmlContent)
+                        </MudCardContent>
+                        <MudCardActions>
+                            <MudButton Variant="Variant.Text" Color="Color.Info">Edit</MudButton>
+                        </MudCardActions>
+                    </MudCard>
+                }
+            </MudExpansionPanel>
+        }
+    </MudExpansionPanels>
+}
+
+@code {
+
+    [Parameter]
+    public string Id { get; set; }
+
+    public Site site;
+
+    protected override async Task OnInitializedAsync()
+    {
+        site = await Db.Sites.Where(x => x.Id == Id)
+                            .Include(y => y.Sections)
+                            .ThenInclude(z => z.Widgets)
+                            .FirstOrDefaultAsync() ?? new();
+    }
+}

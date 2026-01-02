@@ -58,7 +58,7 @@
                 <MudNavLink Href="/dashboard/consultant" Icon="@Icons.Material.Sharp.Dashboard" IconColor="Color.Success">Dashboard</MudNavLink>
                 <MudNavLink Href="/schedules" Icon="@Icons.Material.Sharp.Schedule" IconColor="Color.Success">Schedules</MudNavLink>
                 <MudNavGroup Title="Attendance" Icon="@Icons.Material.Sharp.Person2" IconColor="Color.Success">
-                    @foreach(var batch in batches)
+                    @foreach (var batch in batches)
                     {
                         <MudNavLink Href="@($"/attendance/batches/{batch.Id}")" Icon="@Icons.Material.Sharp.BatchPrediction" IconColor="Color.Success">@batch.Name</MudNavLink>
                     }
@@ -103,6 +103,16 @@
         </AuthorizeView>
 
         <AuthorizeView Roles="@Role.Admins">
+            <MudNavGroup Title="Site Manager" Icon="@Icons.Material.Filled.Web" IconColor="Color.Warning">
+                <MudNavLink Href="/admin/website/new" Icon="@Icons.Material.Sharp.PlusOne" IconColor="Color.Warning">New Website</MudNavLink>                
+                @foreach (var site in sites)
+                {
+                    <MudNavLink Href="@($"/sites/{site.Id}/manage")" Icon="@Icons.Material.Sharp.WebAsset" IconColor="Color.Warning">@site.Name</MudNavLink>
+                }
+            </MudNavGroup>
+        </AuthorizeView>
+
+        <AuthorizeView Roles="@Role.Admins">
             <MudNavGroup Title="Core" Icon="@Icons.Material.Filled.VerifiedUser" IconColor="Color.Info">
                 <MudNavLink Href="/programs" Icon="@Icons.Material.Filled.Book" IconColor="Color.Info">Programs</MudNavLink>
                 <MudNavLink Href="/colleges" Icon="@Icons.Material.Filled.School" IconColor="Color.Info">Colleges</MudNavLink>
@@ -126,10 +136,12 @@
 
 @code {
     public IEnumerable<Batch> batches = [];
+    public IEnumerable<Site> sites = [];
 
     protected override async Task OnInitializedAsync()
     {
         using var db = dbFacotry.CreateDbContext();
         batches = await db.Batches.ToListAsync() ?? [];
+        sites = await db.Sites.ToListAsync() ?? [];
     }
 }

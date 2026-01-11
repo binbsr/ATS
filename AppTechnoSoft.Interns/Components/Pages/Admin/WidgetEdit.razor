@@ -10,7 +10,7 @@
     <MudSelect T="string" Label="Widget Type" @bind-Value="model.Title" Variant="Variant.Outlined">
         @foreach (var filter in widgetFilters)
         {
-            <MudSelectItem Value="@filter.Key">@filter.Value</MudSelectItem>
+            <MudSelectItem Value="@filter">@filter</MudSelectItem>
         }
     </MudSelect>
 
@@ -96,15 +96,10 @@
     Widget model = new Widget();
     List<Tag> tags = new();
     IEnumerable<Tag> tagsSelected = [];
-    List<(string Key, string Value)> widgetFilters =
+    string[] widgetFilters =
     [
-        (nameof(WidgetFilter.Module), WidgetFilter.Module),
-        (nameof(WidgetFilter.HomeIntro), WidgetFilter.HomeIntro),
-        (nameof(WidgetFilter.CarouselItem), WidgetFilter.CarouselItem),
-        (nameof(WidgetFilter.HomeTitle), WidgetFilter.HomeTitle),
-        (WidgetFilter.Prospectus, WidgetFilter.Prospectus),
-        (WidgetFilter.Product, WidgetFilter.Product),
-        (WidgetFilter.Ambition, WidgetFilter.Ambition)
+        WidgetType.CourseModule,
+        WidgetType.SiteItem
     ];
 
     string pageTitle = string.Empty;
@@ -117,7 +112,7 @@
         if (IsAdd)
         {
             pageTitle = "Add Widget";
-            model.Title = nameof(WidgetFilter.Module);
+            model.Title = WidgetType.CourseModule;
         }
         else
         {

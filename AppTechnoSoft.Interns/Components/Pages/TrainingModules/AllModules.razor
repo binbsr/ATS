@@ -67,7 +67,7 @@ else
         loadingData = true;
 
         using var Db = DbFactory.CreateDbContext();
-        widgets = await Db.Widgets.Where(x => x.Title == nameof(WidgetFilter.Module)).Include(x => x.Tags).OrderBy(x => x.Description).ToListAsync();
+        widgets = await Db.Widgets.Where(x => x.Title == WidgetType.CourseModule).Include(x => x.Tags).OrderBy(x => x.Description).ToListAsync();
 
         if (widgets is null || widgets.Count == 0)
             return;

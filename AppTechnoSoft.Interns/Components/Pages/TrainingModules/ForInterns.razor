@@ -62,7 +62,7 @@ else
 
         using var Db = DbFactory.CreateDbContext();
         widgets = await Db.Widgets
-            .Where(x => x.Title == nameof(WidgetFilter.Module) && x.Tags!.Any(y => y.Name == RootFilter.Internship))
+            .Where(x => x.Title == WidgetType.CourseModule && x.Tags!.Any(y => y.Name == RootFilter.Internship))
             .Include(x => x.Tags)
             .OrderBy(x => x.Description)
             .ToListAsync();

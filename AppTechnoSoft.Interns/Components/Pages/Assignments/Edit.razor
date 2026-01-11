@@ -21,7 +21,13 @@
                      ProgressIndicatorColor="Color.Default"
                      MaxItems="null" />
 
-    <RichTextEditor Class="mt-3" MarkdownValue="@model.Details" EditorValueChanged="OnMarkdownValueChanged" PlaceHolder="Thorough assignment description" />
+    <MudExRichTextEdit Height="450"
+                       Class="my-3"
+                       Tools="@_tools"
+                       Modules="@_modules"
+                       @bind-Value="@model.Details"
+                       Placeholder="Thorough assignment description...">
+    </MudExRichTextEdit>
 
     <MudButton ButtonType="ButtonType.Submit"
                Variant="Variant.Filled"
@@ -42,6 +48,24 @@
 
     Assignment model = new();
     List<Widget> modules = [];
+    private QuillTool[] _tools =
+    [
+        QuillTools.Header(group: 1, options: ["", "1", "2", "3"]),
+        QuillTools.Bold(),
+        QuillTools.Italic(),
+        QuillTools.Underline(),
+        QuillTools.Strike(),
+        QuillTools.OrderedList(),
+        QuillTools.BulletList(),
+        QuillTools.Link(),
+        QuillTools.Image(),
+    ];
+
+    private IQuillModule[] _modules =
+    [
+        new QuillBlotFormatterModule(),
+        new QuillImageCompressorModule(),
+    ];
 
     protected override async Task OnInitializedAsync()
     {
@@ -73,7 +97,7 @@
     {
         if (!modules.Any())
         {
-            modules = await Db.Widgets.Where(x => x.Title == nameof(WidgetFilter.Module)).ToListAsync();
+            modules = await Db.Widgets.Where(x => x.Title == WidgetType.CourseModule).ToListAsync();
         }
 
         if (value is null or "")
@@ -82,10 +106,5 @@
         }
 
         return modules.Where(x => x.Description.Contains(value, StringComparison.OrdinalIgnoreCase));
-    }
-
-    void OnMarkdownValueChanged(string value)
-    {
-        model.Details = value;
     }
 }

@@ -1,5 +1,6 @@
 ﻿@page "/sites/{Id}/manage"
 @inject ApplicationDbContext Db
+@inject IDialogService DialogService
 
 <PageTitle>@(site?.Name ?? "Site Details")</PageTitle>
 
@@ -31,10 +32,20 @@ else
                                 @((MarkupString)widget.HtmlContent)
                             </MudCardContent>
                             <MudCardActions>
-                                <MudButton Variant="Variant.Text" Color="Color.Info">Edit</MudButton>
+                                <MudIconButton Color="Color.Warning"
+                                               Icon="@Icons.Material.Sharp.Edit"
+                                               OnClick="@((e) => AddSiteItemAsync(section.Id, widget))" />
                             </MudCardActions>
                         </MudCard>
                     }
+                    <MudCard>
+                        <MudCardContent>
+                            <MudIconButton Icon="@Icons.Material.Filled.Add"
+                                           Variant="Variant.Filled"
+                                           OnClick="@((e) => AddSiteItemAsync(section.Id, null!))"
+                                           Size="Size.Large" />
+                        </MudCardContent>
+                    </MudCard>
                 </MudExpansionPanel>
             }
         </MudExpansionPanels>
@@ -54,5 +65,13 @@ else
                             .Include(y => y.Sections)
                             .ThenInclude(z => z.Widgets)
                             .FirstOrDefaultAsync() ?? new();
+    }
+
+    private async Task AddSiteItemAsync(int sectionId, Widget widget)
+    {
+        var parameters = new DialogParameters<EditWidgetDialog> { { x => x.SectionId, sectionId }, { x => x.Model, widget } };
+        var options = new DialogOptions { CloseButton = true, MaxWidth=MaxWidth.Small };
+        var dialog = await DialogService.ShowAsync<EditWidgetDialog>((widget == null ? "Edit " : "Add ") + "Widget", parameters, options);
+        var result = await dialog.Result;
     }
 }

@@ -6,12 +6,9 @@
         
         <MudTextField Label="Description" @bind-Value="Model?.Description" Variant="Variant.Outlined" />
 
-        <MudExRichTextEdit Height="450"
-                           @bind-Value="@Model?.HtmlContent"
-                           Tools="@_tools"
-                           Modules="@_modules"
-                           Placeholder="Add Widget Contents...">
-        </MudExRichTextEdit>
+        <RichTextEditor @bind-Content="@Model.HtmlContent"
+                        Placeholder="Add Widget Contents..."
+                        ToolbarOptions="ToolbarOptions.FullToolbarOptions" />
     </DialogContent>
     <DialogActions>
         <MudButton Variant="Variant.Filled" OnClick="Cancel" StartIcon="@Icons.Material.Sharp.Cancel">Cancel</MudButton>
@@ -42,35 +39,7 @@
         new("Section", href: "#", icon: Icons.Material.Filled.TableRows),
         new("Widget", href: null, icon: Icons.Material.Filled.Widgets)
     ];
-    private QuillTool[] _tools =
-    [
-        QuillTools.Header(group: 1),
-        QuillTools.Bold(),
-        QuillTools.Italic(),
-        QuillTools.Underline(),
-        QuillTools.Strike(),
-        QuillTools.Color(),
-        QuillTools.Background(),
-        QuillTools.OrderedList(),
-        QuillTools.BulletList(),
-        QuillTools.IndentDecrease(),
-        QuillTools.IndentIncrease(),
-        QuillTools.Align(),
-        QuillTools.Blockquote(),
-        QuillTools.CodeBlock(),
-        QuillTools.Link(),
-        QuillTools.Image(),
-        QuillTools.Video(),
-        QuillTools.TableButton(),
-    ];
-
-    private IQuillModule[] _modules =
-    [
-        new QuillTableBetterModule(),
-        new QuillBlotFormatterModule(),
-        new QuillImageCompressorModule(),
-    ];
-
+    
     private async Task Submit()
     {
         var rowsAffected = 0;

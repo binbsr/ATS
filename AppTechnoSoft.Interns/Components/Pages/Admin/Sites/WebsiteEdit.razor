@@ -24,10 +24,10 @@
             <MudChip Text="@(section.Title)" Value="@(section)" />
         }
     </MudChipSet>
-    <MudExRichTextEdit @bind-Value="@model.Content"
-                       Height="450"
-                       Class="mt-3"
-                       PlaceHolder="Site Root Content (If Any)..." />
+
+    <RichTextEditor @bind-Content="@model.Content"
+                    Placeholder="Site Root Content (If Any)..."
+                    ToolbarOptions="ToolbarOptions.BasicToolbarOptions" />
 
     <MudButton ButtonType="ButtonType.Submit"
                Variant="Variant.Filled"

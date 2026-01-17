@@ -7,7 +7,7 @@
 
 <MudTable Items="@tags" Dense Hover Filter="new Func<Tag, bool>(FilterFunc1)" @bind-SelectedItem="selectedTag" Loading="@loadingData">
     <ToolBarContent>
-        <MudFab Href="/add-tag" StartIcon="@Icons.Material.Filled.Add" Title="Add New Tag" Size="Size.Small" Color="Color.Tertiary"></MudFab>
+        <MudFab Href="/add-tag" StartIcon="@Icons.Material.Filled.Add" Label="Add New Tag" Size="Size.Small" Color="Color.Tertiary"></MudFab>
         <MudSpacer />
         <MudTextField @bind-Value="searchString" Placeholder="Search"
                       Adornment="Adornment.Start"

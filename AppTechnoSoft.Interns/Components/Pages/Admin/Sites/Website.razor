@@ -1,6 +1,5 @@
 ﻿@page "/sites/{Id}/manage"
 @inject ApplicationDbContext Db
-@inject IDialogService DialogService
 
 <PageTitle>@(site?.Name ?? "Site Details")</PageTitle>
 
@@ -21,31 +20,35 @@ else
     }
     else
     {
-        <MudExpansionPanels MultiExpansion="true">
+        <MudExpansionPanels MultiExpansion="true" Outlined="true" Square="true">
             @foreach (var section in site.Sections)
             {
                 <MudExpansionPanel Text="@(section.Title)" Expanded="@true">
-                    @foreach (var widget in section.Widgets ?? [])
-                    {
-                        <MudCard>
+                    <MudGrid>
+                        @foreach (var widget in section.Widgets ?? [])
+                        {
+                            <MudItem xs="6" md="4" lg="3" xl="2">
+                                <MudCard>
+                                    <MudCardContent>
+                                        @((MarkupString)widget.HtmlContent)
+                                    </MudCardContent>
+                                    <MudCardActions>
+                                        <MudIconButton Color="Color.Warning"
+                                                       Icon="@Icons.Material.Sharp.Edit"
+                                                       Href=@($"/edit-widget/{widget.Id}?Site={site.Id}&Section={section.Id}") />
+                                    </MudCardActions>
+                                </MudCard>
+                            </MudItem>
+                        }
+                        <MudCard Outlined="true" Square="true">
                             <MudCardContent>
-                                @((MarkupString)widget.HtmlContent)
+                                <MudIconButton Icon="@Icons.Material.Filled.Add"
+                                               Href=@($"/add-widget?Site={site.Id}&Section={section.Id}")
+                                               Variant="Variant.Filled"
+                                               Size="Size.Large" />
                             </MudCardContent>
-                            <MudCardActions>
-                                <MudIconButton Color="Color.Warning"
-                                               Icon="@Icons.Material.Sharp.Edit"
-                                               OnClick="@((e) => AddSiteItemAsync(section.Id, widget))" />
-                            </MudCardActions>
                         </MudCard>
-                    }
-                    <MudCard>
-                        <MudCardContent>
-                            <MudIconButton Icon="@Icons.Material.Filled.Add"
-                                           Variant="Variant.Filled"
-                                           OnClick="@((e) => AddSiteItemAsync(section.Id, null!))"
-                                           Size="Size.Large" />
-                        </MudCardContent>
-                    </MudCard>
+                    </MudGrid>
                 </MudExpansionPanel>
             }
         </MudExpansionPanels>
@@ -57,21 +60,32 @@ else
     [Parameter]
     public string Id { get; set; }
 
-    public Site site;
+    public Site site = null!;
 
     protected override async Task OnInitializedAsync()
     {
+        if (Id == null)
+            return;
+
         site = await Db.Sites.Where(x => x.Id == Id)
                             .Include(y => y.Sections)
                             .ThenInclude(z => z.Widgets)
                             .FirstOrDefaultAsync() ?? new();
     }
 
-    private async Task AddSiteItemAsync(int sectionId, Widget widget)
-    {
-        var parameters = new DialogParameters<EditWidgetDialog> { { x => x.SectionId, sectionId }, { x => x.Model, widget } };
-        var options = new DialogOptions { CloseButton = true, MaxWidth=MaxWidth.Small };
-        var dialog = await DialogService.ShowAsync<EditWidgetDialog>((widget == null ? "Edit " : "Add ") + "Widget", parameters, options);
-        var result = await dialog.Result;
-    }
+    // private async Task AddSiteItemAsync(int sectionId, Widget widget)
+    // {
+    //     var parameters = new DialogParameters<EditWidgetDialog> { { x => x.SectionId, sectionId }, { x => x.Model, widget } };
+    //     var options = new DialogOptions { CloseButton = true, MaxWidth = MaxWidth.Large };
+    //     var dialog = await DialogService.ShowAsync<EditWidgetDialog>((widget == null ? "Edit " : "Add ") + "Widget", parameters, options);
+    //     var result = await dialog.Result;
+
+    //     if ((int)(result?.Data ?? 0) != 0)
+    //     {
+    //         site = await Db.Sites.Where(x => x.Id == Id)
+    //                         .Include(y => y.Sections)
+    //                         .ThenInclude(z => z.Widgets)
+    //                         .FirstOrDefaultAsync() ?? new();
+    //     }
+    // }
 }

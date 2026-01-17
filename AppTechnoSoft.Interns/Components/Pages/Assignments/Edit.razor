@@ -21,13 +21,9 @@
                      ProgressIndicatorColor="Color.Default"
                      MaxItems="null" />
 
-    <MudExRichTextEdit Height="450"
-                       Class="my-3"
-                       Tools="@_tools"
-                       Modules="@_modules"
-                       @bind-Value="@model.Details"
-                       Placeholder="Thorough assignment description...">
-    </MudExRichTextEdit>
+    <RichTextEditor @bind-Content="@model.Details"
+                    Placeholder="Thorough assignment description..."
+                    ToolbarOptions="ToolbarOptions.FullToolbarOptions" />
 
     <MudButton ButtonType="ButtonType.Submit"
                Variant="Variant.Filled"
@@ -48,25 +44,7 @@
 
     Assignment model = new();
     List<Widget> modules = [];
-    private QuillTool[] _tools =
-    [
-        QuillTools.Header(group: 1, options: ["", "1", "2", "3"]),
-        QuillTools.Bold(),
-        QuillTools.Italic(),
-        QuillTools.Underline(),
-        QuillTools.Strike(),
-        QuillTools.OrderedList(),
-        QuillTools.BulletList(),
-        QuillTools.Link(),
-        QuillTools.Image(),
-    ];
-
-    private IQuillModule[] _modules =
-    [
-        new QuillBlotFormatterModule(),
-        new QuillImageCompressorModule(),
-    ];
-
+    
     protected override async Task OnInitializedAsync()
     {
         model = await Db.Assignments.FindAsync(Id) ?? new();

@@ -23,32 +23,40 @@ else
         <MudExpansionPanels MultiExpansion="true" Outlined="true" Square="true">
             @foreach (var section in site.Sections)
             {
-                <MudExpansionPanel Text="@(section.Title)" Expanded="@true">
-                    <MudGrid>
-                        @foreach (var widget in section.Widgets ?? [])
-                        {
-                            <MudItem xs="6" md="4" lg="3" xl="2">
-                                <MudCard>
-                                    <MudCardContent>
-                                        @((MarkupString)widget.HtmlContent)
-                                    </MudCardContent>
-                                    <MudCardActions>
-                                        <MudIconButton Color="Color.Warning"
-                                                       Icon="@Icons.Material.Sharp.Edit"
-                                                       Href=@($"/edit-widget/{widget.Id}?Site={site.Id}&Section={section.Id}") />
-                                    </MudCardActions>
-                                </MudCard>
-                            </MudItem>
-                        }
-                        <MudCard Outlined="true" Square="true">
-                            <MudCardContent>
+                <MudExpansionPanel Expanded="@true">
+                    <TitleContent>
+                        <MudText Typo="Typo.h5">@(section.Title)</MudText>
+                    </TitleContent>
+                    <ChildContent>
+                        <MudGrid>
+                            @foreach (var widget in section.Widgets ?? [])
+                            {
+                                <MudItem xs="6" md="4" lg="3" xl="2">
+                                    <MudCard Elevation="0" Outlined>
+                                        <MudCardHeader>
+                                            <CardHeaderContent>
+                                                <MudText Typo="Typo.h6">@widget.Description</MudText>
+                                            </CardHeaderContent>
+                                            <CardHeaderActions>
+                                                <MudIconButton Color="Color.Warning"
+                                                               Icon="@Icons.Material.Sharp.Edit"
+                                                               Href=@($"/edit-widget/{widget.Id}?Site={site.Id}&Section={section.Id}") />
+                                            </CardHeaderActions>
+                                        </MudCardHeader>
+                                        <MudCardContent>
+                                            @((MarkupString)widget.HtmlContent)
+                                        </MudCardContent>
+                                    </MudCard>
+                                </MudItem>
+                            }
+                            <MudItem xs="6" md="4" lg="3" xl="2" Class="align-self-center">
                                 <MudIconButton Icon="@Icons.Material.Filled.Add"
                                                Href=@($"/add-widget?Site={site.Id}&Section={section.Id}")
                                                Variant="Variant.Filled"
                                                Size="Size.Large" />
-                            </MudCardContent>
-                        </MudCard>
-                    </MudGrid>
+                            </MudItem>
+                        </MudGrid>
+                    </ChildContent>
                 </MudExpansionPanel>
             }
         </MudExpansionPanels>

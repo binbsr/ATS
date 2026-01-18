@@ -44,7 +44,7 @@
 
     protected override async Task OnInitializedAsync()
     {
-        techModules = await Db.Widgets.Where(x => x.Title == nameof(WidgetFilter.Module)).ToListAsync();
+        techModules = await Db.Widgets.Where(x => x.Title == WidgetType.CourseModule).ToListAsync();
     }
 
     private async Task OnValidSubmit(EditContext context)

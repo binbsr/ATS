@@ -47,7 +47,7 @@
 
     protected override async Task OnInitializedAsync()
     {
-        techModules = await Db.Widgets.Where(x => x.Title == nameof(WidgetFilter.Module)).ToListAsync();
+        techModules = await Db.Widgets.Where(x => x.Title == WidgetType.CourseModule).ToListAsync();
         model = await Db.CourseQuotes.Include(x => x.Modules).FirstOrDefaultAsync(x => x.Id == Id);
         selectedModules = model.Modules;
     }

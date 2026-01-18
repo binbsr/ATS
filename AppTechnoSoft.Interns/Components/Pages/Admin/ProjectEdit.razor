@@ -13,9 +13,10 @@
     <MudTextField Label="Title" @bind-Value="model.Title" />
     <MudTextField Label="RepoUrl" Class="mt-3" @bind-Value="model.RepoUrl" />
     <MudTextField Label="BoardUrl" Class="mt-3 mb-5" @bind-Value="model.BoardUrl" />
-    <MudText Class="mb-1" Typo="Typo.body1">Project Requirements</MudText>
-    <RichTextEditor MarkdownValue="@model.Requirements" EditorValueChanged="OnMarkdownValueChanged" PlaceHolder="Very detailed description of project" />
-
+    <MudText Class="mb-1" Typo="Typo.body1">Project Requirements</MudText>    
+    <RichTextEditor @bind-Content="@model.Requirements"
+                    Placeholder="Very detailed description of project"
+                    ToolbarOptions="ToolbarOptions.FullToolbarOptions" />
     <MudButton ButtonType="ButtonType.Submit" Variant="Variant.Filled" Color="Color.Primary" Class="mt-3" StartIcon="@Icons.Material.Filled.Save">
         Save Project
     </MudButton>
@@ -79,10 +80,5 @@
         {
             SnackBar.Add("Project save failed", Severity.Error);
         }
-    }
-
-    void OnMarkdownValueChanged(string value)
-    {
-        model.Requirements = value;
     }
 }

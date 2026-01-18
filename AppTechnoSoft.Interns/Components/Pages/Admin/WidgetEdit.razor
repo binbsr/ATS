@@ -7,10 +7,10 @@
 <PageTitle>@pageTitle</PageTitle>
 
 <EditForm Model="@model" OnValidSubmit="OnValidSubmit">
-    <MudSelect T="string" Label="Widget Type" @bind-Value="model.Title" AnchorOrigin="Origin.BottomCenter" Variant="Variant.Outlined">
+    <MudSelect T="string" Label="Widget Type" @bind-Value="model.Title" Variant="Variant.Outlined">
         @foreach (var filter in widgetFilters)
         {
-            <MudSelectItem Value="@filter.Key">@filter.Value</MudSelectItem>
+            <MudSelectItem Value="@filter">@filter</MudSelectItem>
         }
     </MudSelect>
 
@@ -23,17 +23,17 @@
                HelperText="Check all tags that apply to this widget"
                MultiSelection="true"
                @bind-SelectedValues="@tagsSelected"
-               Class="mb-3"
-               MultiSelectionTextFunc="@(new Func<List<string>, string>(GetMultiSelectionText))"
-               AnchorOrigin="Origin.BottomCenter">
+               Class="mb-4"
+               MultiSelectionTextFunc="@(new Func<List<string>, string>(GetMultiSelectionText))">
         @foreach (var tag in tags)
         {
             <MudSelectItem Value="@tag">@tag.Name</MudSelectItem>
         }
     </MudSelect>
 
-    <MudText Style="font-weight:bold" Class="py-2">Content RichText (Markdown) and Live Preview on Right Panel</MudText>
-    <RichTextEditor MarkdownValue="@model.HtmlContent" EditorValueChanged="OnMarkdownValueChanged" />
+    <RichTextEditor @bind-Content="@model.HtmlContent"
+                    Placeholder="Add Widget Contents..."                    
+                    ToolbarOptions="ToolbarOptions.FullToolbarOptions" />
 
     <MudStack Row Class="mt-2">
         <MudButton ButtonType="ButtonType.Submit"
@@ -57,25 +57,27 @@
     [Parameter]
     public int? Id { get; set; }
 
+    [SupplyParameterFromQuery(Name = "Site")]
+    public string? Site { get; set; }
+
+    [SupplyParameterFromQuery(Name = "Section")]
+    public int? Section { get; set; }
+
     [CascadingParameter]
     private Task<AuthenticationState> AuthTask { get; set; } = null!;
-
+    
     Widget model = new Widget();
     List<Tag> tags = new();
     IEnumerable<Tag> tagsSelected = [];
-    List<(string Key, string Value)> widgetFilters =
+    string[] widgetFilters =
     [
-        (nameof(WidgetFilter.Module), WidgetFilter.Module),
-        (nameof(WidgetFilter.HomeIntro), WidgetFilter.HomeIntro),
-        (nameof(WidgetFilter.CarouselItem), WidgetFilter.CarouselItem),
-        (nameof(WidgetFilter.HomeTitle), WidgetFilter.HomeTitle),
-        (WidgetFilter.Prospectus, WidgetFilter.Prospectus),
-        (WidgetFilter.Product, WidgetFilter.Product),
-        (WidgetFilter.Ambition, WidgetFilter.Ambition)
+        WidgetType.CourseModule,
+        WidgetType.SiteItem
     ];
 
     string pageTitle = string.Empty;
     bool IsAdd => Id is null or 0;
+    bool IsSiteSection => Site != null && Section != null;
 
     protected override async Task OnInitializedAsync()
     {
@@ -84,7 +86,7 @@
         if (IsAdd)
         {
             pageTitle = "Add Widget";
-            model.Title = nameof(WidgetFilter.Module);
+            model.Title = IsSiteSection ? WidgetType.SiteItem : WidgetType.CourseModule;
         }
         else
         {
@@ -98,6 +100,7 @@
     {
         if (model.HtmlContent is null or "")
         {
+            SnackBar.Add("No content provided for the widget", Severity.Warning);
             return;
         }
 
@@ -110,6 +113,19 @@
         {
             model.AddCreatedStamps(userName);
             Db.Widgets.Add(model);
+            await Db.SaveChangesAsync();
+
+            if (IsSiteSection)
+            {
+                Db.SectionWidgets.Add(
+                    new SectionWidget
+                    {
+                        SectionId = Section!.Value,
+                        WidgetId = model.Id,
+                        Order = 0,
+                        Enabled = true
+                    });
+            }
         }
         else
         {
@@ -133,10 +149,5 @@
     private string GetMultiSelectionText(List<string> selectedValues)
     {
         return $"{selectedValues.Count} tag{(selectedValues.Count > 1 ? "s have" : " has")} been selected";
-    }
-
-    void OnMarkdownValueChanged(string value)
-    {
-        model.HtmlContent = value;
     }
 }

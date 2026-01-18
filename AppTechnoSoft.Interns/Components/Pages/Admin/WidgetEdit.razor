@@ -10,7 +10,7 @@
     <MudSelect T="string" Label="Widget Type" @bind-Value="model.Title" Variant="Variant.Outlined">
         @foreach (var filter in widgetFilters)
         {
-            <MudSelectItem Value="@filter.Key">@filter.Value</MudSelectItem>
+            <MudSelectItem Value="@filter">@filter</MudSelectItem>
         }
     </MudSelect>
 
@@ -31,13 +31,9 @@
         }
     </MudSelect>
 
-    <MudExRichTextEdit Height="450"                      
-                       @bind-Value="@model.HtmlContent"
-                       Tools="@_tools"
-                       Modules="@_modules"                       
-                       Placeholder="Add Widget Contents...">
-    </MudExRichTextEdit>
-
+    <RichTextEditor @bind-Content="@model.HtmlContent"
+                    Placeholder="Add Widget Contents..."                    
+                    ToolbarOptions="ToolbarOptions.FullToolbarOptions" />
 
     <MudStack Row Class="mt-2">
         <MudButton ButtonType="ButtonType.Submit"
@@ -61,54 +57,27 @@
     [Parameter]
     public int? Id { get; set; }
 
+    [SupplyParameterFromQuery(Name = "Site")]
+    public string? Site { get; set; }
+
+    [SupplyParameterFromQuery(Name = "Section")]
+    public int? Section { get; set; }
+
     [CascadingParameter]
     private Task<AuthenticationState> AuthTask { get; set; } = null!;
-
-    private QuillTool[] _tools =
-    [
-        QuillTools.Header(group: 1),
-        QuillTools.Bold(),
-        QuillTools.Italic(),
-        QuillTools.Underline(),
-        QuillTools.Strike(),
-        QuillTools.Color(),
-        QuillTools.Background(),
-        QuillTools.OrderedList(),
-        QuillTools.BulletList(),
-        QuillTools.IndentDecrease(),
-        QuillTools.IndentIncrease(),
-        QuillTools.Align(),
-        QuillTools.Blockquote(),
-        QuillTools.CodeBlock(),
-        QuillTools.Link(),
-        QuillTools.Image(),
-        QuillTools.Video(),
-        QuillTools.TableButton(),
-    ];
-
-    private IQuillModule[] _modules =
-    [
-        new QuillTableBetterModule(),
-        new QuillBlotFormatterModule(),
-        new QuillImageCompressorModule(),
-    ];
-
+    
     Widget model = new Widget();
     List<Tag> tags = new();
     IEnumerable<Tag> tagsSelected = [];
-    List<(string Key, string Value)> widgetFilters =
+    string[] widgetFilters =
     [
-        (nameof(WidgetFilter.Module), WidgetFilter.Module),
-        (nameof(WidgetFilter.HomeIntro), WidgetFilter.HomeIntro),
-        (nameof(WidgetFilter.CarouselItem), WidgetFilter.CarouselItem),
-        (nameof(WidgetFilter.HomeTitle), WidgetFilter.HomeTitle),
-        (WidgetFilter.Prospectus, WidgetFilter.Prospectus),
-        (WidgetFilter.Product, WidgetFilter.Product),
-        (WidgetFilter.Ambition, WidgetFilter.Ambition)
+        WidgetType.CourseModule,
+        WidgetType.SiteItem
     ];
 
     string pageTitle = string.Empty;
     bool IsAdd => Id is null or 0;
+    bool IsSiteSection => Site != null && Section != null;
 
     protected override async Task OnInitializedAsync()
     {
@@ -117,7 +86,7 @@
         if (IsAdd)
         {
             pageTitle = "Add Widget";
-            model.Title = nameof(WidgetFilter.Module);
+            model.Title = IsSiteSection ? WidgetType.SiteItem : WidgetType.CourseModule;
         }
         else
         {
@@ -144,6 +113,19 @@
         {
             model.AddCreatedStamps(userName);
             Db.Widgets.Add(model);
+            await Db.SaveChangesAsync();
+
+            if (IsSiteSection)
+            {
+                Db.SectionWidgets.Add(
+                    new SectionWidget
+                    {
+                        SectionId = Section!.Value,
+                        WidgetId = model.Id,
+                        Order = 0,
+                        Enabled = true
+                    });
+            }
         }
         else
         {

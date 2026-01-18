@@ -99,7 +99,7 @@
     {
         if (!trainingModules.Any())
         {
-            trainingModules = await Db.Widgets.Where(x => x.Title == nameof(WidgetFilter.Module)).ToArrayAsync(token);
+            trainingModules = await Db.Widgets.Where(x => x.Title == WidgetType.CourseModule).ToArrayAsync(token);
         }
 
         if (value is null or "")

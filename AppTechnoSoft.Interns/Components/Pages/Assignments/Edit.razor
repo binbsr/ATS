@@ -21,7 +21,9 @@
                      ProgressIndicatorColor="Color.Default"
                      MaxItems="null" />
 
-    <RichTextEditor Class="mt-3" MarkdownValue="@model.Details" EditorValueChanged="OnMarkdownValueChanged" PlaceHolder="Thorough assignment description" />
+    <RichTextEditor @bind-Content="@model.Details"
+                    Placeholder="Thorough assignment description..."
+                    ToolbarOptions="ToolbarOptions.FullToolbarOptions" />
 
     <MudButton ButtonType="ButtonType.Submit"
                Variant="Variant.Filled"
@@ -42,7 +44,7 @@
 
     Assignment model = new();
     List<Widget> modules = [];
-
+    
     protected override async Task OnInitializedAsync()
     {
         model = await Db.Assignments.FindAsync(Id) ?? new();
@@ -73,7 +75,7 @@
     {
         if (!modules.Any())
         {
-            modules = await Db.Widgets.Where(x => x.Title == nameof(WidgetFilter.Module)).ToListAsync();
+            modules = await Db.Widgets.Where(x => x.Title == WidgetType.CourseModule).ToListAsync();
         }
 
         if (value is null or "")
@@ -82,10 +84,5 @@
         }
 
         return modules.Where(x => x.Description.Contains(value, StringComparison.OrdinalIgnoreCase));
-    }
-
-    void OnMarkdownValueChanged(string value)
-    {
-        model.Details = value;
     }
 }

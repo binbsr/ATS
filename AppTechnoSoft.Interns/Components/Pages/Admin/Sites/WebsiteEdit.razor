@@ -1,0 +1,100 @@
+﻿@page "/admin/website/new"
+@page "/admin/website/edit/{Id}"
+
+@attribute [Authorize(Roles = Role.Admins)]
+
+@inject ApplicationDbContext Db
+@inject ISnackbar SnackBar
+
+<PageTitle>@pageTitle</PageTitle>
+
+<EditForm Model="@model" OnValidSubmit="OnValidSubmit">
+    <MudTextField Label="Name" @bind-Value="model.Name" />
+    <MudTextField Label="Domain" Class="mt-3" @bind-Value="model.Domain" />
+    <MudTextField Label="Customer" Class="mt-3" @bind-Value="model.Client" />
+    <MudText Typo="Typo.body1" Class="mt-3">This site includes following sections (Click that apply)</MudText>
+    <MudChipSet Size="Size.Large"
+                @bind-SelectedValues="selectedSections"
+                T="Section"
+                SelectionMode="SelectionMode.MultiSelection"
+                CheckMark="true"
+                Variant="Variant.Outlined">
+        @foreach (var section in siteSections)
+        {
+            <MudChip Text="@(section.Title)" Value="@(section)" />
+        }
+    </MudChipSet>
+
+    <RichTextEditor @bind-Content="@model.Content"
+                    Placeholder="Site Root Content (If Any)..."
+                    ToolbarOptions="ToolbarOptions.BasicToolbarOptions" />
+
+    <MudButton ButtonType="ButtonType.Submit"
+               Variant="Variant.Filled"
+               Color="Color.Primary"
+               Class="mt-3"
+               StartIcon="@Icons.Material.Filled.Save">
+        Save Site
+    </MudButton>
+</EditForm>
+
+@code {
+
+    [Parameter]
+    public string? Id { get; set; }
+
+    [CascadingParameter]
+    private Task<AuthenticationState> AuthTask { get; set; } = null!;
+
+    Site model = new();
+    IEnumerable<Section> siteSections = [];
+    string pageTitle = string.Empty;
+    bool IsAdd => Id is null or "";
+    private IReadOnlyCollection<Section> selectedSections = [];
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (IsAdd)
+        {
+            pageTitle = "New Website";
+        }
+        else
+        {
+            pageTitle = "Edit Website";
+            model = await Db.Sites.Where(x => x.Id == Id).Include(y => y.Sections).FirstOrDefaultAsync() ?? new();
+            selectedSections = model?.Sections ?? [];
+        }
+
+        siteSections = await Db.Sections.ToListAsync();
+    }
+
+    private async Task OnValidSubmit(EditContext context)
+    {
+        var state = await AuthTask;
+        var userName = state.User.Identity?.Name;
+
+        if (IsAdd)
+        {
+            model.AddCreatedStamps(userName);
+            Db.Sites.Add(model);
+        }
+        else
+        {
+            model.Id = Id;
+            model.AddLastUpdatedStamps(userName);
+            model.Sections = selectedSections.ToList();
+            Db.Sites.Update(model);
+        }
+
+        var rowsAffected = await Db.SaveChangesAsync();
+
+        if (rowsAffected > 0)
+        {
+            SnackBar.Add("Site saved successfully", Severity.Success);
+        }
+        else
+        {
+            SnackBar.Add("Site save failed", Severity.Error);
+        }
+    }
+}

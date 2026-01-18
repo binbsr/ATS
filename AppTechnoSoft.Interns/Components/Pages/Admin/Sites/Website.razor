@@ -1,0 +1,99 @@
+﻿@page "/sites/{Id}/manage"
+@inject ApplicationDbContext Db
+
+<PageTitle>@(site?.Name ?? "Site Details")</PageTitle>
+
+@if (site is null)
+{
+    <Loading />
+}
+else
+{
+    <MudPaper Outlined="true" Class="d-flex align-center justify-center flex-grow-1 gap-4 p-3">
+        <MudText Typo="Typo.h5" Align="Align.Center">@site.Name</MudText>
+        <MudLink Typo="Typo.h5" Href="@site.Domain" Color="Color.Info" Target="_blank">@site.Domain <MudIcon Icon="@Icons.Material.Sharp.OpenInNew" /></MudLink>
+        <MudIconButton Color="Color.Warning" Href=@($"/admin/website/edit/{site.Id}") Icon="@Icons.Material.Sharp.Edit" />
+    </MudPaper>
+    @if (site.Sections is null or [])
+    {
+        <ApplicationAlert Text=@($"No web site sections found for {site.Name}.") />
+    }
+    else
+    {
+        <MudExpansionPanels MultiExpansion="true" Outlined="true" Square="true">
+            @foreach (var section in site.Sections)
+            {
+                <MudExpansionPanel Expanded="@true">
+                    <TitleContent>
+                        <MudText Typo="Typo.h5">@(section.Title)</MudText>
+                    </TitleContent>
+                    <ChildContent>
+                        <MudGrid>
+                            @foreach (var widget in section.Widgets ?? [])
+                            {
+                                <MudItem xs="6" md="4" lg="3" xl="2">
+                                    <MudCard Elevation="0" Outlined>
+                                        <MudCardHeader>
+                                            <CardHeaderContent>
+                                                <MudText Typo="Typo.h6">@widget.Description</MudText>
+                                            </CardHeaderContent>
+                                            <CardHeaderActions>
+                                                <MudIconButton Color="Color.Warning"
+                                                               Icon="@Icons.Material.Sharp.Edit"
+                                                               Href=@($"/edit-widget/{widget.Id}?Site={site.Id}&Section={section.Id}") />
+                                            </CardHeaderActions>
+                                        </MudCardHeader>
+                                        <MudCardContent>
+                                            @((MarkupString)widget.HtmlContent)
+                                        </MudCardContent>
+                                    </MudCard>
+                                </MudItem>
+                            }
+                            <MudItem xs="6" md="4" lg="3" xl="2" Class="align-self-center">
+                                <MudIconButton Icon="@Icons.Material.Filled.Add"
+                                               Href=@($"/add-widget?Site={site.Id}&Section={section.Id}")
+                                               Variant="Variant.Filled"
+                                               Size="Size.Large" />
+                            </MudItem>
+                        </MudGrid>
+                    </ChildContent>
+                </MudExpansionPanel>
+            }
+        </MudExpansionPanels>
+    }
+}
+
+@code {
+
+    [Parameter]
+    public string Id { get; set; }
+
+    public Site site = null!;
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (Id == null)
+            return;
+
+        site = await Db.Sites.Where(x => x.Id == Id)
+                            .Include(y => y.Sections)
+                            .ThenInclude(z => z.Widgets)
+                            .FirstOrDefaultAsync() ?? new();
+    }
+
+    // private async Task AddSiteItemAsync(int sectionId, Widget widget)
+    // {
+    //     var parameters = new DialogParameters<EditWidgetDialog> { { x => x.SectionId, sectionId }, { x => x.Model, widget } };
+    //     var options = new DialogOptions { CloseButton = true, MaxWidth = MaxWidth.Large };
+    //     var dialog = await DialogService.ShowAsync<EditWidgetDialog>((widget == null ? "Edit " : "Add ") + "Widget", parameters, options);
+    //     var result = await dialog.Result;
+
+    //     if ((int)(result?.Data ?? 0) != 0)
+    //     {
+    //         site = await Db.Sites.Where(x => x.Id == Id)
+    //                         .Include(y => y.Sections)
+    //                         .ThenInclude(z => z.Widgets)
+    //                         .FirstOrDefaultAsync() ?? new();
+    //     }
+    // }
+}

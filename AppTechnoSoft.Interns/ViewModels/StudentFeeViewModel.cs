@@ -1,6 +1,4 @@
-﻿using AppTechnoSoft.Interns.Components.Pages.Admin;
-using AppTechnoSoft.Interns.Data.Enums;
-using AppTechnoSoft.Interns.Data.Models;
+﻿using AppTechnoSoft.Interns.Data.Enums;
 
 namespace AppTechnoSoft.Core.ViewModels;
 public class StudentFeeViewModel

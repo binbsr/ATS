@@ -4,7 +4,6 @@
 
 @inject ApplicationDbContext Db
 @inject ISnackbar SnackBar
-@inject NavigationManager Navigation
 
 <PageTitle>Add Fee Account</PageTitle>
 
@@ -36,6 +35,12 @@
                    Class="mt-3"
                    StartIcon="@Icons.Material.Filled.Save">
             Save Fee Account
+        </MudButton>
+        <MudButton Variant="Variant.Outlined"
+                   Class="mt-3 ml-3"
+                   Href="/feecollection"
+                   StartIcon="@Icons.Material.Filled.ArrowBack">
+            Navigate to Fee Collections
         </MudButton>
     </EditForm>
 </MudContainer>
@@ -84,7 +89,8 @@
         if (rowsAffected > 0)
         {
             SnackBar.Add("New Fee Account Added Successfully", Severity.Success);
-            Navigation.NavigateTo("/feecollection");
+            // Reset it back to default for new entry else it will try to update same model
+            model.Id = default;
         }
         else
         {

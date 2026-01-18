@@ -4,7 +4,6 @@
 
 @inject ApplicationDbContext Db
 @inject ISnackbar SnackBar
-@inject NavigationManager Navigation
 
 <PageTitle>New Revenue Item</PageTitle>
 
@@ -15,7 +14,6 @@
         <MudSelect Variant="Variant.Outlined"
                    @bind-Value="model.Source"
                    Label="Source"
-                   AnchorOrigin="Origin.BottomCenter"
                    Class="mt-4">
             @foreach (var item in Enum.GetValues<RevenueSource>())
             {
@@ -31,6 +29,12 @@
                    Class="mt-4"
                    StartIcon="@Icons.Material.Filled.Save">
             Add Revenue
+        </MudButton>
+        <MudButton Variant="Variant.Outlined"
+                   Class="mt-3 ml-3"
+                   Href="/revenues"
+                   StartIcon="@Icons.Material.Filled.ArrowBack">
+            Navigate to Revenue Sources
         </MudButton>
     </EditForm>
 </MudContainer>
@@ -55,7 +59,8 @@
         if (rowsAffected > 0)
         {
             SnackBar.Add("New revenue item added successfully", Severity.Success);
-            Navigation.NavigateTo("/revenues");
+            // Reset it back to default for new entry else it will try to update same model
+            model.Id = default;
         }
         else
         {

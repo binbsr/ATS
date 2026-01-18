@@ -4,18 +4,20 @@
 
 <PageTitle>Financial Statement</PageTitle>
 
-<MudDataGrid Items="@budgets"
-             Dense
-             Groupable 
-             Filterable>
+<MudDataGrid @ref="@grid"
+             Items="@budgets"
+             FilterDefinitions="@filterDefinitions"
+             Loading="@loading"
+             NoRecordsContent="noTransactions"
+             Dense>
     <Columns>
-        <PropertyColumn Property="x => x.Title" Groupable="false" Filterable="false" />
-        <PropertyColumn Property="x => x.Date" Title="Date">
+        <PropertyColumn Property="x => x.Title" Title="Particulars" />
+        <PropertyColumn Property="x => x.Date" Title="Date" Filterable="true" Groupable="true" GroupBy="x => x.Date.Value.Year">
             <CellTemplate>
-                @context.Item.Date.Value.ToLongDateString()
+                @context?.Item?.Date.Value.ToLongDateString()
             </CellTemplate>
         </PropertyColumn>
-        <PropertyColumn Property="x => x.Credit" AggregateDefinition="CreditAggregation" Groupable="false" Filterable="false">
+        <PropertyColumn Property="x => x.Credit" AggregateDefinition="CreditAggregation">
             <CellTemplate>
                 @{
                     var value = context.Item.Credit;
@@ -27,7 +29,7 @@
                 }
             </CellTemplate>
         </PropertyColumn>
-        <PropertyColumn Property="x => x.Debit" AggregateDefinition="DebitAggregation" Groupable="false" Filterable="false">
+        <PropertyColumn Property="x => x.Debit" AggregateDefinition="DebitAggregation">
             <CellTemplate>
                 @{
                     var value = context.Item.Debit;
@@ -39,7 +41,7 @@
                 }
             </CellTemplate>
         </PropertyColumn>
-        <PropertyColumn Property="x => x.Balance" AggregateDefinition="BalanceAggregation" Filterable="false" Groupable="false">
+        <PropertyColumn Property="x => x.Balance" AggregateDefinition="BalanceAggregation">
             <CellTemplate>@context.Item.Balance?.AsCurrency()</CellTemplate>
         </PropertyColumn>
         <PropertyColumn Property="x => x.Status">
@@ -47,23 +49,27 @@
                 <MudChip Color="Color.Info" Size="Size.Small">@context.Item.Status</MudChip>
             </CellTemplate>
         </PropertyColumn>
-        <PropertyColumn Property="x => x.Notes" Groupable="false" Filterable="false" />
+        <PropertyColumn Property="x => x.Notes" />
     </Columns>
 </MudDataGrid>
 
 @code {
 
     private List<AccountViewModel> budgets = [];
+    bool loading = true;
+    private RenderFragment noTransactions = @<ApplicationAlert Type="Severity.Warning" Text="No transactions recorded yet." />;
+    private List<IFilterDefinition<AccountViewModel>> filterDefinitions = new();
+    private MudDataGrid<AccountViewModel> grid;
 
     protected override async Task OnInitializedAsync()
     {
         var feeCollection = await Db.FinAccounts
             .Where(x => x.Enabled)
-            .Select(y => new 
-            { 
-                StudentName = y.Student.Name, 
-                PaidTotal = y.PaidAmount, 
-                DateAdded = y.Created 
+            .Select(y => new
+            {
+                StudentName = y.Student.Name,
+                PaidTotal = y.PaidAmount,
+                DateAdded = y.Created
             })
             .ToListAsync();
 
@@ -73,13 +79,13 @@
             foreach (var fee in feeCollection)
             {
                 budgets.Add(new AccountViewModel
-                    {
-                        Title = $"{fee.StudentName} - Tution Fee",
-                        Credit = fee.PaidTotal,
-                        Status = FundStatus.Paid,
-                        Date = fee.DateAdded,
-                        Notes = "Source: Fee Collection"
-                    });
+                {
+                    Title = $"{fee.StudentName} - Tution Fee",
+                    Credit = fee.PaidTotal,
+                    Status = FundStatus.Paid,
+                    Date = fee.DateAdded,
+                    Notes = "Source: Fee Collection"
+                });
             }
         }
 
@@ -90,13 +96,13 @@
             foreach (var revenue in otherRevenues)
             {
                 budgets.Add(new AccountViewModel
-                    {
-                        Title = revenue.Particulars,
-                        Credit = revenue.Amount,
-                        Status = FundStatus.Paid,
-                        Date = revenue.Date,
-                        Notes = revenue.Source.ToString()
-                    });
+                {
+                    Title = revenue.Particulars,
+                    Credit = revenue.Amount,
+                    Status = FundStatus.Paid,
+                    Date = revenue.Date,
+                    Notes = revenue.Source.ToString()
+                });
             }
         }
 
@@ -109,13 +115,13 @@
             foreach (var expense in expenses)
             {
                 budgets.Add(new AccountViewModel
-                    {
-                        Title = expense.Title,
-                        Debit = expense.Amount,
-                        Status = FundStatus.Paid,
-                        Date = expense.Created,
-                        Notes = expense.Description
-                    });
+                {
+                    Title = expense.Title,
+                    Debit = expense.Amount,
+                    Status = FundStatus.Paid,
+                    Date = expense.Created,
+                    Notes = expense.Description
+                });
             }
         }
 
@@ -127,35 +133,51 @@
             var accumulation = budgets.Take(counter + 1);
             budgets[counter].Balance = accumulation.Sum(x => x.Credit) - accumulation.Sum(x => x.Debit);
         }
+
+        // Apply a default filter: Date == Current Year
+        // var dateColumn = grid.GetColumnByPropertyName(nameof(AccountViewModel.Date));
+        // if (dateColumn != null)
+        // {
+        //     grid.SetDefaultFilterDefinition(
+        //         new FilterDefinition<AccountViewModel>
+        //         {
+        //             Column = dateColumn,
+        //             Operator = FilterOperator.DateTime.OnOrAfter,
+        //             Value = DateTime.Now.Year
+        //         }
+        //     );
+        // }
+
+        loading = false;
     }
 
     AggregateDefinition<AccountViewModel> BalanceAggregation = new()
+    {
+        Type = AggregateType.Custom,
+        CustomAggregate = x =>
         {
-            Type = AggregateType.Custom,
-            CustomAggregate = x =>
-            {
-                var totalBalance = x.LastOrDefault()?.Balance;
-                return $"{totalBalance?.AsCurrency()}";
-            }
-        };
+            var totalBalance = x.LastOrDefault()?.Balance;
+            return $"{totalBalance?.AsCurrency()}";
+        }
+    };
 
     AggregateDefinition<AccountViewModel> CreditAggregation = new()
+    {
+        Type = AggregateType.Custom,
+        CustomAggregate = x =>
         {
-            Type = AggregateType.Custom,
-            CustomAggregate = x =>
-            {
-                var totalCredit = x.Sum(y => y.Credit);
-                return $"{totalCredit?.AsCurrency()}";
-            }
-        };
+            var totalCredit = x.Sum(y => y.Credit);
+            return $"{totalCredit?.AsCurrency()}";
+        }
+    };
 
     AggregateDefinition<AccountViewModel> DebitAggregation = new()
+    {
+        Type = AggregateType.Custom,
+        CustomAggregate = x =>
         {
-            Type = AggregateType.Custom,
-            CustomAggregate = x =>
-            {
-                var totalDebit = x.Sum(y => y.Debit);
-                return $"{totalDebit?.AsCurrency()}";
-            }
-        };
+            var totalDebit = x.Sum(y => y.Debit);
+            return $"{totalDebit?.AsCurrency()}";
+        }
+    };
 }

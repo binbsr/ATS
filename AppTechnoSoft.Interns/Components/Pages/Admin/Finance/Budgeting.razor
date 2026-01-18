@@ -4,9 +4,13 @@
 
 <PageTitle>Batch Budgeting</PageTitle>
 
-@if (!batchBudgets?.Any() ?? true)
+@if (batchBudgets is null)
 {
     <Loading />
+}
+else if(batchBudgets is [])
+{
+    <ApplicationAlert Type="Severity.Warning" Text="No budget plans found for any batch." />
 }
 else
 {
@@ -20,7 +24,7 @@ else
                     Color="MudBlazor.Color.Tertiary">
             </MudFab>
         </MudItem>
-        @foreach (var batchBudget in batchBudgets)
+        @foreach (var batchBudget in batchBudgets ?? [])
         {
             <MudItem md="4">
                 <MudPaper Elevation="5" Class="pa-5" Style="text-align:center">
@@ -47,7 +51,7 @@ else
     }
 
     private string _searchString = string.Empty;
-    private KeyValuePair<string, (string[] Labels, double[] Values)>[] batchBudgets = [];
+    private KeyValuePair<string, (string[] Labels, double[] Values)>[] batchBudgets = null!;
 
 
     protected override async Task OnInitializedAsync()

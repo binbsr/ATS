@@ -4,7 +4,6 @@
 
 @inject ApplicationDbContext Db
 @inject ISnackbar SnackBar
-@inject NavigationManager Navigation
 
 <PageTitle>Add Expense</PageTitle>
 
@@ -14,10 +13,10 @@
         <MudTextField Variant="Variant.Outlined" Label="Title" Class="mt-3" @bind-Value="model.Title" />
         <MudTextField Variant="Variant.Outlined" Label="Description" Class="mt-3" @bind-Value="model.Description" />
         <MudNumericField Variant="Variant.Outlined" Label="Amount" Class="mt-3" @bind-Value="model.Amount" />
-        <MudSelect Variant="Variant.Outlined" 
-        @bind-Value="model.ExpenseType" 
-        Label="Expense type" 
-        Class="mt-3">
+        <MudSelect Variant="Variant.Outlined"
+                   @bind-Value="model.ExpenseType"
+                   Label="Expense type"
+                   Class="mt-3">
             @foreach (ExpenseType item in Enum.GetValues<ExpenseType>())
             {
                 <MudSelectItem Value="@item">@item</MudSelectItem>
@@ -31,6 +30,12 @@
                    StartIcon="@Icons.Material.Filled.Save">
             Add Expense
         </MudButton>
+        <MudButton Variant="Variant.Outlined"
+                   Class="mt-3 ml-3"
+                   Href="/expenses"                   
+                   StartIcon="@Icons.Material.Filled.ArrowBack">
+            Navigate to Expenses
+        </MudButton>
     </EditForm>
 </MudContainer>
 
@@ -42,7 +47,7 @@
     Expense model = new() { Amount = 0.0f };
 
     private async Task OnValidSubmit(EditContext context)
-    {        
+    {
         var state = await AuthTask;
         var userName = state.User.Identity?.Name;
 
@@ -54,7 +59,9 @@
         if (rowsAffected > 0)
         {
             SnackBar.Add("New expense added successfully", Severity.Success);
-            Navigation.NavigateTo("/expenses");
+
+            // Reset it back to default for new entry else it will try to update same model
+            model.Id = default;
         }
         else
         {

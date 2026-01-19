@@ -20,10 +20,19 @@
              EditTrigger="DataGridEditTrigger.Manual"
              CommittedItemChanges="@CommittedItemChanges">
     <ToolBarContent>
-        <MudFab Href="/expense/add" StartIcon="@Icons.Material.Filled.Add" title="Add expense" Size="Size.Small" Color="Color.Tertiary"></MudFab>
+        <MudFab Href="/expense/add"
+                StartIcon="@Icons.Material.Filled.Add"
+                title="Add expense"
+                Size="Size.Small"
+                Color="Color.Tertiary"></MudFab>
         <MudSpacer />
-        <MudTextField @bind-Value="_searchString" Placeholder="Search" Adornment="Adornment.Start" Immediate="true"
-                      AdornmentIcon="@Icons.Material.Filled.Search" IconSize="Size.Medium" Class="mt-0"></MudTextField>
+        <MudTextField @bind-Value="_searchString"
+                      Placeholder="Search"
+                      Adornment="Adornment.Start"
+                      Immediate="true"
+                      AdornmentIcon="@Icons.Material.Filled.Search"
+                      IconSize="Size.Medium"
+                      Class="mt-0"></MudTextField>
     </ToolBarContent>
     <Columns>
         <PropertyColumn Property="x => x.Created" Title="Date" />
@@ -59,14 +68,14 @@
     private bool loadingData = false;
 
     AggregateDefinition<Expense> AmountAggregation = new()
+    {
+        Type = AggregateType.Custom,
+        CustomAggregate = x =>
         {
-            Type = AggregateType.Custom,
-            CustomAggregate = x =>
-            {
-                var totalExpense = x.Sum(y => y.Amount);
-                return $"{totalExpense.AsCurrency()}";
-            }
-        };
+            var totalExpense = x.Sum(y => y.Amount);
+            return $"{totalExpense.AsCurrency()}";
+        }
+    };
 
     private Func<Expense, bool> _quickFilter => x =>
     {

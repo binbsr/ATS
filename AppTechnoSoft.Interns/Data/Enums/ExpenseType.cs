@@ -2,8 +2,12 @@
 public enum ExpenseType
 {
     General,
-    Trainer,
+    Consultant,
     Maintenance,
     Trainee,
-    Marketing
+    Marketing,
+    Operations,
+    Salary,
+    Rent,
+    Travel
 }

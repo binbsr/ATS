@@ -5,5 +5,7 @@ public enum RevenueSource
     ProfessionalTraining,
     ProjectWork,
     Outsourcing,
-    Other
+    Other,
+    Investment,
+    Product
 }

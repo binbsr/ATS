@@ -1,6 +1,4 @@
-﻿using AppTechnoSoft.Interns.Data.Models;
-
-namespace AppTechnoSoft.Core.ViewModels;
+﻿namespace AppTechnoSoft.Core.ViewModels;
 public class AssignmentViewModel
 {
     public int Id { get; set; }

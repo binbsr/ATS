@@ -47,6 +47,7 @@
                 <MudTextField Label="Amount" Variant="Variant.Outlined" T="float" @bind-Value="@context.Item.Amount" />
             </EditTemplate>
         </TemplateColumn>
+        <PropertyColumn Property="x => x.PaidBy" Title="Paid By" />
         <TemplateColumn CellClass="d-flex justify-end">
             <CellTemplate>
                 <MudIconButton Icon="@Icons.Material.Outlined.Edit" OnClick="@context.Actions.StartEditingItemAsync" />
@@ -122,6 +123,7 @@
                 .SetProperty(y => y.Title, item.Title)
                 .SetProperty(y => y.Description, item.Description)
                 .SetProperty(y => y.Amount, item.Amount)
+                .SetProperty(y => y.PaidBy, item.PaidBy)
                 .SetProperty(y => y.LastUpdated, item.LastUpdated)
                 .SetProperty(y => y.LastUpdatedBy, item.LastUpdatedBy)
             );

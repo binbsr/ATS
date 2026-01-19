@@ -129,6 +129,7 @@
 
         revenues = await db.Revenues
             .AsNoTracking()
+            .OrderByDescending(x => x.Date)
             .ToListAsync();
 
         loadingData = false;

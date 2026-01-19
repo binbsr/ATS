@@ -118,7 +118,7 @@
                     Debit = expense.Amount,
                     Status = FundStatus.Paid,
                     Date = expense.Created,
-                    Notes = expense.Description
+                    Notes = $"Via {expense.PaidBy ?? "Office"}, {expense.Description}"
                 });
             }
         }

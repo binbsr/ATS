@@ -7,5 +7,6 @@ public class Expense : BaseEntity
     public string Title { get; set; } = string.Empty;
     public string Description { get; set; } = string.Empty;
     public float Amount { get; set; }
+    public string? PaidBy { get; set; }
     public ExpenseType ExpenseType { get; set; }
 }

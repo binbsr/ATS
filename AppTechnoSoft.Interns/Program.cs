@@ -7,6 +7,8 @@ using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using MudBlazor.Services;
+using Azure.Storage.Blobs;
+using AppTechnoSoft.Interns.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -44,6 +46,9 @@ builder.Services.AddIdentityCore<ApplicationUser>(options => options.SignIn.Requ
 //builder.Services.AddSingleton<IEmailSender<ApplicationUser>, IdentityNoOpEmailSender>();
 builder.Services.AddMudServices();
 builder.Services.AddBrowserTimeProvider();
+var blobServiceClient = new BlobServiceClient(builder.Configuration["AzureBlobStorage:ConnectionString"]);
+builder.Services.AddSingleton(blobServiceClient);
+builder.Services.AddScoped<IFileStorageService, AzureBlobFileStorage>();
 
 var app = builder.Build();
 

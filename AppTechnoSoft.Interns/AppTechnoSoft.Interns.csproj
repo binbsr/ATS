@@ -9,6 +9,7 @@
 	</PropertyGroup>	
 
 	<ItemGroup>
+		<PackageReference Include="Azure.Storage.Blobs" Version="12.27.0" />
 		<PackageReference Include="Microsoft.AspNetCore.Authentication.Google" Version="10.0.1" />
 		<PackageReference Include="Microsoft.AspNetCore.Diagnostics.EntityFrameworkCore" Version="10.0.1" />
 		<PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="10.0.1" />
@@ -26,8 +27,4 @@
 		<PackageReference Include="Spillgebees.Blazor.RichTextEditor" Version="2.1.0" />
 	</ItemGroup>	
 
-	<ItemGroup>
-	  <Folder Include="wwwroot\img\" />
-	</ItemGroup>
-	
 </Project>

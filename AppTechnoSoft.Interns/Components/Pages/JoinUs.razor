@@ -4,6 +4,7 @@
 
 @inject ApplicationDbContext Db
 @inject ISnackbar SnackBar
+@inject IFileStorageService ImageUploader
 
 <EditForm Model="@model" OnValidSubmit="OnValidSubmit" Context="applicationForm">
     <MudPaper Class="pa-5" Elevation="5">
@@ -137,7 +138,7 @@
     private async Task OnValidSubmit(EditContext editContext)
     {
         // Save profile image first if it's uploaded
-        (profileSuccess, message) = await ImageUploader.Upload(model.ProfileImage);
+        (profileSuccess, message) = await ImageUploader.UploadFileAsync(model.ProfileImage, "profile-images");
         if (profileSuccess)
         {
             model.ProfileImagePath = message;

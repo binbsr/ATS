@@ -40,7 +40,7 @@ else
                                             <CardHeaderActions>
                                                 <MudIconButton Color="Color.Warning"
                                                                Icon="@Icons.Material.Sharp.Edit"
-                                                               Href=@($"/edit-widget/{widget.Id}?Site={site.Id}&Section={section.Id}") />
+                                                               Href=@($"/widgets/edit/{widget.Id}?Site={site.Id}&Section={section.Id}") />
                                             </CardHeaderActions>
                                         </MudCardHeader>
                                         <MudCardContent>
@@ -51,7 +51,7 @@ else
                             }
                             <MudItem xs="6" md="4" lg="3" xl="2" Class="align-self-center">
                                 <MudIconButton Icon="@Icons.Material.Filled.Add"
-                                               Href=@($"/add-widget?Site={site.Id}&Section={section.Id}")
+                                               Href=@($"/widgets/add?Site={site.Id}&Section={section.Id}")
                                                Variant="Variant.Filled"
                                                Size="Size.Large" />
                             </MudItem>

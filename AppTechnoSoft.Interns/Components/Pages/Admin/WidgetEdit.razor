@@ -1,5 +1,5 @@
-﻿@page "/add-widget"
-@page "/edit-widget/{Id:int}"
+﻿@page "/widgets/add"
+@page "/widgets/edit/{Id:int}"
 
 @inject ApplicationDbContext Db
 @inject ISnackbar SnackBar
@@ -14,7 +14,7 @@
         }
     </MudSelect>
 
-    <MudTextField Label="Description" Class="mt-3" @bind-Value="model.Description" Variant="Variant.Outlined" />
+    <MudTextField Label="Description/Title" Class="mt-3" @bind-Value="model.Description" Variant="Variant.Outlined" />
 
     <MudSelect T="Tag"
                Label="Tags"
@@ -31,8 +31,8 @@
         }
     </MudSelect>
 
-    <RichTextEditor @bind-Content="@model.HtmlContent"
-                    Placeholder="Add Widget Contents..."                    
+    <RichTextEditor @bind-Content="@model.HtmlContent"    
+                    Placeholder="Add Widget Contents..."   
                     ToolbarOptions="ToolbarOptions.FullToolbarOptions" />
 
     <MudStack Row Class="mt-2">
@@ -65,7 +65,7 @@
 
     [CascadingParameter]
     private Task<AuthenticationState> AuthTask { get; set; } = null!;
-    
+
     Widget model = new Widget();
     List<Tag> tags = new();
     IEnumerable<Tag> tagsSelected = [];
@@ -105,15 +105,17 @@
         }
 
         var state = await AuthTask;
-        var userName = state.User.Identity?.Name;
+        var userName =  state.User.GetUserName();
 
         model.Tags = tagsSelected.ToList();
+
+        var rowsAffected = 0;
 
         if (IsAdd)
         {
             model.AddCreatedStamps(userName);
             Db.Widgets.Add(model);
-            await Db.SaveChangesAsync();
+            rowsAffected = await Db.SaveChangesAsync();
 
             if (IsSiteSection)
             {
@@ -125,6 +127,7 @@
                         Order = 0,
                         Enabled = true
                     });
+                rowsAffected = await Db.SaveChangesAsync();
             }
         }
         else
@@ -132,13 +135,17 @@
             model.Id = Id!.Value;
             model.AddLastUpdatedStamps(userName);
             Db.Widgets.Update(model);
+            rowsAffected = await Db.SaveChangesAsync();
         }
-
-        var rowsAffected = await Db.SaveChangesAsync();
 
         if (rowsAffected > 0)
         {
             SnackBar.Add("Widget saved successfully", Severity.Success);
+            var preSubmission = model;
+            model = new();
+            model.Title = preSubmission.Title;
+            model.Description = preSubmission.Description;
+            model.HtmlContent = preSubmission.HtmlContent;
         }
         else
         {

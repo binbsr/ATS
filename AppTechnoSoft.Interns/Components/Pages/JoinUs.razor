@@ -74,11 +74,14 @@
             if (model.ApplicantType == ApplicantType.SoftwareEngineeringAspirant)
             {
                 <MudSelect T="TrainingTrack" Variant="Variant.Outlined" Label="Track" @bind-Value="model.TrainingTrack" Class="mt-4" AnchorOrigin="Origin.BottomCenter">
-                    <MudSelectItem T="TrainingTrack" Value="@TrainingTrack.None">No idea, need consulting</MudSelectItem>
+                    <MudSelectItem T="TrainingTrack" Value="@TrainingTrack.None">No idea, need consulting</MudSelectItem>                    
+                    <MudSelectItem T="TrainingTrack" Value="@TrainingTrack.LargeLanguageModels">ML, DL, NLP & LLMs</MudSelectItem>
+                    <MudSelectItem T="TrainingTrack" Value="@TrainingTrack.GenerativeAI">GenAI & Agentic AI</MudSelectItem>
                     <MudSelectItem T="TrainingTrack" Value="@TrainingTrack.NETWeb">.NET Full-Stack</MudSelectItem>
                     <MudSelectItem T="TrainingTrack" Value="@TrainingTrack.JavaWeb">Java Full-Stack</MudSelectItem>
                     <MudSelectItem T="TrainingTrack" Value="@TrainingTrack.PythonWeb">Python Full-Stack</MudSelectItem>
-                    <MudSelectItem T="TrainingTrack" Value="@TrainingTrack.NodeWeb">Node.js Full-Stack</MudSelectItem>
+                    <MudSelectItem T="TrainingTrack" Value="@TrainingTrack.MobileDevlopment">Mobile (Android, ioS) Development</MudSelectItem>
+                    <MudSelectItem T="TrainingTrack" Value="@TrainingTrack.DataScience">Data Science & Engineering</MudSelectItem>
                 </MudSelect>
             }
         }

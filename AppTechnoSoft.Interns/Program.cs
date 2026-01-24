@@ -3,9 +3,14 @@ using AppTechnoSoft.Interns.Components.Account;
 using AppTechnoSoft.Interns.Data;
 using AppTechnoSoft.Interns.Data.Models;
 using AppTechnoSoft.Interns.Extensions;
+using AppTechnoSoft.Interns.Services;
+using Azure.Identity;
+using Azure.Security.KeyVault.Secrets;
+using Azure.Storage.Blobs;
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 using MudBlazor.Services;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -44,6 +49,21 @@ builder.Services.AddIdentityCore<ApplicationUser>(options => options.SignIn.Requ
 //builder.Services.AddSingleton<IEmailSender<ApplicationUser>, IdentityNoOpEmailSender>();
 builder.Services.AddMudServices();
 builder.Services.AddBrowserTimeProvider();
+
+// --- Key Vault client (shared for both options)
+var keyVaultUri = builder.Configuration["KeyVault:VaultUri"];
+if (string.IsNullOrEmpty(keyVaultUri))
+    throw new InvalidOperationException("KeyVault:VaultUri is not configured.");
+
+builder.Configuration.AddAzureKeyVault(new Uri(keyVaultUri), new DefaultAzureCredential());
+
+// read connection string secret value
+var blobConnectionString = builder.Configuration["BlobStorageConnectionString"];
+
+// register BlobServiceClient
+var blobServiceClient = new BlobServiceClient(blobConnectionString);
+builder.Services.AddSingleton(blobServiceClient);
+builder.Services.AddScoped<IFileStorageService, AzureBlobFileStorage>();
 
 var app = builder.Build();
 

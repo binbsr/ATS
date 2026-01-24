@@ -6,10 +6,11 @@ public enum TrainingTrack
     JavaWeb,
     PythonWeb,
     NodeWeb,
-    AndroidIosDevlopment,
+    MobileDevlopment,
     GameDevelopment,
     IoT,
     DataScience,
     MachineLearning,
-    NLP_LLM
+    LargeLanguageModels,
+    GenerativeAI
 }

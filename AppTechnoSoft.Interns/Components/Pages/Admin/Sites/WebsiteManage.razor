@@ -1,4 +1,4 @@
-﻿@page "/sites/{Id}/manage"
+﻿@page "/admin/websites/{Id}/manage"
 @inject ApplicationDbContext Db
 
 <PageTitle>@(site?.Name ?? "Site Details")</PageTitle>
@@ -8,10 +8,10 @@
     <Loading />
 }
 else
-{
+{    
     <MudPaper Outlined="true" Class="d-flex align-center justify-center flex-grow-1 gap-4 p-3">
         <MudText Typo="Typo.h5" Align="Align.Center">@site.Name</MudText>
-        <MudLink Typo="Typo.h5" Href="@site.Domain" Color="Color.Info" Target="_blank">@site.Domain <MudIcon Icon="@Icons.Material.Sharp.OpenInNew" /></MudLink>
+        <MudLink Typo="Typo.h5" Href="@site.Domain" Color="Color.Info" Target="_blank">@site.Domain?.ToDomain()<MudIcon Icon="@Icons.Material.Sharp.OpenInNew" /></MudLink>
         <MudIconButton Color="Color.Warning" Href=@($"/admin/website/edit/{site.Id}") Icon="@Icons.Material.Sharp.Edit" />
     </MudPaper>
     @if (site.Sections is null or [])

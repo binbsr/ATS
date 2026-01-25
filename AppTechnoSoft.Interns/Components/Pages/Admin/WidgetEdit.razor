@@ -100,7 +100,7 @@
     {
         if (model.HtmlContent is null or "")
         {
-            SnackBar.Add("No content provided for the widget", Severity.Warning);
+            SnackBar.Add("No content provided for the widget", Severity.Error);
             return;
         }
 

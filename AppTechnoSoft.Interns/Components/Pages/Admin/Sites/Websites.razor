@@ -1,0 +1,58 @@
+﻿@page "/admin/websites"
+@inject ApplicationDbContext Db
+
+<PageTitle>All Websites</PageTitle>
+
+@if (sites is null)
+{
+    <Loading />
+}
+else if (sites is [])
+{
+    <ApplicationAlert Text="No websites being managed yet." Type="Severity.Warning" />
+}
+else
+{
+    <MudGrid Spacing="6" Class="m-0 p-0">
+        @foreach (var site in sites)
+        {
+            <MudItem xs="12" sm="6" md="4" xl="3" xxl="2">
+                <MudCard Elevation="4" Outlined="false">
+                    <MudCardHeader>
+                        <CardHeaderContent>
+                            <MudText Typo="Typo.h6">@site.Name</MudText>
+                        </CardHeaderContent>
+                        <CardHeaderActions>
+                            <MudIcon Icon="@Icons.Material.Sharp.Public" Size="Size.Large" />
+                        </CardHeaderActions>
+                    </MudCardHeader>
+                    <MudCardContent>
+                        @{
+                            var content = site.Content;
+                            if (content is null or "" or "<p></p>")
+                            {
+                                content = $"Portfolio Site for {site.Client}";
+                            }
+                        }
+                        <MudText Typo="Typo.body1">@((MarkupString)content)</MudText>
+                    </MudCardContent>
+                    <MudCardActions Class="d-flex justify-center flex-grow-1 gap-4">
+                        <MudButton Color="Color.Info" StartIcon="@Icons.Material.Sharp.OpenInNew" Target="_blank" Href="@site.Domain?.ToDomain()">Browse</MudButton>
+                        <MudButton Color="Color.Warning" StartIcon="@Icons.Material.Sharp.Edit" Href=@($"/admin/websites/edit/{site.Id}")>Edit Site Info</MudButton>
+                        <MudButton Color="Color.Warning" StartIcon="@Icons.Material.Sharp.WebAsset" Href=@($"/admin/websites/{site.Id}/manage")>Manage Content</MudButton>
+                    </MudCardActions>
+                </MudCard>
+            </MudItem>
+        }
+    </MudGrid>
+}
+
+@code {
+
+    public List<Site> sites = null!;
+
+    protected override async Task OnInitializedAsync()
+    {
+        sites = await Db.Sites.ToListAsync();
+    }
+}

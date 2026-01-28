@@ -1,4 +1,4 @@
-﻿<MudExpansionPanel @bind-Expanded="isOpen" HideIcon Dense>
+﻿<MudExpansionPanel @bind-Expanded="isOpen" HideIcon>
     <TitleContent>
         <div class="d-flex">
             <MudIcon Icon="@(isOpen ? Icons.Material.Sharp.HorizontalRule : Icons.Material.Sharp.Add)" Class="mr-2"></MudIcon>
@@ -9,7 +9,7 @@
                 <MudIconButton Icon="@Icons.Material.Sharp.Delete" Size="Size.Small" Color="Color.Error" OnClick="() => ConfirmDelete()" />
                 <MudMessageBox @ref="mbox" Title="Warning" CancelText="Cancel">
                     <MessageContent>
-                        Are you sure to delete this module? It can't be undone!
+                        Are you sure to delete this module? It can't be undone.
                     </MessageContent>
                     <YesButton>
                         <MudButton Variant="Variant.Filled" Color="Color.Error" Class="ml-2 mb-2 mr-3" StartIcon="@Icons.Material.Filled.DeleteForever">Delete</MudButton>
@@ -25,7 +25,7 @@
         <MudChipSet T="Tag">
             @foreach (var tag in Widget.Tags ?? [])
             {
-                <MudChip Value="@tag" Style="@("background:" + tag.ColorCode ?? "")" Class="text-white">@tag.Name</MudChip>
+                <MudChip Value="@tag" Style="@("background:" + tag.ColorCode ?? "")">@tag.Name</MudChip>
             }
         </MudChipSet>
     </ChildContent>
@@ -39,8 +39,8 @@
     [Parameter]
     public EventCallback<Widget> DeleteCallBack { get; set; }
 
-    public string EditUrl => $"/edit-widget/{Widget.Id}";
-    bool isOpen = true;
+    public string EditUrl => $"/widgets/edit/{Widget.Id}";
+    bool isOpen = false;
     MudMessageBox mbox { get; set; } = null!;
 
     private async Task ConfirmDelete()

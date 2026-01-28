@@ -1,5 +1,6 @@
 ﻿
 namespace AppTechnoSoft.Interns.Extensions;
+
 public static class StringExtensions
 {
     public static string MakeUnique(this string value)
@@ -9,7 +10,7 @@ public static class StringExtensions
         var output = $"{value} {guid}";
         return output;
     }
-        
+
     public static string ToEmail(this string userName)
     {
         if (userName is null or "")
@@ -35,5 +36,25 @@ public static class StringExtensions
         }
 
         return email;
+    }
+
+    public static string ToDomain(this string value)
+    {
+        if (value is null or "")
+            return string.Empty;
+
+        if (!value.StartsWith("https://"))
+        {
+            if (value.StartsWith("www."))
+            {
+                value = value.Replace("www.", "https://");
+            }
+            else
+            {
+                value = "https://" + value;
+            }
+        }
+
+        return value;
     }
 }

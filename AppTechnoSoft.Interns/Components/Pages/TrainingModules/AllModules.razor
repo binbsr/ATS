@@ -1,104 +1,101 @@
 ﻿@page "/course/modules"
 
-<PageTitle>All Training Modules</PageTitle>
+<PageTitle>Training Modules</PageTitle>
 @attribute [Authorize(Roles = Role.AdminsAndInstructor)]
 
 @inject IDbContextFactory<ApplicationDbContext> DbFactory
 @inject ISnackbar SnackBar
 
-<TagFilter TagDescription="@FIlterTagCategory.CourseModules"
-           FilterTriggered="FilterTagsChanged"
-           FilterHelpText="Click on tags below to filter respective modules and combinations." />
-
 @if (loadingData)
 {
     <Loading Size="Size.Large" />
-
+}
+else if (noData)
+{
+    <ApplicationAlert Text="Looks like you have not contributed any course modules yet." />
 }
 else
 {
-    <ModulesSection SectionTitle="Use Case Assessments" Icon=@Icons.Material.Sharp.AppRegistration Widgets="useCaseWidgets" />
-    <ModulesSection SectionTitle="Common Tech Patterns" Widgets="commonTechWidgets" />
-    <ModulesSection SectionTitle="Language and SDKs" SectionTagFilter="@ModuleSection.Sdk" EnableSubFilter Icon=@Icons.Material.Sharp.Code Widgets="sdkAndLangWidgets" />
-    <ModulesSection SectionTitle="Database Access" SectionTagFilter="@ModuleSection.DataAccess" EnableSubFilter Icon=@Icons.Material.Sharp.Dataset Widgets="dataAccessWidgets" />
-    <ModulesSection SectionTitle="Web Development" SectionTagFilter="@ModuleSection.Web" EnableSubFilter Icon=@Icons.Material.Sharp.Web Widgets="webWidgets" />
-    <ModulesSection SectionTitle="Security" Icon=@Icons.Material.Sharp.Security Widgets="securityWidgets" />
-    <ModulesSection SectionTitle="DevOps" Icon=@Icons.Material.Sharp.DeveloperBoard Widgets="devOpsgWidgets" />
-    <ModulesSection SectionTitle="Networking" Icon=@Icons.Material.Sharp.NetworkPing Widgets="networkingWidgets" />
-    <ModulesSection SectionTitle="Machine Learning" Icon=@Icons.Material.Sharp.SettingsSuggest Widgets="mlWidgets" />
-    <ModulesSection SectionTitle="Data Science" Icon=@Icons.Material.Sharp.Science Widgets="dataScienceWidgets" />
-    <ModulesSection SectionTitle="Interns Special" Icon=@Icons.Material.Sharp.Group Widgets="projectWorkeWidgets" />
-    <ModulesSection SectionTitle="Other Modules" Icon=@Icons.Material.Sharp.DevicesOther Widgets="OtherWidgets" />
+    <MudTabs Elevation="2" Rounded="true" ApplyEffectsToContainer="true" PanelClass="pa-3">
+        <MudTabPanel Text="My Contribution" Icon="@Icons.Material.Sharp.AddBox">
+            <ModulesList Widgets="myWidgets" DeleteCallBack="DeleteInitiated" />
+        </MudTabPanel>
+        <MudTabPanel Text="All Course Modules" Icon="@Icons.Material.Sharp.ViewModule" OnClick="GetCourseModules">
+            <MudChipSet T="Tag"
+                        SelectionMode="SelectionMode.MultiSelection"
+                        CheckMark="true" Size="Size.Large"
+                        SelectedValuesChanged="FilterWidgets"
+                        SelectedColor="Color.Primary"
+                        Class="mb-3">
+                @foreach (var tag in tags)
+                {
+                    <MudChip Value="@tag" Text="@(tag.Name)" />
+                }
+            </MudChipSet>
+            @if (loadingTab)
+            {
+                <Loading />
+            }
+            else
+            {
+                <ModulesList Widgets="filterWidgets" DeleteCallBack="DeleteInitiated" />
+            }
+        </MudTabPanel>
+    </MudTabs>
 }
 
 @code {
 
-    List<Widget> widgets = [];
-    List<Widget> widgetFiltered = [];
-    IEnumerable<Widget> commonTechWidgets => FilterWidgets(ModuleSection.Common);
-    IEnumerable<Widget> sdkAndLangWidgets => FilterWidgets(ModuleSection.Sdk);
-    IEnumerable<Widget> dataAccessWidgets => FilterWidgets(ModuleSection.DataAccess);
-    IEnumerable<Widget> webWidgets => FilterWidgets(ModuleSection.Web);
-    IEnumerable<Widget> securityWidgets => FilterWidgets(ModuleSection.Security);
-    IEnumerable<Widget> networkingWidgets => FilterWidgets(ModuleSection.Networking);
-    IEnumerable<Widget> devOpsgWidgets => FilterWidgets(ModuleSection.Devops);
-    IEnumerable<Widget> mlWidgets => FilterWidgets(ModuleSection.Ml);
-    IEnumerable<Widget> dataScienceWidgets => FilterWidgets(ModuleSection.DataScience);
-    IEnumerable<Widget> useCaseWidgets => FilterWidgets(ModuleSection.UseCase);
-    IEnumerable<Widget> projectWorkeWidgets => FilterWidgets(ModuleSection.ProjectWork);
-    IEnumerable<Widget> OtherWidgets => widgetFiltered
-        .Except(commonTechWidgets)
-        .Except(sdkAndLangWidgets)
-        .Except(dataAccessWidgets)
-        .Except(webWidgets)
-        .Except(securityWidgets)
-        .Except(networkingWidgets)
-        .Except(devOpsgWidgets)
-        .Except(mlWidgets)
-        .Except(dataScienceWidgets)
-        .Except(useCaseWidgets)
-        .Except(projectWorkeWidgets);
+    [CascadingParameter]
+    private Task<AuthenticationState> AuthTask { get; set; } = null!;
+
+    List<Widget> myWidgets = [];
+    List<Widget> allWidgets = [];
+    List<Widget> filterWidgets = [];
 
     private List<Tag> tags = [];
     bool loadingData;
+    bool loadingTab;
+    bool noData;
 
     protected override async Task OnInitializedAsync()
     {
         loadingData = true;
 
+        var state = await AuthTask;
+        var userName = state.User.GetUserName();
+
         using var Db = DbFactory.CreateDbContext();
-        widgets = await Db.Widgets.Where(x => x.Title == WidgetType.CourseModule).Include(x => x.Tags).OrderBy(x => x.Description).ToListAsync();
-
-        if (widgets is null || widgets.Count == 0)
-            return;
-
-        GetFilteredModules([]);
+        myWidgets = await Db.Widgets
+            .AsNoTracking()
+            .Where(x => x.Title == WidgetType.CourseModule && x.CreatedBy == userName)
+            .Include(x => x.Tags)
+            .OrderBy(x => x.Created)
+            .ToListAsync();
 
         loadingData = false;
-    }
 
-    private void FilterTagsChanged(List<string> filterTexts)
-    {
-        GetFilteredModules(filterTexts);
-    }
-
-    private void GetFilteredModules(List<string> secondaryTags)
-    {
-        widgetFiltered = secondaryTags.Any()
-            ? widgetFiltered.Where(x => x.Tags!.Any(y => secondaryTags.Contains(y.Name))).ToList()
-            : widgetFiltered = widgets;
+        if (myWidgets is null || myWidgets.Count == 0)
+        {
+            noData = true;
+            return;
+        }
+        else
+        {
+            noData = false;
+        }
     }
 
     private async Task DeleteInitiated(Widget widget)
     {
         using var Db = DbFactory.CreateDbContext();
         Db.Widgets.Remove(widget);
+
         var rowsAffected = await Db.SaveChangesAsync();
 
         if (rowsAffected > 0)
         {
             SnackBar.Add("Module Deleted successfully", Severity.Success);
-            widgetFiltered.Remove(widget);
         }
         else
         {
@@ -106,6 +103,36 @@ else
         }
     }
 
-    private IEnumerable<Widget> FilterWidgets(string tag) => 
-        widgetFiltered.Where(x => x.Tags!.Any(y => y.Name == tag));
+    private async Task GetCourseModules()
+    {
+        using var Db = DbFactory.CreateDbContext();
+
+        tags = await Db.Tags.AsNoTracking().ToListAsync();
+
+        loadingTab = true;
+
+        allWidgets = await Db.Widgets
+            .AsNoTracking()
+            .Where(x => x.Title == WidgetType.CourseModule)
+            .Include(x => x.Tags)
+            .OrderBy(x => x.Description)
+            .ToListAsync();
+
+        filterWidgets = allWidgets;
+        loadingTab = false;
+    }
+
+    private void FilterWidgets(IReadOnlyCollection<Tag> chips)
+    {
+        // fast path: no selection => show all
+        if (chips == null || chips.Count == 0)
+        {
+            filterWidgets = allWidgets;
+            return;
+        }
+
+        var selectedTags = chips.Select(x => x.Name).ToList();
+        filterWidgets = allWidgets.Where(w => w.Tags != null && w.Tags.Any(y => selectedTags.Contains(y.Name))).ToList();
+    }
+
 }

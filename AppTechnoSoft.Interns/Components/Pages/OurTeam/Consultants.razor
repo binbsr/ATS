@@ -24,9 +24,9 @@
                     </CardHeaderContent>
                     <CardHeaderActions>
                         <AuthorizeView Roles="@Role.Admins">
-                            <MudChip T="string" Color="@(instructor.Publish ? Color.Success : Color.Warning)"
+                            <MudChip T="string" Color="@(instructor.Publish? Color.Success: Color.Warning)"
                                      Text="@(instructor.Publish ? "Public" : "Draft")" />
-                            <MudIconButton Icon="@Icons.Material.Filled.Edit" Color="Color.Warning" Size="Size.Small" Href="@("/edit-instructor/"+instructor.Id)" />
+                            <MudIconButton Icon="@Icons.Material.Filled.Edit" Color="Color.Warning" Size="Size.Small" Href="@("/instructors/edit/" + instructor.Id)" />
                         </AuthorizeView>
                     </CardHeaderActions>
                 </MudCardHeader>

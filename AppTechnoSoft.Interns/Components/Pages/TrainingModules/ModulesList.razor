@@ -1,0 +1,34 @@
+﻿@if (Widgets.Any())
+{
+    <MudExpansionPanels MultiExpansion="true" Elevation="3" Outlined="false">
+        <MudGrid Spacing="2">
+            @foreach (var widget in Widgets)
+            {
+                <MudItem xxl="3" xl="4" lg="4" md="6" xs="12">
+                    <Module Widget="@widget" DeleteCallBack="DeleteInitiated" />
+                </MudItem>
+            }
+            <MudItem xxl="3" xl="4" lg="4" md="6" xs="12" Class="align-self-center">
+                <MudButton StartIcon="@Icons.Material.Filled.Add"
+                           Href="/widgets/add"
+                           Variant="Variant.Outlined"
+                           Size="Size.Large">New Course Module</MudButton>
+            </MudItem>
+        </MudGrid>
+    </MudExpansionPanels>
+}
+
+@code {
+
+    [Parameter]
+    public List<Widget> Widgets { get; set; } = [];
+
+    [Parameter]
+    public EventCallback<Widget> DeleteCallBack { get; set; }
+
+    private async Task DeleteInitiated(Widget widget)
+    {
+        Widgets.Remove(widget);
+        await DeleteCallBack.InvokeAsync(widget);
+    }
+}

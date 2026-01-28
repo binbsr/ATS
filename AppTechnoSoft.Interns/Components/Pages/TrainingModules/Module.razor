@@ -25,7 +25,7 @@
         <MudChipSet T="Tag">
             @foreach (var tag in Widget.Tags ?? [])
             {
-                <MudChip Value="@tag" Style="@("background:" + tag.ColorCode ?? "")" Class="text-white">@tag.Name</MudChip>
+                <MudChip Value="@tag" Style="@("background:" + tag.ColorCode ?? "")">@tag.Name</MudChip>
             }
         </MudChipSet>
     </ChildContent>

@@ -12,31 +12,34 @@
 }
 else if (noData)
 {
-    <ApplicationAlert Text="It looks like you have not contributed any course modules yet." />
+    <ApplicationAlert Text="Looks like you have not contributed any course modules yet." />
 }
 else
 {
     <MudTabs Elevation="2" Rounded="true" ApplyEffectsToContainer="true" PanelClass="pa-3">
-        <MudTabPanel Text="Your Contribution" Icon="@Icons.Material.Sharp.AddBox">            
-            <MudExpansionPanels MultiExpansion="true" Elevation="3" Outlined="false">
-                <MudGrid Spacing="2">
-                    @foreach (var widget in myWidgets)
-                    {
-                        <MudItem xxl="3" xl="4" lg="4" md="6" xs="12">
-                            <Module Widget="@widget" DeleteCallBack="DeleteInitiated" />
-                        </MudItem>
-                    }
-                    <MudItem xxl="3" xl="4" lg="4" md="6" xs="12" Class="align-self-center">
-                        <MudButton StartIcon="@Icons.Material.Filled.Add"                        
-                                       Href="/widgets/add"
-                                       Variant="Variant.Outlined"                                       
-                                       Size="Size.Large">New Course Module</MudButton>
-                    </MudItem>
-                </MudGrid>
-            </MudExpansionPanels>
+        <MudTabPanel Text="My Contribution" Icon="@Icons.Material.Sharp.AddBox">
+            <ModulesList Widgets="myWidgets" DeleteCallBack="DeleteInitiated" />
         </MudTabPanel>
-        <MudTabPanel Text="All Course Modules" Icon="@Icons.Material.Sharp.ViewModule">
-            
+        <MudTabPanel Text="All Course Modules" Icon="@Icons.Material.Sharp.ViewModule" OnClick="GetCourseModules">
+            <MudChipSet T="Tag"
+                        SelectionMode="SelectionMode.MultiSelection"
+                        CheckMark="true" Size="Size.Large"
+                        SelectedValuesChanged="FilterWidgets"
+                        SelectedColor="Color.Primary"
+                        Class="mb-3">
+                @foreach (var tag in tags)
+                {
+                    <MudChip Value="@tag" Text="@(tag.Name)" />
+                }
+            </MudChipSet>
+            @if (loadingTab)
+            {
+                <Loading />
+            }
+            else
+            {
+                <ModulesList Widgets="filterWidgets" DeleteCallBack="DeleteInitiated" />
+            }
         </MudTabPanel>
     </MudTabs>
 }
@@ -47,9 +50,12 @@ else
     private Task<AuthenticationState> AuthTask { get; set; } = null!;
 
     List<Widget> myWidgets = [];
+    List<Widget> allWidgets = [];
+    List<Widget> filterWidgets = [];
 
     private List<Tag> tags = [];
     bool loadingData;
+    bool loadingTab;
     bool noData;
 
     protected override async Task OnInitializedAsync()
@@ -61,10 +67,10 @@ else
 
         using var Db = DbFactory.CreateDbContext();
         myWidgets = await Db.Widgets
+            .AsNoTracking()
             .Where(x => x.Title == WidgetType.CourseModule && x.CreatedBy == userName)
             .Include(x => x.Tags)
             .OrderBy(x => x.Created)
-            .AsNoTracking()
             .ToListAsync();
 
         loadingData = false;
@@ -84,12 +90,12 @@ else
     {
         using var Db = DbFactory.CreateDbContext();
         Db.Widgets.Remove(widget);
+
         var rowsAffected = await Db.SaveChangesAsync();
 
         if (rowsAffected > 0)
         {
             SnackBar.Add("Module Deleted successfully", Severity.Success);
-            myWidgets.Remove(widget);
         }
         else
         {
@@ -97,6 +103,36 @@ else
         }
     }
 
-    private IEnumerable<Widget> FilterWidgets(string tag) =>
-        myWidgets.Where(x => x.Tags!.Any(y => y.Name == tag));
+    private async Task GetCourseModules()
+    {
+        using var Db = DbFactory.CreateDbContext();
+
+        tags = await Db.Tags.AsNoTracking().ToListAsync();
+
+        loadingTab = true;
+
+        allWidgets = await Db.Widgets
+            .AsNoTracking()
+            .Where(x => x.Title == WidgetType.CourseModule)
+            .Include(x => x.Tags)
+            .OrderBy(x => x.Description)
+            .ToListAsync();
+
+        filterWidgets = allWidgets;
+        loadingTab = false;
+    }
+
+    private void FilterWidgets(IReadOnlyCollection<Tag> chips)
+    {
+        // fast path: no selection => show all
+        if (chips == null || chips.Count == 0)
+        {
+            filterWidgets = allWidgets;
+            return;
+        }
+
+        var selectedTags = chips.Select(x => x.Name).ToList();
+        filterWidgets = allWidgets.Where(w => w.Tags != null && w.Tags.Any(y => selectedTags.Contains(y.Name))).ToList();
+    }
+
 }

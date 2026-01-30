@@ -8,11 +8,11 @@
     <Loading />
 }
 else
-{    
+{
     <MudPaper Outlined="true" Class="d-flex align-center justify-center flex-grow-1 gap-4 p-3">
         <MudText Typo="Typo.h5" Align="Align.Center">@site.Name</MudText>
         <MudLink Typo="Typo.h5" Href="@site.Domain" Color="Color.Info" Target="_blank">@site.Domain?.ToDomain()<MudIcon Icon="@Icons.Material.Sharp.OpenInNew" /></MudLink>
-        <MudIconButton Color="Color.Warning" Href=@($"/admin/website/edit/{site.Id}") Icon="@Icons.Material.Sharp.Edit" />
+        <MudIconButton Color="Color.Warning" Href=@($"/admin/websites/edit/{site.Id}") Icon="@Icons.Material.Sharp.Edit" />
     </MudPaper>
     @if (site.Sections is null or [])
     {
@@ -25,35 +25,41 @@ else
             {
                 <MudExpansionPanel Expanded="@true">
                     <TitleContent>
-                        <MudText Typo="Typo.h5">@(section.Title)</MudText>
+                        <MudText Inline="true" Typo="Typo.h5">@(section.Title)</MudText>
+                        <MudIconButton Color="Color.Warning"
+                                       Icon="@Icons.Material.Sharp.Edit"
+                                       Href=@($"/admin/sitesection/edit/{section.Id}") />
                     </TitleContent>
                     <ChildContent>
                         <MudGrid>
+                            <MudItem xs="12">
+                                <MudPaper Elevation="0" Outlined="true" Class="p-3">
+                                    <pre>
+                                        @((MarkupString)(section.Content ?? ""))
+                                    </pre>
+                                </MudPaper>
+                            </MudItem>
                             @foreach (var widget in section.Widgets ?? [])
                             {
-                                <MudItem xs="6" md="4" lg="3" xl="2">
-                                    <MudCard Elevation="0" Outlined>
-                                        <MudCardHeader>
-                                            <CardHeaderContent>
-                                                <MudText Typo="Typo.h6">@widget.Description</MudText>
-                                            </CardHeaderContent>
-                                            <CardHeaderActions>
-                                                <MudIconButton Color="Color.Warning"
-                                                               Icon="@Icons.Material.Sharp.Edit"
-                                                               Href=@($"/widgets/edit/{widget.Id}?Site={site.Id}&Section={section.Id}") />
-                                            </CardHeaderActions>
-                                        </MudCardHeader>
-                                        <MudCardContent>
-                                            @((MarkupString)widget.HtmlContent)
-                                        </MudCardContent>
-                                    </MudCard>
+                                <MudItem xs="12" md="4" lg="3" xl="2">
+                                    <MudPaper Elevation="0" Outlined="true" Class="p-2">
+                                        <MudText Typo="Typo.h6" Class="mb-3" Inline="true">@widget.Description</MudText>
+                                        <MudIconButton Color="Color.Warning"
+                                                       Icon="@Icons.Material.Sharp.Edit"
+                                                       Href=@($"/widgets/edit/{widget.Id}?Site={site.Id}&Section={section.Id}") />
+                                        <pre>
+                                            @((MarkupString)(widget.HtmlContent ?? ""))
+                                        </pre>
+                                    </MudPaper>                                    
                                 </MudItem>
                             }
                             <MudItem xs="6" md="4" lg="3" xl="2" Class="align-self-center">
-                                <MudIconButton Icon="@Icons.Material.Filled.Add"
-                                               Href=@($"/widgets/add?Site={site.Id}&Section={section.Id}")
-                                               Variant="Variant.Filled"
-                                               Size="Size.Large" />
+                                <MudTooltip Text=@($"Add new {section.Title} item")>
+                                    <MudIconButton Icon="@Icons.Material.Filled.Add"
+                                                   Href=@($"/widgets/add?Site={site.Id}&Section={section.Id}")
+                                                   Variant="Variant.Filled"
+                                                   Size="Size.Large" />
+                                </MudTooltip>
                             </MudItem>
                         </MudGrid>
                     </ChildContent>

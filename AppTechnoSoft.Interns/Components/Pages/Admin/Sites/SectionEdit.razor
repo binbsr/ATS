@@ -9,7 +9,7 @@
 <PageTitle>@pageTitle</PageTitle>
 
 <EditForm Model="@model" OnValidSubmit="OnValidSubmit">
-    <MudTextField Label="Section Title" @bind-Value="model.Title" />
+    <MudTextField Label="Section Title" @bind-Value="model.Title" Variant="Variant.Outlined" />
     <RichTextEditor @bind-Content="@model.Content"
                     Placeholder="Website Section Content (If Any)..."
                     ToolbarOptions="ToolbarOptions.BasicToolbarOptions" />

@@ -9,7 +9,7 @@
 }
 else
 {
-    <MudPaper Outlined="true" Class="d-flex align-center justify-center flex-grow-1 gap-4 p-3">
+    <MudPaper Elevation="5" Class="d-flex align-center justify-center flex-grow-1 gap-4 p-3 mb-3">
         <MudText Typo="Typo.h5" Align="Align.Center">@site.Name</MudText>
         <MudLink Typo="Typo.h5" Href="@site.Domain" Color="Color.Info" Target="_blank">@site.Domain?.ToDomain()<MudIcon Icon="@Icons.Material.Sharp.OpenInNew" /></MudLink>
         <MudIconButton Color="Color.Warning" Href=@($"/admin/websites/edit/{site.Id}") Icon="@Icons.Material.Sharp.Edit" />
@@ -23,20 +23,20 @@ else
         <MudExpansionPanels MultiExpansion="true" Outlined="true" Square="true">
             @foreach (var section in site.Sections)
             {
-                <MudExpansionPanel Expanded="@true">
+                <MudExpansionPanel Expanded="@true" Icon="@Icons.Material.Sharp.WebAsset" >
                     <TitleContent>
-                        <MudText Inline="true" Typo="Typo.h5">@(section.Title)</MudText>
+                        <MudText Inline="true" Typo="Typo.h6">@(section.Title)</MudText>
                         <MudIconButton Color="Color.Warning"
                                        Icon="@Icons.Material.Sharp.Edit"
-                                       Href=@($"/admin/sitesection/edit/{section.Id}") />
+                                       Href=@($"/admin/sitesection/edit/{section.Id}?SiteId={site.Id}") />
                     </TitleContent>
                     <ChildContent>
                         <MudGrid>
                             <MudItem xs="12">
                                 <MudPaper Elevation="0" Outlined="true" Class="p-3">
                                     <pre>
-                                        @((MarkupString)(section.Content ?? ""))
-                                    </pre>
+                                                                @((MarkupString)(section.Content ?? ""))
+                                                            </pre>
                                 </MudPaper>
                             </MudItem>
                             @foreach (var widget in section.Widgets ?? [])
@@ -48,14 +48,14 @@ else
                                                        Icon="@Icons.Material.Sharp.Edit"
                                                        Href=@($"/widgets/edit/{widget.Id}?Site={site.Id}&Section={section.Id}") />
                                         <pre>
-                                            @((MarkupString)(widget.HtmlContent ?? ""))
-                                        </pre>
-                                    </MudPaper>                                    
+                                                                            @((MarkupString)(widget.HtmlContent ?? ""))
+                                                                        </pre>
+                                    </MudPaper>
                                 </MudItem>
                             }
                             <MudItem xs="6" md="4" lg="3" xl="2" Class="align-self-center">
                                 <MudTooltip Text=@($"Add new {section.Title} item")>
-                                    <MudIconButton Icon="@Icons.Material.Filled.Add"
+                                    <MudIconButton Icon="@Icons.Material.Filled.DashboardCustomize"
                                                    Href=@($"/widgets/add?Site={site.Id}&Section={section.Id}")
                                                    Variant="Variant.Filled"
                                                    Size="Size.Large" />
@@ -66,6 +66,12 @@ else
                 </MudExpansionPanel>
             }
         </MudExpansionPanels>
+
+        <MudButton Variant="Variant.Filled"
+                   Class="mt-3"
+                   Size="Size.Large"
+                   StartIcon="@Icons.Material.Sharp.PostAdd"
+                   Href=@($"/admin/sitesection/new?SiteId={site.Id}")>Add Section</MudButton>
     }
 }
 

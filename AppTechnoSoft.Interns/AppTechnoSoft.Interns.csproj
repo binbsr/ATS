@@ -6,7 +6,15 @@
 		<ImplicitUsings>enable</ImplicitUsings>
 		<UserSecretsId>aspnet-AppTechnoSoft.Interns-4bcb3d8c-ab52-40fa-8bfb-e054a0c8a8a9</UserSecretsId>
 		<DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
-	</PropertyGroup>	
+	</PropertyGroup>
+
+	<ItemGroup>
+	  <Content Remove="bundleconfig.json" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <None Include="bundleconfig.json" />
+	</ItemGroup>	
 
 	<ItemGroup>
 		<PackageReference Include="Azure.Extensions.AspNetCore.Configuration.Secrets" Version="1.4.0" />

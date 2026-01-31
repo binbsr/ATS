@@ -9,11 +9,15 @@
 }
 else
 {
-    <MudPaper Elevation="5" Class="d-flex align-center justify-center flex-grow-1 gap-4 p-3 mb-3">
-        <MudText Typo="Typo.h5" Align="Align.Center">@site.Name</MudText>
-        <MudLink Typo="Typo.h5" Href="@site.Domain" Color="Color.Info" Target="_blank">@site.Domain?.ToDomain()<MudIcon Icon="@Icons.Material.Sharp.OpenInNew" /></MudLink>
-        <MudIconButton Color="Color.Warning" Href=@($"/admin/websites/edit/{site.Id}") Icon="@Icons.Material.Sharp.Edit" />
+    <MudPaper Class="py-4 px-6 rounded-t-xl border-dashed border-2">
+        <MudGrid Justify="Justify.Center" Spacing="3">
+            <MudItem><MudIconButton Color="Color.Warning" Href=@($"/admin/websites/edit/{site.Id}") Icon="@Icons.Material.Sharp.Edit" /></MudItem>
+            <MudItem><MudText Typo="Typo.h5">@site.Name</MudText></MudItem>
+            <MudItem><MudLink Typo="Typo.h6" Href="@site.Domain" Color="Color.Info" Target="_blank">@site.Domain?.ToDomain()<MudIcon Icon="@Icons.Material.Sharp.OpenInNew" /></MudLink></MudItem>
+            <MudItem><MudText Typo="Typo.h5">@site.Sections?.Count Sections, @(site.Sections?.Sum(x => x.Widgets?.Count ?? 0)) Widgets</MudText></MudItem>
+        </MudGrid>
     </MudPaper>
+    
     @if (site.Sections is null or [])
     {
         <ApplicationAlert Text=@($"No web site sections found for {site.Name}.") />
@@ -25,10 +29,10 @@ else
             {
                 <MudExpansionPanel Expanded="@true" Icon="@Icons.Material.Sharp.WebAsset" >
                     <TitleContent>
-                        <MudText Inline="true" Typo="Typo.h6">@(section.Title)</MudText>
                         <MudIconButton Color="Color.Warning"
                                        Icon="@Icons.Material.Sharp.Edit"
                                        Href=@($"/admin/sitesection/edit/{section.Id}?SiteId={site.Id}") />
+                        <MudText Inline="true" Typo="Typo.h6">@(section.Title)</MudText>
                     </TitleContent>
                     <ChildContent>
                         <MudGrid>

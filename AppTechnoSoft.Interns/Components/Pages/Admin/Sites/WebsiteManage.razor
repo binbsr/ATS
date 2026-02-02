@@ -1,5 +1,7 @@
 ﻿@page "/admin/websites/{Id}/manage"
+@using System.Net
 @inject ApplicationDbContext Db
+@inject ISnackbar SnackBar
 
 <PageTitle>@(site?.Name ?? "Site Details")</PageTitle>
 
@@ -9,7 +11,7 @@
 }
 else
 {
-    <MudPaper Class="py-4 px-6 rounded-t-xl border-dashed border-2">
+    <MudPaper Class="py-4 px-6 rounded-t-xl mb-3" Elevation="5">
         <MudGrid Justify="Justify.Center" Spacing="3">
             <MudItem><MudIconButton Color="Color.Warning" Href=@($"/admin/websites/edit/{site.Id}") Icon="@Icons.Material.Sharp.Edit" /></MudItem>
             <MudItem><MudText Typo="Typo.h5">@site.Name</MudText></MudItem>
@@ -17,48 +19,133 @@ else
             <MudItem><MudText Typo="Typo.h5">@site.Sections?.Count Sections, @(site.Sections?.Sum(x => x.Widgets?.Count ?? 0)) Widgets</MudText></MudItem>
         </MudGrid>
     </MudPaper>
-    
-    @if (site.Sections is null or [])
+
+    @if (sections is null or [])
     {
         <ApplicationAlert Text=@($"No web site sections found for {site.Name}.") />
     }
     else
     {
-        <MudExpansionPanels MultiExpansion="true" Outlined="true" Square="true">
-            @foreach (var section in site.Sections)
+        <MudExpansionPanels MultiExpansion="true" Square="true" Elevation="0">
+            @foreach (var section in sections)
             {
-                <MudExpansionPanel Expanded="@true" Icon="@Icons.Material.Sharp.WebAsset" >
+                <MudExpansionPanel Icon="@Icons.Material.Sharp.ExpandCircleDown"
+                                   Class="border-dotted border-3">
                     <TitleContent>
-                        <MudIconButton Color="Color.Warning"
-                                       Icon="@Icons.Material.Sharp.Edit"
-                                       Href=@($"/admin/sitesection/edit/{section.Id}?SiteId={site.Id}") />
-                        <MudText Inline="true" Typo="Typo.h6">@(section.Title)</MudText>
+                        <div class="d-flex align-center">
+                            <MudIconButton Color="Color.Warning"
+                                           Icon="@Icons.Material.Sharp.Edit"
+                                           ClickPropagation="false"
+                                           Href=@($"/admin/sitesection/edit/{section.Id}?SiteId={site.Id}") />
+
+                            @if (section.Enabled)
+                            {
+                                <MudIcon Icon="@Icons.Material.Sharp.Public" Color="Color.Success" Title="Published to Site" />
+                            }
+                            else
+                            {
+                                <MudIcon Icon="@Icons.Material.Sharp.PublicOff" Color="Color.Warning" Title="Saved as Draft" />
+                            }
+
+                            <MudText Inline="true" Typo="Typo.h6" Class="ml-2">@(section.Label)</MudText>
+                        </div>
                     </TitleContent>
                     <ChildContent>
                         <MudGrid>
                             <MudItem xs="12">
-                                <MudPaper Elevation="0" Outlined="true" Class="p-3">
-                                    <pre>
-                                                                @((MarkupString)(section.Content ?? ""))
-                                                            </pre>
+                                <MudPaper Elevation="0" Outlined="true">
+                                    <MudTabs>
+                                        <MudTabPanel Text="Code" Icon="@Icons.Material.Sharp.Code">
+                                            @if (section.Editing)
+                                            {
+                                                <MudButtonGroup Color="Color.Primary" Variant="Variant.Outlined" Size="Size.Small" Class="d-flex justify-end gap-2">
+                                                    <MudButton StartIcon="@Icons.Material.Sharp.Cancel"
+                                                               IconColor="Color.Error"
+                                                               OnClick="() => section.Editing = false">Cancel</MudButton>
+
+                                                    <MudButton StartIcon="@Icons.Material.Sharp.Save"
+                                                               IconColor="Color.Success"
+                                                               OnClick="() => SaveInlineSection(section)">Save</MudButton>
+                                                </MudButtonGroup>
+
+                                                <MudTextField T="string" Label="@(section.Label)"
+                                                              Variant="Variant.Outlined"
+                                                              Class=""
+                                                              @bind-Value="section.Content"
+                                                              Lines="6"
+                                                              AutoGrow
+                                                              AutoFocus />
+                                            }
+                                            else
+                                            {
+                                                <MudFab Color="Color.Warning"
+                                                        Class="mr-2"
+                                                        Style="float:right"
+                                                        OnClick="() => section.Editing = true"
+                                                        StartIcon="@Icons.Material.Filled.EditNote"
+                                                        Size="Size.Small" />
+                                                <pre>@((MarkupString)(section.Content ?? ""))</pre>
+                                            }
+                                        </MudTabPanel>
+                                        <MudTabPanel Text="Preview" Icon="@Icons.Material.Sharp.Preview">
+                                            @((MarkupString)(WebUtility.HtmlDecode(section.Content ?? "")))
+                                        </MudTabPanel>
+                                    </MudTabs>
                                 </MudPaper>
                             </MudItem>
                             @foreach (var widget in section.Widgets ?? [])
                             {
                                 <MudItem xs="12" md="4" lg="3" xl="2">
-                                    <MudPaper Elevation="0" Outlined="true" Class="p-2">
-                                        <MudText Typo="Typo.h6" Class="mb-3" Inline="true">@widget.Description</MudText>
+                                    <MudPaper Elevation="0" Outlined="true">
                                         <MudIconButton Color="Color.Warning"
+                                                       Size="Size.Small"
                                                        Icon="@Icons.Material.Sharp.Edit"
                                                        Href=@($"/widgets/edit/{widget.Id}?Site={site.Id}&Section={section.Id}") />
-                                        <pre>
-                                                                            @((MarkupString)(widget.HtmlContent ?? ""))
-                                                                        </pre>
+                                        <MudText Typo="Typo.h6" Class="mb-3" Inline="true">@widget.Label</MudText>
+
+                                        <MudTabs>
+                                            <MudTabPanel Text="Code" Icon="@Icons.Material.Sharp.Code">
+                                                @if (widget.Editing)
+                                                {
+                                                    <MudButtonGroup Color="Color.Primary" Variant="Variant.Outlined" Size="Size.Small" Class="d-flex justify-end gap-2">
+                                                        <MudButton StartIcon="@Icons.Material.Sharp.Cancel"
+                                                                   IconColor="Color.Error"
+                                                                   OnClick="() => widget.Editing = false">Cancel</MudButton>
+
+                                                        <MudButton StartIcon="@Icons.Material.Sharp.Save"
+                                                                   IconColor="Color.Success"
+                                                                   OnClick="() => SaveInlineWidget(widget)">Save</MudButton>
+                                                    </MudButtonGroup>
+                                                    <MudTextField T="string" Label="@(widget.Label)"
+                                                                  Variant="Variant.Outlined"
+                                                                  Class=""
+                                                                  @bind-Value="widget.Content"
+                                                                  Lines="6"
+                                                                  AutoGrow
+                                                                  AutoFocus />
+                                                }
+                                                else
+                                                {
+                                                    <MudFab Color="Color.Warning"
+                                                            Class="mr-2"
+                                                            Style="float:right"
+                                                            OnClick="() => widget.Editing = true"
+                                                            StartIcon="@Icons.Material.Filled.EditNote"
+                                                            Size="Size.Small" />
+                                                    <pre>@((MarkupString)(widget.Content ?? ""))</pre>
+                                                }
+
+                                            </MudTabPanel>
+                                            <MudTabPanel Text="Preview" Icon="@Icons.Material.Sharp.Preview">
+                                                @((MarkupString)(WebUtility.HtmlDecode(widget.Content ?? "")))
+                                            </MudTabPanel>
+                                        </MudTabs>
+
                                     </MudPaper>
                                 </MudItem>
                             }
                             <MudItem xs="6" md="4" lg="3" xl="2" Class="align-self-center">
-                                <MudTooltip Text=@($"Add new {section.Title} item")>
+                                <MudTooltip Text=@($"Add new {section.Label} item")>
                                     <MudIconButton Icon="@Icons.Material.Filled.DashboardCustomize"
                                                    Href=@($"/widgets/add?Site={site.Id}&Section={section.Id}")
                                                    Variant="Variant.Filled"
@@ -84,7 +171,8 @@ else
     [Parameter]
     public string Id { get; set; }
 
-    public Site site = null!;
+    private Site site = null!;
+    private List<SiteItemViewModel> sections = [];
 
     protected override async Task OnInitializedAsync()
     {
@@ -95,8 +183,38 @@ else
                             .Include(y => y.Sections)
                             .ThenInclude(z => z.Widgets)
                             .FirstOrDefaultAsync() ?? new();
+
+        sections = site?.Sections?.ToViewModel() ?? [];
     }
 
+    private async Task SaveInlineSection(SiteItemViewModel section)
+    {
+        var rowsUpdated = await Db.Sections
+        .Where(s => s.Id == section.Id)
+        .ExecuteUpdateAsync(setters => setters.SetProperty(b => b.Content, section.Content));
+
+        if (rowsUpdated > 0)
+        {
+            SnackBar.Add("Section saved successfully.", Severity.Success);
+        }
+
+        section.Editing = false;
+    }
+
+
+    private async Task SaveInlineWidget(SiteItemViewModel widget)
+    {
+        var rowsUpdated = await Db.Widgets
+        .Where(s => s.Id == widget.Id)
+        .ExecuteUpdateAsync(setters => setters.SetProperty(b => b.HtmlContent, widget.Content));
+
+        if (rowsUpdated > 0)
+        {
+            SnackBar.Add("Widget saved successfully.", Severity.Success);
+        }
+
+        widget.Editing = false;
+    }
     // private async Task AddSiteItemAsync(int sectionId, Widget widget)
     // {
     //     var parameters = new DialogParameters<EditWidgetDialog> { { x => x.SectionId, sectionId }, { x => x.Model, widget } };

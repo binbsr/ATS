@@ -17,12 +17,20 @@
             <MudSelectItem Value="@site.Id">@site.Name (@site.Domain)</MudSelectItem>
         }
     </MudSelect>
-    <MudTextField Label="Section Title" @bind-Value="model.Title" Variant="Variant.Outlined" Class="mb-3"  />
+    <MudTextField Label="Section Title" @bind-Value="model.Title" Variant="Variant.Outlined" Class="mb-3" />
+
+    <MudField Label="Section Visibility" Variant="Variant.Outlined">
+        <MudToggleGroup T="bool" SelectionMode="SelectionMode.SingleSelection" @bind-Value="@model.Enabled" Color="Color.Warning" CheckMark FixedContent>
+            <MudToggleItem Value="@true" Text="Public" />
+            <MudToggleItem Value="@false" Text="Draft" />
+        </MudToggleGroup>
+    </MudField>>
+
     <RichTextEditor @bind-Content="@model.Content"
                     Placeholder="Website Section Content (If Any)..."
                     ToolbarOptions="ToolbarOptions.BasicToolbarOptions" />
 
-    <MudButton ButtonType="ButtonType.Submit" Variant="Variant.Filled" Color="Color.Primary" Class="mt-3" StartIcon="@Icons.Material.Filled.Save">
+    <MudButton ButtonType="ButtonType.Submit" Variant="Variant.Filled" Color="Color.Warning" Class="mt-3" StartIcon="@Icons.Material.Filled.Save">
         Save Section @(siteName == "" ? "" : $"for {siteName}")
     </MudButton>
 </EditForm>

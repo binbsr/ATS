@@ -1,0 +1,55 @@
+﻿@page "/admin/site/sections"
+@inject ApplicationDbContext Db
+
+<PageTitle>All Site Sections</PageTitle>
+
+@if (siteSections is null)
+{
+    <Loading />
+}
+else if (siteSections is [])
+{
+    <ApplicationAlert Text="No website Sections being managed yet." Type="Severity.Warning" />
+}
+else
+{
+    <MudFab Href="/admin/sitesection/new" StartIcon="@Icons.Material.Sharp.PostAdd" Color="Color.Warning"></MudFab>
+
+    <MudGrid Spacing="6" Class="m-0 p-0">
+        @foreach (var sec in siteSections)
+        {
+            <MudItem xs="12" sm="6" md="4" xl="3" xxl="2">
+                <MudCard Elevation="4" Outlined="false">
+                    <MudCardHeader>
+                        <CardHeaderContent>
+                            <MudText Typo="Typo.h6">@sec.Title</MudText>
+                        </CardHeaderContent>
+                        <CardHeaderActions>
+                            <MudIconButton Color="Color.Warning" Icon="@Icons.Material.Sharp.Edit" Href=@($"/admin/sitesection/edit/{sec.Id}")></MudIconButton>
+                        </CardHeaderActions>
+                    </MudCardHeader>
+                    <MudCardContent>
+                        @{
+                            var content = sec.Content;
+                            if (content is null or "" or "<p></p>")
+                            {
+                                content = $"Site Section for Portfolio Websites";
+                            }
+                        }
+                        <MudText Typo="Typo.body1">@((MarkupString)content)</MudText>
+                    </MudCardContent>
+                </MudCard>
+            </MudItem>
+        }
+    </MudGrid>
+}
+
+@code {
+
+    public List<Section> siteSections = null!;
+
+    protected override async Task OnInitializedAsync()
+    {
+        siteSections = await Db.Sections.ToListAsync();
+    }
+}

@@ -9,32 +9,30 @@
 <PageTitle>@pageTitle</PageTitle>
 
 <EditForm Model="@model" OnValidSubmit="OnValidSubmit">
-    <MudTextField Label="Name" @bind-Value="model.Name" />
-    <MudTextField Label="Domain" Class="mt-3" @bind-Value="model.Domain" />
-    <MudTextField Label="Customer" Class="mt-3" @bind-Value="model.Client" />
-    <MudText Typo="Typo.body1" Class="mt-3">This site includes following sections (Click that apply)</MudText>
-    <MudChipSet Size="Size.Large"
-                @bind-SelectedValues="selectedSections"
-                T="Section"
-                SelectionMode="SelectionMode.MultiSelection"
-                CheckMark="true"
-                Variant="Variant.Outlined">
-        @foreach (var section in siteSections)
+    <MudTextField Label="Name" @bind-Value="model.Name" Variant="Variant.Outlined" />
+    <MudTextField Label="Domain" Class="mt-3" @bind-Value="model.Domain" Variant="Variant.Outlined" />
+    <MudTextField Label="Customer" Class="mt-3" @bind-Value="model.Client" Variant="Variant.Outlined" />
+    <MudSelect Label="Clone site content from"
+               @bind-Value="selectedSourceSiteId"
+               Variant="Variant.Outlined">
+        <MudSelectItem Value=@("")>No Cloning</MudSelectItem>
+        @foreach (var site in sites)
         {
-            <MudChip Text="@(section.Title)" Value="@(section)" />
+            <MudSelectItem Value="@site.Id">@site.Name (@site.Domain)</MudSelectItem>
         }
-    </MudChipSet>
+    </MudSelect>
 
-    <RichTextEditor @bind-Content="@model.Content"
+    <RichTextEditor @bind-Content="@model.Content" ContainerClass="mt-2"
                     Placeholder="Site Root Content (If Any)..."
                     ToolbarOptions="ToolbarOptions.BasicToolbarOptions" />
 
     <MudButton ButtonType="ButtonType.Submit"
                Variant="Variant.Filled"
+               Disabled="@saving"
                Color="Color.Primary"
                Class="mt-3"
                StartIcon="@Icons.Material.Filled.Save">
-        Save Site
+        Save @model.Name Site
     </MudButton>
 </EditForm>
 
@@ -46,14 +44,19 @@
     [CascadingParameter]
     private Task<AuthenticationState> AuthTask { get; set; } = null!;
 
-    Site model = new();
-    IEnumerable<Section> siteSections = [];
-    string pageTitle = string.Empty;
-    bool IsAdd => Id is null or "";
+    private Site model = new();
+    private IEnumerable<Section> siteSections = [];
+    private string pageTitle = string.Empty;
+    private bool IsAdd => Id is null or "";
     private IReadOnlyCollection<Section> selectedSections = [];
+    private IEnumerable<Site> sites = [];
+    private string selectedSourceSiteId = string.Empty;
+    private bool saving = false;
 
     protected override async Task OnInitializedAsync()
     {
+        sites = await Db.Sites.ToListAsync();
+
         if (IsAdd)
         {
             pageTitle = "New Website";
@@ -70,6 +73,7 @@
 
     private async Task OnValidSubmit(EditContext context)
     {
+        saving = true;
         var state = await AuthTask;
         var userName = state.User.Identity?.Name;
 
@@ -86,7 +90,50 @@
             Db.Sites.Update(model);
         }
 
+        // Cloning Logic
+        if (!string.IsNullOrEmpty(selectedSourceSiteId))
+        {
+            var sourceSections = await Db.Sections
+                .Where(s => s.SiteId == selectedSourceSiteId)
+                .Include(s => s.Widgets)
+                .ThenInclude(w => w.Tags)
+                .ToListAsync();
+
+            if (sourceSections != null && sourceSections.Count != 0)
+            {
+                model.Sections = [];
+                foreach (var section in sourceSections)
+                {
+                    var newSection = new Section
+                    {
+                        Title = section.Title,
+                        Content = section.Content,
+                        SiteId = model.Id
+                    };
+
+                    newSection.Widgets = [];
+
+                    foreach (var widget in section?.Widgets ?? [])
+                    {
+                        var newWidget = new Widget
+                        {
+                            Title = widget.Title,
+                            Description = widget.Description,
+                            HtmlContent = widget.HtmlContent,
+                            Tags = widget.Tags
+                        };
+                        newWidget.AddCreatedStamps(userName);
+                        newSection.Widgets.Add(newWidget);
+                    }
+
+                    model.Sections.Add(newSection);
+                }
+            }
+        }
+
         var rowsAffected = await Db.SaveChangesAsync();
+
+        saving = false;
 
         if (rowsAffected > 0)
         {

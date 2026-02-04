@@ -1,7 +1,8 @@
 ﻿@page "/admin/websites/{Id}/manage"
-@using System.Net
+
 @inject ApplicationDbContext Db
 @inject ISnackbar SnackBar
+@inject IDialogService DialogService
 
 <PageTitle>@(site?.Name ?? "Site Details")</PageTitle>
 
@@ -84,11 +85,11 @@ else
                                                         OnClick="() => section.Editing = true"
                                                         StartIcon="@Icons.Material.Filled.EditNote"
                                                         Size="Size.Small" />
-                                                <pre>@((MarkupString)(section.Content ?? ""))</pre>
+                                                <pre>@(section.Content)</pre>
                                             }
                                         </MudTabPanel>
                                         <MudTabPanel Text="Preview" Icon="@Icons.Material.Sharp.Preview">
-                                            @((MarkupString)(WebUtility.HtmlDecode(section.Content ?? "")))
+                                            @((MarkupString)(section.Content ?? ""))
                                         </MudTabPanel>
                                     </MudTabs>
                                 </MudPaper>
@@ -98,9 +99,9 @@ else
                                 <MudItem xs="12" md="4" lg="3" xl="2">
                                     <MudPaper Elevation="0" Outlined="true">
                                         <MudIconButton Color="Color.Warning"
+                                                       OnClick="() => EditSiteItemAsync(section, widget)"
                                                        Size="Size.Small"
-                                                       Icon="@Icons.Material.Sharp.Edit"
-                                                       Href=@($"/widgets/edit/{widget.Id}?Site={site.Id}&Section={section.Id}") />
+                                                       Icon="@Icons.Material.Sharp.Edit" />
                                         <MudText Typo="Typo.h6" Class="mb-3" Inline="true">@widget.Label</MudText>
 
                                         <MudTabs>
@@ -132,12 +133,12 @@ else
                                                             OnClick="() => widget.Editing = true"
                                                             StartIcon="@Icons.Material.Filled.EditNote"
                                                             Size="Size.Small" />
-                                                    <pre>@((MarkupString)(widget.Content ?? ""))</pre>
+                                                    <pre>@(widget.Content)</pre>
                                                 }
 
                                             </MudTabPanel>
                                             <MudTabPanel Text="Preview" Icon="@Icons.Material.Sharp.Preview">
-                                                @((MarkupString)(WebUtility.HtmlDecode(widget.Content ?? "")))
+                                                @((MarkupString)(widget.Content ?? ""))
                                             </MudTabPanel>
                                         </MudTabs>
 
@@ -147,7 +148,7 @@ else
                             <MudItem xs="6" md="4" lg="3" xl="2" Class="align-self-center">
                                 <MudTooltip Text=@($"Add new {section.Label} item")>
                                     <MudIconButton Icon="@Icons.Material.Filled.DashboardCustomize"
-                                                   Href=@($"/widgets/add?Site={site.Id}&Section={section.Id}")
+                                                   OnClick="() => EditSiteItemAsync(section)"
                                                    Variant="Variant.Filled"
                                                    Size="Size.Large" />
                                 </MudTooltip>
@@ -215,19 +216,30 @@ else
 
         widget.Editing = false;
     }
-    // private async Task AddSiteItemAsync(int sectionId, Widget widget)
-    // {
-    //     var parameters = new DialogParameters<EditWidgetDialog> { { x => x.SectionId, sectionId }, { x => x.Model, widget } };
-    //     var options = new DialogOptions { CloseButton = true, MaxWidth = MaxWidth.Large };
-    //     var dialog = await DialogService.ShowAsync<EditWidgetDialog>((widget == null ? "Edit " : "Add ") + "Widget", parameters, options);
-    //     var result = await dialog.Result;
 
-    //     if ((int)(result?.Data ?? 0) != 0)
-    //     {
-    //         site = await Db.Sites.Where(x => x.Id == Id)
-    //                         .Include(y => y.Sections)
-    //                         .ThenInclude(z => z.Widgets)
-    //                         .FirstOrDefaultAsync() ?? new();
-    //     }
-    // }
+    private async Task EditSiteItemAsync(SiteItemViewModel section, SiteItemViewModel? widget = null)
+    {
+        bool isAdd = widget == null;
+        var parameters = new DialogParameters<EditSiteWidgetDialog> { { x => x.SectionId, section.Id }, { x => x.WidgetViewModel, widget } };
+        var options = new DialogOptions { CloseButton = true, FullWidth = true };
+        var dialog = await DialogService.ShowAsync<EditSiteWidgetDialog>((isAdd ? "Add " : "Edit ") + "Widget", parameters, options);
+        var result = await dialog.Result;
+        var returnModel = result.Data as SiteItemViewModel;
+
+        if (returnModel == null)
+            return;
+
+        if (isAdd)
+        {
+            section.Widgets.Add(returnModel);
+        }
+        else
+        {
+            var widgetIndex = section.Widgets.FindIndex(w => w.Id == returnModel.Id);
+            if (widgetIndex != -1)
+            {
+                section.Widgets[widgetIndex] = returnModel;
+            }
+        }
+    }
 }

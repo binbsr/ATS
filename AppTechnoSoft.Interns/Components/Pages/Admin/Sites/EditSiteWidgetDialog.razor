@@ -1,0 +1,101 @@
+﻿@inject ApplicationDbContext Db
+
+<MudDialog>
+    <DialogContent>
+        <MudBreadcrumbs Items="_siteItems"></MudBreadcrumbs>
+
+        <MudTextField Label="Description" @bind-Value="model.Description" Variant="Variant.Outlined" />
+
+        <MudTextField @bind-Value="@model.HtmlContent"
+                      Placeholder="Add Widget Content"
+                      Lines="10"
+                      Variant="Variant.Outlined"
+                      Label="Section Widget HTML" AutoGrow />
+    </DialogContent>
+    <DialogActions>
+        <MudButton Variant="Variant.Filled" OnClick="Cancel" StartIcon="@Icons.Material.Sharp.Cancel">Cancel</MudButton>
+        <MudButton Variant="Variant.Filled"
+                   Color="Color.Warning"
+                   Disabled="model.HtmlContent == string.Empty"
+                   StartIcon="@Icons.Material.Sharp.Save"
+                   OnClick="Submit">Save</MudButton>
+    </DialogActions>
+</MudDialog>
+
+@code {
+    [CascadingParameter]
+    private IMudDialogInstance? MudDialog { get; set; }
+
+    [CascadingParameter]
+    private Task<AuthenticationState> AuthTask { get; set; } = null!;
+
+    [Parameter]
+    public int SectionId { get; set; }
+
+    [Parameter]
+    public SiteItemViewModel? WidgetViewModel { get; set; }
+
+    private bool IsAdd => WidgetViewModel is null;
+    private Widget? model;
+
+    private List<BreadcrumbItem> _siteItems =
+    [
+        new("Site", href: "#", icon: Icons.Material.Filled.WebAsset),
+        new("Section", href: "#", icon: Icons.Material.Filled.TableRows),
+        new("Widget", href: null, icon: Icons.Material.Filled.Widgets)
+    ];
+
+    protected override void OnInitialized()
+    {
+        model = WidgetViewModel?.ToModel() ?? new Widget { Title = WidgetType.SiteItem };
+    }
+
+    private async Task Submit()
+    {
+        var rowsAffected = 0;
+        var state = await AuthTask;
+        var userName = state.User.Identity?.Name;
+
+        if (IsAdd)
+        {
+            if (model is null)
+                return;
+
+            if (string.IsNullOrWhiteSpace(model.HtmlContent))
+                return;
+
+            model.AddCreatedStamps(userName);
+            model.AddLastUpdatedStamps(userName);
+
+            Db.Widgets.Add(model);
+            Db.SectionWidgets.Add(new SectionWidget
+            {
+                SectionId = SectionId,
+                Widget = model,
+                Enabled = true,
+                Order = 0
+            });
+        }
+        else
+        {
+            var existingModel = await Db.Widgets.FindAsync(model.Id);
+            if (existingModel is null)
+                return;
+
+            existingModel.Description = model.Description;
+            existingModel.HtmlContent = model.HtmlContent;
+            existingModel?.AddLastUpdatedStamps(userName);
+
+            Db.Widgets.Update(existingModel);
+        }
+
+        rowsAffected = await Db.SaveChangesAsync();
+
+
+        var returnModel = model.ToViewModel();
+
+        MudDialog?.Close(DialogResult.Ok(returnModel));
+    }
+
+    private void Cancel() => MudDialog?.Cancel();
+}

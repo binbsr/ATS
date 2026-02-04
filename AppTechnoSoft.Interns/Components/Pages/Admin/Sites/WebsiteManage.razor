@@ -4,7 +4,7 @@
 @inject ISnackbar SnackBar
 @inject IDialogService DialogService
 
-<PageTitle>@(site?.Name ?? "Site Details")</PageTitle>
+<PageTitle>@($"{site?.Name ?? "Site Details"} Management")</PageTitle>
 
 @if (site is null)
 {
@@ -232,6 +232,7 @@ else
         if (isAdd)
         {
             section.Widgets.Add(returnModel);
+            SnackBar.Add("Widget added successfully.", Severity.Success);
         }
         else
         {
@@ -239,6 +240,7 @@ else
             if (widgetIndex != -1)
             {
                 section.Widgets[widgetIndex] = returnModel;
+                SnackBar.Add("Widget updated successfully.", Severity.Success);
             }
         }
     }

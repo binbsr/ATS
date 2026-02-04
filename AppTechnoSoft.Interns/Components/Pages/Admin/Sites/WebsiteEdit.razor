@@ -22,9 +22,7 @@
         }
     </MudSelect>
 
-    <RichTextEditor @bind-Content="@model.Content" ContainerClass="mt-2"
-                    Placeholder="Site Root Content (If Any)..."
-                    ToolbarOptions="ToolbarOptions.BasicToolbarOptions" />
+    <MudTextField Class="mt-2" Lines="10" @bind-Value="@model.Content" Variant="Variant.Outlined" Label="Site Root HTML" AutoGrow />
 
     <MudButton ButtonType="ButtonType.Submit"
                Variant="Variant.Filled"

@@ -12,5 +12,5 @@ public class Section
     public string? SiteId { get; set; }
     public Site? Site { get; set; }
 
-    public List<Widget>? Widgets { get; set; }
+    public List<SectionItem>? SectionItems { get; set; }
 }

@@ -93,8 +93,7 @@
         {
             var sourceSections = await Db.Sections
                 .Where(s => s.SiteId == selectedSourceSiteId)
-                .Include(s => s.Widgets)
-                .ThenInclude(w => w.Tags)
+                .Include(s => s.SectionItems)
                 .ToListAsync();
 
             if (sourceSections != null && sourceSections.Count != 0)
@@ -109,19 +108,17 @@
                         SiteId = model.Id
                     };
 
-                    newSection.Widgets = [];
+                    newSection.SectionItems = [];
 
-                    foreach (var widget in section?.Widgets ?? [])
+                    foreach (var widget in section?.SectionItems ?? [])
                     {
-                        var newWidget = new Widget
+                        var newWidget = new SectionItem
                         {
                             Title = widget.Title,
-                            Description = widget.Description,
-                            HtmlContent = widget.HtmlContent,
-                            Tags = widget.Tags
+                            Content = widget.Content
                         };
                         newWidget.AddCreatedStamps(userName);
-                        newSection.Widgets.Add(newWidget);
+                        newSection.SectionItems.Add(newWidget);
                     }
 
                     model.Sections.Add(newSection);

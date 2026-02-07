@@ -15,7 +15,6 @@ public static class SiteItemMapper
         Order = model.Order,
         Content = model.Content,
         Editing = false,
-        Widgets = model.Widgets?.ToViewModel()
     };
 
     public static Widget ToModel(this SiteItemViewModel viewMmodel)

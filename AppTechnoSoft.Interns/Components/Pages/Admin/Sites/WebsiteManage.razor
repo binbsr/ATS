@@ -3,22 +3,32 @@
 @inject ApplicationDbContext Db
 @inject ISnackbar SnackBar
 @inject IDialogService DialogService
+@inject IJSRuntime JS
 
 <PageTitle>@($"{site?.Name ?? "Site Details"} Management")</PageTitle>
 
 @if (site is null)
 {
-    <Loading />
+    <ApplicationAlert Text="Site with provided Id don't exist the system" />
 }
 else
 {
-    <MudPaper Class="py-4 px-6 rounded-t-xl mb-3" Elevation="5">
-        <MudGrid Justify="Justify.Center" Spacing="3">
-            <MudItem><MudIconButton Color="Color.Warning" Href=@($"/admin/websites/edit/{site.Id}") Icon="@Icons.Material.Sharp.Edit" /></MudItem>
-            <MudItem><MudText Typo="Typo.h5">@site.Name</MudText></MudItem>
-            <MudItem><MudLink Typo="Typo.h6" Href="@site.Domain" Color="Color.Info" Target="_blank">@site.Domain?.ToDomain()<MudIcon Icon="@Icons.Material.Sharp.OpenInNew" /></MudLink></MudItem>
-            <MudItem><MudText Typo="Typo.h5">@site.Sections?.Count Sections, @(site.Sections?.Sum(x => x.Widgets?.Count ?? 0)) Widgets</MudText></MudItem>
-        </MudGrid>
+    <MudPaper Class="py-4 px-3 mb-3 gap-2 d-flex align-center" Elevation="5" Square>
+        <MudIconButton Color="Color.Warning" Href=@($"/admin/websites/edit/{site.Id}") Icon="@Icons.Material.Sharp.Edit" />
+        <MudText Typo="Typo.h5">@site.Name</MudText>
+        <MudLink Typo="Typo.h6" Href="@site.Domain" Color="Color.Info" Target="_blank">@site.Domain?.ToDomain()<MudIcon Icon="@Icons.Material.Sharp.OpenInNew" /></MudLink>
+        <MudText Typo="Typo.h5">@site.Sections?.Count Sections, @(site.Sections?.Sum(x => x.SectionItems?.Count ?? 0)) Widgets</MudText>
+
+        <MudSpacer />
+        <MudButton StartIcon="@Icons.Material.Sharp.Save"
+                   Color="Color.Warning"
+                   Disabled="@(!_orderChanged)"
+                   OnClick="async () => await SaveSectionOrderAsync()">Save Section Order</MudButton>
+        <MudButton StartIcon="@Icons.Material.Sharp.Refresh"
+                   Color="Color.Default"
+                   Disabled="@(!_orderChanged)"
+                   OnClick="async () => await ResetSectionOrderAsync()">Reset</MudButton>
+
     </MudPaper>
 
     @if (sections is null or [])
@@ -27,79 +37,148 @@ else
     }
     else
     {
-        <MudExpansionPanels MultiExpansion="true" Square="true" Elevation="0">
-            @foreach (var section in sections)
-            {
-                <MudExpansionPanel Icon="@Icons.Material.Sharp.ExpandCircleDown"
-                                   Class="border-dotted border-3">
-                    <TitleContent>
-                        <div class="d-flex align-center">
-                            <MudIconButton Color="Color.Warning"
-                                           Icon="@Icons.Material.Sharp.Edit"
-                                           ClickPropagation="false"
-                                           Href=@($"/admin/sitesection/edit/{section.Id}?SiteId={site.Id}") />
+        @foreach (var section in sections)
+        {
+            <MudPaper Class="mb-3 pa-3 border-dotted border-3" Elevation="0" Outlined="true">
+                <div class="d-flex align-center">
+                    <MudIconButton Icon="@(IsSectionExpanded(section.Id) ? Icons.Material.Sharp.HorizontalRule : Icons.Material.Sharp.Add)"
+                                   OnClick="() => ToggleSection(section.Id)" />
 
-                            @if (section.Enabled)
+                    @if (section.Enabled)
+                    {
+                        <MudIcon Icon="@Icons.Material.Sharp.Public" Color="Color.Success" Title="Published to Site" />
+                    }
+                    else
+                    {
+                        <MudIcon Icon="@Icons.Material.Sharp.PublicOff" Color="Color.Warning" Title="Saved as Draft" />
+                    }
+
+                    <MudText Typo="Typo.h6" Class="ml-2">@(section.Title)</MudText>
+                    <MudSpacer />
+                    <MudIconButton Color="Color.Default" Icon="@Icons.Material.Sharp.KeyboardArrowUp"
+                                   Size="Size.Large"
+                                   Disabled="@(sections.IndexOf(section) == 0)"
+                                   OnClick="async () => await MoveSectionUpAsync(section)" />
+                    <MudIconButton Color="Color.Default" Icon="@Icons.Material.Sharp.KeyboardArrowDown"
+                                   Size="Size.Large"
+                                   Disabled="@(sections.IndexOf(section) == sections.Count - 1)"
+                                   OnClick="async () => await MoveSectionDownAsync(section)" />
+                    <MudIconButton Color="Color.Warning"
+                                   Icon="@Icons.Material.Sharp.Edit"
+                                   Href=@($"/admin/sitesection/edit/{section.Id}?SiteId={site.Id}") />
+                </div>
+                <MudPaper Elevation="0" Outlined="true">
+                    <MudTabs>
+                        <MudTabPanel Text="Code" Icon="@Icons.Material.Sharp.Code">
+                            @if (IsEditing(section.Id))
                             {
-                                <MudIcon Icon="@Icons.Material.Sharp.Public" Color="Color.Success" Title="Published to Site" />
+                                <MudButtonGroup Color="Color.Primary" Variant="Variant.Outlined" Size="Size.Small" Class="d-flex justify-end gap-2">
+                                    <MudButton StartIcon="@Icons.Material.Sharp.Cancel"
+                                               IconColor="Color.Error"
+                                               OnClick="() => ToggleEditing(section.Id)">Cancel</MudButton>
+
+                                    <MudButton StartIcon="@Icons.Material.Sharp.Save"
+                                               IconColor="Color.Success"
+                                               OnClick="() => SaveInlineSection(section)">Save</MudButton>
+                                </MudButtonGroup>
+
+                                <MudTextField T="string" Label="@(section.Title)"
+                                              Variant="Variant.Outlined"
+                                              Class=""
+                                              @bind-Value="section.Content"
+                                              Lines="6"
+                                              AutoGrow
+                                              AutoFocus />
                             }
                             else
                             {
-                                <MudIcon Icon="@Icons.Material.Sharp.PublicOff" Color="Color.Warning" Title="Saved as Draft" />
+                                <MudFab Color="Color.Warning"
+                                        Class="mr-2"
+                                        Style="float:right"
+                                        OnClick="() => ToggleEditing(section.Id)"
+                                        StartIcon="@Icons.Material.Filled.EditNote"
+                                        Size="Size.Small" />
+                                <pre>@(section.Content)</pre>
                             }
+                        </MudTabPanel>
+                        <MudTabPanel Text="Preview" Icon="@Icons.Material.Sharp.Preview">
+                            @((MarkupString)(section.Content ?? ""))
+                        </MudTabPanel>
+                    </MudTabs>
+                </MudPaper>
 
-                            <MudText Inline="true" Typo="Typo.h6" Class="ml-2">@(section.Label)</MudText>
-                        </div>
-                    </TitleContent>
+
+                <MudDropContainer T="SectionItem" Items="section.SectionItems"
+                                  ItemsSelector="@((item, dropzone) => section.Id.ToString() == section.Id.ToString())"
+                                  ItemDropped="(x) => WidgetDropped(section, x)"
+                                  Class="d-flex flex-wrap flex-grow-1">
                     <ChildContent>
-                        <MudGrid>
-                            <MudItem xs="12">
-                                <MudPaper Elevation="0" Outlined="true">
-                                    <MudTabs>
-                                        <MudTabPanel Text="Code" Icon="@Icons.Material.Sharp.Code">
-                                            @if (section.Editing)
-                                            {
-                                                <MudButtonGroup Color="Color.Primary" Variant="Variant.Outlined" Size="Size.Small" Class="d-flex justify-end gap-2">
-                                                    <MudButton StartIcon="@Icons.Material.Sharp.Cancel"
-                                                               IconColor="Color.Error"
-                                                               OnClick="() => section.Editing = false">Cancel</MudButton>
+                        <MudCollapse Expanded="@IsSectionExpanded(section.Id)">
+                            <MudGrid Class="mt-2">
+                                <MudItem xs="12" md="4" lg="3" xl="2">
+                                    <MudDropZone T="SectionItem" Identifier="@(section.Id.ToString())" Class="flex-grow-1" AllowReorder="true" />
+                                </MudItem>
+                            </MudGrid>
+                        </MudCollapse>
+                    </ChildContent>
+                    <ItemRenderer>
+                        <MudPaper Elevation="0" Outlined="true">
+                            <MudIconButton Color="Color.Warning"
+                                           OnClick="() => EditSiteItemAsync(section, context)"
+                                           Size="Size.Small"
+                                           Icon="@Icons.Material.Sharp.Edit" />
+                            <MudText Typo="Typo.h6" Class="mb-3" Inline="true">@context.Title</MudText>
 
-                                                    <MudButton StartIcon="@Icons.Material.Sharp.Save"
-                                                               IconColor="Color.Success"
-                                                               OnClick="() => SaveInlineSection(section)">Save</MudButton>
-                                                </MudButtonGroup>
+                            <MudTabs>
+                                <MudTabPanel Text="Code" Icon="@Icons.Material.Sharp.Code">
+                                    @if (IsEditing(context.Id))
+                                    {
+                                        <MudButtonGroup Color="Color.Primary" Variant="Variant.Outlined" Size="Size.Small" Class="d-flex justify-end gap-2">
+                                            <MudButton StartIcon="@Icons.Material.Sharp.Cancel"
+                                                       IconColor="Color.Error"
+                                                       OnClick="() => ToggleEditing(context.Id)">Cancel</MudButton>
 
-                                                <MudTextField T="string" Label="@(section.Label)"
-                                                              Variant="Variant.Outlined"
-                                                              Class=""
-                                                              @bind-Value="section.Content"
-                                                              Lines="6"
-                                                              AutoGrow
-                                                              AutoFocus />
-                                            }
-                                            else
-                                            {
-                                                <MudFab Color="Color.Warning"
-                                                        Class="mr-2"
-                                                        Style="float:right"
-                                                        OnClick="() => section.Editing = true"
-                                                        StartIcon="@Icons.Material.Filled.EditNote"
-                                                        Size="Size.Small" />
-                                                <pre>@(section.Content)</pre>
-                                            }
-                                        </MudTabPanel>
-                                        <MudTabPanel Text="Preview" Icon="@Icons.Material.Sharp.Preview">
-                                            @((MarkupString)(section.Content ?? ""))
-                                        </MudTabPanel>
-                                    </MudTabs>
-                                </MudPaper>
-                            </MudItem>
-                            @foreach (var widget in section.Widgets ?? [])
+                                            <MudButton StartIcon="@Icons.Material.Sharp.Save"
+                                                       IconColor="Color.Success"
+                                                       OnClick="() => SaveInlineWidget(context)">Save</MudButton>
+                                        </MudButtonGroup>
+                                        <MudTextField T="string" Label="@(context.Title)"
+                                                      Variant="Variant.Outlined"
+                                                      Class=""
+                                                      @bind-Value="context.Content"
+                                                      Lines="6"
+                                                      AutoGrow
+                                                      AutoFocus />
+                                    }
+                                    else
+                                    {
+                                        <MudFab Color="Color.Warning"
+                                                Class="mr-2"
+                                                Style="float:right"
+                                                OnClick="() => ToggleEditing(context.Id)"
+                                                StartIcon="@Icons.Material.Filled.EditNote"
+                                                Size="Size.Small" />
+                                        <pre>@(context.Content)</pre>
+                                    }
+
+                                </MudTabPanel>
+                                <MudTabPanel Text="Preview" Icon="@Icons.Material.Sharp.Preview">
+                                    @((MarkupString)(context.Content ?? ""))
+                                </MudTabPanel>
+                            </MudTabs>
+
+                        </MudPaper>
+                    </ItemRenderer>
+                </MudDropContainer>
+
+
+
+                @* @foreach (var SectionItem in section.SectionItems ?? [])
                             {
                                 <MudItem xs="12" md="4" lg="3" xl="2">
                                     <MudPaper Elevation="0" Outlined="true">
                                         <MudIconButton Color="Color.Warning"
-                                                       OnClick="() => EditSiteItemAsync(section, widget)"
+                                                       OnClick="() => EditSiteItemAsync(section, SectionItem)"
                                                        Size="Size.Small"
                                                        Icon="@Icons.Material.Sharp.Edit" />
                                         <MudText Typo="Typo.h6" Class="mb-3" Inline="true">@widget.Label</MudText>
@@ -144,23 +223,21 @@ else
 
                                     </MudPaper>
                                 </MudItem>
-                            }
-                            <MudItem xs="6" md="4" lg="3" xl="2" Class="align-self-center">
-                                <MudTooltip Text=@($"Add new {section.Label} item")>
-                                    <MudIconButton Icon="@Icons.Material.Filled.DashboardCustomize"
-                                                   OnClick="() => EditSiteItemAsync(section)"
-                                                   Variant="Variant.Filled"
-                                                   Size="Size.Large" />
-                                </MudTooltip>
-                            </MudItem>
-                        </MudGrid>
-                    </ChildContent>
-                </MudExpansionPanel>
-            }
-        </MudExpansionPanels>
+                            } *@
+
+                <MudItem xs="6" md="4" lg="3" xl="2" Class="align-self-center">
+                    <MudTooltip Text=@($"Add new {section.Title} item")>
+                        <MudIconButton Icon="@Icons.Material.Filled.DashboardCustomize"
+                                       OnClick="() => EditSiteItemAsync(section)"
+                                       Variant="Variant.Filled"
+                                       Size="Size.Large" />
+                    </MudTooltip>
+                </MudItem>
+
+            </MudPaper>
+        }
 
         <MudButton Variant="Variant.Filled"
-                   Class="mt-3"
                    Size="Size.Large"
                    StartIcon="@Icons.Material.Sharp.PostAdd"
                    Href=@($"/admin/sitesection/new?SiteId={site.Id}")>Add Section</MudButton>
@@ -173,22 +250,126 @@ else
     public string Id { get; set; }
 
     private Site site = null!;
-    private List<SiteItemViewModel> sections = [];
+    private List<Section> sections = [];
+
+    private HashSet<int> _expandedSections = new();
+    private HashSet<int> _editingItems = new();
+
+    private bool _orderChanged = false;
 
     protected override async Task OnInitializedAsync()
     {
         if (Id == null)
             return;
 
-        site = await Db.Sites.Where(x => x.Id == Id)
-                            .Include(y => y.Sections)
-                            .ThenInclude(z => z.Widgets)
-                            .FirstOrDefaultAsync() ?? new();
+        site = await Db.Sites.FirstOrDefaultAsync(x => x.Id == Id);
+        if (site == null)
+            return;
 
-        sections = site?.Sections?.ToViewModel() ?? [];
+        sections = await Db.Sections
+                            .Where(x => x.SiteId == Id)
+                            .Include(y => y.SectionItems.OrderBy(w => w.Order))
+                            .OrderBy(s => s.Order)
+                            .ToListAsync() ?? [];
     }
 
-    private async Task SaveInlineSection(SiteItemViewModel section)
+    private bool IsSectionExpanded(int id) => _expandedSections.Contains(id);
+    private bool IsEditing(int id) => _editingItems.Contains(id);
+
+    private void ToggleSection(int id)
+    {
+        if (_expandedSections.Contains(id))
+            _expandedSections.Remove(id);
+        else
+            _expandedSections.Add(id);
+    }
+
+    private void ToggleEditing(int id)
+    {
+        if (_editingItems.Contains(id))
+            _editingItems.Remove(id);
+        else
+            _editingItems.Add(id);
+    }
+
+    private async Task MoveSectionUpAsync(Section section)
+    {
+        var index = sections.IndexOf(section);
+        if (index <= 0) return;
+
+        // swap in list
+        sections.RemoveAt(index);
+        sections.Insert(index - 1, section);
+
+        _orderChanged = true;
+        StateHasChanged();
+    }
+
+    private async Task MoveSectionDownAsync(Section section)
+    {
+        var index = sections.IndexOf(section);
+        if (index < 0 || index >= sections.Count - 1) return;
+
+        // swap in list
+        sections.RemoveAt(index);
+        sections.Insert(index + 1, section);
+
+        _orderChanged = true;
+        StateHasChanged();
+    }
+
+    // Persist the Order property to the database for all sections (transactional)
+    private async Task SaveSectionOrderAsync()
+    {
+        if (!_orderChanged)
+            return;
+
+        // update in-memory Order to match current list positions
+        for (int i = 0; i < sections.Count; i++)
+        {
+            sections[i].Order = i;
+        }
+
+        // Persist using a transaction; use ExecuteUpdateAsync per row for efficiency
+        await using var tx = await Db.Database.BeginTransactionAsync();
+        try
+        {
+            foreach (var s in sections)
+            {
+                await Db.Sections
+                    .Where(x => x.Id == s.Id)
+                    .ExecuteUpdateAsync(u => u.SetProperty(b => b.Order, s.Order));
+            }
+
+            await tx.CommitAsync();
+            _orderChanged = false;
+            SnackBar.Add("Section order saved.", Severity.Success);
+        }
+        catch (Exception ex)
+        {
+            try { await tx.RollbackAsync(); } catch { }
+            SnackBar.Add($"Failed to save section order: {ex.Message}", Severity.Error);
+        }
+    }
+
+    private Task ResetSectionOrderAsync()
+    {
+        // reload original order from DB
+        _ = InvokeAsync(async () =>
+        {
+            sections = await Db.Sections
+                                .Where(x => x.SiteId == Id)
+                                .OrderBy(s => s.Order)
+                                .ToListAsync();
+
+            _orderChanged = false;
+            StateHasChanged();
+        });
+
+        return Task.CompletedTask;
+    }
+
+    private async Task SaveInlineSection(Section section)
     {
         var rowsUpdated = await Db.Sections
         .Where(s => s.Id == section.Id)
@@ -198,12 +379,10 @@ else
         {
             SnackBar.Add("Section saved successfully.", Severity.Success);
         }
-
-        section.Editing = false;
     }
 
 
-    private async Task SaveInlineWidget(SiteItemViewModel widget)
+    private async Task SaveInlineWidget(SectionItem widget)
     {
         var rowsUpdated = await Db.Widgets
         .Where(s => s.Id == widget.Id)
@@ -213,35 +392,65 @@ else
         {
             SnackBar.Add("Widget saved successfully.", Severity.Success);
         }
-
-        widget.Editing = false;
     }
 
-    private async Task EditSiteItemAsync(SiteItemViewModel section, SiteItemViewModel? widget = null)
+    private async Task EditSiteItemAsync(Section section, SectionItem? item = null)
     {
-        bool isAdd = widget == null;
-        var parameters = new DialogParameters<EditSiteWidgetDialog> { { x => x.SectionId, section.Id }, { x => x.WidgetViewModel, widget } };
+        bool isAdd = item == null;
+        var parameters = new DialogParameters<EditSiteWidgetDialog> { { x => x.SectionId, section.Id }, { x => x.SectionItem, item } };
         var options = new DialogOptions { CloseButton = true, FullWidth = true };
         var dialog = await DialogService.ShowAsync<EditSiteWidgetDialog>((isAdd ? "Add " : "Edit ") + "Widget", parameters, options);
         var result = await dialog.Result;
-        var returnModel = result.Data as SiteItemViewModel;
+        var returnModel = result.Data as SectionItem;
 
         if (returnModel == null)
             return;
 
         if (isAdd)
         {
-            section.Widgets.Add(returnModel);
+            section.SectionItems.Add(returnModel);
             SnackBar.Add("Widget added successfully.", Severity.Success);
         }
         else
         {
-            var widgetIndex = section.Widgets.FindIndex(w => w.Id == returnModel.Id);
+            var widgetIndex = section.SectionItems.FindIndex(w => w.Id == returnModel.Id);
             if (widgetIndex != -1)
             {
-                section.Widgets[widgetIndex] = returnModel;
+                section.SectionItems[widgetIndex] = returnModel;
                 SnackBar.Add("Widget updated successfully.", Severity.Success);
             }
         }
+    }
+
+    private async Task WidgetDropped(Section section, MudItemDropInfo<SectionItem> info)
+    {
+        if (info is null || info.Item is null)
+            return;
+
+        // // update Order values and persist immediately
+        // for (int i = 0; i < section.Widgets.Count; i++)
+        // {
+        //     section.Widgets[i].Order = i;
+        // }
+
+        // // Persist section widget orders using SectionWidget relationship
+        // await using var tx = await Db.Database.BeginTransactionAsync();
+        // try
+        // {
+        //     foreach (var w in section.Widgets)
+        //     {
+        //         await Db.SectionWidgets
+        //             .Where(x => x.SectionId == section.Id && x.WidgetId == w.Id)
+        //             .ExecuteUpdateAsync(u => u.SetProperty(sw => sw.Order, section.Widgets.FindIndex(x => x.Id == w.Id)));
+        //     }
+
+        //     await tx.CommitAsync();
+        //     SnackBar.Add("Widget order saved.", Severity.Success);
+        // }
+        // catch (Exception ex)
+        // {
+        //     try { await tx.RollbackAsync(); } catch { }
+        //     SnackBar.Add($"Failed to save widget order: {ex.Message}", Severity.Error);
+        // }
     }
 }

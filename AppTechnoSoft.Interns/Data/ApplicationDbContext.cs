@@ -43,7 +43,7 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
     public DbSet<Certificate> Certificates { get; set; }
     public DbSet<Site> Sites { get; set; }
     public DbSet<Section> Sections { get; set; }
-    public DbSet<SectionWidget> SectionWidgets { get; set; }
+    public DbSet<SectionItem> SectionItems { get; set; }
 
     protected override void OnModelCreating(ModelBuilder builder)
     {
@@ -79,11 +79,6 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
         builder.Entity<GatheringCalendar>()
         .HasMany(e => e.Consultants)
         .WithMany();
-
-        builder.Entity<Section>()
-        .HasMany(e => e.Widgets)
-        .WithMany()
-        .UsingEntity<SectionWidget>();
     }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)

@@ -3,6 +3,7 @@
 
 @attribute [Authorize(Roles = Role.Admins)]
 
+@using AppTechnoSoft.Interns.Extensions
 @inject ApplicationDbContext Db
 @inject ISnackbar SnackBar
 
@@ -19,16 +20,14 @@
     </MudSelect>
     <MudTextField Label="Section Title" @bind-Value="model.Title" Variant="Variant.Outlined" Class="mb-3" />
 
-    <MudField Label="Section Visibility" Variant="Variant.Outlined">
-        <MudToggleGroup T="bool" SelectionMode="SelectionMode.SingleSelection" @bind-Value="@model.Enabled" Color="Color.Warning" CheckMark FixedContent>
+    <MudField Label="Section Visibility" Variant="Variant.Outlined" Class="mb-3">
+        <MudToggleGroup T="bool" SelectionMode="SelectionMode.SingleSelection" @bind-Value="@model.Enabled" Color="Color.Inherit" CheckMark FixedContent>
             <MudToggleItem Value="@true" Text="Public" />
             <MudToggleItem Value="@false" Text="Draft" />
         </MudToggleGroup>
-    </MudField>>
+    </MudField>
 
-    <RichTextEditor @bind-Content="@model.Content"
-                    Placeholder="Website Section Content (If Any)..."
-                    ToolbarOptions="ToolbarOptions.BasicToolbarOptions" />
+    <MudTextField Lines="10" @bind-Value="@model.Content" Variant="Variant.Outlined" Label="Content HTML" AutoGrow />
 
     <MudButton ButtonType="ButtonType.Submit" Variant="Variant.Filled" Color="Color.Warning" Class="mt-3" StartIcon="@Icons.Material.Filled.Save">
         Save Section @(siteName == "" ? "" : $"for {siteName}")
@@ -67,6 +66,11 @@
 
     private async Task OnValidSubmit(EditContext context)
     {
+        // Generate slug from title and replace the <section id="..."> in HTML content
+        var slug = model.Title.ToSlug();
+        model.Slug = slug;
+        model.Content = model.Content?.ReplaceSectionId(slug);
+
         if (IsAdd)
         {
             Db.Sections.Add(model);

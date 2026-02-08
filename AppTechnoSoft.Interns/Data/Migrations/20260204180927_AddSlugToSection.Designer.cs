@@ -4,6 +4,7 @@ using AppTechnoSoft.Interns.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace AppTechnoSoft.Interns.Data.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260204180927_AddSlugToSection")]
+    partial class AddSlugToSection
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -951,48 +954,25 @@ namespace AppTechnoSoft.Interns.Data.Migrations
                     b.ToTable("Sections");
                 });
 
-            modelBuilder.Entity("AppTechnoSoft.Interns.Data.Models.Sites.SectionItem", b =>
+            modelBuilder.Entity("AppTechnoSoft.Interns.Data.Models.Sites.SectionWidget", b =>
                 {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
+                    b.Property<int>("SectionId")
                         .HasColumnType("int");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("Content")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTime?>("Created")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("CreatedBy")
-                        .HasColumnType("nvarchar(max)");
+                    b.Property<int>("WidgetId")
+                        .HasColumnType("int");
 
                     b.Property<bool>("Enabled")
                         .HasColumnType("bit");
 
-                    b.Property<DateTime?>("LastUpdated")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("LastUpdatedBy")
-                        .HasColumnType("nvarchar(max)");
-
                     b.Property<int>("Order")
                         .HasColumnType("int");
 
-                    b.Property<int>("SectionId")
-                        .HasColumnType("int");
+                    b.HasKey("SectionId", "WidgetId");
 
-                    b.Property<string>("Title")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                    b.HasIndex("WidgetId");
 
-                    b.HasKey("Id");
-
-                    b.HasIndex("SectionId");
-
-                    b.ToTable("SectionItems");
+                    b.ToTable("SectionWidgets");
                 });
 
             modelBuilder.Entity("AppTechnoSoft.Interns.Data.Models.Sites.Site", b =>
@@ -1808,15 +1788,23 @@ namespace AppTechnoSoft.Interns.Data.Migrations
                     b.Navigation("Site");
                 });
 
-            modelBuilder.Entity("AppTechnoSoft.Interns.Data.Models.Sites.SectionItem", b =>
+            modelBuilder.Entity("AppTechnoSoft.Interns.Data.Models.Sites.SectionWidget", b =>
                 {
                     b.HasOne("AppTechnoSoft.Interns.Data.Models.Sites.Section", "Section")
-                        .WithMany("SectionItems")
+                        .WithMany()
                         .HasForeignKey("SectionId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.HasOne("AppTechnoSoft.Interns.Data.Models.Widget", "Widget")
+                        .WithMany()
+                        .HasForeignKey("WidgetId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
                     b.Navigation("Section");
+
+                    b.Navigation("Widget");
                 });
 
             modelBuilder.Entity("AppTechnoSoft.Interns.Data.Models.Student", b =>
@@ -2068,11 +2056,6 @@ namespace AppTechnoSoft.Interns.Data.Migrations
             modelBuilder.Entity("AppTechnoSoft.Interns.Data.Models.ReviewForm", b =>
                 {
                     b.Navigation("ConsultantRatings");
-                });
-
-            modelBuilder.Entity("AppTechnoSoft.Interns.Data.Models.Sites.Section", b =>
-                {
-                    b.Navigation("SectionItems");
                 });
 
             modelBuilder.Entity("AppTechnoSoft.Interns.Data.Models.Sites.Site", b =>

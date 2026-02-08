@@ -22,9 +22,7 @@
         }
     </MudSelect>
 
-    <RichTextEditor @bind-Content="@model.Content" ContainerClass="mt-2"
-                    Placeholder="Site Root Content (If Any)..."
-                    ToolbarOptions="ToolbarOptions.BasicToolbarOptions" />
+    <MudTextField Class="mt-2" Lines="10" @bind-Value="@model.Content" Variant="Variant.Outlined" Label="Site Root HTML" AutoGrow />
 
     <MudButton ButtonType="ButtonType.Submit"
                Variant="Variant.Filled"
@@ -95,8 +93,7 @@
         {
             var sourceSections = await Db.Sections
                 .Where(s => s.SiteId == selectedSourceSiteId)
-                .Include(s => s.Widgets)
-                .ThenInclude(w => w.Tags)
+                .Include(s => s.SectionItems)
                 .ToListAsync();
 
             if (sourceSections != null && sourceSections.Count != 0)
@@ -111,19 +108,17 @@
                         SiteId = model.Id
                     };
 
-                    newSection.Widgets = [];
+                    newSection.SectionItems = [];
 
-                    foreach (var widget in section?.Widgets ?? [])
+                    foreach (var widget in section?.SectionItems ?? [])
                     {
-                        var newWidget = new Widget
+                        var newWidget = new SectionItem
                         {
                             Title = widget.Title,
-                            Description = widget.Description,
-                            HtmlContent = widget.HtmlContent,
-                            Tags = widget.Tags
+                            Content = widget.Content
                         };
                         newWidget.AddCreatedStamps(userName);
-                        newSection.Widgets.Add(newWidget);
+                        newSection.SectionItems.Add(newWidget);
                     }
 
                     model.Sections.Add(newSection);

@@ -91,7 +91,7 @@ public static class StringExtensions
         return cleaned;
     }
 
-    // Replaces the id attribute of the first <section ...> element with the provided newId.
+    // Replaces the id attribute of the first root <section>, <header> or <footer> element with the provided newId.
     // Handles HTML-encoded content (e.g. &lt;section ...&gt;) by decoding before modification
     // and re-encoding to preserve storage format.
     public static string ReplaceSectionId(this string html, string newId)
@@ -108,39 +108,35 @@ public static class StringExtensions
         // Decode for manipulation if necessary
         var working = wasEncoded ? WebUtility.HtmlDecode(html) : html;
 
-        // Some editors wrap encoded markup in <p>..</p>, unwrap a <p> that directly contains a <section>
-        // Example: <p><section ...>...</section></p>  ->  <section ...>...</section>
-        var unwrapPattern = new Regex(@"<p\b[^>]*>\s*(<section\b.*?</section>)\s*</p>", RegexOptions.IgnoreCase | RegexOptions.Singleline);
-        if (unwrapPattern.IsMatch(working))
-        {
-            working = unwrapPattern.Replace(working, "$1");
-        }
+        // Allow targeting section, header or footer
+        var tagsPattern = "section|header|footer";
 
-        // Pattern to find a <section ... id="..."> (id may use single or double quotes)
-        var patternWithId = new Regex(@"<section\b([^>]*)\bid\s*=\s*(['""])(.*?)\2([^>]*)>", RegexOptions.IgnoreCase | RegexOptions.Singleline);
+        // Pattern to find a <(section|header|footer) ... id="..."> (id may use single or double quotes)
+        var patternWithId = new Regex($@"<(?<tag>{tagsPattern})\b(?<before>[^>]*)\bid\s*=\s*(?<quote>[""'])(?<id>.*?)\k<quote>(?<after>[^>]*)>", RegexOptions.IgnoreCase | RegexOptions.Singleline);
 
         string replaced;
         if (patternWithId.IsMatch(working))
         {
             replaced = patternWithId.Replace(working, match =>
             {
-                // keep surrounding attributes but replace id value
-                var before = match.Groups[1].Value; // attributes before id (may be empty)
-                var after = match.Groups[4].Value;  // attributes after id (may be empty)
-                return $"<section{before} id=\"{newId}\"{after}>";
+                // keep surrounding attributes but replace id value, preserve tag name case as-is
+                var tag = match.Groups["tag"].Value;
+                var before = match.Groups["before"].Value; // attributes before id (may be empty)
+                var after = match.Groups["after"].Value;  // attributes after id (may be empty)
+                return $"<{tag}{before} id=\"{newId}\"{after}>";
             }, 1); // only replace first occurrence
         }
         else
         {
-            // If no id attribute present, insert id after the 'section' token for the first <section
-            var patternSectionOpen = new Regex(@"<section\b", RegexOptions.IgnoreCase);
-            if (patternSectionOpen.IsMatch(working))
+            // If no id attribute present, insert id after the tag token for the first matching element
+            var patternTagOpen = new Regex($@"<(?<tag>{tagsPattern})\b", RegexOptions.IgnoreCase);
+            if (patternTagOpen.IsMatch(working))
             {
-                replaced = patternSectionOpen.Replace(working, $"<section id=\"{newId}\"", 1);
+                replaced = patternTagOpen.Replace(working, m => $"<{m.Groups["tag"].Value} id=\"{newId}\"", 1);
             }
             else
             {
-                // No <section> found, nothing to change
+                // No matching tag found, nothing to change
                 replaced = working;
             }
         }

@@ -1,4 +1,4 @@
-﻿@page "/modules/professionals"
+﻿@* @page "/modules/professionals"
 
 <PageTitle>Training Modules for Professionals</PageTitle>
 
@@ -116,3 +116,4 @@ else
     private IEnumerable<Widget> FilterWidgets(string tag) =>
         widgetFiltered.Where(x => x.Tags!.Any(y => y.Name == tag));
 }
+ *@

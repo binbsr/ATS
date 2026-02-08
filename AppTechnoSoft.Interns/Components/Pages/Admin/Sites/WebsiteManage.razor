@@ -3,11 +3,14 @@
 @inject ApplicationDbContext Db
 @inject ISnackbar SnackBar
 @inject IDialogService DialogService
-@inject IJSRuntime JS
 
 <PageTitle>@($"{site?.Name ?? "Site Details"} Management")</PageTitle>
 
 @if (site is null)
+{
+    <Loading />
+}
+else if(siteNotFound)
 {
     <ApplicationAlert Text="Site with provided Id don't exist the system" />
 }
@@ -67,173 +70,110 @@ else
                                    Icon="@Icons.Material.Sharp.Edit"
                                    Href=@($"/admin/sitesection/edit/{section.Id}?SiteId={site.Id}") />
                 </div>
-                <MudPaper Elevation="0" Outlined="true">
-                    <MudTabs>
-                        <MudTabPanel Text="Code" Icon="@Icons.Material.Sharp.Code">
-                            @if (IsEditing(section.Id))
-                            {
-                                <MudButtonGroup Color="Color.Primary" Variant="Variant.Outlined" Size="Size.Small" Class="d-flex justify-end gap-2">
-                                    <MudButton StartIcon="@Icons.Material.Sharp.Cancel"
-                                               IconColor="Color.Error"
-                                               OnClick="() => ToggleEditing(section.Id)">Cancel</MudButton>
-
-                                    <MudButton StartIcon="@Icons.Material.Sharp.Save"
-                                               IconColor="Color.Success"
-                                               OnClick="() => SaveInlineSection(section)">Save</MudButton>
-                                </MudButtonGroup>
-
-                                <MudTextField T="string" Label="@(section.Title)"
-                                              Variant="Variant.Outlined"
-                                              Class=""
-                                              @bind-Value="section.Content"
-                                              Lines="6"
-                                              AutoGrow
-                                              AutoFocus />
-                            }
-                            else
-                            {
-                                <MudFab Color="Color.Warning"
-                                        Class="mr-2"
-                                        Style="float:right"
-                                        OnClick="() => ToggleEditing(section.Id)"
-                                        StartIcon="@Icons.Material.Filled.EditNote"
-                                        Size="Size.Small" />
-                                <pre>@(section.Content)</pre>
-                            }
-                        </MudTabPanel>
-                        <MudTabPanel Text="Preview" Icon="@Icons.Material.Sharp.Preview">
-                            @((MarkupString)(section.Content ?? ""))
-                        </MudTabPanel>
-                    </MudTabs>
-                </MudPaper>
 
 
-                <MudDropContainer T="SectionItem" Items="section.SectionItems"
-                                  ItemsSelector="@((item, dropzone) => section.Id.ToString() == section.Id.ToString())"
-                                  ItemDropped="(x) => WidgetDropped(section, x)"
-                                  Class="d-flex flex-wrap flex-grow-1">
-                    <ChildContent>
-                        <MudCollapse Expanded="@IsSectionExpanded(section.Id)">
-                            <MudGrid Class="mt-2">
-                                <MudItem xs="12" md="4" lg="3" xl="2">
-                                    <MudDropZone T="SectionItem" Identifier="@(section.Id.ToString())" Class="flex-grow-1" AllowReorder="true" />
-                                </MudItem>
-                            </MudGrid>
-                        </MudCollapse>
-                    </ChildContent>
-                    <ItemRenderer>
-                        <MudPaper Elevation="0" Outlined="true">
-                            <MudIconButton Color="Color.Warning"
-                                           OnClick="() => EditSiteItemAsync(section, context)"
-                                           Size="Size.Small"
-                                           Icon="@Icons.Material.Sharp.Edit" />
-                            <MudText Typo="Typo.h6" Class="mb-3" Inline="true">@context.Title</MudText>
+                <MudCollapse Expanded="@IsSectionExpanded(section.Id)">
+                    <MudPaper Elevation="0" Outlined="true">
+                        <MudTabs>
+                            <MudTabPanel Text="Code" Icon="@Icons.Material.Sharp.Code">
+                                @if (IsEditing(section.Id))
+                                {
+                                    <MudButtonGroup Color="Color.Primary" Variant="Variant.Outlined" Size="Size.Small" Class="d-flex justify-end gap-2">
+                                        <MudButton StartIcon="@Icons.Material.Sharp.Cancel"
+                                                   IconColor="Color.Error"
+                                                   OnClick="() => ToggleEditing(section.Id)">Cancel</MudButton>
 
-                            <MudTabs>
-                                <MudTabPanel Text="Code" Icon="@Icons.Material.Sharp.Code">
-                                    @if (IsEditing(context.Id))
-                                    {
-                                        <MudButtonGroup Color="Color.Primary" Variant="Variant.Outlined" Size="Size.Small" Class="d-flex justify-end gap-2">
-                                            <MudButton StartIcon="@Icons.Material.Sharp.Cancel"
-                                                       IconColor="Color.Error"
-                                                       OnClick="() => ToggleEditing(context.Id)">Cancel</MudButton>
+                                        <MudButton StartIcon="@Icons.Material.Sharp.Save"
+                                                   IconColor="Color.Success"
+                                                   OnClick="() => SaveInlineSection(section)">Save</MudButton>
+                                    </MudButtonGroup>
 
-                                            <MudButton StartIcon="@Icons.Material.Sharp.Save"
-                                                       IconColor="Color.Success"
-                                                       OnClick="() => SaveInlineWidget(context)">Save</MudButton>
-                                        </MudButtonGroup>
-                                        <MudTextField T="string" Label="@(context.Title)"
-                                                      Variant="Variant.Outlined"
-                                                      Class=""
-                                                      @bind-Value="context.Content"
-                                                      Lines="6"
-                                                      AutoGrow
-                                                      AutoFocus />
-                                    }
-                                    else
-                                    {
-                                        <MudFab Color="Color.Warning"
-                                                Class="mr-2"
-                                                Style="float:right"
-                                                OnClick="() => ToggleEditing(context.Id)"
-                                                StartIcon="@Icons.Material.Filled.EditNote"
-                                                Size="Size.Small" />
-                                        <pre>@(context.Content)</pre>
-                                    }
+                                    <MudTextField T="string" Label="@(section.Title)"
+                                                  Variant="Variant.Outlined"
+                                                  Class=""
+                                                  @bind-Value="section.Content"
+                                                  Lines="6"
+                                                  AutoGrow
+                                                  AutoFocus />
+                                }
+                                else
+                                {
+                                    <MudFab Color="Color.Warning"
+                                            Class="mr-2"
+                                            Style="float:right"
+                                            OnClick="() => ToggleEditing(section.Id)"
+                                            StartIcon="@Icons.Material.Filled.EditNote"
+                                            Size="Size.Small" />
+                                    <pre>@(section.Content)</pre>
+                                }
+                            </MudTabPanel>
+                            <MudTabPanel Text="Preview" Icon="@Icons.Material.Sharp.Preview">
+                                @((MarkupString)(section.Content ?? ""))
+                            </MudTabPanel>
+                        </MudTabs>
+                    </MudPaper>
+                    <MudGrid Class="mt-0">
+                        @foreach (var widget in section.SectionItems ?? [])
+                        {
+                            <MudItem xs="12" md="4" lg="3" xl="2">
+                                <MudPaper Elevation="0" Outlined="true">
+                                    <MudIconButton Color="Color.Warning"
+                                                   OnClick="() => EditSiteItemAsync(section, widget)"
+                                                   Size="Size.Small"
+                                                   Icon="@Icons.Material.Sharp.Edit" />
+                                    <MudText Typo="Typo.h6" Class="mb-3" Inline="true">@widget.Title</MudText>
 
-                                </MudTabPanel>
-                                <MudTabPanel Text="Preview" Icon="@Icons.Material.Sharp.Preview">
-                                    @((MarkupString)(context.Content ?? ""))
-                                </MudTabPanel>
-                            </MudTabs>
+                                    <MudTabs>
+                                        <MudTabPanel Text="Code" Icon="@Icons.Material.Sharp.Code">
+                                            @if (IsEditing(widget.Id))
+                                            {
+                                                <MudButtonGroup Color="Color.Primary" Variant="Variant.Outlined" Size="Size.Small" Class="d-flex justify-end gap-2">
+                                                    <MudButton StartIcon="@Icons.Material.Sharp.Cancel"
+                                                               IconColor="Color.Error"
+                                                               OnClick="() => ToggleEditing(widget.Id)">Cancel</MudButton>
 
-                        </MudPaper>
-                    </ItemRenderer>
-                </MudDropContainer>
+                                                    <MudButton StartIcon="@Icons.Material.Sharp.Save"
+                                                               IconColor="Color.Success"
+                                                               OnClick="() => SaveInlineWidget(widget)">Save</MudButton>
+                                                </MudButtonGroup>
+                                                <MudTextField T="string" Label="@(widget.Title)"
+                                                              Variant="Variant.Outlined"
+                                                              Class=""
+                                                              @bind-Value="widget.Content"
+                                                              Lines="6"
+                                                              AutoGrow
+                                                              AutoFocus />
+                                            }
+                                            else
+                                            {
+                                                <MudFab Color="Color.Warning"
+                                                        Class="mr-2"
+                                                        Style="float:right"
+                                                        OnClick="() => ToggleEditing(widget.Id)"
+                                                        StartIcon="@Icons.Material.Filled.EditNote"
+                                                        Size="Size.Small" />
+                                                <pre>@(widget.Content)</pre>
+                                            }
 
+                                        </MudTabPanel>
+                                        <MudTabPanel Text="Preview" Icon="@Icons.Material.Sharp.Preview">
+                                            @((MarkupString)(widget.Content ?? ""))
+                                        </MudTabPanel>
+                                    </MudTabs>
 
-
-                @* @foreach (var SectionItem in section.SectionItems ?? [])
-                            {
-                                <MudItem xs="12" md="4" lg="3" xl="2">
-                                    <MudPaper Elevation="0" Outlined="true">
-                                        <MudIconButton Color="Color.Warning"
-                                                       OnClick="() => EditSiteItemAsync(section, SectionItem)"
-                                                       Size="Size.Small"
-                                                       Icon="@Icons.Material.Sharp.Edit" />
-                                        <MudText Typo="Typo.h6" Class="mb-3" Inline="true">@widget.Label</MudText>
-
-                                        <MudTabs>
-                                            <MudTabPanel Text="Code" Icon="@Icons.Material.Sharp.Code">
-                                                @if (widget.Editing)
-                                                {
-                                                    <MudButtonGroup Color="Color.Primary" Variant="Variant.Outlined" Size="Size.Small" Class="d-flex justify-end gap-2">
-                                                        <MudButton StartIcon="@Icons.Material.Sharp.Cancel"
-                                                                   IconColor="Color.Error"
-                                                                   OnClick="() => widget.Editing = false">Cancel</MudButton>
-
-                                                        <MudButton StartIcon="@Icons.Material.Sharp.Save"
-                                                                   IconColor="Color.Success"
-                                                                   OnClick="() => SaveInlineWidget(widget)">Save</MudButton>
-                                                    </MudButtonGroup>
-                                                    <MudTextField T="string" Label="@(widget.Label)"
-                                                                  Variant="Variant.Outlined"
-                                                                  Class=""
-                                                                  @bind-Value="widget.Content"
-                                                                  Lines="6"
-                                                                  AutoGrow
-                                                                  AutoFocus />
-                                                }
-                                                else
-                                                {
-                                                    <MudFab Color="Color.Warning"
-                                                            Class="mr-2"
-                                                            Style="float:right"
-                                                            OnClick="() => widget.Editing = true"
-                                                            StartIcon="@Icons.Material.Filled.EditNote"
-                                                            Size="Size.Small" />
-                                                    <pre>@(widget.Content)</pre>
-                                                }
-
-                                            </MudTabPanel>
-                                            <MudTabPanel Text="Preview" Icon="@Icons.Material.Sharp.Preview">
-                                                @((MarkupString)(widget.Content ?? ""))
-                                            </MudTabPanel>
-                                        </MudTabs>
-
-                                    </MudPaper>
-                                </MudItem>
-                            } *@
-
-                <MudItem xs="6" md="4" lg="3" xl="2" Class="align-self-center">
-                    <MudTooltip Text=@($"Add new {section.Title} item")>
-                        <MudIconButton Icon="@Icons.Material.Filled.DashboardCustomize"
-                                       OnClick="() => EditSiteItemAsync(section)"
-                                       Variant="Variant.Filled"
-                                       Size="Size.Large" />
-                    </MudTooltip>
-                </MudItem>
-
+                                </MudPaper>
+                            </MudItem>
+                        }
+                        <MudItem xs="6" md="4" lg="3" xl="2" Class="align-self-center">
+                            <MudTooltip Text=@($"Add new {section.Title} item")>
+                                <MudIconButton Icon="@Icons.Material.Filled.DashboardCustomize"
+                                               OnClick="() => EditSiteItemAsync(section)"
+                                               Variant="Variant.Filled"
+                                               Size="Size.Large" />
+                            </MudTooltip>
+                        </MudItem>
+                    </MudGrid>
+                </MudCollapse>
             </MudPaper>
         }
 
@@ -247,15 +187,16 @@ else
 @code {
 
     [Parameter]
-    public string Id { get; set; }
+    public required string Id { get; set; }
 
-    private Site site = null!;
+    private Site? site = null!;
     private List<Section> sections = [];
 
-    private HashSet<int> _expandedSections = new();
-    private HashSet<int> _editingItems = new();
+    private HashSet<int> _expandedSections = [];
+    private HashSet<int> _editingItems = [];
 
     private bool _orderChanged = false;
+    private bool siteNotFound = false;
 
     protected override async Task OnInitializedAsync()
     {
@@ -264,7 +205,14 @@ else
 
         site = await Db.Sites.FirstOrDefaultAsync(x => x.Id == Id);
         if (site == null)
+        {
+            siteNotFound = true;
             return;
+        }
+        else
+        {
+            siteNotFound = false;
+        }
 
         sections = await Db.Sections
                             .Where(x => x.SiteId == Id)
@@ -378,6 +326,7 @@ else
         if (rowsUpdated > 0)
         {
             SnackBar.Add("Section saved successfully.", Severity.Success);
+            ToggleEditing(section.Id);
         }
     }
 
@@ -391,6 +340,7 @@ else
         if (rowsUpdated > 0)
         {
             SnackBar.Add("Widget saved successfully.", Severity.Success);
+            ToggleEditing(widget.Id);
         }
     }
 
@@ -401,56 +351,29 @@ else
         var options = new DialogOptions { CloseButton = true, FullWidth = true };
         var dialog = await DialogService.ShowAsync<EditSiteWidgetDialog>((isAdd ? "Add " : "Edit ") + "Widget", parameters, options);
         var result = await dialog.Result;
-        var returnModel = result.Data as SectionItem;
+        var returnModel = result?.Data as SectionItem;
 
         if (returnModel == null)
             return;
 
         if (isAdd)
         {
+            if (section.SectionItems is null)
+                section.SectionItems = [];
+
             section.SectionItems.Add(returnModel);
+
+
             SnackBar.Add("Widget added successfully.", Severity.Success);
         }
         else
         {
-            var widgetIndex = section.SectionItems.FindIndex(w => w.Id == returnModel.Id);
+            var widgetIndex = section.SectionItems!.FindIndex(w => w.Id == returnModel.Id);
             if (widgetIndex != -1)
             {
                 section.SectionItems[widgetIndex] = returnModel;
                 SnackBar.Add("Widget updated successfully.", Severity.Success);
             }
         }
-    }
-
-    private async Task WidgetDropped(Section section, MudItemDropInfo<SectionItem> info)
-    {
-        if (info is null || info.Item is null)
-            return;
-
-        // // update Order values and persist immediately
-        // for (int i = 0; i < section.Widgets.Count; i++)
-        // {
-        //     section.Widgets[i].Order = i;
-        // }
-
-        // // Persist section widget orders using SectionWidget relationship
-        // await using var tx = await Db.Database.BeginTransactionAsync();
-        // try
-        // {
-        //     foreach (var w in section.Widgets)
-        //     {
-        //         await Db.SectionWidgets
-        //             .Where(x => x.SectionId == section.Id && x.WidgetId == w.Id)
-        //             .ExecuteUpdateAsync(u => u.SetProperty(sw => sw.Order, section.Widgets.FindIndex(x => x.Id == w.Id)));
-        //     }
-
-        //     await tx.CommitAsync();
-        //     SnackBar.Add("Widget order saved.", Severity.Success);
-        // }
-        // catch (Exception ex)
-        // {
-        //     try { await tx.RollbackAsync(); } catch { }
-        //     SnackBar.Add($"Failed to save widget order: {ex.Message}", Severity.Error);
-        // }
     }
 }

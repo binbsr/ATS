@@ -70,8 +70,7 @@ else
                            Dense="true"
                            @bind-Value="@context.Status"
                            Variant="Variant.Outlined"
-                           Margin="Margin.Dense"
-                           AnchorOrigin="Origin.BottomCenter">
+                           Margin="Margin.Dense">
                     @foreach (var item in Enum.GetValues<AssignmentStatus>())
                     {
                         <MudSelectItem Value="@item" />

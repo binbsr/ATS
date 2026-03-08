@@ -1,6 +1,6 @@
-﻿@page "/applicant/enroll"
+﻿@page "/enroll"
 
-<PageTitle>Joining AppSoft</PageTitle>
+<PageTitle>Enrollment</PageTitle>
 
 @inject ApplicationDbContext Db
 @inject ISnackbar SnackBar
@@ -188,7 +188,7 @@
                 model.College = null;
                 model.TechProgram = null;
             }
-
+                        
             Db.Students.Add(model);
             rowsAffected = await Db.SaveChangesAsync();
         }
@@ -241,7 +241,7 @@
 
     private async Task PhoneChanged()
     {
-        if (model.Phone.Length == 10)
+        if (model.Phone.Length == 10 && !alreadyApplied)
         {
             alreadyAppliedPhone = await Db.Students.AnyAsync(x => x.Phone == model.Phone);
         }

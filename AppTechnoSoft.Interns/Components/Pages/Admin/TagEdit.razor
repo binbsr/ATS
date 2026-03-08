@@ -12,8 +12,7 @@
         <DataAnnotationsValidator />
         <MudTextField Label="Title" @bind-Value="model.Name" For="@(() => model.Name)" />
         <MudTextField Label="Description" Class="mt-3" @bind-Value="model.Description" For="@(() => model.Description)" />
-        <MudColorPicker AnchorOrigin="Origin.BottomCenter"
-                        Label="Color Code"
+        <MudColorPicker Label="Color Code"
                         @bind-Text="@model.ColorCode"
                         Style="@($"color: {model.ColorCode};")"
                         Placeholder="Select Color"

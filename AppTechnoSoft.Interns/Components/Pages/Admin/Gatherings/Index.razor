@@ -21,7 +21,6 @@ else
                        OpenIcon="@Icons.Material.Sharp.Category"
                        Value="gatheringTypeSelected"
                        AdornmentColor="Color.Secondary"
-                       AnchorOrigin="Origin.BottomCenter"
                        SelectedValuesChanged="GatheringTypeChanged">
                 <MudSelectItem Value="@("All")">All</MudSelectItem>
                 @foreach (var item in Enum.GetValues<GatheringType>())

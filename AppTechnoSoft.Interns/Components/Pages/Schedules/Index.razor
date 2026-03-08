@@ -1,6 +1,6 @@
 ﻿@page "/schedules"
 
-@attribute [Authorize(Roles = Role.AdminsAndInstructor)]
+@attribute [Authorize(Roles = Role.AdminsOrInstructor)]
 @inject ApplicationDbContext Db
 @inject ISnackbar SnackBar
 @inject NavigationManager Navigation

@@ -95,7 +95,7 @@
         }
 
         await SignInManager.SignInAsync(user, isPersistent: false);
-        RedirectManager.RedirectTo(ReturnUrl);
+        RedirectManager.RedirectTo("/applicant/enroll");
     }
 
     private ApplicationUser CreateUser()

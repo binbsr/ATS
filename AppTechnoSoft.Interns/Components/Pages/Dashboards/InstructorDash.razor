@@ -1,6 +1,6 @@
 ﻿@page "/dashboard/consultant"
 
-@attribute [Authorize(Roles = Role.AdminsAndInstructor)]
+@attribute [Authorize(Roles = Role.AdminsOrInstructor)]
 
 @inject IDbContextFactory<ApplicationDbContext> DbFactory
 

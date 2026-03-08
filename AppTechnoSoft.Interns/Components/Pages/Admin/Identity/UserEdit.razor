@@ -23,8 +23,7 @@
                    Label="Roles assigned"
                    MultiSelection="true"
                    @bind-SelectedValues="@selectedRoles"
-                   Class="my-3"
-                   AnchorOrigin="Origin.BottomCenter">
+                   Class="my-3">
             @foreach (var role in roles)
             {
                 <MudSelectItem Value="@role" />

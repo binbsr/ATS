@@ -7,7 +7,7 @@
 
 <MudContainer>
     <EditForm Model="@model" OnValidSubmit="OnValidSubmit">
-        <MudSelect T="string" Label="Stage" @bind-Value="model.Stage" AnchorOrigin="Origin.BottomCenter" Variant="Variant.Outlined">
+        <MudSelect T="string" Label="Stage" @bind-Value="model.Stage" Variant="Variant.Outlined">
             @foreach (var stage in stages)
             {
                 <MudSelectItem Value="@stage">@stage</MudSelectItem>

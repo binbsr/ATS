@@ -46,7 +46,6 @@
                 <MudSelect Variant="Variant.Outlined"
                            @bind-Value="context.Item.Source"
                            Label="Source"
-                           AnchorOrigin="Origin.BottomCenter"
                            Class="mt-4">
                     @foreach (var item in Enum.GetValues<RevenueSource>())
                     {

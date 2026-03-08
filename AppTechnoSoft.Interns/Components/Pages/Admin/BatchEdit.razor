@@ -16,9 +16,8 @@
                    Label="Training Track"
                    Value="selectedTrack"
                    ValueChanged="TrackChanged"
-                   Class="my-3"
-                   AnchorOrigin="Origin.BottomCenter">
-            @foreach (var tech in backendTechs)
+                   Class="my-3">
+            @foreach (var tech in trainingTracks)
             {
                 <MudSelectItem Value="tech">@tech</MudSelectItem>
             }
@@ -27,8 +26,7 @@
                    Dense="true"
                    Label="Training Plan"
                    @bind-Value="model.Training"
-                   Class="my-3"
-                   AnchorOrigin="Origin.BottomCenter">
+                   Class="my-3">
             @foreach (var plan in trainingPlans)
             {
                 <MudSelectItem Value="plan">@($"{plan.Title} - {plan.Organization?.Name}")</MudSelectItem>
@@ -42,8 +40,7 @@
                    MultiSelection="true"
                    @bind-SelectedValues="@studentsSelected"
                    Class="my-3"
-                   MultiSelectionTextFunc="@(new Func<List<string>, string>(GetMultiSelectionText))"
-                   AnchorOrigin="Origin.BottomCenter">
+                   MultiSelectionTextFunc="@(new Func<List<string>, string>(GetMultiSelectionText))" >
             @foreach (var student in students)
             {
                 <MudSelectItem Value="@student.Id">@student.DisplayName</MudSelectItem>
@@ -76,7 +73,7 @@
     bool IsAdd => Id is null or 0;
     DateRange batchRange = null!;
     string selectedTrack = "General";
-    string[] backendTechs = ["General", BackendTech.NET, BackendTech.Java, BackendTech.Python, BackendTech.Node];
+    string[] trainingTracks = ["General", ..Enum.GetValues<TrainingTrack>().Select(x => x.ToString())];
     Data.Models.Training[] trainingPlans = [];
 
     protected override async Task OnInitializedAsync()

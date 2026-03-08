@@ -11,8 +11,7 @@
     <MudTextField Label="Title" @bind-Value="model.Name" Variant="Variant.Outlined" />
     <MudTextField Label="Organization Details" Class="my-3" Lines="5" @bind-Value="model.Details" Variant="Variant.Outlined" />
     <MudSelect @bind-Value="@model.OrganizationType"
-               Variant="Variant.Outlined"
-               AnchorOrigin="Origin.BottomCenter">
+               Variant="Variant.Outlined">
         @foreach (var org in Enum.GetValues<OrganizationType>())
         {
             <MudSelectItem Value="@org">@org</MudSelectItem>

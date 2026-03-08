@@ -9,7 +9,7 @@
 
 <MudTable Items="@users" @bind-SelectedItems="selectedUsers" Hover="true" Loading="@loadingData" Dense="true" Filter="new Func<ApplicationUser,bool>(FilterFunc1)" MultiSelection>
     <ToolBarContent>
-        <MudSelect AnchorOrigin="Origin.BottomCenter" @bind-Value="selectedRole" Label="Select a role for users" AdornmentColor="Color.Tertiary">
+        <MudSelect @bind-Value="selectedRole" Label="Select a role for users" AdornmentColor="Color.Tertiary">
             @foreach (var role in roles)
             {
                 <MudSelectItem Value="role.Name" />

@@ -12,7 +12,6 @@
     <MudSelect T="Gathering"
                Label="Gathering"
                @bind-Value="model.Gathering"
-               AnchorOrigin="Origin.BottomCenter"
                Variant="Variant.Outlined">
         @foreach (var gathering in gatherings)
         {
@@ -27,7 +26,6 @@
                MultiSelection="true"
                ToStringFunc="x => x.Text"
                @bind-SelectedValues="@consultantsSelected"
-               AnchorOrigin="Origin.BottomCenter">
         @foreach (var consultant in consultants)
         {
             <MudSelectItem Value="@consultant">@consultant.Text</MudSelectItem>

@@ -25,7 +25,7 @@
                Variant="Variant.Outlined"
                MultiSelection="true"
                ToStringFunc="x => x.Text"
-               @bind-SelectedValues="@consultantsSelected"
+               @bind-SelectedValues="@consultantsSelected">
         @foreach (var consultant in consultants)
         {
             <MudSelectItem Value="@consultant">@consultant.Text</MudSelectItem>

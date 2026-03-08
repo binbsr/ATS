@@ -5,7 +5,7 @@
     <Authorized>
         <MudHidden Breakpoint="Breakpoint.Xs">
             <MudLink Href="/account/manage" Class="mr-2" Underline="Underline.None">
-                <MudText Typo="Typo.subtitle1" Class="text-white">
+                <MudText Typo="Typo.subtitle1" Color="Color.Dark">
                     <MudIcon Icon="@Icons.Material.Sharp.Person3" />
                     <b>@context.User.Identity?.Name</b>
                 </MudText>
@@ -22,7 +22,7 @@
         </form>
     </Authorized>
     <NotAuthorized>
-        @* <MudButton Href="Account/Register" StartIcon="@Icons.Material.Sharp.PersonAdd" Variant="Variant.Filled" Color="Color.Warning">Register</MudButton> *@
+        <MudButton Href="Account/Register" StartIcon="@Icons.Material.Sharp.PersonAdd" Variant="Variant.Filled" Color="Color.Warning">Register</MudButton>
         <MudButton Href="Account/Login" StartIcon="@Icons.Material.Sharp.Login" Variant="Variant.Filled" Class="ml-2" Color="Color.Warning">Login</MudButton>
     </NotAuthorized>
 </AuthorizeView>

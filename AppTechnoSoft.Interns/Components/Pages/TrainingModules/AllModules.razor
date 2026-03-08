@@ -1,7 +1,7 @@
 ﻿@page "/course/modules"
 
 <PageTitle>Training Modules</PageTitle>
-@attribute [Authorize(Roles = Role.AdminsAndInstructor)]
+@attribute [Authorize(Roles = Role.AdminsOrInstructor)]
 
 @inject IDbContextFactory<ApplicationDbContext> DbFactory
 @inject ISnackbar SnackBar

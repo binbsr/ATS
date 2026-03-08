@@ -16,7 +16,6 @@
                        @bind-Value="@model.Project"
                        ToStringFunc="b => b?.Title"
                        Class="my-3"
-                       AnchorOrigin="Origin.BottomCenter"
                        Variant="Variant.Outlined">
                 @foreach (var project in projects)
             {
@@ -30,7 +29,6 @@
                    ValueChanged="BatchChanged"
                    ToStringFunc="b => b!.Name"
                    Class="my-3"
-                   AnchorOrigin="Origin.BottomCenter"
                    Variant="Variant.Outlined">
             @foreach (var batch in batches)
             {
@@ -46,7 +44,6 @@
                    @bind-SelectedValues="@studentsSelected"
                    Class="my-3"
                    MultiSelectionTextFunc="@(new Func<List<string>, string>(GetMultiSelectionText))"
-                   AnchorOrigin="Origin.BottomCenter"
                    Variant="Variant.Outlined">
             @foreach (var student in students)
             {

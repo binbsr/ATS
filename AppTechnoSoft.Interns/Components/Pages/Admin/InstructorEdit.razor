@@ -31,7 +31,6 @@
                    @bind-SelectedValues="@tagsSelected"
                    Class="mt-3"
                    MultiSelectionTextFunc="@(new Func<List<string>, string>(GetMultiSelectionText))"
-                   AnchorOrigin="Origin.BottomCenter"
                    Variant="Variant.Outlined">
             @foreach (var tag in tags)
             {

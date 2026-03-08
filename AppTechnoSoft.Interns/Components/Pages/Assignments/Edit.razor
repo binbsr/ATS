@@ -1,6 +1,6 @@
 ﻿@page "/assignments/edit/{Id:int}"
 
-@attribute [Authorize(Roles = Role.AdminsAndInstructor)]
+@attribute [Authorize(Roles = Role.AdminsOrInstructor)]
 @inject ISnackbar SnackBar
 @inject NavigationManager Navigation
 @inject ApplicationDbContext Db

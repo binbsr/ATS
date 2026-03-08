@@ -1,4 +1,4 @@
-﻿@* @page "/Account/Register"
+﻿@page "/Account/Register"
 
 @using System.ComponentModel.DataAnnotations
 @using System.Text
@@ -22,7 +22,7 @@
         <StatusMessage Message="@Message" />
         <EditForm Model="Input" asp-route-returnUrl="@ReturnUrl" method="post" OnValidSubmit="RegisterUser" FormName="register">
             <DataAnnotationsValidator />
-            <h2 class="text-center mb-4">New account with AppTechnoSoft</h2>
+            <h2 class="text-center mb-4">User Registration</h2>
             <ValidationSummary class="text-danger" role="alert" />
             <div class="form-floating mb-4">
                 <InputText @bind-Value="Input.Email" class="form-control" autocomplete="username" aria-required="true" placeholder="name@example.com" />
@@ -95,7 +95,7 @@
         }
 
         await SignInManager.SignInAsync(user, isPersistent: false);
-        RedirectManager.RedirectTo(ReturnUrl);
+        RedirectManager.RedirectTo("/applicant/enroll");
     }
 
     private ApplicationUser CreateUser()
@@ -139,4 +139,3 @@
         public string ConfirmPassword { get; set; } = "";
     }
 }
- *@

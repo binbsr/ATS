@@ -12,5 +12,11 @@ public enum TrainingTrack
     DataScience,
     MachineLearning,
     LargeLanguageModels,
-    GenerativeAI
+    GenerativeAI,
+    SoftwareEngineeringI,
+    SoftwareEngineeringII,
+    SoftwareEngineeringIII,
+    SoftwareEngineeringIV,
+    SoftwareEngineeringV,
+    SoftwareEngineeringVI,
 }

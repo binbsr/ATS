@@ -29,11 +29,11 @@ builder.Services.AddAuthentication(options =>
         options.DefaultScheme = IdentityConstants.ApplicationScheme;
         options.DefaultSignInScheme = IdentityConstants.ExternalScheme;
     })
-    //.AddGoogle(googleOptions =>
-    //{
-    //    googleOptions.ClientId = builder.Configuration["Authentication:Google:ClientId"] ?? string.Empty;
-    //    googleOptions.ClientSecret = builder.Configuration["Authentication:Google:ClientSecret"] ?? string.Empty;
-    //})  
+    .AddGoogle(googleoptions =>
+    {
+        googleoptions.ClientId = builder.Configuration["authentication:google:clientid"] ?? string.Empty;
+        googleoptions.ClientSecret = builder.Configuration["authentication:google:clientsecret"] ?? string.Empty;
+    })  
     .AddIdentityCookies();
 
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection") ?? throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
@@ -46,7 +46,7 @@ builder.Services.AddIdentityCore<ApplicationUser>(options => options.SignIn.Requ
     .AddSignInManager()
     .AddDefaultTokenProviders();
 
-//builder.Services.AddSingleton<IEmailSender<ApplicationUser>, IdentityNoOpEmailSender>();
+builder.Services.AddSingleton<IEmailSender<ApplicationUser>, IdentityNoOpEmailSender>();
 builder.Services.AddMudServices();
 builder.Services.AddBrowserTimeProvider();
 

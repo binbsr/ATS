@@ -11,7 +11,6 @@
 <MudContainer>
     <EditForm Model="@models" OnValidSubmit="OnValidSubmit">
         <MudSelect T="Batch" Variant="Variant.Outlined"
-                   AnchorOrigin="Origin.BottomCenter"
                    Label="Select batch" ValueChanged="BatchChanged">
             @foreach (var item in batches)
             {

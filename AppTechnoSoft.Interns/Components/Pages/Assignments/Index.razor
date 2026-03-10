@@ -91,6 +91,7 @@
         loadingData = true;
         assignmentModels = await Db.Assignments
             .Include(x => x.Module)
+            .OrderByDescending(x => x.Created)
             .ToListAsync();
 
         assignments = assignmentModels.ToViewModel();

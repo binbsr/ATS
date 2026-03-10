@@ -1,6 +1,6 @@
 ﻿@page "/my/batchnteam"
 
-@attribute [Authorize(Roles = Role.Trainee)]
+@attribute [Authorize(Roles = Role.TraineesOrAttendees)]
 @inject IDbContextFactory<ApplicationDbContext> DbFactory
 
 <PageTitle>Batch Members</PageTitle>

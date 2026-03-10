@@ -1,6 +1,6 @@
 ﻿@page "/my/assignments"
 
-@attribute [Authorize(Roles = Role.Trainees)]
+@attribute [Authorize(Roles = Role.TraineesOrAttendees)]
 @inject ApplicationDbContext Db
 @inject ISnackbar SnackBar
 
